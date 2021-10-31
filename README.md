@@ -20,16 +20,16 @@
 
 > Tester, FE Dev, BE Dev, Product Owner, Scrum Master
 
-**Le Minh Hieu**: BE Dev, Tester
-**Pham Viet Hoa**: FE Dev, Tester, Scrum Master
-**Nguyen Minh Hieu**: BE Dev, Tester
-**Pham Trung Hieu**: FE Dev, BE Dev, Tester
-**Le Anh Hao**: FE Dev, Tester
+**Le Minh Hieu**: BE Dev, BA, Tester  
+**Pham Viet Hoa**: FE Dev, Tester, Scrum Master  
+**Nguyen Minh Hieu**: BE Dev, Tester  
+**Pham Trung Hieu**: FE Dev, BE Dev, Tester  
+**Le Anh Hao**: FE Dev, Tester  
 **Nguyen Huy Khanh**: Product Owner
 
 ## Utilized Technologies
 
-> FE: NextJs, Bootstrap 5, SaSS, React Query, NextAuth
+> FE: NextJs, TailwindCSS, React Query, NextAuth
 > BE: NestJs, TypeOrm, Swagger API
 > Database: Postgres (Docker)
 
