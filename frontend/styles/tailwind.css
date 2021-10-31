@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@layer components {
+  .crm-button {
+    @apply px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 crm-transition focus:bg-blue-700;
+  }
+
+  .crm-button-outline {
+    @apply box-border px-3 py-2 rounded-md border border-gray-400 bg-white text-gray-600  hover:text-blue-400 hover:border-blue-400  crm-transition focus:border-blue-700 focus:text-blue-700;
+  }
+
+  .crm-input {
+    @apply focus:outline-none border border-gray-200 rounded-md text-gray-600 focus:ring-0 crm-transition;
+  }
+
+  .crm-label {
+    @apply mb-2 block required select-none;
+  }
+
+  .crm-transition {
+    @apply transition duration-300 ease-in-out;
+  }
+
+  .required::after {
+    content: '*';
+    @apply text-red-600;
+  }
+
+  .crm-link {
+    @apply;
+  }
+
+  .crm-container {
+    @apply px-[60px];
+  }
+
+  * {
+    font-family: 'Montserrat', sans-serif;
+  }
+}
+
+@tailwind utilities;
