@@ -1,0 +1,20 @@
+{
+  "name": "lettutor-crm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pt-hieu/lettutor-crm.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pt-hieu/lettutor-crm/issues"
+  },
+  "homepage": "https://github.com/pt-hieu/lettutor-crm#readme"
+}
