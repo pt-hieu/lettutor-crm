@@ -5,7 +5,7 @@ COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 COPY ./ ./
-RUN yarn add -g typescript
+RUN npm install -g typescript
 RUN yarn build
 
 FROM node:alpine AS runner
