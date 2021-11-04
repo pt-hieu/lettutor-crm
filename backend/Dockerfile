@@ -1,7 +1,7 @@
 FROM node:14-alpine AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY ./package.json ./yarn.lock ./
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 COPY ./ ./
@@ -17,8 +17,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.env ./
 
-EXPOSE 4000
+EXPOSE 8000
 
-ENV FRONT_END_URL http://18.163.5.227:3000
+ENV FE_URL http://18.163.5.227:3000
 
 CMD ["node", "dist/main"]
