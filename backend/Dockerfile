@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json ./yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-COPY backend/ backend/
+COPY ./ ./
 RUN yarn add -g typescript
 RUN yarn build
 
