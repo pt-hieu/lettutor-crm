@@ -20,6 +20,7 @@ COPY --from=builder /app/.env ./
 
 EXPOSE 8000
 
+ENV DB_HOST http://18.163.5.227
 ENV FE_URL http://18.163.5.227:3000
 
 CMD ["node", "dist/main"]
