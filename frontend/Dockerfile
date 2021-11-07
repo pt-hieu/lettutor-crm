@@ -4,8 +4,8 @@ WORKDIR /app
 COPY ./package.json ./yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-ARG api_gateway=http://18.163.5.227:8000
-ENV NEXT_PUBLIC_API_GATEWAY $api_gateway
+ARG api=http://18.163.5.227:8000
+ENV NEXT_PUBLIC_API $api_gateway
 
 COPY ./ ./
 RUN npm install -g typescript
@@ -32,6 +32,6 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 ENV SECRET fjsdfkjasdhfkjasfdfdfwrwejhgbb2322ref
 ENV NEXTAUTH_URL http://18.163.5.227:3000
-ENV NEXT_PUBLIC_API_GATEWAY $api_gateway
+ENV NEXT_PUBLIC_API $api
 
 CMD ["yarn", "start"]
