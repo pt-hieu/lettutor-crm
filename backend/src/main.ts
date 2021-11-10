@@ -21,7 +21,17 @@ async function bootstrap() {
   })
 
   if (process.env.NODE_ENV !== 'production') {
-    const config = new DocumentBuilder().setVersion('0.0.1').build()
+    const config = new DocumentBuilder()
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          in: "header"
+        },
+        'jwt',
+      )
+      .setVersion('0.0.1').build()
     const document = SwaggerModule.createDocument(app, config)
     SwaggerModule.setup('docs', app, document)
   }
