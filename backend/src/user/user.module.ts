@@ -1,5 +1,5 @@
-import { MailModule } from '@/mail/mail.module'
-import { User } from '@/user/user.entity'
+import { MailModule } from 'src/mail/mail.module'
+import { User } from 'src/user/user.entity'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UserController } from './user.controller'

@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
 import { randomBytes } from 'crypto'
-import { DTO } from '@/type'
+import { DTO } from 'src/type'
 import moment from 'moment'
-import { MailService } from '@/mail/mail.service'
+import { MailService } from 'src/mail/mail.service'
 import { hash } from 'bcrypt'
 
 const RESET_PWD_TOKEN_EXPIRATION = 5 //in days

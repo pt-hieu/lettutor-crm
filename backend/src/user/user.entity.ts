@@ -1,4 +1,4 @@
-import { BaseEntity } from '@/utils/base.entity'
+import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity } from 'typeorm'
 
 export enum Role {

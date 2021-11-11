@@ -1,9 +1,9 @@
-import { Role, User } from '@/user/user.entity'
+import { Role, User } from 'src/user/user.entity'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { compare, hash } from 'bcrypt'
-import { DTO } from '@/type'
+import { DTO } from 'src/type'
 
 
 
