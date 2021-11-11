@@ -1,5 +1,7 @@
-import { Controller } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { DTO } from "@/type";
+import { Public } from "@/utils/decorators/public.decorator";
+import { Body, Controller, Post, Put } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 
 @ApiTags('user')
@@ -8,5 +10,19 @@ import { UserService } from "./user.service";
 export class UserController {
   constructor(private readonly service: UserService) {
 
+  }
+
+  @Public()
+  @Post('reset-password')
+  @ApiOperation({ summary: "to request for reset password email" })
+  requestResetPwdEmail(@Body() dto: DTO.User.RequestResetPwd) {
+    return this.service.requestResetPwdEmail(dto)
+  }
+
+  @Public()
+  @Put('password')
+  @ApiOperation({ summary: "to reset password with token" })
+  resetPwd(@Body() dto: DTO.User.ResetPwd) {
+    return this.service.resetPwd(dto)
   }
 }

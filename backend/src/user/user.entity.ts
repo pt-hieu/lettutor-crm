@@ -16,6 +16,12 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar' })
   password: string
 
-  @Column({ enum: Role, type: "enum", array: true })
+  @Column({ type: 'varchar', nullable: true, default: null, unique: true })
+  resetPasswordToken: string | null
+
+  @Column({ nullable: true, default: null })
+  tokenExpiration: Date | null
+
+  @Column({ enum: Role, type: 'enum', array: true })
   role: Role[]
 }

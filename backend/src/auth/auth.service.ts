@@ -1,4 +1,4 @@
-import { User } from '@/user/user.entity'
+import { Role, User } from '@/user/user.entity'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -20,6 +20,7 @@ export class AuthService {
     await this.userRepo.save({
       ...dto,
       password: await hash(dto.password, 10),
+      role: [Role.SUPER_ADMIN]
     })
   }
 
@@ -30,7 +31,12 @@ export class AuthService {
     if (!(await compare(dto.password, user.password)))
       throw new BadRequestException('Email or password is wrong')
 
-    return user
+    return {
+      email: user.email,
+      id: user.id,
+      role: user.role,
+      name: user.name
+    }
   }
 
   async checkExistence(email: string) {
