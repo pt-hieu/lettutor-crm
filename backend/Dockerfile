@@ -20,7 +20,6 @@ COPY --from=builder /app/.env ./
 
 EXPOSE 8000
 
-ENV DB_HOST crm-db.cgjmb15wfy3g.ap-east-1.rds.amazonaws.com
 ENV FE_URL http://18.167.85.68:3000
 
 CMD ["node", "dist/main"]
