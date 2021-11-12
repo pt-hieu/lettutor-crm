@@ -1,5 +1,5 @@
-import { DTO } from '@/type'
-import { Public } from '@/utils/decorators/public.decorator'
+import { DTO } from 'src/type'
+import { Public } from 'src/utils/decorators/public.decorator'
 import {
   Body,
   Controller,

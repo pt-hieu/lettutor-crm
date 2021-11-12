@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport'
 import { JwtModule } from '@nestjs/jwt'
 import { JwtStrategy } from './jwt.strategy'
 import { RolesGuard } from './role.guard'
+import { MailModule } from './mail/mail.module'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RolesGuard } from './role.guard'
       autoLoadEntities: true,
     }),
     UserModule,
+    MailModule,
     AuthModule,
     PassportModule,
     JwtModule.register({ secret: process.env.JWT_SECRET }),
