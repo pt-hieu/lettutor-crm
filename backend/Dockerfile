@@ -16,10 +16,12 @@ ENV NODE_ENV dev
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
 COPY --from=builder /app/.env ./
+
+ENV FE_URL http://18.167.85.68:3000
+ENV DB_HOST dev-db.cjqy64ggirgx.ap-southeast-1.rds.amazonaws.com
 
 EXPOSE 8000
 
-ENV FE_URL http://18.167.85.68:3000
-
-CMD ["node", "dist/main"]
+CMD ["npm", "start"]
