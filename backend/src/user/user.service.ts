@@ -49,7 +49,7 @@ export class UserService {
       where: { resetPasswordToken: dto.token },
     })
 
-    if (!user) throw new BadRequestException('Token does not exist')
+    if (!user) throw new BadRequestException('User does not exist')
     if (moment().isSameOrAfter(user.tokenExpiration)) {
       throw new BadRequestException('Token has expired')
     }
