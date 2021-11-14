@@ -34,6 +34,16 @@ export class UserService {
     })
   }
 
+  async findByResetPwdToken(dto: DTO.User.FindByTokenQuery) {
+    const user = await this.userRepo.findOne({
+      where: { resetPasswordToken: dto.token },
+    })
+
+    if (!user) throw new BadRequestException('Token does not exist')
+
+    return true
+  }
+
   async resetPwd(dto: DTO.User.ResetPwd) {
     const user = await this.userRepo.findOne({
       where: { resetPasswordToken: dto.token },

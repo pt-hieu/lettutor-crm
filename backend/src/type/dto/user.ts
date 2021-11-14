@@ -13,6 +13,13 @@ export class ResetPwd {
   password: string
 }
 
+export class FindByTokenQuery {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  token: string
+}
+
 export class RequestResetPwd {
   @ApiProperty()
   @IsEmail()
