@@ -3,6 +3,7 @@ import { signIn } from 'next-auth/client'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import Link from 'next/link'
 
 type FormData = {
   email: string
@@ -68,6 +69,9 @@ export default function Login() {
           <button type="submit" className="crm-button">
             Login
           </button>
+          <Link href="/login">
+            <a className="ml-2">Forgor password</a>
+          </Link>
         </div>
       </form>
     </div>

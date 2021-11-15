@@ -34,12 +34,22 @@ export class UserService {
     })
   }
 
-  async resetPwd(dto: DTO.User.ResetPwd) {
+  async findByResetPwdToken(dto: DTO.User.FindByTokenQuery) {
     const user = await this.userRepo.findOne({
       where: { resetPasswordToken: dto.token },
     })
 
     if (!user) throw new BadRequestException('Token does not exist')
+
+    return true
+  }
+
+  async resetPwd(dto: DTO.User.ResetPwd) {
+    const user = await this.userRepo.findOne({
+      where: { resetPasswordToken: dto.token },
+    })
+
+    if (!user) throw new BadRequestException('User does not exist')
     if (moment().isSameOrAfter(user.tokenExpiration)) {
       throw new BadRequestException('Token has expired')
     }

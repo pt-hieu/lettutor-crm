@@ -1,6 +1,7 @@
 import { AppProps } from 'next/app'
 import { Provider as NextAuthProvider } from 'next-auth/client'
 import '../styles/tailwind.css'
+import '../styles/global.css'
 import 'antd/dist/antd.css'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Hydrate } from 'react-query/hydration'

@@ -6,12 +6,13 @@ import { useSession } from 'next-auth/client'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })
 
-interface Props {
+type Props = {
   title?: string
   children: ReactNode
-  requireLogin?: boolean
-  header?: boolean
-}
+} & (
+  | { requireLogin: true; header?: boolean }
+  | { requireLogin?: false; header: false }
+)
 
 function Layout({ children, title, requireLogin, header }: Props) {
   const [session] = useSession()
@@ -22,7 +23,7 @@ function Layout({ children, title, requireLogin, header }: Props) {
       </Head>
 
       {requireLogin && <RequireLogin />}
-      {session && (
+      {(session || !requireLogin) && (
         <>
           {header && <Header />}
           <main>{children}</main>{' '}
