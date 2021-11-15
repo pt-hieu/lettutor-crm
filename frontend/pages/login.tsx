@@ -1,9 +1,10 @@
 import { notification } from 'antd'
 import { signIn } from 'next-auth/client'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Link from 'next/link'
+import Loading from '@utils/components/Loading'
 
 type FormData = {
   email: string
@@ -18,7 +19,12 @@ const errorMapping: Record<string, string> = {
 
 export default function Login() {
   const { query } = useRouter()
-  const { register, handleSubmit } = useForm<FormData>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>()
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   useEffect(() => {
     if (!('error' in query)) return
@@ -29,6 +35,7 @@ export default function Login() {
 
   const login = useCallback(
     handleSubmit((data) => {
+      setIsLoggingIn(true)
       signIn('login', {
         callbackUrl: (query.callbackUrl as string) || '/',
         ...data,
@@ -39,7 +46,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen grid w-full place-content-center">
-      <form onSubmit={login} noValidate>
+      <form onSubmit={login} noValidate className="min-w-[350px]">
         <div className="mb-4">
           <label htmlFor="email" className="crm-label">
             Email
@@ -47,9 +54,19 @@ export default function Login() {
           <input
             type="text"
             id="email"
-            className="crm-input w-full"
-            {...register('email')}
+            className={`crm-input w-full ${
+              errors.email ? 'crm-input--error' : ''
+            }`}
+            {...register('email', {
+              required: {
+                value: true,
+                message: 'Email is required',
+              },
+            })}
           />
+          {errors.email && (
+            <div className="mt-2 text-red-600">{errors.email.message}</div>
+          )}
         </div>
 
         <div className="mb-4">
@@ -60,17 +77,29 @@ export default function Login() {
             type="password"
             autoComplete="currentpassword"
             id="pwd"
-            className="crm-input w-full"
-            {...register('password')}
+            className={`crm-input w-full ${
+              errors.email ? 'crm-input--error' : ''
+            }`}
+            {...register('password', {
+              required: {
+                value: true,
+                message: 'Password is required',
+              },
+            })}
           />
+          {errors.password && (
+            <div className="mt-2 text-red-600">{errors.password.message}</div>
+          )}
         </div>
 
         <div className="mt-2">
-          <button type="submit" className="crm-button">
-            Login
+          <button type="submit" className="crm-button w-full">
+            <Loading on={isLoggingIn}>Login</Loading>
           </button>
           <Link href="/login">
-            <a className="ml-2">Forgor password</a>
+            <a className="mt-2 inline-block w-full text-right">
+              Forgor password
+            </a>
           </Link>
         </div>
       </form>

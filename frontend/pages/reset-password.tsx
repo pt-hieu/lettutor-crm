@@ -205,6 +205,9 @@ export default function ResetPassword({ isValidToken }: Props) {
               }`}
               {...register('email')}
             />
+            {errors.email && (
+              <div className="mt-2 text-red-600">{errors.email.message}</div>
+            )}
           </div>
 
           <div>
@@ -244,6 +247,9 @@ export default function ResetPassword({ isValidToken }: Props) {
               }`}
               {...register('password')}
             />
+            {errors.password && (
+              <div className="mt-2 text-red-600">{errors.password.message}</div>
+            )}
           </div>
 
           <div className="mb-4">
@@ -258,6 +264,11 @@ export default function ResetPassword({ isValidToken }: Props) {
               }`}
               {...register('confirm-password')}
             />
+            {errors['confirm-password'] && (
+              <div className="mt-2 text-red-600">
+                {errors['confirm-password'].message}
+              </div>
+            )}
           </div>
 
           <div className="mb-8">
