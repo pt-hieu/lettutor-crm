@@ -27,11 +27,12 @@ async function bootstrap() {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          in: "header"
+          in: 'header',
         },
         'jwt',
       )
-      .setVersion('0.0.1').build()
+      .setVersion('0.0.1')
+      .build()
     const document = SwaggerModule.createDocument(app, config)
     SwaggerModule.setup('docs', app, document)
   }

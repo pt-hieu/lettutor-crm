@@ -5,13 +5,9 @@ import { Repository } from 'typeorm'
 import { compare, hash } from 'bcrypt'
 import { DTO } from 'src/type'
 
-
-
 @Injectable()
 export class AuthService {
-  constructor(
-    @InjectRepository(User) private userRepo: Repository<User>,
-  ) { }
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
   async signup(dto: DTO.Auth.SignUp) {
     if (await this.checkExistence(dto.email))
@@ -20,7 +16,7 @@ export class AuthService {
     await this.userRepo.save({
       ...dto,
       password: await hash(dto.password, 10),
-      role: [Role.SUPER_ADMIN]
+      role: [Role.SUPER_ADMIN],
     })
   }
 
@@ -35,7 +31,7 @@ export class AuthService {
       email: user.email,
       id: user.id,
       role: user.role,
-      name: user.name
+      name: user.name,
     }
   }
 
