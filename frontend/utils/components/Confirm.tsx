@@ -16,8 +16,8 @@ type Props = {
   title?: string
   shouldStopPropagation?: boolean
 } & (
-  | { visible: boolean; close: () => void; children?: void }
-  | { visible?: undefined; close: void; children: ReactNode }
+  | { visible: boolean; close: () => void; children?: never }
+  | { visible?: undefined; close: never; children: ReactNode }
 )
 
 const Confirm = ({

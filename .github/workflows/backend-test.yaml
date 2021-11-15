@@ -11,8 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Run backend test
-        run: |
-          cd backend
-          npm install
-          npm run test
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Change directory
+        run: cd backend
+
+      - name: Install Dependency
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn install
+
+      - name: Run Unit Test
+        run: yarn test
