@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json ./yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-ARG api=http://18.167.85.68:8000
+ARG api=http://18.166.76.32:8000
 ENV NEXT_PUBLIC_API $api
 
 COPY ./ ./
@@ -31,7 +31,7 @@ EXPOSE 3000
 ENV NEXT_TELEMETRY_DISABLED 1
 
 ENV JWT_SECRET asdasbzxcihqqwheacapsdnlkn
-ENV NEXTAUTH_URL http://18.167.85.68:3000
+ENV NEXTAUTH_URL http://18.166.76.32:3000
 ENV NEXT_PUBLIC_API $api
 
 CMD ["yarn", "start"]
