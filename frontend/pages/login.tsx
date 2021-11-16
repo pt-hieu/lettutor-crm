@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Link from 'next/link'
 import Loading from '@utils/components/Loading'
+import Input from '@utils/components/Input'
 
 type FormData = {
   email: string
@@ -46,17 +47,15 @@ export default function Login() {
 
   return (
     <div className="min-h-screen grid w-full place-content-center">
-      <form onSubmit={login} noValidate className="min-w-[350px]">
+      <form onSubmit={login} className="min-w-[350px]">
         <div className="mb-4">
           <label htmlFor="email" className="crm-label">
             Email
           </label>
-          <input
+          <Input
             type="text"
-            id="email"
-            className={`crm-input w-full ${
-              errors.email ? 'crm-input--error' : ''
-            }`}
+            error={errors.email?.message}
+            className="w-full"
             {...register('email', {
               required: {
                 value: true,
@@ -64,22 +63,17 @@ export default function Login() {
               },
             })}
           />
-          {errors.email && (
-            <div className="mt-2 text-red-600">{errors.email.message}</div>
-          )}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="pwd" className="crm-label">
+          <label htmlFor="password" className="crm-label">
             Password
           </label>
-          <input
+          <Input
+            error={errors.password?.message}
             type="password"
             autoComplete="currentpassword"
-            id="pwd"
-            className={`crm-input w-full ${
-              errors.email ? 'crm-input--error' : ''
-            }`}
+            className="w-full"
             {...register('password', {
               required: {
                 value: true,
@@ -87,9 +81,6 @@ export default function Login() {
               },
             })}
           />
-          {errors.password && (
-            <div className="mt-2 text-red-600">{errors.password.message}</div>
-          )}
         </div>
 
         <div className="mt-2">

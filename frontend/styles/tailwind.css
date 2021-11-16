@@ -13,7 +13,7 @@
     @apply focus:outline-none border border-gray-200 rounded-md text-gray-600 focus:ring-0 crm-transition;
   }
 
-  .crm-input--error {
+  .crm-input:invalid {
     @apply border-red-600 focus:border-red-600;
   }
 
