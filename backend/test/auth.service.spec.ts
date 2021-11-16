@@ -28,24 +28,29 @@ describe('auth service', () => {
   })
 
   describe('validate credentials', () => {
-    it('login with a valid username and password', () => {
+    it('login with a valid username and password', async () => {
       const dto: DTO.Auth.Login = {
         email: user.email,
-        password: user.password,
+        password: '123',
       }
 
       usersRepo.findOne.mockReturnValue(user)
 
-      expect(authService.validate(dto)).toEqual(Promise.resolve(user))
+      expect(await authService.validate(dto)).toEqual({
+        email: user.email,
+        id: user.id,
+        name: user.name,
+        role: user.role,
+      })
     })
 
     it('log in with an incorrect email', () => {
       const dto: DTO.Auth.Login = {
         email: 'user@gmail.com',
-        password: user.password,
+        password: '123',
       }
 
-      usersRepo.findOne.mockReturnValue(user)
+      usersRepo.findOne.mockReturnValue(undefined)
 
       expect(authService.validate(dto)).rejects.toThrow(
         new BadRequestException('Email or password is wrong'),

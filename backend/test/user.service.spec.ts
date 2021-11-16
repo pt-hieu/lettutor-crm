@@ -38,7 +38,7 @@ describe('user service', () => {
   })
 
   describe('request reset pwd email', () => {
-    it('should send email succeed', () => {
+    it('should send email succeed', async () => {
       const dto: DTO.User.RequestResetPwd = {
         email: user.email,
       }
@@ -46,9 +46,7 @@ describe('user service', () => {
       usersRepo.findOne.mockReturnValue(user)
       usersRepo.save.mockReturnValue(user)
 
-      expect(userService.requestResetPwdEmail(dto)).toEqual(
-        Promise.resolve(true),
-      )
+      expect(await userService.requestResetPwdEmail(dto)).toEqual(true)
     })
 
     it('should throw error when user does not exist', () => {
@@ -65,15 +63,13 @@ describe('user service', () => {
   })
 
   describe('find user by reset pwd token', () => {
-    it('shoudl find succeeed', () => {
+    it('shoudl find succeeed', async () => {
       const dto: DTO.User.FindByTokenQuery = {
         token: user.resetPasswordToken,
       }
 
       usersRepo.findOne.mockReturnValue(user)
-      expect(userService.findByResetPwdToken(dto)).toEqual(
-        Promise.resolve(true),
-      )
+      expect(await userService.findByResetPwdToken(dto)).toEqual(true)
     })
 
     it('should throw error when token does not exist', () => {
@@ -89,7 +85,7 @@ describe('user service', () => {
   })
 
   describe('reset password', () => {
-    it('should change pwd succeed', () => {
+    it('should change pwd succeed', async () => {
       const dto: DTO.User.ResetPwd = {
         password: user.password,
         token: user.resetPasswordToken,
@@ -98,7 +94,7 @@ describe('user service', () => {
       usersRepo.findOne.mockReturnValue(user)
       usersRepo.save.mockReturnValue(user)
 
-      expect(userService.resetPwd(dto)).toEqual(Promise.resolve(user))
+      expect(await userService.resetPwd(dto)).toEqual(user)
     })
 
     it('shoud throw error when user does not exist', () => {

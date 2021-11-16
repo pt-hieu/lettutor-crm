@@ -7,7 +7,7 @@ import { DTO } from 'src/type'
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) { }
 
   async signup(dto: DTO.Auth.SignUp) {
     if (await this.checkExistence(dto.email))
@@ -24,6 +24,7 @@ export class AuthService {
     const user = await this.userRepo.findOne({ email: dto.email })
 
     if (!user) throw new BadRequestException('Email or password is wrong')
+
     if (!(await compare(dto.password, user.password)))
       throw new BadRequestException('Email or password is wrong')
 
