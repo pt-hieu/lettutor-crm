@@ -9,6 +9,7 @@ import { user } from './data'
 import { MockType, repositoryMockFactory } from './utils'
 import moment from 'moment'
 import { BadRequestException } from '@nestjs/common'
+import { hash } from 'bcrypt'
 
 describe('user service', () => {
   let usersRepo: MockType<Repository<User>>
@@ -125,4 +126,42 @@ describe('user service', () => {
       )
     })
   })
+
+  // describe('change password', () => {
+  //   it('should change pwd succeed', async () => {
+  //     const dto: DTO.User.ChangePwd = {
+  //       oldPassword: '123',
+  //       newPassword: 'new@Password',
+  //     }
+
+  //     usersRepo.save.mockReturnValue(user)
+
+  //     expect(await userService.changePwd(dto, user)).toEqual(user)
+  //   })
+
+  //   it('should throw error when old password not match current password', async () => {
+  //     const dto: DTO.User.ChangePwd = {
+  //       oldPassword: 'Old@Password',
+  //       newPassword: 'new@Password',
+  //     }
+  //     usersRepo.save.mockReturnValue(user)
+
+  //     expect(await userService.changePwd(dto, user)).rejects.toThrow(
+  //       new BadRequestException('Old password is wrong'),
+  //     )
+  //   })
+
+  //   it('should throw error when new password match current password', async () => {
+  //     const dto: DTO.User.ChangePwd = {
+  //       oldPassword: '123',
+  //       newPassword: '123',
+  //     }
+
+  //     usersRepo.save.mockReturnValue(user)
+
+  //     expect(await userService.changePwd(dto, user)).rejects.toThrow(
+  //       new BadRequestException('New password must differ from old password'),
+  //     )
+  //   })
+  // })
 })

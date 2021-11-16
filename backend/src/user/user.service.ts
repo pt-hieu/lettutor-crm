@@ -6,7 +6,7 @@ import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
 import moment from 'moment'
 import { MailService } from 'src/mail/mail.service'
-import { hash } from 'bcrypt'
+import { compare, hash } from 'bcrypt'
 
 const RESET_PWD_TOKEN_EXPIRATION = 5 //in days
 
@@ -15,7 +15,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
-  ) { }
+  ) {}
 
   async requestResetPwdEmail(dto: DTO.User.RequestResetPwd) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } })
@@ -57,6 +57,22 @@ export class UserService {
     user.password = await hash(dto.password, 10)
     user.resetPasswordToken = null
     user.tokenExpiration = null
+
+    return this.userRepo.save(user)
+  }
+
+  async changePwd(dto: DTO.User.ChangePwd, user: User) {
+    if (!(await compare(dto.oldPassword, user.password))) {
+      throw new BadRequestException('Old password is wrong')
+    }
+
+    if (await compare(dto.newPassword, dto.oldPassword)) {
+      throw new BadRequestException(
+        'New password must differ from old password',
+      )
+    }
+
+    user.password = await hash(dto.newPassword, 10)
 
     return this.userRepo.save(user)
   }
