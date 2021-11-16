@@ -96,9 +96,9 @@ export default function Login() {
           <button type="submit" className="crm-button w-full">
             <Loading on={isLoggingIn}>Login</Loading>
           </button>
-          <Link href="/login">
+          <Link href="/reset-password">
             <a className="mt-2 inline-block w-full text-right">
-              Forgor password
+              Forgot password
             </a>
           </Link>
         </div>
