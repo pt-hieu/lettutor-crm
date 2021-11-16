@@ -3,14 +3,15 @@ import { Public } from 'src/utils/decorators/public.decorator'
 import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UserService } from './user.service'
-import { GetUser } from 'src/utils/decorators/get-user.decorator'
+import { Payload } from 'src/utils/decorators/payload.decorator'
 import { User } from './user.entity'
+import { JwtPayload } from 'src/utils/interface'
 
 @ApiTags('user')
 @ApiBearerAuth('jwt')
 @Controller('user')
 export class UserController {
-  constructor(private readonly service: UserService) {}
+  constructor(private readonly service: UserService) { }
 
   @Public()
   @Post('reset-password')
@@ -33,10 +34,9 @@ export class UserController {
     return this.service.resetPwd(dto)
   }
 
-  @Public()
   @Patch('change-password')
   @ApiOperation({ summary: 'to request change password' })
-  changePwd(@Body() dto: DTO.User.ChangePwd, @GetUser() user: User) {
-    return this.service.changePwd(dto, user)
+  changePwd(@Body() dto: DTO.User.ChangePwd, @Payload() payload: JwtPayload) {
+    return this.service.changePwd(dto, payload)
   }
 }

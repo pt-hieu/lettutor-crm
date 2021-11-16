@@ -2,8 +2,7 @@ import { Role } from 'src/user/user.entity'
 import { Request } from 'express';
 
 export interface JwtPayload {
-  sub: string
-  iat: number
+  id: string
   role: Role[]
   email: string
   name: string
