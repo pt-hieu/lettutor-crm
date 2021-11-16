@@ -39,9 +39,4 @@ export class ChangePwd {
     message: 'password is too weak',
   })
   newPassword: string
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  confirmPassword: string
 }

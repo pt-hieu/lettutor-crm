@@ -132,7 +132,6 @@ describe('user service', () => {
   //     const dto: DTO.User.ChangePwd = {
   //       oldPassword: '123',
   //       newPassword: 'new@Password',
-  //       confirmPassword: 'new@Password',
   //     }
 
   //     usersRepo.save.mockReturnValue(user)
@@ -144,7 +143,6 @@ describe('user service', () => {
   //     const dto: DTO.User.ChangePwd = {
   //       oldPassword: 'Old@Password',
   //       newPassword: 'new@Password',
-  //       confirmPassword: 'new@Password',
   //     }
   //     usersRepo.save.mockReturnValue(user)
 
@@ -157,27 +155,12 @@ describe('user service', () => {
   //     const dto: DTO.User.ChangePwd = {
   //       oldPassword: '123',
   //       newPassword: '123',
-  //       confirmPassword: '123',
   //     }
 
   //     usersRepo.save.mockReturnValue(user)
 
   //     expect(await userService.changePwd(dto, user)).rejects.toThrow(
   //       new BadRequestException('New password must differ from old password'),
-  //     )
-  //   })
-
-  //   it('should throw error when confirm password not match new password', async () => {
-  //     const dto: DTO.User.ChangePwd = {
-  //       oldPassword: '123',
-  //       newPassword: 'new@Password',
-  //       confirmPassword: 'confirm@Password',
-  //     }
-  //     user.password = await hash(user.password, 10)
-  //     usersRepo.save.mockReturnValue(user)
-
-  //     expect(await userService.changePwd(dto, user)).rejects.toThrow(
-  //       new BadRequestException('Confirm password not match'),
   //     )
   //   })
   // })

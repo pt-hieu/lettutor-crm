@@ -66,14 +66,10 @@ export class UserService {
       throw new BadRequestException('Old password is wrong')
     }
 
-    if (await compare(dto.newPassword, user.password)) {
+    if (await compare(dto.newPassword, dto.oldPassword)) {
       throw new BadRequestException(
         'New password must differ from old password',
       )
-    }
-
-    if (dto.newPassword != dto.confirmPassword) {
-      throw new BadRequestException('Confirm password not match')
     }
 
     user.password = await hash(dto.newPassword, 10)
