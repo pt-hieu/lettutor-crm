@@ -5,8 +5,16 @@
     @apply px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 crm-transition;
   }
 
+  .crm-button:disabled {
+    @apply cursor-default bg-gray-600;
+  }
+
   .crm-button-outline {
     @apply box-border px-3 py-2 rounded-md border border-gray-400 bg-white text-gray-600  hover:text-blue-400 hover:border-blue-400  crm-transition;
+  }
+
+  .crm-button-outline:disabled {
+    @apply cursor-default;
   }
 
   .crm-input {

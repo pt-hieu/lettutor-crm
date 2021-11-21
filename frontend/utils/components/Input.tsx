@@ -10,13 +10,11 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface Props
-  extends DetailedHTMLProps<
-    InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
+  extends Omit<
+    DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>,
+    'onInvalid' | 'id'
   > {
   error: string | undefined
-  onInvalid?: never
-  id?: never
 }
 
 const variants = {
