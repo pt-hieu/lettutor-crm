@@ -1,20 +1,37 @@
 import {
   DetailedHTMLProps,
-  FormEvent,
   InputHTMLAttributes,
   useCallback,
   useEffect,
   useRef,
   forwardRef,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
 } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-interface Props
-  extends Omit<
-    DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>,
-    'onInvalid' | 'id'
-  > {
+type InputProps = DetailedHTMLProps<
+  InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+>
+
+type SelectProps = DetailedHTMLProps<
+  SelectHTMLAttributes<HTMLSelectElement>,
+  HTMLSelectElement
+>
+
+type TextAreaProps = DetailedHTMLProps<
+  TextareaHTMLAttributes<HTMLTextAreaElement>,
+  HTMLTextAreaElement
+>
+
+type Props = (
+  | { as?: 'input'; props: InputProps }
+  | { as: 'select'; props: SelectProps }
+  | { as: 'textarea'; props: TextAreaProps }
+) & {
   error: string | undefined
+  showError?: boolean
 }
 
 const variants = {
@@ -22,28 +39,30 @@ const variants = {
   animating: { opacity: 1, height: 'auto', marginTop: 8 },
 }
 
-export default forwardRef<HTMLInputElement, Props>(function Input(
-  { error, name, className, ...rest },
+export default forwardRef<any, Omit<Props, 'id' | 'onInvalid'>>(function Input(
+  { error, as, showError, props: { name, className, ...rest } },
   ref,
 ) {
-  const ele = useRef<HTMLInputElement | null>(null)
+  const ele = useRef<any | null>(null)
 
   useEffect(() => {
     if (!ele.current) {
       ele.current = document.querySelector('#' + name)
     }
 
-    if (!ele.current) return
-    ele.current.setCustomValidity(error || '')
+    ele.current?.setCustomValidity(error || '')
   }, [error])
 
-  const removeBubble = useCallback((e: FormEvent<HTMLInputElement>) => {
+  const removeBubble = useCallback((e: any) => {
     e.preventDefault()
   }, [])
 
+  const Component = as || 'input'
+
   return (
     <>
-      <input
+      {/* @ts-ignore */}
+      <Component
         {...rest}
         ref={ref}
         className={'crm-input ' + className}
@@ -52,7 +71,7 @@ export default forwardRef<HTMLInputElement, Props>(function Input(
         id={name}
       />
       <AnimatePresence presenceAffectsLayout>
-        {error && (
+        {(showError ?? true) && error && (
           <motion.div
             initial="init"
             animate="animating"

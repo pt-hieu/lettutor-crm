@@ -53,15 +53,17 @@ export default function Login() {
             Email
           </label>
           <Input
-            type="text"
             error={errors.email?.message}
-            className="w-full"
-            {...register('email', {
-              required: {
-                value: true,
-                message: 'Email is required',
-              },
-            })}
+            props={{
+              type: 'text',
+              className: 'w-full',
+              ...register('email', {
+                required: {
+                  value: true,
+                  message: 'Email is required',
+                },
+              }),
+            }}
           />
         </div>
 
@@ -71,15 +73,17 @@ export default function Login() {
           </label>
           <Input
             error={errors.password?.message}
-            type="password"
-            autoComplete="currentpassword"
-            className="w-full"
-            {...register('password', {
-              required: {
-                value: true,
-                message: 'Password is required',
-              },
-            })}
+            props={{
+              type: 'password',
+              autoComplete: 'currentpassword',
+              className: 'w-full',
+              ...register('password', {
+                required: {
+                  value: true,
+                  message: 'Password is required',
+                },
+              }),
+            }}
           />
         </div>
 
