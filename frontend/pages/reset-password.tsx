@@ -11,6 +11,7 @@ import { requestResetEmail, updatePassword } from '@utils/service/user'
 import { notification } from 'antd'
 import Link from 'next/link'
 import Loading from '@utils/components/Loading'
+import Input from '@utils/components/Input'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface Props {
@@ -196,18 +197,16 @@ export default function ResetPassword({ isValidToken }: Props) {
           <div className="mb-6 text-center">Enter your email address</div>
 
           <div className="mb-4">
-            <input
-              type="email"
-              autoFocus
-              placeholder="Enter email address"
-              className={`crm-input w-full ${
-                errors.email ? 'crm-input--error' : ''
-              }`}
-              {...register('email')}
+            <Input
+              error={errors.email?.message}
+              props={{
+                type: 'email',
+                autoFocus: true,
+                placeholder: 'Enter email address',
+                className: 'w-full',
+                ...register('email'),
+              }}
             />
-            {errors.email && (
-              <div className="mt-2 text-red-600">{errors.email.message}</div>
-            )}
           </div>
 
           <div>
@@ -238,37 +237,29 @@ export default function ResetPassword({ isValidToken }: Props) {
             <label htmlFor="password" className="crm-label">
               New Password
             </label>
-            <input
-              type="password"
-              id="password"
-              autoFocus
-              className={`crm-input w-full ${
-                errors.password ? 'crm-input--error' : ''
-              }`}
-              {...register('password')}
+            <Input
+              error={errors.password?.message}
+              props={{
+                type: 'password',
+                autoFocus: true,
+                className: 'w-full',
+                ...register('password'),
+              }}
             />
-            {errors.password && (
-              <div className="mt-2 text-red-600">{errors.password.message}</div>
-            )}
           </div>
 
           <div className="mb-4">
             <label htmlFor="confirm-password" className="crm-label">
               Confirm Password
             </label>
-            <input
-              type="password"
-              id="confirm-password"
-              className={`crm-input w-full ${
-                errors['confirm-password'] ? 'crm-input--error' : ''
-              }`}
-              {...register('confirm-password')}
+            <Input
+              error={errors['confirm-password']?.message}
+              props={{
+                type: 'password',
+                className: 'w-full',
+                ...register('confirm-password'),
+              }}
             />
-            {errors['confirm-password'] && (
-              <div className="mt-2 text-red-600">
-                {errors['confirm-password'].message}
-              </div>
-            )}
           </div>
 
           <div className="mb-8">
