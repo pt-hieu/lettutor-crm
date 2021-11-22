@@ -10,7 +10,7 @@ export class CreateDefaultAccount1635606151249 implements MigrationInterface {
             password: "$2b$10$VQppQ7laiBl4aUD6..WQMeuKMEOERITpkaBN4bhRkjVd9PEqE0qb6" // 123
         }
 
-        const query = `INSERT INTO "user"("id", "created_at", "updated_at", "name", "email", "password", "role") VALUES ('${defaultAccount.id}', DEFAULT, DEFAULT, '${defaultAccount.name}', '${defaultAccount.email}', '${defaultAccount.password}', '{"super admin"}');`;
+        const query = `INSERT INTO "user"("id", "created_at", "updated_at", "name", "email", "password", "role", "type") VALUES ('${defaultAccount.id}', DEFAULT, DEFAULT, '${defaultAccount.name}', '${defaultAccount.email}', '${defaultAccount.password}', '{"super admin"}', 1);`;
         await queryRunner.query(query)
     }
 

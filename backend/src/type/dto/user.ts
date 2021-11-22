@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator'
+import { IsEmail, IsNotEmpty, IsString, Matches, IsNumber } from 'class-validator'
 
 export class ResetPwd {
   @ApiProperty()
