@@ -4,6 +4,12 @@ import { Column, Entity } from 'typeorm'
 export enum Role {
   SUPER_ADMIN = 'super admin',
 }
+export enum Type {
+  ACTIVE = 1,
+  INACTIVE = 2,
+  UNCONFIRMED = 3,
+  DELETED = 4
+}
 
 @Entity({ name: 'user' })
 export class User extends BaseEntity {
@@ -24,4 +30,7 @@ export class User extends BaseEntity {
 
   @Column({ enum: Role, type: 'enum', array: true })
   role: Role[]
+
+  @Column({ type: 'int' })
+  type: Type
 }
