@@ -39,11 +39,11 @@
   }
 
   .crm-link {
-    @apply;
+    @apply text-black hover:text-blue-600;
   }
 
   .crm-container {
-    @apply px-[60px];
+    @apply px-[60px] py-4;
   }
 
   * {
