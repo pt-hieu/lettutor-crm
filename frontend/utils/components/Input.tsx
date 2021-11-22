@@ -41,7 +41,7 @@ const variants = {
 
 export default forwardRef<any, Omit<Props, 'id' | 'onInvalid'>>(function Input(
   { error, as, showError, props: { name, className, ...rest } },
-  ref,
+  _ref,
 ) {
   const ele = useRef<any | null>(null)
 
@@ -63,12 +63,12 @@ export default forwardRef<any, Omit<Props, 'id' | 'onInvalid'>>(function Input(
     <>
       {/* @ts-ignore */}
       <Component
-        {...rest}
-        ref={ref}
-        className={'crm-input ' + className}
+        // @ts-ignore
         onInvalid={removeBubble}
+        className={'crm-input ' + className}
         name={name}
         id={name}
+        {...rest}
       />
       <AnimatePresence presenceAffectsLayout>
         {(showError ?? true) && error && (
