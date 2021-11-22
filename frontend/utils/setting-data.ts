@@ -13,8 +13,8 @@ export const SettingData: SG[] = [
     title: 'General',
     items: [
       {
-        title: 'Update Persional Information',
-        link: '',
+        title: 'Update Personal Information',
+        link: '/settings/update-information',
       },
     ],
   },
@@ -23,6 +23,10 @@ export const SettingData: SG[] = [
     items: [
       {
         title: 'Users',
+        link: '/settings/users',
+      },
+      {
+        title: 'Controls',
         link: '/settings/users',
       },
     ],

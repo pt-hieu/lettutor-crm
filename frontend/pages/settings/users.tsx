@@ -1,17 +1,13 @@
-import Layout from '@utils/components/Layout'
-import Sidebar from '@components/Settings/Sidebar'
 import Search from '@components/Settings/Search'
+import SettingsLayout from '@components/Settings/SettingsLayout'
 
 export default function UsersSettings() {
   return (
-    <Layout requireLogin>
-      <div className="crm-container grid grid-cols-[300px,1fr]">
-        <Sidebar />
-        <div>
-          <Search />
-          <div></div>
-        </div>
+    <SettingsLayout title="CRM | Users">
+      <div>
+        <Search />
+        <div></div>
       </div>
-    </Layout>
+    </SettingsLayout>
   )
 }
