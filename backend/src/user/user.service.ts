@@ -8,7 +8,13 @@ import moment from 'moment'
 import { MailService } from 'src/mail/mail.service'
 import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
+import { SimpleUser } from './user.interface'
 
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate'
 const RESET_PWD_TOKEN_EXPIRATION = 5 //in days
 
 @Injectable()
@@ -16,7 +22,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
-  ) { }
+  ) {}
 
   async requestResetPwdEmail(dto: DTO.User.RequestResetPwd) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } })
@@ -78,5 +84,50 @@ export class UserService {
 
     user.password = await hash(dto.newPassword, 10)
     return this.userRepo.save(user)
+  }
+
+  async listUsers(
+    options: IPaginationOptions,
+  ): Promise<Pagination<SimpleUser>> {
+    const result = await paginate<User>(this.userRepo, options)
+    const items = result.items.map((user) => this.buildSimpleUser(user))
+    return {
+      items,
+      meta: result.meta,
+    }
+  }
+
+  async listUsersAndFilter(
+    options: IPaginationOptions,
+    type: string,
+  ): Promise<Pagination<User>> {
+    const [users, totalUsers] = await this.userRepo.findAndCount({
+      skip: (Number(options.page) - 1) * Number(options.limit) || 0,
+      take: Number(options.limit) || 10,
+      select: ['id', 'name', 'email', 'role', 'type'],
+      where: [{ type: type }],
+    })
+    const usersPageable: Pagination<User> = {
+      items: users,
+      meta: {
+        currentPage: Number(options.page),
+        itemCount: users.length,
+        itemsPerPage: Number(options.limit),
+        totalItems: totalUsers,
+        totalPages: Math.ceil(users.length / Number(options.limit)),
+      },
+    }
+    return usersPageable
+  }
+
+  private buildSimpleUser(user: User): SimpleUser {
+    const simpleUser: SimpleUser = {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      type: user.type,
+    }
+
+    return simpleUser
   }
 }

@@ -31,6 +31,6 @@ export class User extends BaseEntity {
   @Column({ enum: Role, type: 'enum', array: true })
   role: Role[]
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 2 })
   type: Type
 }
