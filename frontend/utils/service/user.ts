@@ -6,3 +6,11 @@ export const requestResetEmail = (data: { email: string }) =>
 
 export const updatePassword = (data: { token: string; password: string }) =>
   axios.put(API + '/api/user/password', data)
+
+export const changePassword = (data: {
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}) => {
+  return axios.patch(API + '/api/user/change-password', { data })
+}
