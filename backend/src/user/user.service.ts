@@ -1,19 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { User } from './user.entity'
+import { getRepository, Repository } from 'typeorm'
+import { User, Role } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
 import moment from 'moment'
 import { MailService } from 'src/mail/mail.service'
 import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
-import { SimpleUser } from './user.interface'
 
 import {
   paginate,
   Pagination,
-  IPaginationOptions,
 } from 'nestjs-typeorm-paginate'
 const RESET_PWD_TOKEN_EXPIRATION = 5 //in days
 
@@ -86,48 +84,17 @@ export class UserService {
     return this.userRepo.save(user)
   }
 
-  async listUsers(
-    options: IPaginationOptions,
-  ): Promise<Pagination<SimpleUser>> {
-    const result = await paginate<User>(this.userRepo, options)
-    const items = result.items.map((user) => this.buildSimpleUser(user))
-    return {
-      items,
-      meta: result.meta,
-    }
-  }
-
-  async listUsersAndFilter(
-    options: IPaginationOptions,
-    type: string,
+  async getMany(
+    query: DTO.User.UserGetManyQuery
   ): Promise<Pagination<User>> {
-    const [users, totalUsers] = await this.userRepo.findAndCount({
-      skip: (Number(options.page) - 1) * Number(options.limit) || 0,
-      take: Number(options.limit) || 10,
-      select: ['id', 'name', 'email', 'role', 'type'],
-      where: [{ type: type }],
-    })
-    const usersPageable: Pagination<User> = {
-      items: users,
-      meta: {
-        currentPage: Number(options.page),
-        itemCount: users.length,
-        itemsPerPage: Number(options.limit),
-        totalItems: totalUsers,
-        totalPages: Math.ceil(users.length / Number(options.limit)),
-      },
-    }
-    return usersPageable
-  }
+    let q = this.userRepo
+    .createQueryBuilder("u")
+    .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.type'])
 
-  private buildSimpleUser(user: User): SimpleUser {
-    const simpleUser: SimpleUser = {
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      type: user.type,
-    }
+    if(query.type) q = q.where("u.type = :type", {type: query.type})
+    if(query.role) q = q.where('u.role @> ARRAY[:role]', { role: query.role})
 
-    return simpleUser
+    const res = await paginate(q, { limit: query.limit, page: query.page })
+    return res
   }
 }

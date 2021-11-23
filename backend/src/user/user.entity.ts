@@ -2,7 +2,7 @@ import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity } from 'typeorm'
 
 export enum Role {
-  SUPER_ADMIN = 'super admin',
+  SUPER_ADMIN = 'SUPER_ADMIN',
 }
 export enum Type {
   ACTIVE = 1,
@@ -28,9 +28,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true, default: null })
   tokenExpiration: Date | null
 
-  @Column({ enum: Role, type: 'enum', array: true })
+  @Column({ enum: Role, type: 'text', array: true })
   role: Role[]
 
-  @Column({ type: 'int', default: 2 })
+  @Column({ type: 'integer', default: 2 })
   type: Type
 }

@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsEmail, IsNotEmpty, IsString, Matches, IsNumber } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { IsEmail, IsNotEmpty, IsString, Matches, IsNumber, IsOptional, IsPositive } from 'class-validator'
+import { Paginate } from './paging';
+import { Type} from "class-transformer"
 
 export class ResetPwd {
   @ApiProperty()
@@ -39,4 +41,24 @@ export class ChangePwd {
     message: 'password is too weak',
   })
   newPassword: string
+}
+
+export class UserGetManyQuery extends Paginate {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  q?: string
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @IsPositive()
+  @IsOptional()
+  type?: number
+
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  role?: string
 }
