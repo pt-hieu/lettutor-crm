@@ -1,4 +1,4 @@
-name: run test
+name: build frontend
 
 on:
   pull_request:
@@ -7,11 +7,11 @@ on:
 
 jobs:
   build:
-    if: ${{ github.event.label.name == 'backend' }}
+    if: ${{ github.event.label.name == 'frontend' }}
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./frontend
 
     steps:
       - uses: actions/checkout@v2
@@ -25,5 +25,5 @@ jobs:
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install
 
-      - name: Run Unit Test
-        run: yarn test
+      - name: Build
+        run: yarn build

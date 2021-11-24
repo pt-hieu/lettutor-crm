@@ -33,7 +33,14 @@ export default function Header() {
     <header className="crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md">
       <div className="font-semibold text-xl">CRM System</div>
       <div className="flex gap-3 items-center relative">
-        <div>Hi, {session?.user.name}</div>
+        <div>
+          <Link href="/settings">
+            <a className="crm-link">
+              <span className="fa fa-cog" />
+            </a>
+          </Link>
+        </div>
+        <span>|</span>
         <button onClick={toggle}>
           <Avatar src={`https://avatars.dicebear.com/api/bottts/${seed}.svg`} />
         </button>

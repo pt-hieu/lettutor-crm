@@ -9,7 +9,6 @@ import { user } from './data'
 import { MockType, repositoryMockFactory } from './utils'
 import moment from 'moment'
 import { BadRequestException } from '@nestjs/common'
-import { hash } from 'bcrypt'
 
 describe('user service', () => {
   let usersRepo: MockType<Repository<User>>
@@ -44,8 +43,8 @@ describe('user service', () => {
         email: user.email,
       }
 
-      usersRepo.findOne.mockReturnValue(user)
-      usersRepo.save.mockReturnValue(user)
+      usersRepo.findOne.mockReturnValue({ ...user })
+      usersRepo.save.mockReturnValue({ ...user })
 
       expect(await userService.requestResetPwdEmail(dto)).toEqual(true)
     })
@@ -69,7 +68,7 @@ describe('user service', () => {
         token: user.resetPasswordToken,
       }
 
-      usersRepo.findOne.mockReturnValue(user)
+      usersRepo.findOne.mockReturnValue({ ...user })
       expect(await userService.findByResetPwdToken(dto)).toEqual(true)
     })
 
@@ -92,8 +91,8 @@ describe('user service', () => {
         token: user.resetPasswordToken,
       }
 
-      usersRepo.findOne.mockReturnValue(user)
-      usersRepo.save.mockReturnValue(user)
+      usersRepo.findOne.mockReturnValue({ ...user })
+      usersRepo.save.mockReturnValue({ ...user })
 
       expect(await userService.resetPwd(dto)).toEqual(user)
     })
@@ -127,58 +126,45 @@ describe('user service', () => {
     })
   })
 
-  // describe('change password', () => {
-  //   it('should change pwd succeed', async () => {
-  //     const dto: DTO.User.ChangePwd = {
-  //       oldPassword: '123',
-  //       newPassword: 'new@Password',
-  //       confirmPassword: 'new@Password',
-  //     }
+  describe('change password', () => {
+    it('should change pwd succeed', async () => {
+      const dto: DTO.User.ChangePwd = {
+        oldPassword: '123',
+        newPassword: 'new@Password',
+      }
 
-  //     usersRepo.save.mockReturnValue(user)
+      usersRepo.save.mockReturnValue({ ...user })
+      usersRepo.findOne.mockReturnValue({ ...user })
 
-  //     expect(await userService.changePwd(dto, user)).toEqual(user)
-  //   })
+      expect(await userService.changePwd(dto, user)).toEqual(user)
+    })
 
-  //   it('should throw error when old password not match current password', async () => {
-  //     const dto: DTO.User.ChangePwd = {
-  //       oldPassword: 'Old@Password',
-  //       newPassword: 'new@Password',
-  //       confirmPassword: 'new@Password',
-  //     }
-  //     usersRepo.save.mockReturnValue(user)
+    it('should throw error when old password not match current password', () => {
+      const dto: DTO.User.ChangePwd = {
+        oldPassword: 'Old@Password',
+        newPassword: 'new@Password',
+      }
 
-  //     expect(await userService.changePwd(dto, user)).rejects.toThrow(
-  //       new BadRequestException('Old password is wrong'),
-  //     )
-  //   })
+      usersRepo.findOne.mockReturnValue({ ...user })
 
-  //   it('should throw error when new password match current password', async () => {
-  //     const dto: DTO.User.ChangePwd = {
-  //       oldPassword: '123',
-  //       newPassword: '123',
-  //       confirmPassword: '123',
-  //     }
+      expect(userService.changePwd(dto, user)).rejects.toThrow(
+        new BadRequestException('Old password is wrong'),
+      )
+    })
 
-  //     usersRepo.save.mockReturnValue(user)
+    it('should throw error when new password match current password', () => {
+      const dto: DTO.User.ChangePwd = {
+        oldPassword: '123',
+        newPassword: '123',
+      }
 
-  //     expect(await userService.changePwd(dto, user)).rejects.toThrow(
-  //       new BadRequestException('New password must differ from old password'),
-  //     )
-  //   })
+      usersRepo.findOne.mockReturnValue({ ...user })
 
-  //   it('should throw error when confirm password not match new password', async () => {
-  //     const dto: DTO.User.ChangePwd = {
-  //       oldPassword: '123',
-  //       newPassword: 'new@Password',
-  //       confirmPassword: 'confirm@Password',
-  //     }
-  //     user.password = await hash(user.password, 10)
-  //     usersRepo.save.mockReturnValue(user)
-
-  //     expect(await userService.changePwd(dto, user)).rejects.toThrow(
-  //       new BadRequestException('Confirm password not match'),
-  //     )
-  //   })
-  // })
+      expect(
+        userService.changePwd(dto, user),
+      ).rejects.toThrow(
+        new BadRequestException('New password must differ from old password'),
+      )
+    })
+  })
 })
