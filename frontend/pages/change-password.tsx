@@ -1,47 +1,24 @@
+import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
-import { changePassword, updatePassword } from '@utils/service/user'
+import { getSessionToken } from '@utils/libs/getToken'
+import { changePassword } from '@utils/service/user'
 import { notification } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { GetServerSidePropsContext } from 'next'
+import { signOut } from 'next-auth/client'
+import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
+import { passwordReg, variants } from './reset-password'
 
 interface FormData {
-  'current-password': string
+  'old-password': string
   'new-password': string
   'confirm-password': string
 }
 
-enum State {
-  INPUT_PASSWORD = 'Change password',
-  INPUT_PASSWORD_SUCCESS = '2',
-}
-
-const variants = {
-  right: {
-    opacity: 0,
-    transform: 'translateX(14px)',
-  },
-  center: {
-    opacity: 1,
-    transform: 'translateX(0px)',
-  },
-  left: {
-    opacity: 0,
-    transform: 'translateX(-14px)',
-  },
-}
-
-const passwordReg =
-  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
-
-export default function ChangePassword() {
-  const { query } = useRouter()
-  const [state, setState] = useState<State>(State.INPUT_PASSWORD)
-
+export default function ChangePassword({ token }: { token: string }) {
   const {
     register,
     handleSubmit,
@@ -49,19 +26,20 @@ export default function ChangePassword() {
     formState: { errors },
   } = useForm<FormData>()
 
-  const { mutateAsync, isLoading, error } = useMutation(
+  const { mutateAsync, isLoading } = useMutation(
     'change-password',
     changePassword,
     {
-      onSuccess() {
-        // setState(State.INPUT_PASSWORD_SUCCESS)
-        console.log('Success')
-      },
-      onError() {
-        console.log(error)
-        notification.error({
-          message: state + ' unsuccessfully',
-        })
+      onSuccess({ error }) {
+        if (error) {
+          const { message } = error.response.data
+          notification.error({ message })
+          return
+        }
+        notification.success({ message: 'Change password successfully.' })
+        setTimeout(() => {
+          signOut()
+        }, 1000)
       },
     },
   )
@@ -70,14 +48,14 @@ export default function ChangePassword() {
     handleSubmit(async (data) => {
       let err = false
 
-      const oldPassword = data['current-password']
+      const oldPassword = data['old-password']
       const newPassword = data['new-password']
       const confirmPassword = data['confirm-password']
 
       if (!oldPassword) {
         err = true
-        setError('current-password', {
-          message: 'Password is required',
+        setError('old-password', {
+          message: 'Old password is required',
         })
       }
 
@@ -96,6 +74,13 @@ export default function ChangePassword() {
         })
       }
 
+      if (newPassword && oldPassword === newPassword) {
+        err = true
+        setError('new-password', {
+          message: 'New password must be different from the old password',
+        })
+      }
+
       if (!confirmPassword) {
         err = true
         setError('confirm-password', {
@@ -111,101 +96,19 @@ export default function ChangePassword() {
       }
 
       if (!err) {
-        //@ts-ignore
-        await mutateAsync({ oldPassword, newPassword, confirmPassword })
+        mutateAsync({ oldPassword, newPassword, token })
       }
     }),
-    [state, query],
-  )
-
-  useEffect(() => {
-    console.log(errors)
-  }, [errors])
-
-  const renderByState: Record<State, JSX.Element> = useMemo(
-    () => ({
-      [State.INPUT_PASSWORD]: (
-        <>
-          <h1 className="mb-8 text-2xl font-medium text-center text-blue-600">
-            Change Password
-          </h1>
-
-          <div className="mb-4">
-            <label htmlFor="current-password" className="crm-label">
-              Current Password
-            </label>
-            <input
-              type="password"
-              id="current-password"
-              autoFocus
-              className={`crm-input w-full ${
-                errors['current-password'] ? 'crm-input--error' : ''
-              }`}
-              {...register('current-password')}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="new-password" className="crm-label">
-              New Password
-            </label>
-            <input
-              type="password"
-              id="new-password"
-              className={`crm-input w-full ${
-                errors['new-password'] ? 'crm-input--error' : ''
-              }`}
-              {...register('new-password')}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="confirm-password" className="crm-label">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirm-password"
-              className={`crm-input w-full ${
-                errors['confirm-password'] ? 'crm-input--error' : ''
-              }`}
-              {...register('confirm-password')}
-            />
-          </div>
-
-          <div className="mb-8">
-            <button disabled={isLoading} className="crm-button w-full">
-              <Loading on={isLoading}>Submit</Loading>
-            </button>
-          </div>
-        </>
-      ),
-      [State.INPUT_PASSWORD_SUCCESS]: (
-        <>
-          <div className="text-center font-medium">
-            Your password has been changed successfully
-          </div>
-          <Link href="/login">
-            <a className="text-center mt-2">Back to Login</a>
-          </Link>
-        </>
-      ),
-    }),
-    [
-      errors['current-password'],
-      errors['new-password'],
-      errors['confirm-password'],
-      isLoading,
-    ],
+    [],
   )
 
   return (
-    <Layout header={true} requireLogin={true}>
+    <Layout requireLogin={true}>
       <div className="min-h-screen grid w-full place-content-center">
         <form
           noValidate
           onSubmit={submit}
-          className="w-[450px] min-h-[300px] p-4 border-b-2 grid place-content-center"
+          className="min-h-[300px] p-4 border-b-2 grid place-content-center"
         >
           <AnimatePresence exitBeforeEnter>
             <motion.div
@@ -213,15 +116,73 @@ export default function ChangePassword() {
               animate="center"
               exit="left"
               variants={variants}
-              key={state}
               transition={{ duration: 0.35 }}
               className="grid place-content-center"
             >
-              {renderByState[state]}
+              <h1 className="mb-8 text-2xl font-medium text-center text-blue-600">
+                Change Password
+              </h1>
+
+              <div className="mb-4">
+                <label htmlFor="old-password" className="crm-label">
+                  Old Password
+                </label>
+                <Input
+                  error={errors['old-password']?.message}
+                  props={{
+                    type: 'password',
+                    className: 'w-full',
+                    ...register('old-password'),
+                  }}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="new-password" className="crm-label">
+                  New Password
+                </label>
+                <Input
+                  error={errors['new-password']?.message}
+                  props={{
+                    type: 'password',
+                    className: 'w-full',
+                    ...register('new-password'),
+                  }}
+                />
+              </div>
+
+              <div className="mb-4 min-w-[450px]">
+                <label htmlFor="confirm-password" className="crm-label">
+                  Confirm Password
+                </label>
+                <Input
+                  error={errors['confirm-password']?.message}
+                  props={{
+                    type: 'password',
+                    className: 'w-full',
+                    ...register('confirm-password'),
+                  }}
+                />
+              </div>
+
+              <div className="mb-8">
+                <button disabled={isLoading} className="crm-button w-full">
+                  <Loading on={isLoading}>Submit</Loading>
+                </button>
+              </div>
             </motion.div>
           </AnimatePresence>
         </form>
       </div>
     </Layout>
   )
+}
+
+export function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const token = getSessionToken(ctx.req.cookies) || null
+  return {
+    props: {
+      token,
+    },
+  }
 }
