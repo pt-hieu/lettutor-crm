@@ -10,7 +10,7 @@ interface Props {
 export default function SettingsLayout({ children, title }: Props) {
   return (
     <Layout requireLogin title={title}>
-      <div className="crm-container grid grid-cols-[300px,1fr]">
+      <div className="crm-container grid grid-cols-[300px,1fr] gap-4">
         <Sidebar />
         <div>{children}</div>
       </div>

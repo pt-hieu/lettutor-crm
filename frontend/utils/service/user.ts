@@ -1,3 +1,4 @@
+import { User } from '@utils/models/user'
 import axios from 'axios'
 import { API } from 'environment'
 
@@ -6,3 +7,24 @@ export const requestResetEmail = (data: { email: string }) =>
 
 export const updatePassword = (data: { token: string; password: string }) =>
   axios.put(API + '/api/user/password', data)
+
+export const getUsers =
+  (
+    token?: string,
+    params: { query?: string; page: number; limit: number; role?: string } = {
+      limit: 10,
+      page: 1,
+    },
+  ) =>
+    () =>
+      // axios.get(API + '/api/user', {
+      //   headers: { authorization: "Bearer " + token },
+      //   params
+      // }).then((res) => res.data)
+      Promise.resolve([
+        {
+          name: 'admin',
+          email: 'admin@mail.com',
+          role: 'super admin',
+        },
+      ] as unknown as User[])
