@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator'
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MaxLength,
+} from 'class-validator'
+import { Role } from 'src/user/user.entity'
 
 export class ResetPwd {
   @ApiProperty()
@@ -39,4 +47,22 @@ export class ChangePwd {
     message: 'password is too weak',
   })
   newPassword: string
+}
+
+export class AddUser {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name: string
+
+  @ApiProperty()
+  @IsEmail()
+  @MaxLength(100)
+  email: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsEnum(Role)
+  role: Role
 }

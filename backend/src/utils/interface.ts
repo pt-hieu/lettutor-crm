@@ -1,5 +1,5 @@
 import { Role } from 'src/user/user.entity'
-import { Request } from 'express';
+import { Request } from 'express'
 
 export interface JwtPayload {
   id: string

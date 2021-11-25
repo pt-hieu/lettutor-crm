@@ -4,14 +4,15 @@ import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UserService } from './user.service'
 import { Payload } from 'src/utils/decorators/payload.decorator'
-import { User } from './user.entity'
+import { Role, User } from './user.entity'
 import { JwtPayload } from 'src/utils/interface'
+import { Roles } from 'src/role.decorator'
 
 @ApiTags('user')
 @ApiBearerAuth('jwt')
 @Controller('user')
 export class UserController {
-  constructor(private readonly service: UserService) { }
+  constructor(private readonly service: UserService) {}
 
   @Public()
   @Post('reset-password')
@@ -38,5 +39,12 @@ export class UserController {
   @ApiOperation({ summary: 'to request change password' })
   changePwd(@Body() dto: DTO.User.ChangePwd, @Payload() payload: JwtPayload) {
     return this.service.changePwd(dto, payload)
+  }
+
+  @Post('add-user')
+  @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'to add a new user and send invitation mail' })
+  addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
+    return this.service.addUser(dto, payload)
   }
 }

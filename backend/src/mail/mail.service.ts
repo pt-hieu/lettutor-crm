@@ -4,15 +4,28 @@ import { Injectable } from '@nestjs/common'
 
 @Injectable()
 export class MailService {
-  constructor(private mailerService: MailerService) { }
+  constructor(private mailerService: MailerService) {}
 
   sendResetPwdMail(target: User, token: string) {
-    const link = 'http://' + process.env.FE_URL + '/reset-password?token=' + token
+    const link = process.env.FE_URL + '/reset-password?token=' + token
 
     return this.mailerService.sendMail({
       to: target.email,
       subject: 'CRM - Password Reset',
-      html: "Click the following link to reset your password: " + link
+      html: 'Click the following link to reset your password: ' + link,
+    })
+  }
+
+  sendAddPwdMail(from: User, target: User, token: string) {
+    const link = process.env.FE_URL + '/add-password?token=' + token
+
+    return this.mailerService.sendMail({
+      to: target.email,
+      subject: 'CRM - Add New Password',
+      html:
+        from.name +
+        ' invite you to join CRM account, please click the following link to complete your participation: ' +
+        link,
     })
   }
 }
