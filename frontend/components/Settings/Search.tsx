@@ -66,7 +66,7 @@ export default function Search({
             ...register('role'),
             children: (
               <>
-                <option value={''}>Selec a role</option>
+                <option value={''}>Select a role</option>
                 {Object.values(Role).map((role) => (
                   <option key={role} value={role}>
                     {role}
