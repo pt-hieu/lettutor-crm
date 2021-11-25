@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsEmail, IsNotEmpty, IsString, Matches, IsNumber, IsOptional, IsPositive } from 'class-validator'
 import { Paginate } from './paging';
 import { Type} from "class-transformer"
+import {Role} from 'src/user/user.entity'
 
 export class ResetPwd {
   @ApiProperty()
@@ -47,18 +48,15 @@ export class UserGetManyQuery extends Paginate {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  q?: string
+  query?: string
 
   @ApiPropertyOptional()
-  @IsNumber()
-  @Type(() => Number)
-  @IsPositive()
   @IsOptional()
-  type?: number
+  userStatus?: number
 
 
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  role?: string
+  role?: Role
 }

@@ -20,7 +20,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async requestResetPwdEmail(dto: DTO.User.RequestResetPwd) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } })
@@ -88,11 +88,11 @@ export class UserService {
     query: DTO.User.UserGetManyQuery
   ): Promise<Pagination<User>> {
     let q = this.userRepo
-    .createQueryBuilder("u")
-    .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.type'])
+      .createQueryBuilder("u")
+      .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.status'])
 
-    if(query.type) q = q.where("u.type = :type", {type: query.type})
-    if(query.role) q = q.where('u.role @> ARRAY[:role]', { role: query.role})
+    if (query.userStatus) q = q.where("u.status = :status", { status: query.userStatus })
+    if (query.role) q = q.andWhere('u.role @> ARRAY[:role]::user_role_enum[]', { role: query.role })
 
     const res = await paginate(q, { limit: query.limit, page: query.page })
     return res
