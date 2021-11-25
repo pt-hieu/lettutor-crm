@@ -33,14 +33,15 @@ export const getUsers =
       page: 1,
     },
   ) =>
-    () =>
-      // axios.get(API + '/api/user', {
-      //   headers: { authorization: "Bearer " + token },
-      //   params
-      // }).then((res) => res.data)
-      Promise.resolve([
-        {
-          name: 'admin',
-          email: 'admin@mail.com',
-          role: 'super admin',
-        },
+  () =>
+    // axios.get(API + '/api/user', {
+    //   headers: { authorization: "Bearer " + token },
+    //   params
+    // }).then((res) => res.data)
+    Promise.resolve([
+      {
+        name: 'admin',
+        email: 'admin@mail.com',
+        role: 'super admin',
+      },
+    ])
