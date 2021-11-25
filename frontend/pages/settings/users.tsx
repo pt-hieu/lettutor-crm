@@ -7,6 +7,7 @@ import { GetServerSideProps } from 'next'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import { Role, User } from '@utils/models/user'
 import { useQueryState } from '@utils/hooks/useQueryState'
+import ButtonAddUser from '@components/Settings/ButtonAddUser'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -63,12 +64,15 @@ export default function UsersSettings() {
 
   return (
     <SettingsLayout title="CRM | Users">
-      <Search
-        query={q}
-        role={role}
-        onQueryChange={setQ}
-        onRoleChange={setRole}
-      />
+      <div className="flex flex-row">
+        <Search
+          query={q}
+          role={role}
+          onQueryChange={setQ}
+          onRoleChange={setRole}
+        />
+        <ButtonAddUser />
+      </div>
       <div className="mt-4">
         <Table
           columns={columns}
