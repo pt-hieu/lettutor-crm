@@ -51,8 +51,8 @@ export default function Sidebar() {
                       className={`pl-8 crm-link ${
                         pathname === link
                           ? 'text-blue-600 before:bg-blue-600'
-                          : ''
-                      } relative before:content before:absolute before:left-4 before:bg-gray-700 hover:before:bg-blue-600 before:crm-transition before:w-[3px] before:h-full`}
+                          : 'before:bg-gray-700'
+                      } relative before:content before:absolute before:left-4 hover:before:bg-blue-600 before:crm-transition before:w-[3px] before:h-full`}
                     >
                       {itemTitle}
                     </a>
