@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useModal } from '@utils/hooks/useModal'
 import Link from 'next/link'
 
-const menuItemClass = 'p-2 px-3 hover:bg-gray-200 cursor-pointer crm-transition'
+const menuItemClass =
+  'p-2 px-3 hover:bg-gray-200 cursor-pointer crm-transition text-black hover:text-black'
 
 export default function Header() {
   const [session] = useTypedSession()
@@ -61,14 +62,12 @@ export default function Header() {
               transition={{ duration: 0.2 }}
               className="absolute top-[120%] right-0 bg-white rounded-md shadow-md py-2 min-w-[150px] whitespace-nowrap"
             >
-              <div className={menuItemClass}>
-                <Link href="/change-password" passHref>
-                  <div>
-                    <span className=" fa fa-key mr-2" />
-                    Change password
-                  </div>
-                </Link>
-              </div>
+              <Link href="/change-password">
+                <a className={menuItemClass}>
+                  <span className=" fa fa-key mr-2" />
+                  Change password
+                </a>
+              </Link>
               <div
                 onClick={openConfirm}
                 tabIndex={0}

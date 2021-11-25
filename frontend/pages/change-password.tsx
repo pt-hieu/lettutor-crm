@@ -45,7 +45,7 @@ export default function ChangePassword({ token }: { token: string }) {
   )
 
   const submit = useCallback(
-    handleSubmit(async (data) => {
+    handleSubmit((data) => {
       let err = false
 
       const oldPassword = data['old-password']
