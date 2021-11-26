@@ -3,20 +3,33 @@ import Input from '@utils/components/Input'
 import useOnClickOutside from '@utils/hooks/useOnClickOutSide'
 import { Role } from '@utils/models/user'
 import { Modal, notification } from 'antd'
+import { requireRule } from 'pages/change-password'
 import { emailReg } from 'pages/reset-password'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-type FormData = {
+interface FormData {
   name: string
   email: string
-  role: Role | ''
+  userRole: Role | ''
 }
 
 const initialValue: FormData = {
   name: '',
   email: '',
-  role: '',
+  userRole: '',
+}
+
+const validateData = (
+  data: FormData,
+): { key: keyof FormData; message: string } | null => {
+  const { email } = data
+
+  if (email && !emailReg.test(email)) {
+    return { key: 'email', message: 'Please enter a valid email address.' }
+  }
+
+  return null
 }
 
 const ButtonAddUser = () => {
@@ -37,35 +50,18 @@ const ButtonAddUser = () => {
   })
 
   const onAddUser = handleSubmit((data) => {
-    const { name, email, role } = data
-    console.log(data)
-    let err = false
-    if (!name) {
-      err = true
-      setError('name', { message: 'Name is required.' })
-    }
-    if (!email) {
-      err = true
-      setError('email', { message: 'Email is required.' })
-    }
-    if (!role) {
-      err = true
-      setError('role', { message: 'Please select role.' })
-    }
-    if (email && !emailReg.test(email)) {
-      err = true
-      setError('email', {
-        message: 'Please enter a valid email address.',
-      })
-    }
+    const error = validateData(data)
 
-    if (!err) {
-      reset(initialValue)
-      setShowModal(false)
-      notification.success({
-        message: 'Add new user successfully.',
+    if (error) {
+      return setError(error.key, {
+        message: error.message,
       })
     }
+    reset(initialValue)
+    setShowModal(false)
+    notification.success({
+      message: 'Add new user successfully.',
+    })
   })
 
   return (
@@ -120,7 +116,7 @@ const ButtonAddUser = () => {
                 props={{
                   type: 'text',
                   className: 'w-full text-sm p-3',
-                  ...register('name'),
+                  ...register('name', requireRule('Name')),
                 }}
               />
             </div>
@@ -138,24 +134,24 @@ const ButtonAddUser = () => {
                   type: 'email',
                   className: 'w-full text-sm p-3',
                   placeholder: 'An invitation link will be sent to this email',
-                  ...register('email'),
+                  ...register('email', requireRule('Email')),
                 }}
               />
             </div>
           </div>
           <div className="grid grid-cols-12 mb-4">
             <div className="col-span-2 flex items-center">
-              <label htmlFor="role" className="crm-label m-0">
+              <label htmlFor="userRole" className="crm-label m-0">
                 Role
               </label>
             </div>
             <div className="col-span-10">
               <Input
-                error={errors.role?.message}
+                error={errors.userRole?.message}
                 as="select"
                 props={{
                   className: 'w-full text-sm p-3',
-                  ...register('role'),
+                  ...register('userRole', requireRule('Role')),
                   children: (
                     <>
                       <option value={''}>Select a role</option>
