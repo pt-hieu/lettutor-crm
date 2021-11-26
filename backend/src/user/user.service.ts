@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { User } from './user.entity'
+import { getRepository, Repository } from 'typeorm'
+import { User, Role } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
 import moment from 'moment'
@@ -9,6 +9,10 @@ import { MailService } from 'src/mail/mail.service'
 import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
 
+import {
+  paginate,
+  Pagination,
+} from 'nestjs-typeorm-paginate'
 const RESET_PWD_TOKEN_EXPIRATION = 5 //in days
 
 @Injectable()
@@ -78,5 +82,19 @@ export class UserService {
 
     user.password = await hash(dto.newPassword, 10)
     return this.userRepo.save(user)
+  }
+
+  async getMany(
+    query: DTO.User.UserGetManyQuery
+  ): Promise<Pagination<User>> {
+    let q = this.userRepo
+      .createQueryBuilder("u")
+      .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.status'])
+
+    if (query.userStatus) q = q.where("u.status = :status", { status: query.userStatus })
+    if (query.role) q = q.andWhere('u.role @> ARRAY[:role]::user_role_enum[]', { role: query.role })
+
+    const res = await paginate(q, { limit: query.limit, page: query.page })
+    return res
   }
 }
