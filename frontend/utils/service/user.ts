@@ -1,4 +1,5 @@
-import { User } from '@utils/models/user'
+import { Paginate } from '@utils/models/paging'
+import { Role, User, UserStatus } from '@utils/models/user'
 import axios from 'axios'
 import { API } from 'environment'
 
@@ -16,21 +17,19 @@ export const changePassword = async (data: {
 
 export const getUsers =
   (
-    token?: string,
-    params: { query?: string; page: number; limit: number; role?: string } = {
-      limit: 10,
-      page: 1,
+    params: {
+      page?: number
+      limit?: number
+      query?: string
+      role?: Role
+      status?: UserStatus
     },
+    token?: string,
   ) =>
     () =>
-      // axios.get(API + '/api/user', {
-      //   headers: { authorization: "Bearer " + token },
-      //   params
-      // }).then((res) => res.data)
-      Promise.resolve([
-        {
-          name: 'admin',
-          email: 'admin@mail.com',
-          role: 'super admin',
-        },
-      ] as unknown as User[])
+      axios
+        .get<Paginate<User>>(API + '/api/user', {
+          headers: { authorization: 'Bearer ' + token },
+          params,
+        })
+        .then((res) => res.data)
