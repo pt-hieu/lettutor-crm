@@ -1,39 +1,40 @@
 import { useRouter } from 'next/router'
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { stringifyUrl } from 'query-string'
-
-type Type = string | number | undefined
 
 export const useQueryState = <Type>(
   name: string,
-  initValue: Type,
-): [Type, Dispatch<SetStateAction<Type>>] => {
+): [Type | undefined, Dispatch<SetStateAction<Type | undefined>>] => {
   const { query, pathname, asPath, replace } = useRouter()
 
-  const [state, setState] = useState(
-    (query[name] as unknown as Type) || initValue,
-  )
+  const [state, setState] = useState(query[name] as unknown as Type | undefined)
 
   useEffect(() => {
-    const newPathname = stringifyUrl({
-      url: pathname,
-      query: { ...query, [name]: state + '' },
-    })
+    const newQuery = { ...query }
 
-    const newAsPath = stringifyUrl({
-      url: asPath,
-      query: { ...query, [name]: state + '' },
-    })
+    if (state) {
+      newQuery[name] = state + ''
+    }
 
-    console.log({ newPathname, state });
+    if (!state && newQuery[name]) {
+      delete newQuery[name]
+    }
 
+    const newPathname = stringifyUrl(
+      {
+        url: pathname,
+        query: newQuery,
+      },
+      { encode: true },
+    )
+
+    const newAsPath = stringifyUrl(
+      {
+        url: asPath.split('?')[0],
+        query: newQuery,
+      },
+      { encode: true },
+    )
 
     replace(newPathname, newAsPath, { shallow: true })
   }, [state])

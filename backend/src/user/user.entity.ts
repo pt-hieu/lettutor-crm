@@ -2,14 +2,15 @@ import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity } from 'typeorm'
 
 export enum Role {
-  SUPER_ADMIN = 'SUPER_ADMIN',
-  ADMIN = 'ADMIN'
+  SUPER_ADMIN = 'Super Admin',
+  ADMIN = 'Admin'
 }
+
 export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  UNCONFIRMED = 'UNCONFIRMED',
-  DELETED = 'DELETED'
+  ACTIVE = 'Active',
+  INACTIVE = 'Inactive',
+  UNCONFIRMED = 'Unconfirmed',
+  DELETED = 'Deleted'
 }
 
 @Entity({ name: 'user' })
@@ -29,9 +30,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true, default: null })
   tokenExpiration: Date | null
 
-  @Column({enum: Role, type: 'enum',  array: true})
+  @Column({ enum: Role, type: 'enum', array: true })
   role: Role[]
 
-  @Column({ enum: UserStatus, type: 'enum', default: UserStatus.INACTIVE })
+  @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
   status: UserStatus
 }

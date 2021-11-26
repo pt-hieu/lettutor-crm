@@ -1,72 +1,84 @@
 import Input from '@utils/components/Input'
-import { Role } from '@utils/models/user'
-import { useCallback, useEffect } from 'react'
+import Loading from '@utils/components/Loading'
+import { Role, UserStatus } from '@utils/models/user'
+import { useRouter } from 'next/router'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 type FormData = {
-  query: string
-  role: Role | ''
+  query?: string
+  role?: Role
+  status?: UserStatus
 }
 
 interface Props {
-  onQueryChange: (query: string) => void
-  onRoleChange: (role: Role | '') => void
-  query: string
-  role: Role | ''
+  onQueryChange: (query: string | undefined) => void
+  onRoleChange: (role: Role | undefined) => void
+  onStatusChange: (status: UserStatus | undefined) => void
+  loading: boolean
 }
 
 export default function Search({
   onQueryChange: changeQuery,
   onRoleChange: changeRole,
-  query,
-  role: initRole,
+  onStatusChange: changeStatus,
+  loading,
 }: Props) {
+  const { query } = useRouter()
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
-  } = useForm<FormData>({ defaultValues: { role: initRole, query } })
+    reset,
+  } = useForm<FormData>({
+    defaultValues: query,
+  })
 
-  const role = watch('role')
+  const [submitted, setSubmitted] = useState(false)
 
   const search = useCallback(
-    handleSubmit(({ query, role }) => {
-      changeQuery(query)
-      changeRole(role)
+    handleSubmit(({ query, role, status }) => {
+      changeQuery(query || undefined)
+      changeRole(role || undefined)
+      changeStatus(status || undefined)
+
+      setSubmitted(true)
     }),
     [],
   )
 
-  useEffect(() => {
-    changeRole(role)
-  }, [role])
+  const clear = useCallback(() => {
+    reset()
+    search()
+
+    setTimeout(() => {
+      setSubmitted(false)
+    }, 0)
+  }, [])
 
   return (
     <div>
       <form onSubmit={search} className="flex gap-2">
-        <div className="relative">
-          <Input
-            error={errors.query?.message}
-            props={{
-              type: 'text',
-              className: 'pr-10',
-              placeholder: 'Search user by name',
-              ...register('query'),
-            }}
-          />
-          <button className="absolute text-gray-600 right-4 top-[10px]">
-            <span className="fa fa-search" />
-          </button>
-        </div>
         <Input
           error={errors.query?.message}
+          props={{
+            type: 'text',
+            className: 'pr-10',
+            placeholder: 'Search user by name',
+            ...register('query'),
+          }}
+        />
+
+        <Input
+          error={undefined}
+          showError={false}
           as="select"
           props={{
             ...register('role'),
             children: (
               <>
-                <option value={''}>Select a role</option>
+                <option value={''}>Role</option>
                 {Object.values(Role).map((role) => (
                   <option key={role} value={role}>
                     {role}
@@ -76,6 +88,42 @@ export default function Search({
             ),
           }}
         />
+
+        <Input
+          error={undefined}
+          showError={false}
+          as="select"
+          props={{
+            ...register('status'),
+            children: (
+              <>
+                <option value={''}>Status</option>
+                {Object.values(UserStatus).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </>
+            ),
+          }}
+        />
+
+        <button disabled={loading} className="crm-button w-20">
+          <Loading on={loading}>
+            <span className="fa fa-search" />
+          </Loading>
+        </button>
+
+        {submitted && (
+          <button
+            disabled={loading}
+            type="button"
+            onClick={clear}
+            className="crm-button-outline w-20"
+          >
+            Clear
+          </button>
+        )}
       </form>
     </div>
   )
