@@ -1,4 +1,4 @@
-import { User } from '@utils/models/user'
+import { Role, User } from '@utils/models/user'
 import axios from 'axios'
 import { API } from 'environment'
 
@@ -22,15 +22,29 @@ export const getUsers =
       page: 1,
     },
   ) =>
-    () =>
-      // axios.get(API + '/api/user', {
-      //   headers: { authorization: "Bearer " + token },
-      //   params
-      // }).then((res) => res.data)
-      Promise.resolve([
-        {
-          name: 'admin',
-          email: 'admin@mail.com',
-          role: 'super admin',
-        },
-      ] as unknown as User[])
+  () =>
+    // axios.get(API + '/api/user', {
+    //   headers: { authorization: "Bearer " + token },
+    //   params
+    // }).then((res) => res.data)
+    Promise.resolve([
+      {
+        name: 'admin',
+        email: 'admin@mail.com',
+        role: 'super admin',
+      },
+    ] as unknown as User[])
+
+export const addUser = async (data: {
+  name: string
+  email: string
+  role: Role
+}) => {
+  // return axios.post(API + '/api/user/add-user', data).then((res) => res.data)
+  const { name, email, role } = data
+  return Promise.resolve({
+    name,
+    email,
+    role,
+  } as unknown as User)
+}

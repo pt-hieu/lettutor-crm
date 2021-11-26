@@ -1,12 +1,15 @@
 import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import useOnClickOutside from '@utils/hooks/useOnClickOutSide'
-import { Role } from '@utils/models/user'
+import { IErrorResponse } from '@utils/libs/functionalTryCatch'
+import { Role, User } from '@utils/models/user'
+import { addUser } from '@utils/service/user'
 import { Modal, notification } from 'antd'
 import { requireRule } from 'pages/change-password'
 import { emailReg } from 'pages/reset-password'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQueryClient } from 'react-query'
 
 interface FormData {
   name: string
@@ -18,6 +21,13 @@ const initialValue: FormData = {
   name: '',
   email: '',
   userRole: '',
+}
+
+const UsersKey = {
+  Page: 1,
+  Limit: 10,
+  Name: '',
+  Role: '',
 }
 
 const validateData = (
@@ -49,6 +59,35 @@ const ButtonAddUser = () => {
     shouldUseNativeValidation: true,
   })
 
+  const queryClient = useQueryClient()
+
+  const { isLoading, mutateAsync } = useMutation('add-user', addUser, {
+    onSuccess: (response: User) => {
+      queryClient.setQueryData<User[]>(
+        ['users', UsersKey.Page, UsersKey.Limit, UsersKey.Name, UsersKey.Role],
+        (oldData) => {
+          if (oldData) {
+            return [response, ...oldData]
+          }
+          return [response]
+        },
+      )
+      reset(initialValue)
+      setShowModal(false)
+      notification.success({
+        message: 'Add new user successfully.',
+      })
+    },
+    onError: (err) => {
+      const { response } = err as IErrorResponse
+      if (response) {
+        notification.error({ message: response.data.message })
+        return
+      }
+      notification.error({ message: 'Add new user unsuccessfully' })
+    },
+  })
+
   const onAddUser = handleSubmit((data) => {
     const error = validateData(data)
 
@@ -57,11 +96,8 @@ const ButtonAddUser = () => {
         message: error.message,
       })
     }
-    reset(initialValue)
-    setShowModal(false)
-    notification.success({
-      message: 'Add new user successfully.',
-    })
+    const { email, name, userRole } = data
+    mutateAsync({ email, name, role: userRole as Role })
   })
 
   return (
@@ -102,6 +138,7 @@ const ButtonAddUser = () => {
         okText="Save"
         title="Add New User"
         maskClosable={false}
+        confirmLoading={isLoading}
       >
         <div className="grid">
           <div className="grid grid-cols-12 my-4">
