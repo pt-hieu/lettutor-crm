@@ -86,8 +86,8 @@ export class UserService {
       .createQueryBuilder('u')
       .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.status'])
 
-    if (query.userStatus)
-      q = q.where('u.status = :status', { status: query.userStatus })
+    if (query.status)
+      q = q.where('u.status = :status', { status: query.status })
 
     if (query.role)
       q = q.andWhere('u.role @> ARRAY[:role]::user_role_enum[]', {
