@@ -7,6 +7,7 @@ import {
   forwardRef,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
+  useState,
 } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -50,6 +51,7 @@ type NativeProps<T> = T extends undefined
 type Props<T> = NativeProps<T> & {
   error: string | undefined
   showError?: boolean
+  editable?: boolean
   id?: never
   onInvalid?: never
 }
@@ -60,7 +62,13 @@ const variants = {
 }
 
 function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
-  { error, as, showError, props: { name, className, ...rest } }: Props<T>,
+  {
+    error,
+    as,
+    showError,
+    editable,
+    props: { name, className, disabled, ...rest },
+  }: Props<T>,
   _ref: any,
 ) {
   const ele = useRef<any | null>(null)
@@ -84,7 +92,20 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
       <Component
         // @ts-ignore
         onInvalid={removeBubble}
-        className={'crm-input ' + className}
+        className={
+          `crm-input ${
+            (editable === undefined || editable === true) && disabled
+              ? 'bg-gray-300 '
+              : ' '
+          }` +
+          (className || '') +
+          (editable !== undefined
+            ? editable
+              ? ''
+              : ' !ring-0 text-black'
+            : '')
+        }
+        disabled={disabled ?? editable === false}
         name={name}
         id={name}
         {...rest}
