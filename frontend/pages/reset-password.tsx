@@ -62,7 +62,7 @@ const serviceByState = {
   [State.INPUT_PASSWORD_SUCCESS]: () => Promise.reject(undefined),
 }
 
-const variants = {
+export const variants = {
   right: {
     opacity: 0,
     transform: 'translateX(14px)',
@@ -80,7 +80,7 @@ const variants = {
 const emailReg =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-const passwordReg =
+export const passwordReg =
   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
 
 export default function ResetPassword({ isValidToken }: Props) {
