@@ -4,7 +4,6 @@ import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UserService } from './user.service'
 import { Payload } from 'src/utils/decorators/payload.decorator'
-import { User } from './user.entity'
 import { JwtPayload } from 'src/utils/interface'
 
 @ApiTags('user')
@@ -38,5 +37,11 @@ export class UserController {
   @ApiOperation({ summary: 'to request change password' })
   changePwd(@Body() dto: DTO.User.ChangePwd, @Payload() payload: JwtPayload) {
     return this.service.changePwd(dto, payload)
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'to get all users in the system' })
+  async index(@Query() query: DTO.User.UserGetManyQuery) {
+    return this.service.getMany(query)
   }
 }
