@@ -6,12 +6,13 @@ import { Repository } from 'typeorm'
 import { MockType, repositoryMockFactory } from './utils'
 import { user } from './data'
 import { DTO } from 'src/type'
-import { BadRequestException, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException } from '@nestjs/common'
+import { Response } from 'express'
 
 describe('auth service', () => {
   let usersRepo: MockType<Repository<User>>
   let authService: AuthService
-
+  let res = {} as Response
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
       providers: [
@@ -22,7 +23,7 @@ describe('auth service', () => {
         },
       ],
     }).compile()
-
+    res.set = jest.fn().mockReturnValue(true)
     usersRepo = ref.get(getRepositoryToken(User))
     authService = ref.get(AuthService)
   })
@@ -35,8 +36,8 @@ describe('auth service', () => {
       }
 
       usersRepo.findOne.mockReturnValue(user)
-
-      expect(await authService.validate(dto)).toEqual({
+      process.env.JWT_SECRET = 'asdasbzxcihqqwheacapsdnlkn'
+      expect(await authService.validate(dto, res)).toEqual({
         email: user.email,
         id: user.id,
         name: user.name,
@@ -51,8 +52,8 @@ describe('auth service', () => {
       }
 
       usersRepo.findOne.mockReturnValue(undefined)
-
-      expect(authService.validate(dto)).rejects.toThrow(
+      let res: any
+      expect(authService.validate(dto, res)).rejects.toThrow(
         new BadRequestException('Email or password is wrong'),
       )
     })
@@ -64,8 +65,8 @@ describe('auth service', () => {
       }
 
       usersRepo.findOne.mockReturnValue(user)
-
-      expect(authService.validate(dto)).rejects.toThrow(
+      let res: any
+      expect(authService.validate(dto, res)).rejects.toThrow(
         new BadRequestException('Email or password is wrong'),
       )
     })
