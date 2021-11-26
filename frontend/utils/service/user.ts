@@ -31,6 +31,6 @@ export const getUsers =
         {
           name: 'admin',
           email: 'admin@mail.com',
-          role: "super admin",
+          role: 'super admin',
         },
       ] as unknown as User[])
