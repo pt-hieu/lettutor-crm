@@ -1,7 +1,7 @@
 import { Base } from './base'
 
 export enum Role {
-  SUPER_ADMIN = 'super admin'
+  SUPER_ADMIN = "super admin"
 }
 
 export interface User extends Base {

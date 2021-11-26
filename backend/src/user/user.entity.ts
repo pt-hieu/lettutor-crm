@@ -29,7 +29,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true, default: null })
   tokenExpiration: Date | null
 
-  @Column({enum: Role, type: 'enum',  array: true})
+  @Column({ enum: Role, type: 'enum', array: true })
   role: Role[]
 
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.INACTIVE })
