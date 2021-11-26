@@ -107,12 +107,8 @@ export class UserService {
       )
     }
     
-    await this.userRepo.update({id: payload.id}, dto);
-    const updatedUser = await this.userRepo.findOne({id: payload.id});
-    if (updatedUser) {
-      return updatedUser
-    }
-    throw new BadRequestException('Error info-Update')
+    user.name = dto.name
+    return this.userRepo.save(user)
   }
 }
 
