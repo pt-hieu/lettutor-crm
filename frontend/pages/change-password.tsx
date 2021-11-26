@@ -1,188 +1,162 @@
 import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
-import { getSessionToken } from '@utils/libs/getToken'
 import { changePassword } from '@utils/service/user'
 import { notification } from 'antd'
-import { AnimatePresence, motion } from 'framer-motion'
-import { GetServerSidePropsContext } from 'next'
 import { signOut } from 'next-auth/client'
 import { useCallback } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, RegisterOptions } from 'react-hook-form'
 import { useMutation } from 'react-query'
-import { passwordReg, variants } from './reset-password'
+import { passwordReg } from './reset-password'
 
 interface FormData {
-  'old-password': string
-  'new-password': string
-  'confirm-password': string
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
 }
 
-export default function ChangePassword({ token }: { token: string }) {
+const validatePassword = (
+  data: FormData,
+): { key: keyof FormData; message: string } | null => {
+  const oldPassword = data.oldPassword
+  const newPassword = data.newPassword
+  const confirmPassword = data.confirmPassword
+
+  if (newPassword && !passwordReg.test(newPassword)) {
+    return {
+      key: 'newPassword',
+      message:
+        'Password must be at least 8 characters, 1 letter, 1 number and 1 special character',
+    }
+  }
+
+  if (newPassword && oldPassword === newPassword) {
+    return {
+      key: 'newPassword',
+      message: 'New password must be different from the old password',
+    }
+  }
+
+  if (confirmPassword !== newPassword) {
+    return {
+      key: 'confirmPassword',
+      message: 'Passwords do not match',
+    }
+  }
+
+  return null
+}
+
+const requireRule: (field: string) => RegisterOptions = (field) => ({
+  required: {
+    message: field + ' is required',
+    value: true,
+  },
+})
+
+export default function ChangePassword() {
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
+    reset,
   } = useForm<FormData>()
 
   const { mutateAsync, isLoading } = useMutation(
     'change-password',
     changePassword,
     {
-      onSuccess({ error }) {
-        if (error) {
-          const { message } = error.response.data
-          notification.error({ message })
-          return
-        }
+      onSuccess() {
         notification.success({ message: 'Change password successfully.' })
+        notification.info({ message: 'Sign out in 1s' })
+        reset()
         setTimeout(() => {
           signOut()
         }, 1000)
+      },
+      onError() {
+        notification.error({ message: 'Change password unsuccessfully.' })
       },
     },
   )
 
   const submit = useCallback(
     handleSubmit((data) => {
-      let err = false
+      const res = validatePassword(data)
 
-      const oldPassword = data['old-password']
-      const newPassword = data['new-password']
-      const confirmPassword = data['confirm-password']
-
-      if (!oldPassword) {
-        err = true
-        setError('old-password', {
-          message: 'Old password is required',
+      if (res) {
+        return setError(res.key, {
+          message: res.message,
         })
       }
 
-      if (!newPassword) {
-        err = true
-        setError('new-password', {
-          message: 'New password is required',
-        })
-      }
-
-      if (newPassword && !passwordReg.test(newPassword)) {
-        err = true
-        setError('new-password', {
-          message:
-            'Password must be at least 8 characters, 1 letter, 1 number and 1 special character',
-        })
-      }
-
-      if (newPassword && oldPassword === newPassword) {
-        err = true
-        setError('new-password', {
-          message: 'New password must be different from the old password',
-        })
-      }
-
-      if (!confirmPassword) {
-        err = true
-        setError('confirm-password', {
-          message: 'Confirm password is required',
-        })
-      }
-
-      if (newPassword && confirmPassword && confirmPassword !== newPassword) {
-        err = true
-        setError('confirm-password', {
-          message: 'Passwords do not match',
-        })
-      }
-
-      if (!err) {
-        mutateAsync({ oldPassword, newPassword, token })
-      }
+      mutateAsync(data)
     }),
     [],
   )
 
   return (
     <Layout requireLogin={true}>
-      <div className="min-h-screen grid w-full place-content-center">
+      <div className="crm-container grid w-full place-content-center">
         <form
           noValidate
           onSubmit={submit}
-          className="min-h-[300px] p-4 border-b-2 grid place-content-center"
+          className="min-h-[300px] m-auto p-4 border-b-2 grid place-content-center"
         >
-          <AnimatePresence exitBeforeEnter>
-            <motion.div
-              initial="right"
-              animate="center"
-              exit="left"
-              variants={variants}
-              transition={{ duration: 0.35 }}
-              className="grid place-content-center"
-            >
-              <h1 className="mb-8 text-2xl font-medium text-center text-blue-600">
-                Change Password
-              </h1>
+          <h1 className="mb-8 text-2xl font-medium text-center text-blue-600">
+            Change Password
+          </h1>
 
-              <div className="mb-4">
-                <label htmlFor="old-password" className="crm-label">
-                  Old Password
-                </label>
-                <Input
-                  error={errors['old-password']?.message}
-                  props={{
-                    type: 'password',
-                    className: 'w-full',
-                    ...register('old-password'),
-                  }}
-                />
-              </div>
+          <div className="mb-4">
+            <label htmlFor="oldPassword" className="crm-label">
+              Old Password
+            </label>
+            <Input
+              error={errors.oldPassword?.message}
+              props={{
+                type: 'password',
+                className: 'w-full',
+                ...register('oldPassword', requireRule('Old Password')),
+              }}
+            />
+          </div>
 
-              <div className="mb-4">
-                <label htmlFor="new-password" className="crm-label">
-                  New Password
-                </label>
-                <Input
-                  error={errors['new-password']?.message}
-                  props={{
-                    type: 'password',
-                    className: 'w-full',
-                    ...register('new-password'),
-                  }}
-                />
-              </div>
+          <div className="mb-4">
+            <label htmlFor="newPassword" className="crm-label">
+              New Password
+            </label>
+            <Input
+              error={errors.newPassword?.message}
+              props={{
+                type: 'password',
+                className: 'w-full',
+                ...register('newPassword', requireRule('New Password')),
+              }}
+            />
+          </div>
 
-              <div className="mb-4 min-w-[450px]">
-                <label htmlFor="confirm-password" className="crm-label">
-                  Confirm Password
-                </label>
-                <Input
-                  error={errors['confirm-password']?.message}
-                  props={{
-                    type: 'password',
-                    className: 'w-full',
-                    ...register('confirm-password'),
-                  }}
-                />
-              </div>
+          <div className="mb-4 min-w-[450px]">
+            <label htmlFor="confirmPassword" className="crm-label">
+              Confirm Password
+            </label>
+            <Input
+              error={errors.confirmPassword?.message}
+              props={{
+                type: 'password',
+                className: 'w-full',
+                ...register('confirmPassword', requireRule('Confirm Password')),
+              }}
+            />
+          </div>
 
-              <div className="mb-8">
-                <button disabled={isLoading} className="crm-button w-full">
-                  <Loading on={isLoading}>Submit</Loading>
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+          <div className="mb-8">
+            <button disabled={isLoading} className="crm-button w-full">
+              <Loading on={isLoading}>Submit</Loading>
+            </button>
+          </div>
         </form>
       </div>
     </Layout>
   )
-}
-
-export function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const token = getSessionToken(ctx.req.cookies) || null
-  return {
-    props: {
-      token,
-    },
-  }
 }

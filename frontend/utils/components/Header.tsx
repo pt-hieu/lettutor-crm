@@ -1,4 +1,3 @@
-import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { Avatar } from 'antd'
 import { MouseEvent, useCallback, useEffect, useState } from 'react'
 import Confirm from './Confirm'
@@ -11,7 +10,6 @@ const menuItemClass =
   'p-2 px-3 hover:bg-gray-200 cursor-pointer crm-transition text-black hover:text-black'
 
 export default function Header() {
-  const [session] = useTypedSession()
   const [seed] = useState(Math.random())
   const [visible, setVisible] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
@@ -60,14 +58,16 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute top-[120%] right-0 bg-white rounded-md shadow-md py-2 min-w-[150px] whitespace-nowrap"
+              style={{ zIndex: 1001 }}
+              className="absolute border top-[120%] right-0 bg-white rounded-md shadow-md py-2 min-w-[150px] whitespace-nowrap flex flex-col h-auto"
             >
               <Link href="/change-password">
                 <a className={menuItemClass}>
-                  <span className=" fa fa-key mr-2" />
+                  <span className="fa fa-key mr-2" />
                   Change password
                 </a>
               </Link>
+
               <div
                 onClick={openConfirm}
                 tabIndex={0}
