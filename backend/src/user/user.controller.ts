@@ -1,26 +1,16 @@
 import { DTO } from 'src/type'
 import { Public } from 'src/utils/decorators/public.decorator'
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Post,
-  Put,
-  Query
-} from '@nestjs/common'
+import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UserService } from './user.service'
 import { Payload } from 'src/utils/decorators/payload.decorator'
-import { User } from './user.entity'
 import { JwtPayload } from 'src/utils/interface'
-import { Pagination } from 'nestjs-typeorm-paginate'
 
 @ApiTags('user')
 @ApiBearerAuth('jwt')
 @Controller('user')
 export class UserController {
-  constructor(private readonly service: UserService) {}
+  constructor(private readonly service: UserService) { }
 
   @Public()
   @Post('reset-password')
@@ -49,11 +39,9 @@ export class UserController {
     return this.service.changePwd(dto, payload)
   }
 
-  @Get('')
+  @Get()
   @ApiOperation({ summary: 'to get all users in the system' })
-  async index(
-    @Query() query: DTO.User.UserGetManyQuery
-  ): Promise<Pagination<User>> {
+  async index(@Query() query: DTO.User.UserGetManyQuery) {
     return this.service.getMany(query)
   }
 }

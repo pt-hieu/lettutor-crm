@@ -9,10 +9,7 @@ import { MailService } from 'src/mail/mail.service'
 import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
 
-import {
-  paginate,
-  Pagination,
-} from 'nestjs-typeorm-paginate'
+import { paginate, Pagination } from 'nestjs-typeorm-paginate'
 const RESET_PWD_TOKEN_EXPIRATION = 5 //in days
 
 @Injectable()
@@ -84,17 +81,19 @@ export class UserService {
     return this.userRepo.save(user)
   }
 
-  async getMany(
-    query: DTO.User.UserGetManyQuery
-  ): Promise<Pagination<User>> {
+  getMany(query: DTO.User.UserGetManyQuery) {
     let q = this.userRepo
-      .createQueryBuilder("u")
+      .createQueryBuilder('u')
       .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.status'])
 
-    if (query.userStatus) q = q.where("u.status = :status", { status: query.userStatus })
-    if (query.role) q = q.andWhere('u.role @> ARRAY[:role]::user_role_enum[]', { role: query.role })
+    if (query.userStatus)
+      q = q.where('u.status = :status', { status: query.userStatus })
 
-    const res = await paginate(q, { limit: query.limit, page: query.page })
-    return res
+    if (query.role)
+      q = q.andWhere('u.role @> ARRAY[:role]::user_role_enum[]', {
+        role: query.role,
+      })
+
+    return paginate(q, { limit: query.limit, page: query.page })
   }
 }
