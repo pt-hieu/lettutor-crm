@@ -18,15 +18,15 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   const page = Number(q.page) || 1
   const limit = Number(q.limit) || 10
-  const query = q.query as string | undefined
+  const search = q.search as string | undefined
   const role = q.role as Role | undefined
   const status = q.status as UserStatus | undefined
 
   if (token) {
     await Promise.all([
       client.prefetchQuery(
-        ['users', page, limit, query || '', role || '', status || ''],
-        getUsers({ limit, page, query, role, status }, token),
+        ['users', page, limit, search || '', role || '', status || ''],
+        getUsers({ limit, page, search, role, status }, token),
       ),
     ])
   }
@@ -69,13 +69,13 @@ export default function UsersSettings() {
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
-  const [query, setQuery] = useQueryState<string | undefined>('query')
+  const [search, setSearch] = useQueryState<string | undefined>('query')
   const [role, setRole] = useQueryState<Role | undefined>('role')
   const [status, setStatus] = useQueryState<UserStatus | undefined>('status')
 
   const { data: users, isLoading } = useQuery(
-    ['users', page, limit, query, role || '', status || ''],
-    getUsers({ limit, page, query, role, status }),
+    ['users', page, limit, search, role || '', status || ''],
+    getUsers({ limit, page, search, role, status }),
   )
 
   const [start, end, total] = usePaginateItem(users)
@@ -84,12 +84,12 @@ export default function UsersSettings() {
     <SettingsLayout title="CRM | Users">
       <Search
         loading={isLoading}
-        onQueryChange={setQuery}
+        onQueryChange={setSearch}
         onRoleChange={setRole}
         onStatusChange={setStatus}
       />
       <div className="mt-4">
-        {query && (
+        {search && (
           <div className="mb-2">
             Showing from {start} to {end} of {total} results.
           </div>

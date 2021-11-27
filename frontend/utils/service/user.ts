@@ -31,7 +31,7 @@ export const getUsers =
     params: {
       page?: number
       limit?: number
-      query?: string
+      search?: string
       role?: Role
       status?: UserStatus
     },

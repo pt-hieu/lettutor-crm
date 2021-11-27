@@ -20,7 +20,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
@@ -128,12 +128,13 @@ export class UserService {
         role: query.role,
       })
 
-    if(query.searchQuery){
-      q = q.andWhere('u.name ILIKE :searchQuery', {searchQuery: `%${query.searchQuery}%`})
-            .orWhere('u.email ILIKE :searchQuery', {searchQuery: `%${query.searchQuery}%`})
+    if (query.search) {
+      q = q
+        .andWhere('u.name ILIKE :search', { search: `%${query.search}%` })
+        .orWhere('u.email ILIKE :search', { search: `%${query.search}%` })
     }
 
-    return paginate( q, { limit: query.limit, page: query.page })
+    return paginate(q, { limit: query.limit, page: query.page })
   }
 
   async updateUser(dto: DTO.User.UpdateUser, payload: JwtPayload) {
