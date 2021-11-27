@@ -7,8 +7,13 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { Hydrate } from 'react-query/hydration'
 import { useState } from 'react'
 import axios from 'axios'
+import { notification } from 'antd'
 
 axios.defaults.withCredentials = true
+
+notification.config({
+  placement: 'bottomRight',
+})
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [client] = useState(() => new QueryClient())

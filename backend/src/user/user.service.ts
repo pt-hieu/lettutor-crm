@@ -94,6 +94,21 @@ export class UserService {
         role: query.role,
       })
 
-    return paginate(q, { limit: query.limit, page: query.page })
+    return paginate( q, { limit: query.limit, page: query.page })
+  }
+
+  async updateUser(dto: DTO.User.UpdateUser, payload: JwtPayload) {
+    const user = await this.userRepo.findOne({ where: { id: payload.id } })
+    if (!user) throw new BadRequestException('User does not exist')
+
+    if (dto.name === user?.name) {
+      throw new BadRequestException(
+        'The name you updated is the old name',
+      )
+    }
+    
+    user.name = dto.name
+    return this.userRepo.save(user)
   }
 }
+

@@ -6,6 +6,7 @@ import {
   Matches,
   IsOptional,
   IsEnum,
+  MaxLength
 } from 'class-validator'
 import { Paginate } from './paging'
 import { Role, UserStatus } from 'src/user/user.entity'
@@ -65,4 +66,12 @@ export class UserGetManyQuery extends Paginate {
   @IsEnum(Role)
   @IsOptional()
   role?: Role
+}
+
+export class UpdateUser {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name: string
 }

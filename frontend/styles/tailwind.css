@@ -18,11 +18,11 @@
   }
 
   .crm-input {
-    @apply focus:outline-none border border-gray-200 rounded-md text-gray-600 focus:ring-0 crm-transition;
+    @apply focus:outline-none text-[14px] border-none focus:border-none !ring-1 ring-gray-200 rounded-md text-gray-600 !crm-transition;
   }
 
   .crm-input:invalid {
-    @apply border-red-600 focus:border-red-600;
+    @apply ring-red-600;
   }
 
   .crm-label {
