@@ -7,6 +7,7 @@ import {
   forwardRef,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
+  useState,
 } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -25,13 +26,34 @@ type TextAreaProps = DetailedHTMLProps<
   HTMLTextAreaElement
 >
 
-type Props = (
-  | { as?: 'input'; props: InputProps }
-  | { as: 'select'; props: SelectProps }
-  | { as: 'textarea'; props: TextAreaProps }
-) & {
+type NativeProps<T> = T extends undefined
+  ? {
+      as?: T
+      props: InputProps
+    }
+  : T extends 'input'
+  ? {
+      as: T
+      props: InputProps
+    }
+  : T extends 'select'
+  ? {
+      as: T
+      props: SelectProps
+    }
+  : T extends 'textarea'
+  ? {
+      as: T
+      props: TextAreaProps
+    }
+  : {}
+
+type Props<T> = NativeProps<T> & {
   error: string | undefined
   showError?: boolean
+  editable?: boolean
+  id?: never
+  onInvalid?: never
 }
 
 const variants = {
@@ -39,9 +61,15 @@ const variants = {
   animating: { opacity: 1, height: 'auto', marginTop: 8 },
 }
 
-export default forwardRef<any, Omit<Props, 'id' | 'onInvalid'>>(function Input(
-  { error, as, showError, props: { name, className, ...rest } },
-  _ref,
+function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
+  {
+    error,
+    as,
+    showError,
+    editable,
+    props: { name, className, disabled, ...rest },
+  }: Props<T>,
+  _ref: any,
 ) {
   const ele = useRef<any | null>(null)
 
@@ -61,11 +89,23 @@ export default forwardRef<any, Omit<Props, 'id' | 'onInvalid'>>(function Input(
 
   return (
     <>
-      {/* @ts-ignore */}
       <Component
         // @ts-ignore
         onInvalid={removeBubble}
-        className={'crm-input ' + className}
+        className={
+          `crm-input ${
+            (editable === undefined || editable === true) && disabled
+              ? 'bg-gray-300 '
+              : ' '
+          }` +
+          (className || '') +
+          (editable !== undefined
+            ? editable
+              ? ''
+              : ' !ring-0 text-black'
+            : '')
+        }
+        disabled={disabled ?? editable === false}
         name={name}
         id={name}
         {...rest}
@@ -85,4 +125,6 @@ export default forwardRef<any, Omit<Props, 'id' | 'onInvalid'>>(function Input(
       </AnimatePresence>
     </>
   )
-})
+}
+
+export default forwardRef(Input)

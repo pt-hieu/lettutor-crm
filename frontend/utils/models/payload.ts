@@ -1,6 +1,4 @@
-export enum Role {
-  SUPER_ADMIN = 'super admin'
-}
+import { Role } from "./user";
 
 export interface JwtPayload {
   id: string

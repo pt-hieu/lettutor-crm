@@ -4,7 +4,7 @@ import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UserService } from './user.service'
 import { Payload } from 'src/utils/decorators/payload.decorator'
-import { Role, User } from './user.entity'
+import { Role } from './user.entity'
 import { JwtPayload } from 'src/utils/interface'
 import { Roles } from 'src/role.decorator'
 
@@ -46,5 +46,17 @@ export class UserController {
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
   addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
     return this.service.addUser(dto, payload)
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'to get all users in the system' })
+  async index(@Query() query: DTO.User.UserGetManyQuery) {
+    return this.service.getMany(query)
+  }
+
+  @Patch('update-info')
+  @ApiOperation({ summary: 'to self-update user info' })
+  updateUser(@Body() dto: DTO.User.UpdateUser, @Payload() payload: JwtPayload) {
+    return this.service.updateUser(dto, payload)
   }
 }

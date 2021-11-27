@@ -1,13 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsString,
   Matches,
+  IsOptional,
+  IsEnum,
   MaxLength,
 } from 'class-validator'
-import { Role } from 'src/user/user.entity'
+import { Paginate } from './paging'
+import { Role, UserStatus } from 'src/user/user.entity'
 
 export class ResetPwd {
   @ApiProperty()
@@ -65,4 +67,28 @@ export class AddUser {
   @IsNotEmpty()
   @IsEnum(Role)
   role: Role
+}
+export class UserGetManyQuery extends Paginate {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  query?: string
+
+  @ApiPropertyOptional({ enum: UserStatus, enumName: 'User Status' })
+  @IsEnum(UserStatus)
+  @IsOptional()
+  status?: UserStatus
+
+  @ApiPropertyOptional({ enum: Role, enumName: 'Role' })
+  @IsEnum(Role)
+  @IsOptional()
+  role?: Role
+}
+
+export class UpdateUser {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name: string
 }

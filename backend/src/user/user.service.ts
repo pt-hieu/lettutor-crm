@@ -8,6 +8,7 @@ import moment from 'moment'
 import { MailService } from 'src/mail/mail.service'
 import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
+import { paginate } from 'nestjs-typeorm-paginate'
 
 const RESET_PWD_TOKEN_EXPIRATION = 5 //in days
 @Injectable()
@@ -111,5 +112,33 @@ export class UserService {
         await this.userRepo.save(targetUser)
         return true
       })
+  }
+
+  getMany(query: DTO.User.UserGetManyQuery) {
+    let q = this.userRepo
+      .createQueryBuilder('u')
+      .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.status'])
+
+    if (query.status)
+      q = q.where('u.status = :status', { status: query.status })
+
+    if (query.role)
+      q = q.andWhere('u.role @> ARRAY[:role]::user_role_enum[]', {
+        role: query.role,
+      })
+
+    return paginate(q, { limit: query.limit, page: query.page })
+  }
+
+  async updateUser(dto: DTO.User.UpdateUser, payload: JwtPayload) {
+    const user = await this.userRepo.findOne({ where: { id: payload.id } })
+    if (!user) throw new BadRequestException('User does not exist')
+
+    if (dto.name === user?.name) {
+      throw new BadRequestException('The name you updated is the old name')
+    }
+
+    user.name = dto.name
+    return this.userRepo.save(user)
   }
 }
