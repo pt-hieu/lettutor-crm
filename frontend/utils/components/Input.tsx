@@ -88,7 +88,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
   const Component = as || 'input'
 
   return (
-    <>
+    <div>
       <Component
         // @ts-ignore
         onInvalid={removeBubble}
@@ -123,7 +123,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   )
 }
 

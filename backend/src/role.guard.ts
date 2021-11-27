@@ -5,7 +5,7 @@ import { Role } from './user/user.entity'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) { }
+  constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
@@ -18,7 +18,6 @@ export class RolesGuard implements CanActivate {
     }
 
     const { user } = context.switchToHttp().getRequest()
-
-    return requiredRoles.some((role) => user.roles.includes(role))
+    return requiredRoles.some((role) => user.role.includes(role))
   }
 }

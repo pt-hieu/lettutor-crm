@@ -15,6 +15,17 @@ export const changePassword = async (data: {
 }) =>
   axios.patch(API + '/api/user/change-password', data).then((res) => res.data)
 
+export const getSelf = (token?: string) => () =>
+  axios
+    .get<Pick<User, 'name' | 'email' | 'role' | 'status'>>(
+      API + '/api/user/self',
+      { headers: { authorization: 'Bearer ' + token } },
+    )
+    .then((res) => res.data)
+
+export const updateUserInformation = (data: { name: string }) =>
+  axios.patch<User>(API + '/api/user', data).then((res) => res.data)
+
 export const getUsers =
   (
     params: {

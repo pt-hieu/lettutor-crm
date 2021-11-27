@@ -5,42 +5,63 @@ import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { useCallback, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
-import { useMutation } from 'react-query'
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from 'react-query'
 import { notification } from 'antd'
 import Loading from '@utils/components/Loading'
+import { GetServerSideProps } from 'next'
+import { getSessionToken } from '@utils/libs/getToken'
+import { getSelf, updateUserInformation } from '@utils/service/user'
 
 type FormData = {
   name: string
 }
 
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const token = getSessionToken(req.cookies)
+  const client = new QueryClient()
+
+  if (token) {
+    await Promise.all([client.prefetchQuery('self-info', getSelf(token))])
+  }
+
+  return {
+    props: {
+      dehydratedState: dehydrate(client),
+    },
+  }
+}
+
 export default function UpdateInformation() {
-  const [session] = useTypedSession()
-  const { name, email, role } = session?.user || {}
+  const { data } = useQuery('self-info', getSelf())
+  const { email, name, role, status } = data || {}
+
   const [edit, turnOn, turnOff] = useModal()
+  const client = useQueryClient()
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
     reset,
   } = useForm<FormData>({ defaultValues: { name } })
 
-  useEffect(() => {
-    setValue('name', name || '')
-  }, [name])
-
-  useEffect(reset, [edit])
-
   const { mutateAsync, isLoading } = useMutation(
     'update-information',
-    (data: FormData) => Promise.resolve(true),
+    (data: FormData) => updateUserInformation(data),
     {
-      onSuccess() {
+      onSuccess(data) {
         notification.success({
           message: 'Update information successfully.',
         })
         turnOff()
+        reset({ name: data.name })
+        client.invalidateQueries('self-info')
       },
       onError() {
         notification.error({
@@ -77,11 +98,11 @@ export default function UpdateInformation() {
         </div>
         <form
           onSubmit={updateInformation}
-          className="grid grid-cols-2 gap-2 w-3/5 mt-3"
+          className="grid grid-cols-2 gap-y-2 gap-x-3 w-3/5 mt-3"
         >
           <label
             htmlFor="name"
-            className="crm-label text-right font-medium my-auto"
+            className="crm-label text-right font-medium my-[9px]"
           >
             Name
           </label>
@@ -96,10 +117,7 @@ export default function UpdateInformation() {
             }}
           />
 
-          <label
-            htmlFor="email"
-            className="crm-label text-right font-medium my-auto"
-          >
+          <label className="crm-label text-right font-medium my-auto">
             Email
           </label>
           <Input
@@ -113,10 +131,7 @@ export default function UpdateInformation() {
             }}
           />
 
-          <label
-            htmlFor="role"
-            className="crm-label text-right font-medium my-auto"
-          >
+          <label className="crm-label text-right font-medium my-auto">
             Role
           </label>
           <Input
@@ -131,6 +146,20 @@ export default function UpdateInformation() {
             }}
           />
 
+          <label className="crm-label text-right font-medium my-auto">
+            Status
+          </label>
+          <Input
+            error=""
+            showError={false}
+            editable={edit}
+            props={{
+              type: 'text',
+              disabled: true,
+              value: status,
+            }}
+          />
+
           <AnimatePresence presenceAffectsLayout>
             {edit && (
               <motion.div
@@ -141,7 +170,7 @@ export default function UpdateInformation() {
                 className="col-span-2 flex gap-3 justify-center mt-2"
               >
                 <button disabled={isLoading} className="crm-button">
-                  <Loading on={isLoading}>Submit</Loading>
+                  <Loading on={isLoading}>Save</Loading>
                 </button>
                 <button
                   onClick={turnOff}
