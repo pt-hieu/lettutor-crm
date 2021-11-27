@@ -45,9 +45,15 @@ export class UserController {
     return this.service.getMany(query)
   }
 
-  @Patch('update-info')
+  @Patch()
   @ApiOperation({ summary: 'to self-update user info' })
   updateUser(@Body() dto: DTO.User.UpdateUser, @Payload() payload: JwtPayload) {
     return this.service.updateUser(dto, payload)
+  }
+
+  @Get('self')
+  @ApiOperation({ summary: 'to get user information' })
+  getOne(@Payload() payload: JwtPayload) {
+    return this.service.getOne(payload)
   }
 }

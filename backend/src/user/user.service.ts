@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
@@ -18,6 +22,16 @@ export class UserService {
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
   ) { }
+
+  async getOne(payload: JwtPayload) {
+    const user = await this.userRepo.findOne({
+      where: { id: payload.id },
+      select: ['name', 'email', 'role', 'status'],
+    })
+    if (!user) throw new BadRequestException('User does not exist')
+
+    return user
+  }
 
   async requestResetPwdEmail(dto: DTO.User.RequestResetPwd) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } })
@@ -94,7 +108,7 @@ export class UserService {
         role: query.role,
       })
 
-    return paginate( q, { limit: query.limit, page: query.page })
+    return paginate(q, { limit: query.limit, page: query.page })
   }
 
   async updateUser(dto: DTO.User.UpdateUser, payload: JwtPayload) {
@@ -102,13 +116,10 @@ export class UserService {
     if (!user) throw new BadRequestException('User does not exist')
 
     if (dto.name === user?.name) {
-      throw new BadRequestException(
-        'The name you updated is the old name',
-      )
+      throw new BadRequestException('The name you updated is the old name')
     }
-    
+
     user.name = dto.name
     return this.userRepo.save(user)
   }
 }
-
