@@ -16,14 +16,14 @@ export class MailService {
     })
   }
 
-  sendAddPwdMail(from: User, target: User, token: string) {
+  sendAddPwdMail(from: string, target: User, token: string) {
     const link = process.env.FE_URL + '/add-password?token=' + token
 
     return this.mailerService.sendMail({
       to: target.email,
       subject: 'CRM - Add New Password',
       html:
-        from.name +
+        from +
         ' invite you to join CRM account, please click the following link to complete your participation: ' +
         link,
     })

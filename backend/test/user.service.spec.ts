@@ -175,13 +175,11 @@ describe('user service', () => {
         role: Role.SUPER_ADMIN,
       }
 
-      usersRepo.findOne
-        .mockReturnValueOnce({ ...user })
-        .mockReturnValueOnce(null)
+      usersRepo.findOne.mockReturnValue(null)
 
       usersRepo.save.mockReturnValue({ ...dto })
 
-      expect(await userService.addUser(dto, user)).toEqual(true)
+      expect(await userService.addUser(dto, user.name)).toEqual(true)
     })
 
     it('should throw error when user exist', () => {
@@ -191,9 +189,9 @@ describe('user service', () => {
         role: Role.SUPER_ADMIN,
       }
 
-      usersRepo.findOne.mockReturnValue({ ...user }).mockReturnValue({ dto })
+      usersRepo.findOne.mockReturnValue({ ...user })
 
-      expect(userService.addUser(dto, user)).rejects.toThrow(
+      expect(userService.addUser(dto, user.name)).rejects.toThrow(
         new BadRequestException(
           'User you want to add is exist, cannot add new user',
         ),

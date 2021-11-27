@@ -10,7 +10,7 @@ import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
 import { paginate } from 'nestjs-typeorm-paginate'
 
-const RESET_PWD_TOKEN_EXPIRATION = 5 //in days
+const PWD_TOKEN_EXPIRATION = 5 //in days
 @Injectable()
 export class UserService {
   constructor(
@@ -26,9 +26,7 @@ export class UserService {
 
     return this.mailService.sendResetPwdMail(user, token).then(async () => {
       user.passwordToken = token
-      user.tokenExpiration = moment()
-        .add(RESET_PWD_TOKEN_EXPIRATION, 'days')
-        .toDate()
+      user.tokenExpiration = moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate()
 
       await this.userRepo.save(user)
       return true
@@ -80,10 +78,7 @@ export class UserService {
     return this.userRepo.save(user)
   }
 
-  async addUser(dto: DTO.User.AddUser, payload: JwtPayload) {
-    const fromUser = await this.userRepo.findOne({ where: { id: payload.id } })
-    if (!fromUser) throw new BadRequestException('User does not exist')
-
+  async addUser(dto: DTO.User.AddUser, fromUser: string) {
     let targetUser = await this.userRepo.findOne({
       where: { email: dto.email },
     })
@@ -93,25 +88,17 @@ export class UserService {
         'User you want to add is exist, cannot add new user',
       )
 
+    const token = randomBytes(48).toString('base64url')
+
     targetUser = await this.userRepo.save({
       name: dto.name,
       email: dto.email,
       role: [dto.role],
+      passwordToken: token,
+      tokenExpiration: moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate(),
     })
 
-    const token = randomBytes(48).toString('base64url')
-
-    return this.mailService
-      .sendAddPwdMail(fromUser, targetUser, token)
-      .then(async () => {
-        targetUser.passwordToken = token
-        targetUser.tokenExpiration = moment()
-          .add(RESET_PWD_TOKEN_EXPIRATION, 'days')
-          .toDate()
-
-        await this.userRepo.save(targetUser)
-        return true
-      })
+    return this.mailService.sendAddPwdMail(fromUser, targetUser, token)
   }
 
   getMany(query: DTO.User.UserGetManyQuery) {

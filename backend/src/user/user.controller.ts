@@ -30,7 +30,7 @@ export class UserController {
 
   @Public()
   @Put('password')
-  @ApiOperation({ summary: 'to reset password with token' })
+  @ApiOperation({ summary: 'to update password with token' })
   resetPwd(@Body() dto: DTO.User.ResetPwd) {
     return this.service.resetPwd(dto)
   }
@@ -45,7 +45,7 @@ export class UserController {
   @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
   addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
-    return this.service.addUser(dto, payload)
+    return this.service.addUser(dto, payload.name)
   }
 
   @Get()
