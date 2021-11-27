@@ -128,7 +128,12 @@ export class UserService {
         role: query.role,
       })
 
-    return paginate(q, { limit: query.limit, page: query.page })
+    if(query.searchQuery){
+      q = q.andWhere('u.name ILIKE :searchQuery', {searchQuery: `%${query.searchQuery}%`})
+            .orWhere('u.email ILIKE :searchQuery', {searchQuery: `%${query.searchQuery}%`})
+    }
+
+    return paginate( q, { limit: query.limit, page: query.page })
   }
 
   async updateUser(dto: DTO.User.UpdateUser, payload: JwtPayload) {
