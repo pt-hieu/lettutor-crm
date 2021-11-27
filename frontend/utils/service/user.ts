@@ -44,3 +44,11 @@ export const getUsers =
         params,
       })
       .then((res) => res.data)
+
+export const addUser = async (data: {
+  name: string
+  email: string
+  role: Role
+}) => {
+  return axios.post(API + '/api/user', data).then((res) => res.data)
+}

@@ -2,7 +2,7 @@ import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import useOnClickOutside from '@utils/hooks/useOnClickOutSide'
 import { IErrorResponse } from '@utils/libs/functionalTryCatch'
-import { Role, User } from '@utils/models/user'
+import { Role } from '@utils/models/user'
 import { addUser } from '@utils/service/user'
 import { Modal, notification } from 'antd'
 import { requireRule } from 'pages/change-password'
@@ -21,13 +21,6 @@ const initialValue: FormData = {
   name: '',
   email: '',
   userRole: '',
-}
-
-const UsersKey = {
-  Page: 1,
-  Limit: 10,
-  Name: '',
-  Role: '',
 }
 
 const validateData = (
@@ -62,16 +55,8 @@ const ButtonAddUser = () => {
   const queryClient = useQueryClient()
 
   const { isLoading, mutateAsync } = useMutation('add-user', addUser, {
-    onSuccess: (response: User) => {
-      queryClient.setQueryData<User[]>(
-        ['users', UsersKey.Page, UsersKey.Limit, UsersKey.Name, UsersKey.Role],
-        (oldData) => {
-          if (oldData) {
-            return [response, ...oldData]
-          }
-          return [response]
-        },
-      )
+    onSuccess: () => {
+      queryClient.invalidateQueries('users')
       reset(initialValue)
       setShowModal(false)
       notification.success({
@@ -103,14 +88,14 @@ const ButtonAddUser = () => {
   return (
     <div className="flex items-center ml-2">
       <button
-        className="h-full px-4 tracking-wide bg-blue-600 text-white font-medium rounded-l-md hover:bg-blue-500 focus:outline-none focus:bg-blue-600"
+        className="h-full px-4 tracking-wide bg-blue-600 text-white font-medium rounded-l-md hover:bg-blue-500 focus:outline-none"
         onClick={() => setShowModal(!showModal)}
       >
         <span className="fa fa-plus mr-2"></span>New User
       </button>
 
       <button
-        className="relative z-10 block h-full bg-blue-600 rounded-r-md p-2 px-3 border-blue-300 border-l hover:bg-blue-500 focus:outline-none focus:bg-blue-600"
+        className="relative z-10 block h-full bg-blue-600 rounded-r-md p-2 px-3 border-blue-300 border-l hover:bg-blue-500 focus:outline-none"
         onClick={() => setShowMenu(!showMenu)}
         ref={menuRef}
       >
