@@ -94,6 +94,11 @@ export class UserService {
         role: query.role,
       })
 
+    if(query.searchQuery){
+      q = q.andWhere('u.name ILIKE :searchQuery', {searchQuery: `%${query.searchQuery}%`})
+            .orWhere('u.email ILIKE :searchQuery', {searchQuery: `%${query.searchQuery}%`})
+    }
+
     return paginate( q, { limit: query.limit, page: query.page })
   }
 
