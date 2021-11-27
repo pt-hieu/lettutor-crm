@@ -1,6 +1,6 @@
 import { MailService } from 'src/mail/mail.service'
 import { DTO } from 'src/type'
-import { User } from 'src/user/user.entity'
+import { Role, User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
@@ -23,6 +23,7 @@ describe('user service', () => {
           provide: MailService,
           useValue: {
             sendResetPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+            sendAddPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
           },
         },
         {
@@ -63,9 +64,9 @@ describe('user service', () => {
   })
 
   describe('find user by reset pwd token', () => {
-    it('shoudl find succeeed', async () => {
+    it('should find succeed', async () => {
       const dto: DTO.User.FindByTokenQuery = {
-        token: user.resetPasswordToken,
+        token: user.passwordToken,
       }
 
       usersRepo.findOne.mockReturnValue({ ...user })
@@ -74,7 +75,7 @@ describe('user service', () => {
 
     it('should throw error when token does not exist', () => {
       const dto: DTO.User.FindByTokenQuery = {
-        token: user.resetPasswordToken,
+        token: user.passwordToken,
       }
 
       usersRepo.findOne.mockReturnValue(undefined)
@@ -88,7 +89,7 @@ describe('user service', () => {
     it('should change pwd succeed', async () => {
       const dto: DTO.User.ResetPwd = {
         password: user.password,
-        token: user.resetPasswordToken,
+        token: user.passwordToken,
       }
 
       usersRepo.findOne.mockReturnValue({ ...user })
@@ -97,10 +98,10 @@ describe('user service', () => {
       expect(await userService.resetPwd(dto)).toEqual(user)
     })
 
-    it('shoud throw error when user does not exist', () => {
+    it('should throw error when user does not exist', () => {
       const dto: DTO.User.ResetPwd = {
         password: user.password,
-        token: user.resetPasswordToken,
+        token: user.passwordToken,
       }
 
       usersRepo.findOne.mockReturnValue(undefined)
@@ -112,7 +113,7 @@ describe('user service', () => {
     it('should throw error when token is expire', () => {
       const dto: DTO.User.ResetPwd = {
         password: user.password,
-        token: user.resetPasswordToken,
+        token: user.passwordToken,
       }
 
       usersRepo.findOne.mockReturnValue({
@@ -160,10 +161,40 @@ describe('user service', () => {
 
       usersRepo.findOne.mockReturnValue({ ...user })
 
-      expect(
-        userService.changePwd(dto, user),
-      ).rejects.toThrow(
+      expect(userService.changePwd(dto, user)).rejects.toThrow(
         new BadRequestException('New password must differ from old password'),
+      )
+    })
+  })
+
+  describe('add password', () => {
+    it('should add pwd succeed', async () => {
+      const dto: DTO.User.AddUser = {
+        name: user.name,
+        email: user.email,
+        role: Role.SUPER_ADMIN,
+      }
+
+      usersRepo.findOne.mockReturnValue(null)
+
+      usersRepo.save.mockReturnValue({ ...dto })
+
+      expect(await userService.addUser(dto, user.name)).toEqual(true)
+    })
+
+    it('should throw error when user exist', () => {
+      const dto: DTO.User.AddUser = {
+        name: user.name,
+        email: user.email,
+        role: Role.SUPER_ADMIN,
+      }
+
+      usersRepo.findOne.mockReturnValue({ ...user })
+
+      expect(userService.addUser(dto, user.name)).rejects.toThrow(
+        new BadRequestException(
+          'User you want to add is exist, cannot add new user',
+        ),
       )
     })
   })

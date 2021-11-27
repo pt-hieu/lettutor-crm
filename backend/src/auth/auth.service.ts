@@ -9,7 +9,7 @@ import { JwtPayload } from 'src/utils/interface'
 import jwt from 'jsonwebtoken'
 @Injectable()
 export class AuthService {
-  constructor(@InjectRepository(User) private userRepo: Repository<User>) { }
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
   async signup(dto: DTO.Auth.SignUp) {
     if (await this.checkExistence(dto.email))
