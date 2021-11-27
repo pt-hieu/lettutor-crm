@@ -20,7 +20,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
@@ -127,6 +127,12 @@ export class UserService {
       q = q.andWhere('u.role @> ARRAY[:role]::user_role_enum[]', {
         role: query.role,
       })
+
+    if (query.search) {
+      q = q
+        .andWhere('u.name ILIKE :search', { search: `%${query.search}%` })
+        .orWhere('u.email ILIKE :search', { search: `%${query.search}%` })
+    }
 
     return paginate(q, { limit: query.limit, page: query.page })
   }

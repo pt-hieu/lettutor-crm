@@ -72,7 +72,7 @@ export class UserGetManyQuery extends Paginate {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  query?: string
+  search?: string
 
   @ApiPropertyOptional({ enum: UserStatus, enumName: 'User Status' })
   @IsEnum(UserStatus)

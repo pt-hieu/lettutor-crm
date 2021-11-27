@@ -11,7 +11,7 @@ export class CreateDefaultAccount1635606151249 implements MigrationInterface {
         }
 
         const query = `INSERT INTO "user"("id", "created_at", "updated_at", "name", "email", "password", "role", "status") 
-        VALUES ('${defaultAccount.id}', DEFAULT, DEFAULT, '${defaultAccount.name}', '${defaultAccount.email}', '${defaultAccount.password}', ARRAY['SUPER_ADMIN']::user_role_enum[], 'ACTIVE');`;
+        VALUES ('${defaultAccount.id}', DEFAULT, DEFAULT, '${defaultAccount.name}', '${defaultAccount.email}', '${defaultAccount.password}', ARRAY['Super Admin']::user_role_enum[], 'Active');`;
         await queryRunner.query(query)
     }
 
