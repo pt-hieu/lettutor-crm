@@ -6,6 +6,7 @@ import {
   Matches,
   IsOptional,
   IsEnum,
+  MaxLength,
 } from 'class-validator'
 import { Paginate } from './paging'
 import { Role, UserStatus } from 'src/user/user.entity'
@@ -50,6 +51,23 @@ export class ChangePwd {
   newPassword: string
 }
 
+export class AddUser {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name: string
+
+  @ApiProperty()
+  @IsEmail()
+  @MaxLength(100)
+  email: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsEnum(Role)
+  role: Role
+}
 export class UserGetManyQuery extends Paginate {
   @ApiPropertyOptional()
   @IsString()
@@ -59,10 +77,18 @@ export class UserGetManyQuery extends Paginate {
   @ApiPropertyOptional({ enum: UserStatus, enumName: 'User Status' })
   @IsEnum(UserStatus)
   @IsOptional()
-  userStatus?: UserStatus
+  status?: UserStatus
 
   @ApiPropertyOptional({ enum: Role, enumName: 'Role' })
   @IsEnum(Role)
   @IsOptional()
   role?: Role
+}
+
+export class UpdateUser {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name: string
 }

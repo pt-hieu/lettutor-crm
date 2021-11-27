@@ -5,24 +5,29 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { Table, TableColumnType } from 'antd'
 import { GetServerSideProps } from 'next'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
-import { Role, User } from '@utils/models/user'
+import { Role, User, UserStatus } from '@utils/models/user'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import ButtonAddUser from '@components/Settings/ButtonAddUser'
+import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
-  query,
+  query: q,
 }) => {
   const client = new QueryClient()
   const token = getSessionToken(req.cookies)
 
-  const { page, limit, q, role } = query
+  const page = Number(q.page) || 1
+  const limit = Number(q.limit) || 10
+  const query = q.query as string | undefined
+  const role = q.role as Role | undefined
+  const status = q.status as UserStatus | undefined
 
   if (token) {
     await Promise.all([
       client.prefetchQuery(
-        ['users', page || 1, limit || 10, q || '', role || ''],
-        getUsers(token),
+        ['users', page, limit, query || '', role || '', status || ''],
+        getUsers({ limit, page, query, role, status }, token),
       ),
     ])
   }
@@ -47,44 +52,65 @@ const columns: TableColumnType<User>[] = [
     key: 'email',
     sorter: { compare: (a, b) => a.email.localeCompare(b.email) },
   },
-  { title: 'Role', dataIndex: 'role', key: 'role' },
+  {
+    title: 'Role',
+    dataIndex: 'role',
+    key: 'role',
+    sorter: { compare: (a, b) => a.role[0].localeCompare(b.role[0]) },
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    sorter: { compare: (a, b) => a.status.localeCompare(b.status) },
+  },
 ]
 
 export default function UsersSettings() {
-  const [page, setPage] = useQueryState('page', 1)
-  const [limit, setLimit] = useQueryState('limit', 10)
+  const [page, setPage] = useQueryState<number>('page')
+  const [limit, setLimit] = useQueryState<number>('limit')
 
-  const [q, setQ] = useQueryState('q', '')
-  const [role, setRole] = useQueryState<Role | ''>('role', '')
+  const [query, setQuery] = useQueryState<string | undefined>('query')
+  const [role, setRole] = useQueryState<Role | undefined>('role')
+  const [status, setStatus] = useQueryState<UserStatus | undefined>('status')
 
-  const { data: users } = useQuery(
-    ['users', page, limit, q, role],
-    getUsers(undefined, { limit, page, query: q, role }),
+  const { data: users, isLoading } = useQuery(
+    ['users', page, limit, query, role || '', status || ''],
+    getUsers({ limit, page, query, role, status }),
   )
+
+  const [start, end, total] = usePaginateItem(users)
 
   return (
     <SettingsLayout title="CRM | Users">
       <div className="flex flex-row">
         <Search
-          query={q}
-          role={role}
-          onQueryChange={setQ}
+          loading={isLoading}
+          onQueryChange={setQuery}
           onRoleChange={setRole}
+          onStatusChange={setStatus}
         />
         <ButtonAddUser />
       </div>
+
       <div className="mt-4">
+        {query && (
+          <div className="mb-2">
+            Showing from {start} to {end} of {total} results.
+          </div>
+        )}
         <Table
+          showSorterTooltip={false}
           columns={columns}
-          dataSource={users!}
+          loading={isLoading}
+          dataSource={users?.items}
           rowSelection={{
             type: 'checkbox',
           }}
           bordered
           pagination={{
-            hideOnSinglePage: true,
             current: page,
-            total: users?.length,
+            total: users?.meta.totalItems,
             onChange: (page, limit) => {
               setPage(page)
               setLimit(limit || 10)

@@ -2,20 +2,24 @@ import { Paginate } from '@utils/models/paging'
 import { useMemo } from 'react'
 
 export const usePaginateItem = <T>(response: Paginate<T> | undefined) => {
-  if (!response) return [0, 0] as const
+  const meta = response?.meta || {
+    totalItems: 0,
+    itemsPerPage: 0,
+    currentPage: 0,
+  }
 
-  const {
-    meta: { totalItems, itemsPerPage, currentPage },
-  } = response
+  const { totalItems, itemsPerPage, currentPage } = meta
 
   const startIndex = useMemo(
-    () => (currentPage - 1) * itemsPerPage,
+    () => (currentPage - 1) * itemsPerPage + 1,
     [currentPage, itemsPerPage],
   )
 
-  const endIndex = useMemo(() => {
-    Math.min(currentPage * itemsPerPage, totalItems)
-  }, [currentPage, itemsPerPage, totalItems])
+  const endIndex = useMemo(
+    () => Math.min(currentPage * itemsPerPage, totalItems),
+    [currentPage, itemsPerPage, totalItems],
+  )
 
-  return [startIndex, endIndex] as const
+  if (!response) return [0, 0, 0] as const
+  return [startIndex, endIndex, totalItems] as const
 }
