@@ -41,7 +41,7 @@ export class UserController {
     return this.service.changePwd(dto, payload)
   }
 
-  @Post('add-user')
+  @Post()
   @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
   addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
