@@ -52,7 +52,6 @@ describe('auth service', () => {
       }
 
       usersRepo.findOne.mockReturnValue(undefined)
-      let res: any
       expect(authService.validate(dto, res)).rejects.toThrow(
         new BadRequestException('Email or password is wrong'),
       )
@@ -65,7 +64,6 @@ describe('auth service', () => {
       }
 
       usersRepo.findOne.mockReturnValue(user)
-      let res: any
       expect(authService.validate(dto, res)).rejects.toThrow(
         new BadRequestException('Email or password is wrong'),
       )
