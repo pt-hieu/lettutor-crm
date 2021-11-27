@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json ./yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-ARG api=http://18.166.76.32:8000
+ARG api=http://18.167.61.239:8000
 ENV NEXT_PUBLIC_API $api
 
 COPY ./ ./
