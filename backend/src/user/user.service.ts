@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { getRepository, Repository } from 'typeorm'
-import { User, Role } from './user.entity'
+import { Repository } from 'typeorm'
+import { User } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
 import moment from 'moment'
 import { MailService } from 'src/mail/mail.service'
 import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
+import { paginate } from 'nestjs-typeorm-paginate'
 
-import { paginate, Pagination } from 'nestjs-typeorm-paginate'
 const RESET_PWD_TOKEN_EXPIRATION = 5 //in days
 
 @Injectable()
