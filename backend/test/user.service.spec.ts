@@ -9,6 +9,7 @@ import { user } from './data'
 import { MockType, repositoryMockFactory } from './utils'
 import moment from 'moment'
 import { BadRequestException } from '@nestjs/common'
+import { JwtPayload } from 'src/utils/interface'
 
 describe('user service', () => {
   let usersRepo: MockType<Repository<User>>
@@ -167,6 +168,45 @@ describe('user service', () => {
     })
   })
 
+  describe('get one user', () => {
+    it('should return user sucessfully', async () => {
+      const payload: JwtPayload = {
+        email: user.email,
+        id: user.id,
+        name: user.name,
+        role: user.role,
+      }
+
+      usersRepo.findOne.mockReturnValue({
+        name: user.name,
+        role: user.role,
+        email: user.email,
+        status: user.status,
+      })
+
+      expect(await userService.getOne(payload)).toEqual({
+        name: user.name,
+        role: user.role,
+        email: user.email,
+        status: user.status,
+      })
+    })
+
+    it('should throw error when user does not exist', () => {
+      const payload: JwtPayload = {
+        email: user.email,
+        id: user.id,
+        name: user.name,
+        role: user.role,
+      }
+
+      usersRepo.findOne.mockReturnValue(undefined)
+      expect(userService.getOne(payload)).rejects.toThrow(
+        new BadRequestException('User does not exist'),
+         )
+    })
+  })
+  
   describe('add password', () => {
     it('should add pwd succeed', async () => {
       const dto: DTO.User.AddUser = {

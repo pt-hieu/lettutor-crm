@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
@@ -17,6 +21,16 @@ export class UserService {
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
   ) {}
+
+  async getOne(payload: JwtPayload) {
+    const user = await this.userRepo.findOne({
+      where: { id: payload.id },
+      select: ['name', 'email', 'role', 'status'],
+    })
+    if (!user) throw new BadRequestException('User does not exist')
+
+    return user
+  }
 
   async requestResetPwdEmail(dto: DTO.User.RequestResetPwd) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } })
