@@ -1,18 +1,20 @@
+import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
+import Loading from '@utils/components/Loading'
 import { asyncTryCatch } from '@utils/libs/functionalTryCatch'
+import { updatePassword } from '@utils/service/user'
+import { notification } from 'antd'
 import axios from 'axios'
-import { GetServerSideProps } from 'next'
 import { API } from 'environment'
+import { AnimatePresence, motion } from 'framer-motion'
+import { GetServerSideProps } from 'next'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
-import { requestResetEmail, updatePassword } from '@utils/service/user'
-import { notification } from 'antd'
-import Link from 'next/link'
-import Loading from '@utils/components/Loading'
-import Input from '@utils/components/Input'
-import { motion, AnimatePresence } from 'framer-motion'
+import { requireRule } from './change-password'
+import { passwordReg } from './reset-password'
 
 interface Props {
   isValidToken?: boolean
@@ -31,7 +33,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
     )
 
     return {
-      props: { isValidToken: !!error },
+      props: { isValidToken: !error },
     }
   }
 
@@ -41,25 +43,43 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
 }
 
 interface FormData {
-  email: string
   password: string
-  'confirm-password': string
+  confirmPassword: string
 }
 
 enum State {
-  INPUT_EMAIL = 'Send email',
-  INPUT_EMAIL_SUCCESS = '1',
   INVALID_TOKEN = '3',
   INPUT_PASSWORD = 'Reset password',
   INPUT_PASSWORD_SUCCESS = '2',
 }
 
 const serviceByState = {
-  [State.INPUT_EMAIL]: requestResetEmail,
   [State.INPUT_PASSWORD]: updatePassword,
-  [State.INPUT_EMAIL_SUCCESS]: () => Promise.reject(undefined),
   [State.INVALID_TOKEN]: () => Promise.reject(undefined),
   [State.INPUT_PASSWORD_SUCCESS]: () => Promise.reject(undefined),
+}
+
+const validatePassword = (
+  data: FormData,
+): { key: keyof FormData; message: string } | null => {
+  const { password, confirmPassword } = data
+
+  if (password && !passwordReg.test(password)) {
+    return {
+      key: 'password',
+      message:
+        'Password must be at least 8 characters, 1 letter, 1 number and 1 special character',
+    }
+  }
+
+  if (confirmPassword !== password) {
+    return {
+      key: 'confirmPassword',
+      message: 'Passwords do not match',
+    }
+  }
+
+  return null
 }
 
 export const variants = {
@@ -77,18 +97,11 @@ export const variants = {
   },
 }
 
-export const emailReg =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-export const passwordReg =
-  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
-
 export default function ResetPassword({ isValidToken }: Props) {
   const { query } = useRouter()
   const [state, setState] = useState<State>(() => {
-    if (isValidToken) return State.INVALID_TOKEN
-    if (query.token) return State.INPUT_PASSWORD
-    return State.INPUT_EMAIL
+    if (!isValidToken) return State.INVALID_TOKEN
+    return State.INPUT_PASSWORD
   })
 
   const {
@@ -99,22 +112,18 @@ export default function ResetPassword({ isValidToken }: Props) {
   } = useForm<FormData>()
 
   const { mutateAsync, isLoading } = useMutation(
-    ['reset-password', state],
+    ['add-password', state],
     //@ts-ignore
     serviceByState[state],
     {
       onSuccess() {
-        if (state === State.INPUT_EMAIL) {
-          setState(State.INPUT_EMAIL_SUCCESS)
-        }
-
         if (state === State.INPUT_PASSWORD) {
           setState(State.INPUT_PASSWORD_SUCCESS)
         }
       },
       onError() {
         notification.error({
-          message: state + ' unsuccessfully',
+          message: 'Add password unsuccessfully',
         })
       },
     },
@@ -122,120 +131,29 @@ export default function ResetPassword({ isValidToken }: Props) {
 
   const submit = useCallback(
     handleSubmit((data) => {
-      let err = false
-      if (state === State.INPUT_EMAIL) {
-        const email = data.email
-
-        if (!email) {
-          err = true
-          setError('email', {
-            message: 'Email is required',
-          })
-        }
-
-        if (email && !emailReg.test(email)) {
-          err = true
-          setError('email', {
-            message: 'Please enter a valid email address',
-          })
-        }
+      const err = validatePassword(data)
+      if (err) {
+        return setError(err.key, {
+          message: err.message,
+        })
       }
-
-      if (state === State.INPUT_PASSWORD) {
-        const password = data.password
-        const confirmPassword = data['confirm-password']
-
-        if (!password) {
-          err = true
-          setError('password', {
-            message: 'Password is required',
-          })
-        }
-
-        if (password && !passwordReg.test(password)) {
-          err = true
-          setError('password', {
-            message:
-              'Password must be at least 8 characters, 1 letter, 1 number and 1 special character',
-          })
-        }
-
-        if (!confirmPassword) {
-          err = true
-          setError('confirm-password', {
-            message: 'Confirm password is required',
-          })
-        }
-
-        if (password && confirmPassword && confirmPassword !== password) {
-          err = true
-          setError('confirm-password', {
-            message: 'Passwords do not match',
-          })
-        }
-      }
-
-      if (!err) {
-        //@ts-ignore
-        mutateAsync({ ...data, token: query.token })
-      }
+      //@ts-ignore
+      mutateAsync({ ...data, token: query.token })
     }),
     [state, query],
   )
 
-  useEffect(() => {
-    console.log(errors)
-  }, [errors])
-
   const renderByState: Record<State, JSX.Element> = useMemo(
     () => ({
-      [State.INPUT_EMAIL]: (
-        <>
-          <h1 className="mb-0 text-2xl font-medium text-center text-blue-600">
-            Forgot Password
-          </h1>
-          <div className="mb-6 text-center">Enter your email address</div>
-
-          <div className="mb-4">
-            <Input
-              error={errors.email?.message}
-              props={{
-                type: 'email',
-                autoFocus: true,
-                placeholder: 'Enter email address',
-                className: 'w-full',
-                ...register('email'),
-              }}
-            />
-          </div>
-
-          <div>
-            <button disabled={isLoading} className="crm-button w-full">
-              <Loading on={isLoading}>Submit</Loading>
-            </button>
-          </div>
-        </>
-      ),
-      [State.INPUT_EMAIL_SUCCESS]: (
-        <>
-          <div className="text-center font-medium">
-            An email was sent to your email address containing a link to reset
-            your password
-          </div>
-          <Link href="/login">
-            <a className="text-center mt-2">Back to Login</a>
-          </Link>
-        </>
-      ),
       [State.INPUT_PASSWORD]: (
         <>
           <h1 className="mb-8 text-2xl font-medium text-center text-blue-600">
-            Forgot Password
+            Add password
           </h1>
 
           <div className="mb-4">
             <label htmlFor="password" className="crm-label">
-              New Password
+              Password
             </label>
             <Input
               error={errors.password?.message}
@@ -243,21 +161,21 @@ export default function ResetPassword({ isValidToken }: Props) {
                 type: 'password',
                 autoFocus: true,
                 className: 'w-full',
-                ...register('password'),
+                ...register('password', requireRule('Password')),
               }}
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="confirm-password" className="crm-label">
+            <label htmlFor="confirmPassword" className="crm-label">
               Confirm Password
             </label>
             <Input
-              error={errors['confirm-password']?.message}
+              error={errors['confirmPassword']?.message}
               props={{
                 type: 'password',
                 className: 'w-full',
-                ...register('confirm-password'),
+                ...register('confirmPassword', requireRule('Confirm password')),
               }}
             />
           </div>
@@ -286,7 +204,7 @@ export default function ResetPassword({ isValidToken }: Props) {
       [State.INPUT_PASSWORD_SUCCESS]: (
         <>
           <div className="text-center font-medium">
-            Your password has been reset successfully
+            Your password has been added successfully
           </div>
           <Link href="/login">
             <a className="text-center mt-2">Back to Login</a>
@@ -294,7 +212,7 @@ export default function ResetPassword({ isValidToken }: Props) {
         </>
       ),
     }),
-    [errors.email, errors.password, errors['confirm-password'], isLoading],
+    [errors.password, errors.confirmPassword, isLoading],
   )
 
   return (

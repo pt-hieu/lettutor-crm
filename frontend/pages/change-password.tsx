@@ -47,7 +47,7 @@ const validatePassword = (
   return null
 }
 
-const requireRule: (field: string) => RegisterOptions = (field) => ({
+export const requireRule: (field: string) => RegisterOptions = (field) => ({
   required: {
     message: field + ' is required',
     value: true,

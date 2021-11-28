@@ -2,14 +2,14 @@ import { Base } from './base'
 
 export enum Role {
   SUPER_ADMIN = 'Super Admin',
-  ADMIN = 'Admin'
+  ADMIN = 'Admin',
 }
 
 export enum UserStatus {
   ACTIVE = 'Active',
   INACTIVE = 'Inactive',
   UNCONFIRMED = 'Unconfirmed',
-  DELETED = 'Deleted'
+  DELETED = 'Deleted',
 }
 
 export interface User extends Base {

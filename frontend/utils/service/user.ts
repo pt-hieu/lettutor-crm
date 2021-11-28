@@ -37,10 +37,18 @@ export const getUsers =
     },
     token?: string,
   ) =>
-    () =>
-      axios
-        .get<Paginate<User>>(API + '/api/user', {
-          headers: { authorization: 'Bearer ' + token },
-          params,
-        })
-        .then((res) => res.data)
+  () =>
+    axios
+      .get<Paginate<User>>(API + '/api/user', {
+        headers: { authorization: 'Bearer ' + token },
+        params,
+      })
+      .then((res) => res.data)
+
+export const addUser = async (data: {
+  name: string
+  email: string
+  role: Role
+}) => {
+  return axios.post(API + '/api/user', data).then((res) => res.data)
+}

@@ -7,6 +7,7 @@ import { GetServerSideProps } from 'next'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import { Role, User, UserStatus } from '@utils/models/user'
 import { useQueryState } from '@utils/hooks/useQueryState'
+import ButtonAddUser from '@components/Settings/ButtonAddUser'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -82,12 +83,16 @@ export default function UsersSettings() {
 
   return (
     <SettingsLayout title="CRM | Users">
-      <Search
-        loading={isLoading}
-        onQueryChange={setSearch}
-        onRoleChange={setRole}
-        onStatusChange={setStatus}
-      />
+      <div className="flex flex-row">
+        <Search
+          loading={isLoading}
+          onQueryChange={setSearch}
+          onRoleChange={setRole}
+          onStatusChange={setStatus}
+        />
+        <ButtonAddUser />
+      </div>
+
       <div className="mt-4">
         {search && (
           <div className="mb-2">

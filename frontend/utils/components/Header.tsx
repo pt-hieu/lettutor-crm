@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useModal } from '@utils/hooks/useModal'
 import Link from 'next/link'
 
-const menuItemClass =
+export const menuItemClass =
   'p-2 px-3 hover:bg-gray-200 cursor-pointer crm-transition text-black hover:text-black'
 
 export default function Header() {
