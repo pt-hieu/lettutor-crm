@@ -6,5 +6,7 @@ export const useModal = () => {
   const open = useCallback(() => setState(true), [])
   const close = useCallback(() => setState(false), [])
 
-  return [state, open, close] as const
+  const toggle = useCallback(() => setState(s => !s), [])
+
+  return [state, open, close, toggle] as const
 }

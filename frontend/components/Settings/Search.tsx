@@ -4,6 +4,7 @@ import { Role, UserStatus } from '@utils/models/user'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { motion, AnimatePresence } from 'framer-motion'
 
 type FormData = {
   query?: string
@@ -43,7 +44,8 @@ export default function Search({
       changeRole(role || undefined)
       changeStatus(status || undefined)
 
-      setSubmitted(true)
+      if (!query && !status && !role) setSubmitted(false)
+      else setSubmitted(true)
     }),
     [],
   )
@@ -114,16 +116,25 @@ export default function Search({
           </Loading>
         </button>
 
-        {submitted && (
-          <button
-            disabled={loading}
-            type="button"
-            onClick={clear}
-            className="crm-button-outline w-20"
-          >
-            Clear
-          </button>
-        )}
+        <AnimatePresence exitBeforeEnter>
+          {submitted && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <button
+                disabled={loading}
+                type="button"
+                onClick={clear}
+                className="crm-button-outline w-20"
+              >
+                Clear
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
     </div>
   )

@@ -9,6 +9,7 @@ import { Role, User, UserStatus } from '@utils/models/user'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import ButtonAddUser from '@components/Settings/ButtonAddUser'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -83,7 +84,7 @@ export default function UsersSettings() {
 
   return (
     <SettingsLayout title="CRM | Users">
-      <div className="flex flex-row">
+      <div className="flex justify-between">
         <Search
           loading={isLoading}
           onQueryChange={setSearch}
@@ -94,16 +95,25 @@ export default function UsersSettings() {
       </div>
 
       <div className="mt-4">
-        {search && (
-          <div className="mb-2">
-            Showing from {start} to {end} of {total} results.
-          </div>
-        )}
+        <AnimatePresence presenceAffectsLayout>
+          {search && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mb-2"
+            >
+              Showing from {start} to {end} of {total} results.
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Table
           showSorterTooltip={false}
           columns={columns}
           loading={isLoading}
           dataSource={users?.items}
+          rowKey={(u) => u.id}
           rowSelection={{
             type: 'checkbox',
           }}
@@ -111,6 +121,7 @@ export default function UsersSettings() {
           pagination={{
             current: page,
             total: users?.meta.totalItems,
+            defaultPageSize: 10,
             onChange: (page, limit) => {
               setPage(page)
               setLimit(limit || 10)

@@ -7,7 +7,7 @@ import { useModal } from '@utils/hooks/useModal'
 import Link from 'next/link'
 
 export const menuItemClass =
-  'p-2 px-3 hover:bg-gray-200 cursor-pointer crm-transition text-black hover:text-black'
+  'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
 
 export default function Header() {
   const [seed] = useState(Math.random())
@@ -31,7 +31,7 @@ export default function Header() {
   return (
     <header className="crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md">
       <div className="font-semibold text-xl">CRM System</div>
-      <div className="flex gap-3 items-center relative">
+      <div className="flex gap-3 items-center relative z-20">
         <div>
           <Link href="/settings">
             <a className="crm-link">
@@ -58,7 +58,6 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              style={{ zIndex: 1001 }}
               className="absolute border top-[120%] right-0 bg-white rounded-md shadow-md py-2 min-w-[150px] whitespace-nowrap flex flex-col h-auto"
             >
               <Link href="/change-password">

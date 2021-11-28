@@ -6,7 +6,7 @@ interface Props {
   children?: ReactNode
   wrapperStyle?: CSSProperties
   containerClass?: string
-  on: boolean
+  on?: boolean
 }
 
 export default function Loading({
@@ -21,7 +21,7 @@ export default function Loading({
         'min-h-[24px] flex items-center justify-center ' + containerClass || ''
       }
     >
-      {on ? (
+      {on ?? true ? (
         <UseAnimations
           animation={loading}
           wrapperStyle={wrapperStyle || { margin: 'auto' }}

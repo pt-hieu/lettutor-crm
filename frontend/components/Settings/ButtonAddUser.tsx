@@ -3,13 +3,15 @@ import Input from '@utils/components/Input'
 import useOnClickOutside from '@utils/hooks/useOnClickOutSide'
 import { IErrorResponse } from '@utils/libs/functionalTryCatch'
 import { Role } from '@utils/models/user'
-import { addUser } from '@utils/service/user'
-import { Modal, notification } from 'antd'
+import { addUser as addUserService } from '@utils/service/user'
+import { Divider, Modal, notification } from 'antd'
 import { requireRule } from 'pages/change-password'
 import { emailReg } from 'pages/reset-password'
-import { useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { useModal } from '@utils/hooks/useModal'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
+import Loading from '@utils/components/Loading'
 
 interface FormData {
   name: string
@@ -36,11 +38,11 @@ const validateData = (
 }
 
 const ButtonAddUser = () => {
-  const [showMenu, setShowMenu] = useState(false)
-  const [showModal, setShowModal] = useState(false)
+  const [modal, showModal, hideModal] = useModal()
+  const [menu, _, hideMenu, toggle] = useModal()
   const menuRef = useRef(null)
 
-  useOnClickOutside(menuRef, () => setShowMenu(false))
+  useOnClickOutside(menuRef, hideMenu)
 
   const {
     register,
@@ -54,17 +56,16 @@ const ButtonAddUser = () => {
 
   const queryClient = useQueryClient()
 
-  const { isLoading, mutateAsync } = useMutation('add-user', addUser, {
+  const { isLoading, mutateAsync } = useMutation('add-user', addUserService, {
     onSuccess: () => {
       queryClient.invalidateQueries('users')
       reset(initialValue)
-      setShowModal(false)
+      hideModal()
       notification.success({
         message: 'Add new user successfully.',
       })
     },
-    onError: (err) => {
-      const { response } = err as IErrorResponse
+    onError: ({ response }: IErrorResponse) => {
       if (response) {
         notification.error({ message: response.data.message })
         return
@@ -73,7 +74,7 @@ const ButtonAddUser = () => {
     },
   })
 
-  const onAddUser = handleSubmit((data) => {
+  const addUser = handleSubmit((data) => {
     const error = validateData(data)
 
     if (error) {
@@ -85,53 +86,63 @@ const ButtonAddUser = () => {
     mutateAsync({ email, name, role: userRole as Role })
   })
 
+  useEffect(() => {
+    reset(initialValue)
+  }, [modal])
+
   return (
     <div className="flex items-center ml-2">
       <button
-        className="h-full px-4 tracking-wide bg-blue-600 text-white font-medium rounded-l-md hover:bg-blue-500 focus:outline-none"
-        onClick={() => setShowModal(!showModal)}
+        className="crm-button h-full tracking-wide font-medium rounded-r-none"
+        onClick={showModal}
       >
-        <span className="fa fa-plus mr-2"></span>New User
+        <span className="fa fa-plus mr-2" />
+        New User
       </button>
 
       <button
-        className="relative z-10 block h-full bg-blue-600 rounded-r-md p-2 px-3 border-blue-300 border-l hover:bg-blue-500 focus:outline-none"
-        onClick={() => setShowMenu(!showMenu)}
+        className="crm-button h-full rounded-l-none border-blue-300 border-l"
+        onClick={toggle}
         ref={menuRef}
       >
         <span className="fa fa-caret-down text-white" />
       </button>
 
       <div className="relative">
-        {showMenu && (
-          <div className="absolute right-0 top-4 mt-2 w-48 bg-white rounded-sm overflow-hidden shadow-xl z-20 py-2">
-            <button
-              className={
-                menuItemClass + ' w-full px-5 font-semibold text-gray-700'
-              }
-            >
+        {menu && (
+          <div className="absolute right-0 top-6 min-w-[192px] rounded-md border bg-white overflow-hidden shadow-xl z-20 py-2">
+            <button className={menuItemClass}>
               <span className="fa fa-upload mr-4" />
               Import User
             </button>
           </div>
         )}
       </div>
+
       <Modal
-        visible={showModal}
-        onCancel={() => setShowModal(false)}
-        onOk={onAddUser}
-        okText="Save"
-        title="Add New User"
-        maskClosable={false}
-        confirmLoading={isLoading}
+        visible={modal}
+        onCancel={hideModal}
+        footer={
+          <div className="flex gap-2 justify-end">
+            <button onClick={addUser} className="crm-button">
+              <Loading on={isLoading}>Submit</Loading>
+            </button>
+
+            <button className="crm-button-outline" onClick={hideModal}>
+              Cancel
+            </button>
+          </div>
+        }
       >
+        <h1 className="font-medium text-gray-700 text-xl">Add New User</h1>
+
+        <Divider />
+
         <div className="grid">
           <div className="grid grid-cols-12 my-4">
-            <div className="col-span-2 flex items-center">
-              <label htmlFor="name" className="crm-label m-0">
-                Name
-              </label>
-            </div>
+            <label htmlFor="name" className="col-span-2 mt-[10px] crm-label">
+              Name
+            </label>
             <div className="col-span-10">
               <Input
                 error={errors.name?.message}
@@ -144,11 +155,9 @@ const ButtonAddUser = () => {
             </div>
           </div>
           <div className="grid grid-cols-12 mb-4">
-            <div className="col-span-2 flex items-center">
-              <label htmlFor="email" className="crm-label m-0">
-                Email
-              </label>
-            </div>
+            <label htmlFor="email" className="col-span-2 mt-[10px] crm-label">
+              Email
+            </label>
             <div className="col-span-10">
               <Input
                 error={errors.email?.message}
@@ -162,11 +171,12 @@ const ButtonAddUser = () => {
             </div>
           </div>
           <div className="grid grid-cols-12 mb-4">
-            <div className="col-span-2 flex items-center">
-              <label htmlFor="userRole" className="crm-label m-0">
-                Role
-              </label>
-            </div>
+            <label
+              htmlFor="userRole"
+              className="col-span-2 mt-[10px] crm-label"
+            >
+              Role
+            </label>
             <div className="col-span-10">
               <Input
                 error={errors.userRole?.message}

@@ -25,9 +25,7 @@ function useOnClickOutside<T extends HTMLElement = HTMLElement>(
       document.removeEventListener(`mousedown`, listener)
       document.removeEventListener(`touchstart`, listener)
     }
-
-    // Reload only if ref or handler changes
-  }, [ref, handler])
+  }, [handler])
 }
 
 export default useOnClickOutside
