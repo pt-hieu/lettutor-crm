@@ -5,7 +5,6 @@ import {
   IsMobilePhone,
   IsNotEmpty,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   IsUUID,
   MaxLength,
@@ -44,22 +43,22 @@ export class AddLead {
   @IsOptional()
   @IsString()
   @MaxLength(250)
-  address: string
+  address?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  description: string
+  description?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsMobilePhone()
-  phoneNum: string
+  phoneNum?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  socialAccount: string
+  socialAccount?: string
 }

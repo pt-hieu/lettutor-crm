@@ -169,7 +169,7 @@ describe('user service', () => {
   })
 
   describe('get one user', () => {
-    it('should return user sucessfully', async () => {
+    it('should return user successfully', async () => {
       const payload: JwtPayload = {
         email: user.email,
         id: user.id,
@@ -203,10 +203,10 @@ describe('user service', () => {
       usersRepo.findOne.mockReturnValue(undefined)
       expect(userService.getOne(payload)).rejects.toThrow(
         new BadRequestException('User does not exist'),
-         )
+      )
     })
   })
-  
+
   describe('add password', () => {
     it('should add pwd succeed', async () => {
       const dto: DTO.User.AddUser = {
