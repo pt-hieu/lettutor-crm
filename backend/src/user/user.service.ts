@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { User } from './user.entity'
+import { User, UserStatus } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
 import moment from 'moment'
@@ -20,7 +20,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
-  ) { }
+  ) {}
 
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
@@ -68,6 +68,7 @@ export class UserService {
     }
 
     user.password = await hash(dto.password, 10)
+    user.status = UserStatus.ACTIVE
     user.passwordToken = null
     user.tokenExpiration = null
 
@@ -110,6 +111,7 @@ export class UserService {
       role: [dto.role],
       passwordToken: token,
       tokenExpiration: moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate(),
+      status: UserStatus.UNCONFIRMED,
     })
 
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)
