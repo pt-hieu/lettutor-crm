@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { JwtStrategy } from './jwt.strategy'
 import { RolesGuard } from './role.guard'
 import { MailModule } from './mail/mail.module'
+import { LeadContactModule } from './lead-contact/lead-contact.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MailModule } from './mail/mail.module'
     AuthModule,
     PassportModule,
     JwtModule.register({ secret: process.env.JWT_SECRET }),
+    LeadContactModule,
   ],
   providers: [
     JwtStrategy,
