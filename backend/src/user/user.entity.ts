@@ -1,5 +1,7 @@
+import { Exclude } from 'class-transformer'
+import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, OneToMany } from 'typeorm'
 
 export enum Role {
   SUPER_ADMIN = 'Super Admin',
@@ -35,4 +37,10 @@ export class User extends BaseEntity {
 
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
   status: UserStatus
+
+  @OneToMany(() => LeadContact, (leadContact) => leadContact.owner, {
+    eager: true,
+  })
+  @Exclude({ toPlainOnly: true })
+  leadContacts: LeadContact[]
 }

@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import { AppModule } from 'src/app.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
+import { TransformInterceptor } from './transform.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -14,6 +15,7 @@ async function bootstrap() {
       transform: true,
     }),
   )
+  app.useGlobalInterceptors(new TransformInterceptor())
   app.setGlobalPrefix('api')
   app.use(cookieParser())
   app.enableCors({
