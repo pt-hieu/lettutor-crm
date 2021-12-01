@@ -41,4 +41,12 @@ describe('lead-contact service', () => {
       expect(await leadContactService.addLead(dto)).toEqual(lead)
     })
   })
+
+  describe('view lead detail', () => {
+    it('should view lead detail succeed', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...lead })
+
+      expect(await leadContactService.getLeadById(lead.id)).toEqual(lead)
+    })
+  })
 })
