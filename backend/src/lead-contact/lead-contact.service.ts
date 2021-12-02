@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
-import { Repository } from 'typeorm'
+import { Repository, Brackets } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AuthRequest } from 'src/utils/interface'
@@ -34,10 +34,13 @@ export class LeadContactService {
         'lc.status', 'lc.source', 'lc.address', 'lc.description', 'lc.phoneNum', 'lc.socialAccount'])
       .where('lc.owner = :owner', { owner: req.user.id });
 
-    if (query.status)
-      q = q.andWhere('lc.status = :status', { status: query.status })
-    if (query.status)
-      q = q.andWhere('lc.source = :source', { source: query.source })
+
+    if (query.status) 
+      q.andWhere('lc.status IN (:...status)', {status: query.status})
+
+    if (query.sources) 
+      q.andWhere('lc.status IN (:...source)', {source: query.sources})
+    
 
     if (query.search) {
       q = q

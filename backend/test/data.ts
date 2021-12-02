@@ -26,7 +26,7 @@ export const lead: LeadContact = {
   fullName: 'lead',
   email: 'lead@mail.com',
   status: LeadStatus.NONE,
-  leadSource: LeadSource.NONE,
+  source: LeadSource.NONE,
   address: null,
   description: null,
   phoneNum: null,

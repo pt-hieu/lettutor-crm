@@ -31,7 +31,7 @@ export class LeadContactController {
     return this.service.addLead(dto)
   }
   @Get()
-  @ApiOperation({ summary: 'to add new lead manually' })
+  @ApiOperation({ summary: 'view, search and filter all leads or contacts' })
   index(@Query() query: DTO.LeadContact.GetManyQuery, @Request() req: AuthRequest) {
     return this.service.getMany(query, req)
   }
