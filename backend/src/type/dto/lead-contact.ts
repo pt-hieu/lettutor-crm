@@ -10,6 +10,7 @@ import {
   MaxLength,
 } from 'class-validator'
 import { LeadStatus, LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { Paginate } from './paging'
 
 export class AddLead {
   @ApiProperty()
@@ -61,4 +62,21 @@ export class AddLead {
   @IsString()
   @MaxLength(100)
   socialAccount?: string
+}
+
+export class GetManyQuery extends Paginate{
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  search?: string
+
+  @ApiPropertyOptional({ enum: LeadStatus, enumName: 'Lead Status' })
+  @IsEnum(LeadStatus)
+  @IsOptional()
+  status?: LeadStatus
+
+  @ApiPropertyOptional({ enum: LeadSource, enumName: 'Lead Source' })
+  @IsEnum(LeadSource)
+  @IsOptional()
+  source?: LeadSource
 }

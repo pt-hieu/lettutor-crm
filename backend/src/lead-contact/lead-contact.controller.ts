@@ -5,7 +5,10 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
+  Request
 } from '@nestjs/common'
+import { AuthRequest } from 'src/utils/interface'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { LeadContactService } from './lead-contact.service'
@@ -26,5 +29,10 @@ export class LeadContactController {
   @ApiOperation({ summary: 'to add new lead manually' })
   addLead(@Body() dto: DTO.LeadContact.AddLead) {
     return this.service.addLead(dto)
+  }
+  @Get()
+  @ApiOperation({ summary: 'to add new lead manually' })
+  index(@Query() query: DTO.LeadContact.GetManyQuery, @Request() req: AuthRequest) {
+    return this.service.getMany(query, req)
   }
 }
