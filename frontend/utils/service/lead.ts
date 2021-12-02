@@ -12,11 +12,17 @@ export const getLeads =
     } & PagingQuery,
     token?: string,
   ) =>
-    () =>
-      axios
-        .get<Paginate<Lead>>(API + '/api/lead-contact', {
-          headers: { authorization: 'Bearer ' + token },
-          params,
-        })
-        .then((res) => res.data)
+  () =>
+    axios
+      .get<Paginate<Lead>>(API + '/api/lead-contact', {
+        headers: { authorization: 'Bearer ' + token },
+        params,
+      })
+      .then((res) => res.data)
 
+export const getLead = (id?: string, token?: string) => () =>
+  axios
+    .get<Lead>(API + `/api/lead-contact/${id}`, {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    .then((res) => res.data)

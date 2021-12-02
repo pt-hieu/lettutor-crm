@@ -9,6 +9,7 @@ import { getLeads } from '@utils/service/lead'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -82,6 +83,8 @@ const columns: TableColumnType<Lead>[] = [
 ]
 
 export default function LeadsViews() {
+  const router = useRouter()
+
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -131,6 +134,11 @@ export default function LeadsViews() {
         </AnimatePresence>
         <div className="w-full">
           <Table
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: () => router.push(`/leads/${record.id}`),
+              }
+            }}
             showSorterTooltip={false}
             columns={columns}
             loading={isLoading}
