@@ -6,6 +6,7 @@ import { lead } from './data'
 import { MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { LeadContactService } from 'src/lead-contact/lead-contact.service'
+import { NotFoundException } from '@nestjs/common'
 
 describe('lead-contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
@@ -39,6 +40,22 @@ describe('lead-contact service', () => {
       leadContactRepo.save.mockReturnValue({ ...lead })
 
       expect(await leadContactService.addLead(dto)).toEqual(lead)
+    })
+  })
+
+  describe('view lead detail', () => {
+    it('should view lead detail succeed', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...lead })
+
+      expect(await leadContactService.getLeadById(lead.id)).toEqual(lead)
+    })
+
+    it('should throw exception when lead not found', async () => {
+      leadContactRepo.findOne.mockReturnValue(undefined)
+
+      expect(leadContactService.getLeadById(lead.id)).rejects.toThrow(
+        new NotFoundException(`Lead with ID ${lead.id} not found`),
+      )
     })
   })
 })
