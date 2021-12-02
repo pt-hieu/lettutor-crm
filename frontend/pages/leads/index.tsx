@@ -43,16 +43,10 @@ export const getServerSideProps: GetServerSideProps = async ({
 const columns: TableColumnType<Lead>[] = [
   {
     title: 'Lead Name',
-    dataIndex: 'name',
+    dataIndex: 'fullName',
     key: 'name',
-    sorter: { compare: (a, b) => a.name.localeCompare(b.name) },
+    sorter: { compare: (a, b) => a.fullName.localeCompare(b.fullName) },
     fixed: 'left',
-  },
-  {
-    title: 'Company',
-    dataIndex: 'company',
-    key: 'company',
-    sorter: { compare: (a, b) => a.company.localeCompare(b.email) },
   },
   {
     title: 'Email',
@@ -60,29 +54,30 @@ const columns: TableColumnType<Lead>[] = [
     key: 'email',
     sorter: { compare: (a, b) => a.email.localeCompare(b.email) },
   },
-
   {
-    title: 'Phone',
-    dataIndex: 'phone',
+    title: 'Phone Number',
+    dataIndex: 'phoneNum',
     key: 'phone',
-    sorter: { compare: (a, b) => a.phone.localeCompare(b.phone) },
-  },
-  {
-    title: 'Lead Source',
-    dataIndex: 'leadSource',
-    key: 'leadSource',
     sorter: {
-      compare: (a, b) => a.leadSource.localeCompare(b.leadSource),
+      compare: (a, b) => a.phoneNum?.localeCompare(b.phoneNum || '') || -1,
     },
   },
   {
-    title: 'Lead Owner',
-    dataIndex: 'leadOwner',
-    key: 'leadOwner',
+    title: 'Source',
+    dataIndex: 'source',
+    key: 'source',
     sorter: {
-      compare: (a, b) => a.leadOwner.name.localeCompare(b.leadOwner.name),
+      compare: (a, b) => a.source.localeCompare(b.source),
     },
-    render: (_, record) => record.leadOwner.name,
+  },
+  {
+    title: 'Owner',
+    dataIndex: 'owner',
+    key: 'owner',
+    sorter: {
+      compare: (a, b) => a.owner.name.localeCompare(b.owner.name),
+    },
+    render: (_, record) => record.owner.name,
   },
 ]
 

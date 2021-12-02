@@ -29,7 +29,7 @@ export class LeadContact extends BaseEntity {
   @JoinColumn()
   owner: User
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', select: false })
   ownerId: string
 
   @Column({ type: 'varchar' })
@@ -39,10 +39,10 @@ export class LeadContact extends BaseEntity {
   email: string
 
   @Column({ enum: LeadStatus, type: 'enum', default: LeadStatus.NONE })
-  leadStatus: LeadStatus
+  status: LeadStatus
 
   @Column({ enum: LeadSource, type: 'enum', default: LeadSource.NONE })
-  leadSource: LeadSource
+  source: LeadSource
 
   @Column({ type: 'varchar', nullable: true, default: null })
   address: string | null
