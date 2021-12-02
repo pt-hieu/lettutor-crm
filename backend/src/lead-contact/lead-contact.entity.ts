@@ -24,7 +24,7 @@ export enum LeadSource {
 @Entity({ name: 'lead_contact' })
 export class LeadContact extends BaseEntity {
   @ManyToOne(() => User, (user) => user.leadContacts, {
-    eager: false,
+    eager: true,
   })
   @JoinColumn()
   owner: User
