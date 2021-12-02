@@ -25,7 +25,7 @@ export const lead: LeadContact = {
   ownerId: user.id,
   fullName: 'lead',
   email: 'lead@mail.com',
-  leadStatus: LeadStatus.NONE,
+  status: LeadStatus.NONE,
   leadSource: LeadSource.NONE,
   address: null,
   description: null,
