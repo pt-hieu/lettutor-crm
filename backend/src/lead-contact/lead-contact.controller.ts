@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { LeadContactService } from './lead-contact.service'
@@ -11,7 +18,7 @@ export class LeadContactController {
 
   @Get('/:id')
   @ApiOperation({ summary: 'to get lead information by Id' })
-  getLeadById(@Param('id') id: string) {
+  getLeadById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getLeadById(id)
   }
 

@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
-import { JwtPayload } from 'src/utils/interface'
 import { Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 
@@ -13,7 +12,13 @@ export class LeadContactService {
   ) {}
 
   async getLeadById(id: string) {
-    return this.leadContactRepo.findOne({ id })
+    const found = await this.leadContactRepo.findOne({ id })
+
+    if (!found) {
+      throw new NotFoundException(`Lead with ID ${id} not found`)
+    }
+
+    return found
   }
 
   async addLead(dto: DTO.LeadContact.AddLead) {
