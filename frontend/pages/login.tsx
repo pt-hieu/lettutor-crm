@@ -24,7 +24,6 @@ export default function Login() {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<FormData>({
     shouldUseNativeValidation: true,
   })

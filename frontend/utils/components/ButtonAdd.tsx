@@ -1,5 +1,5 @@
-import useOnClickOutside from '@utils/hooks/useOnClickOutSide'
-import React, { ReactNode, useRef, useState } from 'react'
+import { useOnClickOutside } from '@utils/hooks/useOnClickOutSide'
+import React, { ReactNode, useCallback, useRef, useState } from 'react'
 
 interface IProps {
   onClick: () => void
@@ -11,7 +11,11 @@ const ButtonAdd = ({ onClick: onAdd, title, menuItems }: IProps) => {
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef(null)
 
-  useOnClickOutside(menuRef, () => setShowMenu(false))
+  useOnClickOutside(
+    menuRef,
+    useCallback(() => setShowMenu(false), []),
+  )
+
   return (
     <div>
       <button

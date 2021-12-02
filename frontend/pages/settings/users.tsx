@@ -9,7 +9,6 @@ import { Role, User, UserStatus } from '@utils/models/user'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import ButtonAddUser from '@components/Settings/ButtonAddUser'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
-import { AnimatePresence, motion } from 'framer-motion'
 import Animate from '@utils/components/Animate'
 
 export const getServerSideProps: GetServerSideProps = async ({
