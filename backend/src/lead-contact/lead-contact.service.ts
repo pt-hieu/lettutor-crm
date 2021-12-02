@@ -35,12 +35,12 @@ export class LeadContactService {
       .where('lc.owner = :owner', { owner: req.user.id });
 
 
-    if (query.status) 
-      q.andWhere('lc.status IN (:...status)', {status: query.status})
+    if (query.status)
+      q.andWhere('lc.status IN (:...status)', { status: query.status })
 
-    if (query.sources) 
-      q.andWhere('lc.status IN (:...source)', {source: query.sources})
-    
+    if (query.sources)
+      q.andWhere('lc.status IN (:...source)', { source: query.sources })
+
 
     if (query.search) {
       q = q

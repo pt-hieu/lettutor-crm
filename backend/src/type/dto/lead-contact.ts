@@ -65,18 +65,17 @@ export class AddLead {
   socialAccount?: string
 }
 
-export class GetManyQuery extends Paginate{
+export class GetManyQuery extends Paginate {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   search?: string
 
-  @ApiPropertyOptional({ type: [LeadStatus], isArray: true})
+  @ApiPropertyOptional({ type: LeadStatus, enum: LeadStatus, isArray: true })
   @IsOptional()
-  @IsArray()
   status?: LeadStatus[]
 
-  @ApiPropertyOptional({ type: [LeadSource], isArray: true})
+  @ApiPropertyOptional({ type: LeadSource, enum: LeadSource, isArray: true })
   @IsOptional()
   @IsArray()
   sources?: LeadSource[]
