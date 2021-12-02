@@ -1,17 +1,17 @@
+import ButtonAdd from '@utils/components/ButtonAdd'
 import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
-import useOnClickOutside from '@utils/hooks/useOnClickOutSide'
+import Loading from '@utils/components/Loading'
+import { useModal } from '@utils/hooks/useModal'
 import { IErrorResponse } from '@utils/libs/functionalTryCatch'
 import { Role } from '@utils/models/user'
 import { addUser as addUserService } from '@utils/service/user'
 import { Divider, Modal, notification } from 'antd'
 import { requireRule } from 'pages/change-password'
 import { emailReg } from 'pages/reset-password'
-import { useEffect, useRef } from 'react'
-import { useModal } from '@utils/hooks/useModal'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
-import Loading from '@utils/components/Loading'
 
 interface FormData {
   name: string
@@ -39,10 +39,6 @@ const validateData = (
 
 const ButtonAddUser = () => {
   const [modal, showModal, hideModal] = useModal()
-  const [menu, _, hideMenu, toggle] = useModal()
-  const menuRef = useRef(null)
-
-  useOnClickOutside(menuRef, hideMenu)
 
   const {
     register,
@@ -92,32 +88,16 @@ const ButtonAddUser = () => {
 
   return (
     <div className="flex items-center ml-2">
-      <button
-        className="crm-button h-full tracking-wide font-medium rounded-r-none"
+      <ButtonAdd
+        title="Add User"
         onClick={showModal}
-      >
-        <span className="fa fa-plus mr-2" />
-        New User
-      </button>
-
-      <button
-        className="crm-button h-full rounded-l-none border-blue-300 border-l"
-        onClick={toggle}
-        ref={menuRef}
-      >
-        <span className="fa fa-caret-down text-white" />
-      </button>
-
-      <div className="relative">
-        {menu && (
-          <div className="absolute right-0 top-6 min-w-[192px] rounded-md border bg-white overflow-hidden shadow-xl z-20 py-2">
-            <button className={menuItemClass}>
-              <span className="fa fa-upload mr-4" />
-              Import User
-            </button>
-          </div>
-        )}
-      </div>
+        menuItems={
+          <button className={menuItemClass}>
+            <span className="fa fa-upload mr-4" />
+            Import User
+          </button>
+        }
+      />
 
       <Modal
         visible={modal}

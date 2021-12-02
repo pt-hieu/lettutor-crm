@@ -29,8 +29,22 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md">
-      <div className="font-semibold text-xl">CRM System</div>
+    <header className="crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
+      <div className="flex-row flex h-full">
+        <div className="font-semibold text-xl">CRM System</div>
+        <div className="text-lg pl-2">
+          <Link href="/">
+            <a className="inline-block leading-[28px] whitespace-nowrap px-2">
+              Home
+            </a>
+          </Link>
+          <Link href="/leads">
+            <a className="inline-block leading-[28px] whitespace-nowrap px-2">
+              Leads
+            </a>
+          </Link>
+        </div>
+      </div>
       <div className="flex gap-3 items-center relative z-20">
         <div>
           <Link href="/settings">
