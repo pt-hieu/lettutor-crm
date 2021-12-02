@@ -1,6 +1,7 @@
 import { Lead, LeadSource } from '@utils/models/lead'
 import { Paginate } from '@utils/models/paging'
 import { Role } from '@utils/models/user'
+import { RecursivePartial } from '@utils/utils-type'
 import axios from 'axios'
 import { API } from 'environment'
 
@@ -28,8 +29,8 @@ export const getLeads = (
     search?: string
   },
   token?: string,
-) => {
-  return Promise.resolve<Paginate<Lead>>({
+) => () => {
+  return Promise.resolve<Paginate<RecursivePartial<Lead>>>({
     items: [
       {
         id: '1',

@@ -6,22 +6,11 @@ export enum LeadSource {
   ColdCall = 'Cold Call',
 }
 
-// export interface Lead extends Base {
-//   id: string
-//   name: string
-//   email: string
-//   company: string
-//   phone: string
-//   leadSource: LeadSource
-//   leadOwner: User
-// }
-
-export interface Lead {
-  id: string
+export interface Lead extends Base {
   name: string
   email: string
   company: string
   phone: string
   leadSource: LeadSource
-  leadOwner: { name: string }
+  leadOwner: User
 }

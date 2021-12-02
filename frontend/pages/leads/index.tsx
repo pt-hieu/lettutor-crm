@@ -5,7 +5,6 @@ import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Lead } from '@utils/models/lead'
-import { Paginate } from '@utils/models/paging'
 import { Role, UserStatus } from '@utils/models/user'
 import { getLeads } from '@utils/service/lead'
 import { Table, TableColumnType } from 'antd'
@@ -29,7 +28,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     await Promise.all([
       client.prefetchQuery(
         ['leads', page, limit, search || ''],
-        await getLeads({ limit, page, search }, token),
+        getLeads({ limit, page, search }, token),
       ),
     ])
   }
@@ -83,7 +82,7 @@ const columns: TableColumnType<Lead>[] = [
     sorter: {
       compare: (a, b) => a.leadOwner.name.localeCompare(b.leadOwner.name),
     },
-    render: (owner: { name: string }) => owner.name,
+    render: (_, record) => record.leadOwner.name,
   },
 ]
 
@@ -97,16 +96,16 @@ export default function LeadsViews() {
 
   const router = useRouter()
 
-  const { data: leads, isLoading } = useQuery<Paginate<Lead>>(
+  const { data: leads, isLoading } = useQuery(
     ['leads', page, limit, search],
-    async () => await getLeads({ limit, page, search }),
+    getLeads({ limit, page, search }),
   )
 
   const [start, end, total] = usePaginateItem(leads)
 
   return (
     <LeadsViewLayout title="CRM | Leads">
-      <div className="flex justify-end pt-[4px] pl-[2px]">
+      <div className="flex justify-end pt-1 pl-[2px]">
         {/* <Search
           loading={isLoading}
           onQueryChange={setSearch}
@@ -148,16 +147,19 @@ export default function LeadsViews() {
         <div className="w-full">
           <Table
             showSorterTooltip={false}
-            columns={columns}
+            //Fixme
+            columns={columns as any}
             loading={isLoading}
             dataSource={leads?.items}
-            rowKey={(u) => u.id}
+            //Fixme
+            rowKey={(u) => u.id || ''}
             rowSelection={{
               type: 'checkbox',
             }}
             bordered
             pagination={{
               current: page,
+              pageSize: limit,
               total: leads?.meta.totalItems,
               defaultPageSize: 10,
               onChange: (page, limit) => {
@@ -165,7 +167,6 @@ export default function LeadsViews() {
                 setLimit(limit || 10)
               },
             }}
-            // scroll={{ x: 1200 }}
           />
         </div>
       </div>

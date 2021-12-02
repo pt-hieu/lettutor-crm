@@ -35,7 +35,7 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
+    <header className="z-[10001] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
       <div className="flex">
         <span className="font-semibold text-xl">CRM System</span>
         <span className="ml-12 flex gap-6">
