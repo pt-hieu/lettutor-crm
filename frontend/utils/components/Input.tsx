@@ -49,12 +49,12 @@ type NativeProps<T> = T extends undefined
   : {}
 
 type Props<T> = NativeProps<T> & {
-  error: string | undefined
-  showError?: boolean
   editable?: boolean
-  id?: never
   onInvalid?: never
-}
+} & (
+    | { showError?: true; error: string | undefined }
+    | { showError: false; error?: never }
+  )
 
 const variants = {
   init: { opacity: 0, height: 0, marginTop: 0 },
@@ -67,7 +67,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
     as,
     showError,
     editable,
-    props: { name, className, disabled, ...rest },
+    props: { id, name, className, disabled, ...rest },
   }: Props<T>,
   _ref: any,
 ) {
@@ -75,11 +75,11 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
 
   useEffect(() => {
     if (!ele.current) {
-      ele.current = document.querySelector('#' + name)
+      ele.current = document.querySelector('#' + id)
     }
 
     ele.current?.setCustomValidity(error || '')
-  }, [error])
+  }, [error, id])
 
   const removeBubble = useCallback((e: any) => {
     e.preventDefault()
@@ -107,7 +107,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
         }
         disabled={disabled ?? editable === false}
         name={name}
-        id={name}
+        id={id || name}
         {...rest}
       />
       <AnimatePresence presenceAffectsLayout>

@@ -1,4 +1,4 @@
-import { Lead, LeadSource } from '@utils/models/lead'
+import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { Paginate } from '@utils/models/paging'
 import { Role } from '@utils/models/user'
 import { RecursivePartial } from '@utils/utils-type'
@@ -28,6 +28,8 @@ export const getLeads =
       page?: number
       limit?: number
       search?: string
+      status?: LeadStatus[]
+      source?: LeadSource[]
     },
     token?: string,
   ) =>

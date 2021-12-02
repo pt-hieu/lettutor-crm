@@ -26,7 +26,7 @@ type Props = DetailedHTMLProps<
 } & (
     | {
         shouldAnimateOnExit: true
-        presenceProps: AnimatePresenceProps
+        presenceProps?: AnimatePresenceProps
         animation: AnimationWithExit
         on: any
       }

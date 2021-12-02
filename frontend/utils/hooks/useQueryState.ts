@@ -4,10 +4,17 @@ import { stringifyUrl } from 'query-string'
 
 export const useQueryState = <Type>(
   name: string,
+  option?: { isArray: boolean },
 ): [Type | undefined, Dispatch<SetStateAction<Type | undefined>>] => {
   const { query, pathname, asPath, replace } = useRouter()
 
-  const [state, setState] = useState(query[name] as unknown as Type | undefined)
+  const [state, setState] = useState(() => {
+    if (option?.isArray) {
+      return (query[name] as string | undefined)?.split(',') as unknown as Type | undefined
+    }
+
+    return query[name] as unknown as Type | undefined
+  })
 
   useEffect(() => {
     const newQuery = { ...query }
@@ -16,9 +23,14 @@ export const useQueryState = <Type>(
       newQuery[name] = state + ''
     }
 
+    if (option?.isArray && !(state as Array<Type> | undefined)?.length) {
+      delete newQuery[name]
+    }
+
     if (!state && newQuery[name]) {
       delete newQuery[name]
     }
+
 
     const newPathname = stringifyUrl(
       {

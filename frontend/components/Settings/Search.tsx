@@ -73,7 +73,6 @@ export default function Search({
         />
 
         <Input
-          error={undefined}
           showError={false}
           as="select"
           props={{
@@ -92,7 +91,6 @@ export default function Search({
         />
 
         <Input
-          error={undefined}
           showError={false}
           as="select"
           props={{
