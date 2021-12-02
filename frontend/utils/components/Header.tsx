@@ -1,4 +1,4 @@
-import { Avatar } from 'antd'
+import { Avatar, Tooltip } from 'antd'
 import { MouseEvent, useCallback, useEffect, useState } from 'react'
 import Confirm from './Confirm'
 import { signOut } from 'next-auth/client'
@@ -35,7 +35,7 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="z-[10001] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
+    <header className="z-[10] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
       <div className="flex">
         <span className="font-semibold text-xl">CRM System</span>
         <span className="ml-12 flex gap-6">
@@ -57,7 +57,9 @@ export default function Header() {
         <div>
           <Link href="/settings">
             <a className="crm-link">
-              <span className="fa fa-cog" />
+              <Tooltip title="Settings">
+                <span className="fa fa-cog" />
+              </Tooltip>
             </a>
           </Link>
         </div>

@@ -10,6 +10,7 @@ import { useQueryState } from '@utils/hooks/useQueryState'
 import ButtonAddUser from '@components/Settings/ButtonAddUser'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { AnimatePresence, motion } from 'framer-motion'
+import Animate from '@utils/components/Animate'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -95,19 +96,19 @@ export default function UsersSettings() {
       </div>
 
       <div className="mt-4">
-        <AnimatePresence presenceAffectsLayout>
-          {search && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="mb-2"
-            >
-              Showing from {start} to {end} of {total} results.
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <Animate
+          shouldAnimateOnExit
+          on={search}
+          presenceProps={{ presenceAffectsLayout: true }}
+          transition={{ duration: 0.2 }}
+          animation={{
+            start: { opacity: 0, height: 0, marginBottom: 0 },
+            animate: { opacity: 1, height: 'auto', marginBottom: 8 },
+            end: { opacity: 0, height: 0, marginBottom: 0 },
+          }}
+        >
+          Showing from {start} to {end} of {total} results.
+        </Animate>
         <Table
           showSorterTooltip={false}
           columns={columns}
