@@ -4,13 +4,19 @@ import Confirm from './Confirm'
 import { signOut } from 'next-auth/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useModal } from '@utils/hooks/useModal'
+import { data } from '@utils/header-data'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
 
+const activeLink =
+  'before:content before:absolute before:top-[101%] before:w-full before:bg-blue-600 before:h-[3px] text-blue-600'
+
 export default function Header() {
   const [seed] = useState(Math.random())
+  const { pathname } = useRouter()
   const [visible, setVisible] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
 
@@ -30,21 +36,23 @@ export default function Header() {
 
   return (
     <header className="crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
-      <div className="flex-row flex h-full">
-        <div className="font-semibold text-xl">CRM System</div>
-        <div className="text-lg pl-2">
-          <Link href="/">
-            <a className="inline-block leading-[28px] whitespace-nowrap px-2">
-              Home
-            </a>
-          </Link>
-          <Link href="/leads">
-            <a className="inline-block leading-[28px] whitespace-nowrap px-2">
-              Leads
-            </a>
-          </Link>
-        </div>
+      <div className="flex">
+        <span className="font-semibold text-xl">CRM System</span>
+        <span className="ml-12 flex gap-6">
+          {data.map(({ link, title }) => (
+            <Link href={link} key={link}>
+              <a
+                className={`relative crm-link leading-[28px] whitespace-nowrap ${
+                  link === pathname ? activeLink : ''
+                }`}
+              >
+                {title}
+              </a>
+            </Link>
+          ))}
+        </span>
       </div>
+
       <div className="flex gap-3 items-center relative z-20">
         <div>
           <Link href="/settings">
