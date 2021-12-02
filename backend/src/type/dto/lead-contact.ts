@@ -33,12 +33,12 @@ export class AddLead {
   @ApiProperty()
   @IsNotEmpty()
   @IsEnum(LeadStatus)
-  leadStatus: LeadStatus
+  status: LeadStatus
 
   @ApiProperty()
   @IsNotEmpty()
   @IsEnum(LeadSource)
-  leadSource: LeadSource
+  source: LeadSource
 
   @ApiPropertyOptional()
   @IsOptional()

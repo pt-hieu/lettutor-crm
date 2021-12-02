@@ -38,9 +38,7 @@ export class User extends BaseEntity {
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
   status: UserStatus
 
-  @OneToMany(() => LeadContact, (leadContact) => leadContact.owner, {
-    eager: true,
-  })
+  @OneToMany(() => LeadContact, (leadContact) => leadContact.owner)
   @Exclude({ toPlainOnly: true })
   leadContacts: LeadContact[]
 }
