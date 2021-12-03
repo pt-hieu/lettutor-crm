@@ -82,3 +82,59 @@ export class GetManyQuery extends Paginate {
   @IsEnum(LeadSource, { each: true })
   source?: LeadSource[]
 }
+
+export class UpdateLead {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  ownerId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  fullName?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(100)
+  email?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(LeadStatus)
+  status?: LeadStatus
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(LeadSource)
+  source?: LeadSource
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(250)
+  address?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(500)
+  description?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsMobilePhone()
+  phoneNum?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  socialAccount?: string
+}

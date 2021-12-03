@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable,  BadRequestException, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { Repository } from 'typeorm'
@@ -27,6 +27,16 @@ export class LeadContactService {
     return this.leadContactRepo.save(dto)
   }
 
+  async updateLead(dto: DTO.LeadContact.UpdateLead, id: string) {
+    const lead = await this.leadContactRepo.findOne({ id })
+    if (!lead) throw new BadRequestException('Lead does not exist')
+
+    return this.leadContactRepo.save({
+      ...lead,
+      ...dto
+    })
+  }
+
   async getMany(query: DTO.LeadContact.GetManyQuery, req: AuthRequest) {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
@@ -48,4 +58,5 @@ export class LeadContactService {
 
     return paginate(q, { limit: query.limit, page: query.page })
   }
+
 }
