@@ -121,7 +121,6 @@ export default function UpdateInformation() {
             Email
           </label>
           <Input
-            error=""
             showError={false}
             editable={edit}
             props={{
@@ -135,7 +134,6 @@ export default function UpdateInformation() {
             Role
           </label>
           <Input
-            error=""
             showError={false}
             editable={edit}
             props={{
@@ -150,7 +148,6 @@ export default function UpdateInformation() {
             Status
           </label>
           <Input
-            error=""
             showError={false}
             editable={edit}
             props={{
