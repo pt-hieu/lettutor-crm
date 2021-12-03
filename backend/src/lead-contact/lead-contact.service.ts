@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable,  BadRequestException, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { Repository } from 'typeorm'
@@ -51,18 +51,12 @@ export class LeadContactService {
 
   async updateLead(dto: DTO.LeadContact.UpdateLead, id: string) {
     const lead = await this.leadContactRepo.findOne({ id });
+    if (!lead) throw new BadRequestException('Lead does not exist')
 
-    lead.owner.id = dto.ownerId;
-    lead.fullName = dto.fullName;
-    lead.email = dto.email;
-    lead.status = dto.status;
-    lead.source = dto.source;
-    lead.address = dto.address;
-    lead.description = dto.description;
-    lead.phoneNum = dto.phoneNum;
-    lead.socialAccount = dto.socialAccount;
-
-    return this.leadContactRepo.save(lead);
+    return this.leadContactRepo.save({
+      ...lead,
+      ...dto
+    });
   }
 
 }

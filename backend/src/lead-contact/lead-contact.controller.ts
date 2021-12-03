@@ -37,7 +37,7 @@ export class LeadContactController {
     return this.service.getMany(query, req)
   }
 
-  @Patch('/:id')
+  @Patch(':id')
   @ApiOperation({ summary: 'to upate lead manually' })
   updateLead(@Param('id', ParseUUIDPipe) id: string, @Body() dto: DTO.LeadContact.UpdateLead) {
     return this.service.updateLead(dto, id)

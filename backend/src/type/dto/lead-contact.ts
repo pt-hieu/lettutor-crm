@@ -85,40 +85,38 @@ export class GetManyQuery extends Paginate {
 
 export class UpdateLead {
   @ApiProperty()
-  @IsNotEmpty()
   @IsUUID()
-  ownerId: string
+  ownerId?: string
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  fullName: string
+  fullName?: string
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsEmail()
   @MaxLength(100)
-  email: string
+  email?: string
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsEnum(LeadStatus)
-  status: LeadStatus
+  status?: LeadStatus
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsEnum(LeadSource)
-  source: LeadSource
+  source?: LeadSource
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @MaxLength(250)
   address?: string
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @MaxLength(500)
   description?: string
@@ -130,6 +128,7 @@ export class UpdateLead {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @MaxLength(100)
   socialAccount?: string
