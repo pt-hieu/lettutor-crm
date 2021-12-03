@@ -1,13 +1,33 @@
 import { useOnClickOutside } from '@utils/hooks/useOnClickOutSide'
-import React, { ReactNode, useCallback, useRef, useState } from 'react'
+import React, {
+  ReactNode,
+  useCallback,
+  useRef,
+  useState,
+  useMemo,
+  MouseEventHandler,
+} from 'react'
+import Link from 'next/link'
 
-interface IProps {
-  onClick: () => void
+type Props = {
   title: string
   menuItems: ReactNode
-}
+} & (
+  | { asLink: true; link: string; onClick?: never }
+  | {
+      asLink?: false
+      link?: never
+      onClick: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>
+    }
+)
 
-const ButtonAdd = ({ onClick: onAdd, title, menuItems }: IProps) => {
+const ButtonAdd = ({
+  onClick: onAdd,
+  title,
+  menuItems,
+  asLink,
+  link,
+}: Props) => {
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef(null)
 
@@ -16,15 +36,24 @@ const ButtonAdd = ({ onClick: onAdd, title, menuItems }: IProps) => {
     useCallback(() => setShowMenu(false), []),
   )
 
-  return (
-    <div>
-      <button
-        className="crm-button h-full tracking-wide font-medium rounded-r-none"
-        onClick={onAdd}
+  const Target = asLink ? 'a' : 'button'
+
+  const target = useMemo(
+    () => (
+      <Target
+        className="crm-button h-full inline-block !text-white tracking-wide font-medium rounded-r-none"
+        onClick={asLink ? undefined : onAdd}
       >
         <span className="fa fa-plus mr-2" />
         {title}
-      </button>
+      </Target>
+    ),
+    [onAdd, title, asLink],
+  )
+
+  return (
+    <div>
+      {asLink ? <Link href={link || ''}>{target}</Link> : target}
 
       <button
         className="crm-button h-full rounded-l-none border-blue-300 border-l"
