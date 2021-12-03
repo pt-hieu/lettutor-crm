@@ -33,8 +33,8 @@ describe('lead-contact service', () => {
         ownerId: lead.ownerId,
         fullName: lead.fullName,
         email: lead.email,
-        leadStatus: lead.leadStatus,
-        leadSource: lead.leadSource,
+        status: lead.status,
+        source: lead.source,
       }
 
       leadContactRepo.save.mockReturnValue({ ...lead })
