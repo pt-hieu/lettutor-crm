@@ -63,7 +63,7 @@ const LeadsAdd = () => {
   const { push } = useRouter()
 
   const queryClient = useQueryClient()
-  const { isLoading, mutateAsync } = useMutation('add-user', addLeadService, {
+  const { isLoading, mutateAsync } = useMutation('add-lead', addLeadService, {
     onSuccess: (res) => {
       queryClient.invalidateQueries('leads')
       reset(initialValue)
