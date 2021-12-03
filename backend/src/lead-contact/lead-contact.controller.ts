@@ -20,10 +20,16 @@ import { LeadContactService } from './lead-contact.service'
 export class LeadContactController {
   constructor(private readonly service: LeadContactService) {}
 
-  @Get('/:id')
+  @Get(':id')
   @ApiOperation({ summary: 'to get lead information by Id' })
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getLeadById(id)
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'to upate lead manually' })
+  updateLead(@Param('id', ParseUUIDPipe) id: string, @Body() dto: DTO.LeadContact.UpdateLead) {
+    return this.service.updateLead(dto, id)
   }
 
   @Post()
@@ -35,12 +41,6 @@ export class LeadContactController {
   @ApiOperation({ summary: 'view, search and filter all leads or contacts' })
   index(@Query() query: DTO.LeadContact.GetManyQuery, @Request() req: AuthRequest) {
     return this.service.getMany(query, req)
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'to upate lead manually' })
-  updateLead(@Param('id', ParseUUIDPipe) id: string, @Body() dto: DTO.LeadContact.UpdateLead) {
-    return this.service.updateLead(dto, id)
   }
 
 }
