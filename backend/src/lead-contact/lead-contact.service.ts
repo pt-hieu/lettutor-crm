@@ -48,4 +48,21 @@ export class LeadContactService {
 
     return paginate(q, { limit: query.limit, page: query.page })
   }
+
+  async updateLead(dto: DTO.LeadContact.UpdateLead, id: string) {
+    const lead = await this.leadContactRepo.findOne({ id });
+
+    lead.owner.id = dto.ownerId;
+    lead.fullName = dto.fullName;
+    lead.email = dto.email;
+    lead.status = dto.status;
+    lead.source = dto.source;
+    lead.address = dto.address;
+    lead.description = dto.description;
+    lead.phoneNum = dto.phoneNum;
+    lead.socialAccount = dto.socialAccount;
+
+    return this.leadContactRepo.save(lead);
+  }
+
 }

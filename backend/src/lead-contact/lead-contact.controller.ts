@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Patch,
   Query,
   Request
 } from '@nestjs/common'
@@ -35,4 +36,11 @@ export class LeadContactController {
   index(@Query() query: DTO.LeadContact.GetManyQuery, @Request() req: AuthRequest) {
     return this.service.getMany(query, req)
   }
+
+  @Patch('/:id')
+  @ApiOperation({ summary: 'to upate lead manually' })
+  updateLead(@Param('id', ParseUUIDPipe) id: string, @Body() dto: DTO.LeadContact.UpdateLead) {
+    return this.service.updateLead(dto, id)
+  }
+
 }
