@@ -58,4 +58,28 @@ describe('lead-contact service', () => {
       )
     })
   })
+
+  describe('update lead', () => {
+    it('should update lead succeed', async () => {
+      const dto: DTO.LeadContact.UpdateLead = {
+        email: "update@mail.com"
+      }
+      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      leadContactRepo.save.mockReturnValue({ ...lead, ...dto })
+
+      expect(await leadContactService.updateLead(dto, lead.id)).toEqual({ ...lead, ...dto })
+    })
+
+    it('should throw not found exception when lead not found', async () => {
+      const dto: DTO.LeadContact.UpdateLead = {
+        email: "update@mail.com"
+      }
+
+      leadContactRepo.findOne.mockReturnValue(undefined)
+
+      expect(leadContactService.updateLead(dto, lead.id)).rejects.toThrow(
+        new NotFoundException(`Lead does not exist`)
+      )
+    })
+  })
 })

@@ -29,7 +29,7 @@ export class LeadContactService {
 
   async updateLead(dto: DTO.LeadContact.UpdateLead, id: string) {
     const lead = await this.leadContactRepo.findOne({ id })
-    if (!lead) throw new BadRequestException('Lead does not exist')
+    if (!lead) throw new NotFoundException('Lead does not exist')
 
     return this.leadContactRepo.save({
       ...lead,
