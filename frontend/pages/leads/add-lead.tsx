@@ -4,7 +4,7 @@ import Input from '@utils/components/Input'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { IErrorResponse } from '@utils/libs/functionalTryCatch'
 import { getSessionToken } from '@utils/libs/getToken'
-import { LeadSource, LeadStatus } from '@utils/models/lead'
+import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { addLeadService } from '@utils/service/lead'
 import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
@@ -20,22 +20,20 @@ import {
   useQueryClient,
 } from 'react-query'
 
-export interface LeadAddFormData {
+export interface LeadAddFormData
+  extends Pick<
+    Lead,
+    'fullName' | 'email' | 'status' | 'source' | 'description' | 'phoneNum'
+  > {
   ownerId: string
-  fullName: string
-  email: string
-  status: LeadStatus
-  source: LeadSource
   country: string
   city: string
   state: string
   street: string
   address?: string
-  description: string
-  phoneNum: string
 }
 
-const validation: (field: Field) => RegisterOptions = (field) => ({
+const validate: (field: Field) => RegisterOptions = (field) => ({
   required: {
     message: field.name + ' is required',
     value: true,
@@ -58,8 +56,10 @@ const initialValue: LeadAddFormData = {
 }
 
 const LeadsAdd = () => {
-  const [session, _] = useTypedSession()
-  const { data: leadOwners } = useQuery(['users'], getUsers({}))
+  const [session] = useTypedSession()
+  const { data: leadOwners } = useQuery(['users'], getUsers({}), {
+    enabled: false,
+  })
   const { push } = useRouter()
 
   const queryClient = useQueryClient()
@@ -106,28 +106,29 @@ const LeadsAdd = () => {
   })
 
   const renderField = (field: Field) => {
+    const { id, name, as, selectSource, validation, type } = field
     return (
-      <div key={field.id} className="grid grid-cols-12 mb-6 gap-6">
+      <div key={id} className="grid grid-cols-12 mb-6 gap-6">
         <label
-          htmlFor={field.id}
+          htmlFor={id}
           className={`col-span-3 mt-[10px] crm-label text-right ${
-            field.validation?.required ? '' : "after:content-['']"
+            validation?.required ? '' : "after:content-['']"
           }`}
         >
-          {field.name}
+          {name}
         </label>
         <div className="col-span-9">
           <Input
-            error={errors[field.id as keyof LeadAddFormData]?.message}
-            as={field.as}
+            error={errors[id as keyof LeadAddFormData]?.message}
+            as={as}
             props={{
-              type: field.type,
+              type: type,
               className: `text-sm p-3 min-h-[44px] ${
-                field.id === 'description' ? 'w-[600px]' : 'w-full'
+                id === 'description' ? 'w-[600px]' : 'w-full'
               }`,
               children:
-                field.as === 'select' ? (
-                  field.id === 'ownerId' ? (
+                as === 'select' ? (
+                  id === 'ownerId' ? (
                     <>
                       {leadOwners?.items.map((item) => (
                         <option key={item.id} value={item.id}>
@@ -137,7 +138,7 @@ const LeadsAdd = () => {
                     </>
                   ) : (
                     <>
-                      {field.selectSource?.map((item) => (
+                      {selectSource?.map((item) => (
                         <option key={item} value={item}>
                           {item}
                         </option>
@@ -146,8 +147,8 @@ const LeadsAdd = () => {
                   )
                 ) : undefined,
               ...register(
-                field.id as keyof LeadAddFormData,
-                field.validation ? validation(field) : undefined,
+                id as keyof LeadAddFormData,
+                validation ? validate(field) : undefined,
               ),
             }}
           />
@@ -159,40 +160,37 @@ const LeadsAdd = () => {
   return (
     <LeadsAddLayout>
       <div className="flex justify-end items-center sticky top-[72px] right-0">
-        <div>
-          <button
-            className="crm-button-outline mr-3"
-            onClick={() => push('/leads')}
-          >
-            Cancel
-          </button>
-        </div>
-        <div>
-          <button className="crm-button" onClick={addLead} disabled={isLoading}>
-            Save
-          </button>
-        </div>
+        <button
+          className="crm-button-outline mr-3"
+          onClick={() => push('/leads')}
+        >
+          Cancel
+        </button>
+        <button className="crm-button" onClick={addLead} disabled={isLoading}>
+          Save
+        </button>
       </div>
       <div className="pr-36">
         {/* Lead Infomation Start */}
         {LeadAddData.map((section) => {
+          const { title, col1, col2 } = section
           return (
-            <div key={section.title}>
+            <div key={title}>
               <h1 className="font-semibold text-lg text-gray-700 my-6">
-                {section.title}
+                {title}
               </h1>
               <div className="grid grid-cols-12">
                 {/* Info left side start*/}
-                {'col1' in section && (
+                {col1 && (
                   <div className="grid col-span-6 pr-28">
-                    {section.col1!.map((field) => {
+                    {col1.map((field) => {
                       return renderField(field)
                     })}
                   </div>
                 )}
-                {'col2' in section && (
+                {col2 && (
                   <div className="grid col-span-6 pr-28">
-                    {section.col2!.map((field) => {
+                    {col2.map((field) => {
                       return renderField(field)
                     })}
                   </div>
