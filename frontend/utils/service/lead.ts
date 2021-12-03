@@ -4,6 +4,8 @@ import { Role } from '@utils/models/user'
 import { RecursivePartial } from '@utils/utils-type'
 import axios from 'axios'
 import { API } from 'environment'
+import { User } from 'next-auth'
+import { LeadAddFormData } from 'pages/leads/add-lead'
 
 // export const getLeads =
 //   (
@@ -33,24 +35,29 @@ export const getLeads =
     },
     token?: string,
   ) =>
-    () => {
-      return Promise.resolve<Paginate<RecursivePartial<Lead>>>({
-        items: [
-          {
-            id: '1',
-            fullName: 'Hao',
-            email: 'Hao@mail.com',
-            phoneNum: '0123456789',
-            source: LeadSource.NONE,
-            owner: { name: 'Admin' },
-          },
-        ],
-        meta: {
-          totalItems: 1,
-          itemCount: 1,
-          itemsPerPage: 1,
-          totalPages: 1,
-          currentPage: 1,
+  () => {
+    return Promise.resolve<Paginate<RecursivePartial<Lead>>>({
+      items: [
+        {
+          id: '1',
+          fullName: 'Hao',
+          email: 'Hao@mail.com',
+          phoneNum: '0123456789',
+          source: LeadSource.NONE,
+          owner: { name: 'Admin' },
         },
-      })
-    }
+      ],
+      meta: {
+        totalItems: 1,
+        itemCount: 1,
+        itemsPerPage: 1,
+        totalPages: 1,
+        currentPage: 1,
+      },
+    })
+  }
+
+export const addLeadService = async (leadInfo: LeadAddFormData) => {
+  const { data } = await axios.post(API + '/api/lead-contact', leadInfo)
+  return data
+}
