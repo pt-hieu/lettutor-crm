@@ -76,7 +76,7 @@ export default function UsersSettings() {
   const [status, setStatus] = useQueryState<UserStatus>('status')
 
   const { data: users, isLoading } = useQuery(
-    ['users', page, limit, search, role || '', status || ''],
+    ['users', page || 1, limit || 10, search || '', role || '', status || ''],
     getUsers({ limit, page, search, role, status }),
   )
 

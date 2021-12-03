@@ -68,7 +68,8 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
       </form>
       <ButtonAdd
         title="Create Lead"
-        onClick={() => push('/leads/add-lead')}
+        asLink
+        link="/leads/add-lead"
         menuItems={
           <>
             <button className={menuItemClass}>

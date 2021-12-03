@@ -95,7 +95,7 @@ export default function LeadsViews() {
   })
 
   const { data: leads, isLoading } = useQuery(
-    ['leads', page, limit, search || '', source || [], status || []],
+    ['leads', page || 1, limit || 10, search || '', source || [], status || []],
     getLeads({ limit, page, search, source, status }),
   )
 
@@ -132,12 +132,10 @@ export default function LeadsViews() {
         <div className="w-full">
           <Table
             showSorterTooltip={false}
-            //Fixme
-            columns={columns as any}
+            columns={columns}
             loading={isLoading}
             dataSource={leads?.items}
-            //Fixme
-            rowKey={(u) => u.id || ''}
+            rowKey={(u) => u.id}
             rowSelection={{
               type: 'checkbox',
             }}

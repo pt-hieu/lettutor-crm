@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [dev]
     types: [labeled]
+  push:
+    branches: [dev, master]
 
 jobs:
   build:
