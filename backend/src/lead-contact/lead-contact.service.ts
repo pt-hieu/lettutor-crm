@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
-import { Repository, Brackets } from 'typeorm'
+import { Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AuthRequest } from 'src/utils/interface'
@@ -30,17 +30,15 @@ export class LeadContactService {
   async getMany(query: DTO.LeadContact.GetManyQuery, req: AuthRequest) {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
-      .select(['lc.ownerId', 'lc.fullName', 'lc.email',
-        'lc.status', 'lc.source', 'lc.address', 'lc.description', 'lc.phoneNum', 'lc.socialAccount'])
-      .where('lc.owner = :owner', { owner: req.user.id });
+      .where('lc.owner = :owner', { owner: req.user.id })
+      .leftJoinAndSelect('lc.owner', 'owner')
 
 
     if (query.status)
       q.andWhere('lc.status IN (:...status)', { status: query.status })
 
-    if (query.sources)
-      q.andWhere('lc.status IN (:...source)', { source: query.sources })
-
+    if (query.source)
+      q.andWhere('lc.source IN (:...source)', { source: query.source })
 
     if (query.search) {
       q = q

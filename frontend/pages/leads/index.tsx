@@ -1,16 +1,14 @@
 import LeadsViewLayout from '@components/Leads/LeadsViewLayout'
-import ButtonAdd from '@utils/components/ButtonAdd'
-import { menuItemClass } from '@utils/components/Header'
+import Search from '@components/Leads/Search'
+import LeadSidebar from '@components/Leads/Sidebar'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Lead } from '@utils/models/lead'
-import { Role, UserStatus } from '@utils/models/user'
+import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { getLeads } from '@utils/service/lead'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -23,12 +21,14 @@ export const getServerSideProps: GetServerSideProps = async ({
   const page = Number(q.page) || 1
   const limit = Number(q.limit) || 10
   const search = q.search as string | undefined
+  const source = q.source as LeadSource[] | undefined
+  const status = q.status as LeadStatus[] | undefined
 
   if (token) {
     await Promise.all([
       client.prefetchQuery(
-        ['leads', page, limit, search || ''],
-        getLeads({ limit, page, search }, token),
+        ['leads', page, limit, search || '', source || [], status || []],
+        getLeads({ limit, page, search, source, status }, token),
       ),
     ])
   }
@@ -85,45 +85,35 @@ export default function LeadsViews() {
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
-  const [search, setSearch] = useQueryState<string | undefined>('query')
-  const [role, setRole] = useQueryState<Role | undefined>('role')
-  const [status, setStatus] = useQueryState<UserStatus | undefined>('status')
+  const [search, setSearch] = useQueryState<string>('search')
+  const [source, setSource] = useQueryState<Array<LeadSource>>('source', {
+    isArray: true,
+  })
 
-  const router = useRouter()
+  const [status, setStatus] = useQueryState<Array<LeadStatus>>('status', {
+    isArray: true,
+  })
 
   const { data: leads, isLoading } = useQuery(
-    ['leads', page, limit, search],
-    getLeads({ limit, page, search }),
+    ['leads', page || 1, limit || 10, search || '', source || [], status || []],
+    getLeads({ limit, page, search, source, status }),
   )
 
   const [start, end, total] = usePaginateItem(leads)
 
   return (
-    <LeadsViewLayout title="CRM | Leads">
-      <div className="flex justify-end pt-1 pl-[2px]">
-        {/* <Search
-          loading={isLoading}
-          onQueryChange={setSearch}
-          onRoleChange={setRole}
+    <LeadsViewLayout
+      title="CRM | Leads"
+      sidebar={
+        <LeadSidebar
+          source={source}
+          status={status}
+          onSourceChange={setSource}
           onStatusChange={setStatus}
-        /> */}
-        <ButtonAdd
-          title="Create Lead"
-          onClick={() => router.push('/leads/add-lead')}
-          menuItems={
-            <>
-              <button className={menuItemClass}>
-                <span className="fa fa-upload mr-4" />
-                Import Leads
-              </button>
-              <button className={menuItemClass}>
-                <span className="fa fa-book mr-4" />
-                Import Notes
-              </button>
-            </>
-          }
         />
-      </div>
+      }
+    >
+      <Search search={search} onSearchChange={setSearch} />
 
       <div className="mt-4">
         <AnimatePresence presenceAffectsLayout>
@@ -142,12 +132,10 @@ export default function LeadsViews() {
         <div className="w-full">
           <Table
             showSorterTooltip={false}
-            //Fixme
-            columns={columns as any}
+            columns={columns}
             loading={isLoading}
             dataSource={leads?.items}
-            //Fixme
-            rowKey={(u) => u.id || ''}
+            rowKey={(u) => u.id}
             rowSelection={{
               type: 'checkbox',
             }}

@@ -8,3 +8,8 @@ export interface Paginate<T> {
     currentPage: number
   }
 }
+
+export type PagingQuery = {
+  page?: number,
+  limit?: number
+}
