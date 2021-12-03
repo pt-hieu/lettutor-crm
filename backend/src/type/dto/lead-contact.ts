@@ -8,7 +8,8 @@ import {
   IsString,
   IsUUID,
   MaxLength,
-  IsArray
+  IsArray,
+  ValidateNested
 } from 'class-validator'
 import { LeadStatus, LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { Paginate } from './paging'
@@ -73,10 +74,11 @@ export class GetManyQuery extends Paginate {
 
   @ApiPropertyOptional({ type: LeadStatus, enum: LeadStatus, isArray: true })
   @IsOptional()
+  @IsEnum(LeadStatus, { each: true })
   status?: LeadStatus[]
 
   @ApiPropertyOptional({ type: LeadSource, enum: LeadSource, isArray: true })
   @IsOptional()
-  @IsArray()
-  sources?: LeadSource[]
+  @IsEnum(LeadSource, { each: true })
+  source?: LeadSource[]
 }
