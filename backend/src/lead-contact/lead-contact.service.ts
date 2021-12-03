@@ -30,7 +30,8 @@ export class LeadContactService {
   async getMany(query: DTO.LeadContact.GetManyQuery, req: AuthRequest) {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
-      .where('lc.owner = :owner', { owner: req.user.id });
+      .where('lc.owner = :owner', { owner: req.user.id })
+      .leftJoinAndSelect('lc.owner', 'owner')
 
 
     if (query.status)
