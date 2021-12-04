@@ -19,6 +19,7 @@ export default function Header() {
   const { pathname } = useRouter()
   const [visible, setVisible] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
+  const splitPath = pathname.split('/')
 
   const toggle = useCallback((e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
@@ -43,7 +44,7 @@ export default function Header() {
             <Link href={link} key={link}>
               <a
                 className={`relative crm-link leading-[28px] whitespace-nowrap ${
-                  link === pathname ? activeLink : ''
+                  link === `/${splitPath[1]}` ? activeLink : ''
                 }`}
               >
                 {title}

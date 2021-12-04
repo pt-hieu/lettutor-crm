@@ -1,5 +1,5 @@
 export interface Paginate<T> {
-  items: Array<T>,
+  items: Array<T>
   meta: {
     totalItems: number
     itemCount: number
@@ -10,6 +10,6 @@ export interface Paginate<T> {
 }
 
 export type PagingQuery = {
-  page?: number,
+  page?: number
   limit?: number
 }
