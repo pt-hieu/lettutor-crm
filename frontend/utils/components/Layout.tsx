@@ -26,7 +26,7 @@ function Layout({ children, title, requireLogin, header }: Props) {
       {(session || !requireLogin) && (
         <>
           {header && <Header key="header" />}
-          <main>{children}</main>{' '}
+          <main>{children}</main>
         </>
       )}
     </>

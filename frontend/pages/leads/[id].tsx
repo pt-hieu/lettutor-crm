@@ -6,72 +6,80 @@ import { getLead } from '@utils/service/lead'
 import { useRouter } from 'next/router'
 import LeadDetailSidebar from 'components/Leads/LeadDetailSidebar'
 import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
-import { LeadSource, LeadStatus } from '@utils/models/lead'
+import { ReactNode, useMemo } from 'react'
+import { Lead } from '@utils/models/lead'
 
-const emptyValueIcon = '---'
+type LeadInfo = {
+  label: string
+  value: ReactNode
+}
 
 const LeadDetail = () => {
-  const router = useRouter()
-  const id = router.query.id as string
-  const { data: lead, isLoading } = useQuery(['lead', id], getLead(id))
+  const { query } = useRouter()
+  const id = query.id as string
 
-  const leadInfo = [
-    {
-      label: 'Lead Owner',
-      value: lead?.owner.name,
-    },
-    {
-      label: 'Full Name',
-      value: lead?.fullName,
-    },
-    {
-      label: 'Email',
-      value: lead?.email,
-    },
-    {
-      label: 'Phone',
-      value: lead?.phoneNum,
-    },
-    {
-      label: 'Lead Status',
-      value: lead?.status === LeadStatus.NONE ? undefined : lead?.status,
-    },
-    {
-      label: 'Lead Source',
-      value: lead?.source === LeadSource.NONE ? undefined : lead?.source,
-    },
-    {
-      label: 'Address',
-      value: lead?.address,
-    },
-    {
-      label: 'Description',
-      value: lead?.description,
-    },
-  ]
+  const { data: lead } = useQuery<Lead>(['lead', id], {
+    enabled: false,
+  })
+
+  const leadInfo = useMemo(
+    (): LeadInfo[] => [
+      {
+        label: 'Lead Owner',
+        value: lead?.owner.name,
+      },
+      {
+        label: 'Full Name',
+        value: lead?.fullName,
+      },
+      {
+        label: 'Email',
+        value: lead?.email,
+      },
+      {
+        label: 'Phone',
+        value: lead?.phoneNum,
+      },
+      {
+        label: 'Lead Status',
+        value: lead?.status,
+      },
+      {
+        label: 'Lead Source',
+        value: lead?.source,
+      },
+      {
+        label: 'Address',
+        value: lead?.address,
+      },
+      {
+        label: 'Description',
+        value: lead?.description,
+      },
+    ],
+    [lead],
+  )
 
   return (
-    <Layout title={`Lead Detail`} requireLogin>
-      <div>
-        <LeadDetailNavbar isLoading={isLoading} lead={lead} />
+    <Layout title={`CRM | Lead | ${lead?.fullName}`} requireLogin>
+      <div className="crm-container">
+        <LeadDetailNavbar lead={lead!} />
 
-        <div className="grid grid-cols-[300px,1fr] h-[calc(100vh-60px-80px)]">
+        <div className="grid grid-cols-[250px,1fr]">
           <LeadDetailSidebar />
-          <div className="crm-container border bg-gray-100 pl-5">
-            <div className="bg-white rounded-md p-5 drop-shadow">
-              <ul>
-                {leadInfo.map(({ label, value }) => (
-                  <li key={label}>
-                    <span className="inline-block p-2 w-[150px] text-right font-semibold">
-                      {label}
-                    </span>
-                    <span className="inline-block p-2">
-                      {value || emptyValueIcon}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+
+          <div>
+            <div className="font-semibold mb-4 text-[17px]">Overview</div>
+            <ul className="flex flex-col gap-4">
+              {leadInfo.map(({ label, value }) => (
+                <li key={label} className="grid grid-cols-[250px,1fr] gap-4">
+                  <span className="inline-block text-right font-medium">
+                    {label}
+                  </span>
+                  {value}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>

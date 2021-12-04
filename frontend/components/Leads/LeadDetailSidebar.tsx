@@ -1,10 +1,23 @@
+type Data = {
+  label: string
+  link?: string
+}
+
+const SideBarItem: Data[] = [
+  { label: 'Open Activities' },
+  { label: 'Closed Activities' },
+]
+
 const LeadDetailSidebar = () => {
   return (
-    <div className="crm-container border">
-      <h2 className="crm-sub-title">Related List</h2>
-      <ul>
-        <li className="p-2 my-2 hover:bg-gray-100">Open Activities</li>
-        <li className="p-2 my-2 hover:bg-gray-100">Closed Activities</li>
+    <div>
+      <div className="px-2 font-semibold text-[17px] mb-3">Related Lists</div>
+      <ul className="flex flex-col gap-2">
+        {SideBarItem.map(({ label }) => (
+          <li className="p-2 text-sm rounded-md hover:bg-gray-100" key={label}>
+            {label}
+          </li>
+        ))}
       </ul>
     </div>
   )

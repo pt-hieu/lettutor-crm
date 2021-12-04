@@ -21,10 +21,6 @@
     @apply cursor-default;
   }
 
-  .crm-sub-title {
-    @apply text-base font-semibold
-  }
-
   .crm-input {
     @apply focus:outline-none text-[14px] border-none focus:border-none !ring-1 ring-gray-200 rounded-md text-gray-600 !crm-transition;
   }
