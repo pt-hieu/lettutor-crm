@@ -21,7 +21,16 @@ export const getLeads =
       })
       .then((res) => res.data)
 
+
+export const getLead = (id?: string, token?: string) => () =>
+  axios
+    .get<Lead>(API + `/api/lead-contact/${id}`, {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    .then((res) => res.data)
+
 export const addLeadService = async (leadInfo: LeadAddFormData) => {
   const { data } = await axios.post(API + '/api/lead-contact', leadInfo)
   return data
 }
+
