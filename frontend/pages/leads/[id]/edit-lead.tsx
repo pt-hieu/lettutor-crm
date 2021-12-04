@@ -179,7 +179,10 @@ const EditLead = () => {
         </div>
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
-          <button className="crm-button-outline" onClick={() => push('/leads')}>
+          <button
+            className="crm-button-outline"
+            onClick={() => push(`/leads/${id}`)}
+          >
             Cancel
           </button>
           <button
