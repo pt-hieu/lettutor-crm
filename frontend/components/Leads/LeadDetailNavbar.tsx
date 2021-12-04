@@ -9,7 +9,7 @@ const LeadDetailNavbar = ({ lead: { fullName, id } }: Props) => {
   const router = useRouter()
 
   const navigateToEditPage = () => {
-    router.push(`/leads/${id}/edit-lead`)
+    router.push(`/leads/${id}/edit`)
   }
 
   return (

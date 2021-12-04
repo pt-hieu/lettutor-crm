@@ -19,7 +19,7 @@ import { Paginate } from '@utils/models/paging'
 import { User } from '@utils/models/user'
 import Layout from '@utils/components/Layout'
 import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 export interface LeadUpdateFromData
   extends Pick<
