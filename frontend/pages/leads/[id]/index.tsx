@@ -51,7 +51,7 @@ const LeadDetail = () => {
   ]
 
   return (
-    <Layout title={`Lead Detail`} requireLogin>
+    <Layout title={`CRM | Lead Detail`} requireLogin>
       <div>
         <LeadDetailNavbar isLoading={isLoading} lead={lead} />
 
