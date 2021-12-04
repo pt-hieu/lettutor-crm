@@ -4,7 +4,6 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-    target-brach: 'dev'
     assignees:
       - 'pt-hieu'
     reviewers:
@@ -18,7 +17,6 @@ updates:
     schedule:
       interval: 'weekly'
       day: 'saturday'
-    target-brach: 'dev'
     assignees:
       - 'pt-hieu'
     reviewers:
