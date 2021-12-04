@@ -51,7 +51,7 @@ const LeadDetail = () => {
   ]
 
   return (
-    <Layout requireLogin>
+    <Layout title={`Lead Detail`} requireLogin>
       <div>
         <LeadDetailNavbar isLoading={isLoading} lead={lead} />
 
@@ -60,8 +60,8 @@ const LeadDetail = () => {
           <div className="crm-container border bg-gray-100 pl-5">
             <div className="bg-white rounded-md p-5 drop-shadow">
               <ul>
-                {leadInfo.map(({ label, value }, index) => (
-                  <li key={index}>
+                {leadInfo.map(({ label, value }) => (
+                  <li key={label}>
                     <span className="inline-block p-2 w-[150px] text-right font-semibold">
                       {label}
                     </span>

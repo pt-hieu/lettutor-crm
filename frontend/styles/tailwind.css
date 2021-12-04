@@ -6,7 +6,7 @@
   }
 
   .crm-button-secondary {
-    @apply px-3 py-2 rounded-md bg-gray-100 text-black hover:bg-gray-50 crm-transition;
+    @apply crm-button bg-gray-100 text-black hover:bg-gray-50 crm-transition;
   }
 
   .crm-button:disabled {
