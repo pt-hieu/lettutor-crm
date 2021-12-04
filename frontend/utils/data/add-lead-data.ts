@@ -1,5 +1,5 @@
 import { emailReg } from 'pages/reset-password'
-import { LeadSource, LeadStatus } from './models/lead'
+import { LeadSource, LeadStatus } from '../models/lead'
 
 type Validation = {
   required?: boolean
@@ -12,7 +12,7 @@ type Validation = {
 export type Field = {
   name: string
   id: string
-  as?: 'select' | 'textarea' | 'input'
+  as?: 'input' | 'select' | 'textarea'
   validation?: Validation
   type?: 'email' | 'text'
   selectSource?: any[]
@@ -20,15 +20,14 @@ export type Field = {
 
 type SectionTemplate = {
   title: string
-  col1?: Field[]
-  col2?: Field[]
+  items: Field[]
 }
 
 type AddLeadTemplate = SectionTemplate[]
 export const LeadAddData: AddLeadTemplate = [
   {
     title: 'Lead Information',
-    col1: [
+    items: [
       {
         name: 'Lead Owner',
         id: 'ownerId',
@@ -36,7 +35,6 @@ export const LeadAddData: AddLeadTemplate = [
         validation: {
           required: true,
         },
-        selectSource: ['Hao1', 'Hao2'],
       },
       {
         name: 'Full Name',
@@ -45,6 +43,7 @@ export const LeadAddData: AddLeadTemplate = [
           required: true,
         },
       },
+
       {
         name: 'Phone',
         id: 'phoneNum',
@@ -53,20 +52,6 @@ export const LeadAddData: AddLeadTemplate = [
           regExp: {
             value: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
             message: 'Please enter a valid phone number',
-          },
-        },
-      },
-    ],
-    col2: [
-      {
-        name: 'Email',
-        id: 'email',
-        type: 'email',
-        validation: {
-          required: true,
-          regExp: {
-            value: emailReg,
-            message: 'Please enter a valid email address',
           },
         },
       },
@@ -80,6 +65,19 @@ export const LeadAddData: AddLeadTemplate = [
         selectSource: Object.values(LeadStatus),
       },
       {
+        name: 'Email',
+        id: 'email',
+        type: 'email',
+        validation: {
+          required: true,
+          regExp: {
+            value: emailReg,
+            message: 'Please enter a valid email address',
+          },
+        },
+      },
+
+      {
         name: 'Lead Source',
         id: 'source',
         as: 'select',
@@ -92,7 +90,7 @@ export const LeadAddData: AddLeadTemplate = [
   },
   {
     title: 'Address Information',
-    col1: [
+    items: [
       {
         name: 'Street',
         id: 'street',
@@ -101,8 +99,6 @@ export const LeadAddData: AddLeadTemplate = [
         name: 'State',
         id: 'state',
       },
-    ],
-    col2: [
       {
         name: 'City',
         id: 'city',
@@ -115,7 +111,7 @@ export const LeadAddData: AddLeadTemplate = [
   },
   {
     title: 'Description Information',
-    col1: [
+    items: [
       {
         name: 'Description',
         id: 'description',

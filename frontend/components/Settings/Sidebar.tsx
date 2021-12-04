@@ -1,4 +1,4 @@
-import { SettingData } from '@utils/setting-data'
+import { SettingData } from '@utils/data/setting-data'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCallback, useState } from 'react'
 import Link from 'next/link'

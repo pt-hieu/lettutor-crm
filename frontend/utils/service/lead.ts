@@ -13,15 +13,15 @@ export const getLeads =
     } & PagingQuery,
     token?: string,
   ) =>
-  () =>
-    axios
-      .get<Paginate<Lead>>(API + '/api/lead-contact', {
-        headers: { authorization: 'Bearer ' + token },
-        params,
-      })
-      .then((res) => res.data)
+    () =>
+      axios
+        .get<Paginate<Lead>>(API + '/api/lead-contact', {
+          headers: { authorization: 'Bearer ' + token },
+          params,
+        })
+        .then((res) => res.data)
 
 export const addLeadService = async (leadInfo: LeadAddFormData) => {
-  const { data } = await axios.post(API + '/api/lead-contact', leadInfo)
+  const { data } = await axios.post<Lead>(API + '/api/lead-contact', leadInfo)
   return data
 }

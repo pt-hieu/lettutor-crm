@@ -1,8 +1,6 @@
-import LeadsAddLayout from '@components/Leads/LeadsAddLayout'
-import { Field, LeadAddData } from '@utils/add-lead-data'
+import { Field, LeadAddData } from '@utils/data/add-lead-data'
 import Input from '@utils/components/Input'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { IErrorResponse } from '@utils/libs/functionalTryCatch'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { addLeadService } from '@utils/service/lead'
@@ -10,7 +8,7 @@ import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, Fragment } from 'react'
 import { RegisterOptions, useForm } from 'react-hook-form'
 import {
   dehydrate,
@@ -19,6 +17,9 @@ import {
   useQuery,
   useQueryClient,
 } from 'react-query'
+import { Paginate } from '@utils/models/paging'
+import { User } from '@utils/models/user'
+import Layout from '@utils/components/Layout'
 
 export interface LeadAddFormData
   extends Pick<
@@ -57,7 +58,8 @@ const initialValue: LeadAddFormData = {
 
 const LeadsAdd = () => {
   const [session] = useTypedSession()
-  const { data: leadOwners } = useQuery(['users'], getUsers({}), {
+  // TODO: Fix paginate
+  const { data: leadOwners } = useQuery<Paginate<User>>(['users'], {
     enabled: false,
   })
   const { push } = useRouter()
@@ -66,17 +68,12 @@ const LeadsAdd = () => {
   const { isLoading, mutateAsync } = useMutation('add-lead', addLeadService, {
     onSuccess: (res) => {
       queryClient.invalidateQueries('leads')
-      reset(initialValue)
       notification.success({
-        message: 'Add new lead successfully.',
+        message: 'Add new lead successfully',
       })
       push(`/leads/${res.id}`)
     },
-    onError: ({ response }: IErrorResponse) => {
-      if (response) {
-        notification.error({ message: response.data.message })
-        return
-      }
+    onError: () => {
       notification.error({ message: 'Add new lead unsuccessfully' })
     },
   })
@@ -86,7 +83,6 @@ const LeadsAdd = () => {
     handleSubmit,
     formState: { errors },
     setValue,
-    reset,
   } = useForm<LeadAddFormData>({
     shouldUseNativeValidation: true,
     defaultValues: initialValue,
@@ -98,109 +94,106 @@ const LeadsAdd = () => {
 
   const addLead = handleSubmit((data) => {
     const { country, city, state, street } = data
-    const address = [street, state, city, country]
+
+    data.address = [street, state, city, country]
       .filter((item) => item)
       .join(', ')
-    data.address = address
+
     mutateAsync(data)
   })
 
-  const renderField = (field: Field) => {
-    const { id, name, as, selectSource, validation, type } = field
-    return (
-      <div key={id} className="grid grid-cols-12 mb-6 gap-6">
-        <label
-          htmlFor={id}
-          className={`col-span-3 mt-[10px] crm-label text-right ${
-            validation?.required ? '' : "after:content-['']"
-          }`}
-        >
-          {name}
-        </label>
-        <div className="col-span-9">
-          <Input
-            error={errors[id as keyof LeadAddFormData]?.message}
-            as={as}
-            props={{
-              type: type,
-              className: `text-sm p-3 min-h-[44px] ${
-                id === 'description' ? 'w-[600px]' : 'w-full'
-              }`,
-              children:
-                as === 'select' ? (
-                  id === 'ownerId' ? (
-                    <>
-                      {leadOwners?.items.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.name}
-                        </option>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      {selectSource?.map((item) => (
-                        <option key={item} value={item}>
-                          {item}
-                        </option>
-                      ))}
-                    </>
-                  )
-                ) : undefined,
-              ...register(
-                id as keyof LeadAddFormData,
-                validation ? validate(field) : undefined,
-              ),
-            }}
-          />
-        </div>
+  const renderField = ({
+    id,
+    name,
+    as,
+    selectSource,
+    validation,
+    type,
+  }: Field) => (
+    <div key={id} className="grid grid-cols-3 mb-6 gap-6">
+      <label
+        htmlFor={id}
+        className={`mt-[10px] crm-label text-right ${
+          validation?.required ? '' : "after:content-['']"
+        }`}
+      >
+        {name}
+      </label>
+      <div className="col-span-2">
+        {/* @ts-ignore */}
+        <Input
+          error={errors[id as keyof LeadAddFormData]?.message}
+          as={as!}
+          props={{
+            type: type,
+            className: `text-sm p-3 min-h-[44px] ${
+              id === 'description' ? 'w-[600px]' : 'w-full'
+            }`,
+            children:
+              as === 'select' ? (
+                id === 'ownerId' ? (
+                  <>
+                    {leadOwners?.items.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {selectSource?.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </>
+                )
+              ) : undefined,
+            ...register(
+              id as keyof LeadAddFormData,
+              validation
+                ? validate({
+                    id,
+                    name,
+                    as,
+                    selectSource,
+                    validation,
+                    type,
+                  })
+                : undefined,
+            ),
+          }}
+        />
       </div>
-    )
-  }
+    </div>
+  )
 
   return (
-    <LeadsAddLayout>
-      <div className="flex justify-end items-center sticky top-[72px] right-0">
-        <button
-          className="crm-button-outline mr-3"
-          onClick={() => push('/leads')}
-        >
-          Cancel
-        </button>
-        <button className="crm-button" onClick={addLead} disabled={isLoading}>
-          Save
-        </button>
-      </div>
-      <div className="pr-36">
-        {/* Lead Infomation Start */}
-        {LeadAddData.map((section) => {
-          const { title, col1, col2 } = section
-          return (
-            <div key={title}>
-              <h1 className="font-semibold text-lg text-gray-700 my-6">
-                {title}
-              </h1>
-              <div className="grid grid-cols-12">
-                {/* Info left side start*/}
-                {col1 && (
-                  <div className="grid col-span-6 pr-28">
-                    {col1.map((field) => {
-                      return renderField(field)
-                    })}
-                  </div>
-                )}
-                {col2 && (
-                  <div className="grid col-span-6 pr-28">
-                    {col2.map((field) => {
-                      return renderField(field)
-                    })}
-                  </div>
-                )}
+    <Layout requireLogin title="CRM | Add a new lead">
+      <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
+        <div>
+          {/* Lead Infomation Start */}
+          {LeadAddData.map(({ title, items }) => (
+            <div className="flex flex-col gap-6" key={title}>
+              <h1 className="font-semibold text-lg text-gray-700">{title}</h1>
+
+              <div className="grid grid-cols-2 gap-4">
+                {items.map((field) => renderField(field))}
               </div>
             </div>
-          )
-        })}
+          ))}
+        </div>
+
+        <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
+          <button className="crm-button-outline" onClick={() => push('/leads')}>
+            Cancel
+          </button>
+          <button className="crm-button" onClick={addLead} disabled={isLoading}>
+            Submit
+          </button>
+        </div>
       </div>
-    </LeadsAddLayout>
+    </Layout>
   )
 }
 

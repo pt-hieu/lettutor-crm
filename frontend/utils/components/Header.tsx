@@ -1,10 +1,10 @@
 import { Avatar, Tooltip } from 'antd'
-import { MouseEvent, useCallback, useEffect, useState } from 'react'
+import { MouseEvent, useCallback, useEffect, useState, useMemo } from 'react'
 import Confirm from './Confirm'
 import { signOut } from 'next-auth/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useModal } from '@utils/hooks/useModal'
-import { data } from '@utils/header-data'
+import { data } from '@utils/data/header-data'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
@@ -19,7 +19,8 @@ export default function Header() {
   const { pathname } = useRouter()
   const [visible, setVisible] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
-  const splitPath = pathname.split('/')
+
+  const splitPath = useMemo(() => pathname.split('/'), [pathname])
 
   const toggle = useCallback((e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()

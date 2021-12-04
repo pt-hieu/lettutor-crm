@@ -1,5 +1,5 @@
 import Layout from '@utils/components/Layout'
-import { SettingData, SG } from '@utils/setting-data'
+import { SettingData, SG } from '@utils/data/setting-data'
 import Link from 'next/link'
 
 export default function Settings() {
