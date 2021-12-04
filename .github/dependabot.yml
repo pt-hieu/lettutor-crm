@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+    target-brach: 'dev'
+    assignees:
+      - 'pt-hieu'
+    reviewers:
+      - 'pt-hieu'
+    commit-message:
+      prefix: 'deps: '
+      include: 'scope'
+
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'saturday'
+    target-brach: 'dev'
+    assignees:
+      - 'pt-hieu'
+    reviewers:
+      - 'pt-hieu'
+    commit-message:
+      prefix: 'deps: '
+      include: 'scope'
