@@ -9,8 +9,8 @@ import { getLeads } from '@utils/service/lead'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
+import Link from 'next/link'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -48,6 +48,11 @@ const columns: TableColumnType<Lead>[] = [
     key: 'name',
     sorter: { compare: (a, b) => a.fullName.localeCompare(b.fullName) },
     fixed: 'left',
+    render: (_, { id, fullName }) => (
+      <Link href={`/leads/${id}`}>
+        <a className="crm-link underline hover:underline">{fullName}</a>
+      </Link>
+    ),
   },
   {
     title: 'Email',
@@ -83,8 +88,6 @@ const columns: TableColumnType<Lead>[] = [
 ]
 
 export default function LeadsViews() {
-  const router = useRouter()
-
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -134,11 +137,6 @@ export default function LeadsViews() {
         </AnimatePresence>
         <div className="w-full">
           <Table
-            onRow={(record, rowIndex) => {
-              return {
-                onClick: () => router.push(`/leads/${record.id}`),
-              }
-            }}
             showSorterTooltip={false}
             columns={columns}
             loading={isLoading}
