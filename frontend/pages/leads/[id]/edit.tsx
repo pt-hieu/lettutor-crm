@@ -133,7 +133,9 @@ const EditLead = () => {
           props={{
             type: type,
             className: `text-sm p-3 min-h-[44px] ${
-              name === 'description' || 'address' ? 'w-[600px]' : 'w-full'
+              name === 'description' || name === 'address'
+                ? 'w-[600px]'
+                : 'w-full'
             }`,
             children:
               as === 'select' ? (
