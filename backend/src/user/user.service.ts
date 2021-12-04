@@ -20,7 +20,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
@@ -121,6 +121,7 @@ export class UserService {
     let q = this.userRepo
       .createQueryBuilder('u')
       .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.status'])
+
 
     if (query.status)
       q = q.where('u.status = :status', { status: query.status })

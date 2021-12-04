@@ -6,7 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { user } from './data'
-import { MockType, repositoryMockFactory } from './utils'
+import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import moment from 'moment'
 import { BadRequestException } from '@nestjs/common'
 import { JwtPayload } from 'src/utils/interface'
@@ -204,6 +204,18 @@ describe('user service', () => {
       expect(userService.getOne(payload)).rejects.toThrow(
         new BadRequestException('User does not exist'),
       )
+    })
+  })
+
+  describe('getMany', () => {
+    it('should return users succeed', async () => {
+      const dto: DTO.User.UserGetManyQuery = {
+        limit: 10,
+        page: 1,
+      }
+
+      mockQueryBuilder.getMany.mockReturnValue([user])
+      expect((await userService.getMany(dto)).items).toEqual([user])
     })
   })
 

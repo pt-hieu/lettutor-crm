@@ -1,4 +1,4 @@
-import { Injectable,  BadRequestException, NotFoundException } from '@nestjs/common'
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { Repository } from 'typeorm'
@@ -37,10 +37,9 @@ export class LeadContactService {
     })
   }
 
-  async getMany(query: DTO.LeadContact.GetManyQuery, req: AuthRequest) {
+  async getMany(query: DTO.LeadContact.GetManyQuery) {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
-      .where('lc.owner = :owner', { owner: req.user.id })
       .leftJoinAndSelect('lc.owner', 'owner')
 
 

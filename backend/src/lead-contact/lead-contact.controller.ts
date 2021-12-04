@@ -18,7 +18,7 @@ import { LeadContactService } from './lead-contact.service'
 @ApiBearerAuth('jwt')
 @Controller('lead-contact')
 export class LeadContactController {
-  constructor(private readonly service: LeadContactService) {}
+  constructor(private readonly service: LeadContactService) { }
 
   @Get(':id')
   @ApiOperation({ summary: 'to get lead information by Id' })
@@ -39,8 +39,8 @@ export class LeadContactController {
   }
   @Get()
   @ApiOperation({ summary: 'view, search and filter all leads or contacts' })
-  index(@Query() query: DTO.LeadContact.GetManyQuery, @Request() req: AuthRequest) {
-    return this.service.getMany(query, req)
+  index(@Query() query: DTO.LeadContact.GetManyQuery) {
+    return this.service.getMany(query)
   }
 
 }

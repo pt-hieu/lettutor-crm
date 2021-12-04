@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { lead } from './data'
-import { MockType, repositoryMockFactory } from './utils'
+import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { LeadContactService } from 'src/lead-contact/lead-contact.service'
 import { NotFoundException } from '@nestjs/common'
@@ -56,6 +56,19 @@ describe('lead-contact service', () => {
       expect(leadContactService.getLeadById(lead.id)).rejects.toThrow(
         new NotFoundException(`Lead with ID ${lead.id} not found`),
       )
+    })
+  })
+
+  describe('getMany', () => {
+    it('should return leads succeed', async () => {
+      const dto: DTO.LeadContact.GetManyQuery = {
+        limit: 10,
+        page: 1
+      }
+
+      mockQueryBuilder.getMany.mockReturnValue([lead])
+
+      expect((await leadContactService.getMany(dto)).items).toEqual([lead])
     })
   })
 
