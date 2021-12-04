@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hookform/resolvers": "^2.8.4",
     "antd": "^4.16.13",
     "axios": "^0.24.0",
     "framer-motion": "^5.3.0",
@@ -24,7 +25,8 @@
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.17.5",
     "react-query": "^3.29.1",
-    "react-useanimations": "^2.0.6"
+    "react-useanimations": "^2.0.6",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.3.4",

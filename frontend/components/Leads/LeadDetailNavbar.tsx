@@ -1,10 +1,17 @@
 import { Lead } from '@utils/models/lead'
+import { useRouter } from 'next/router'
 
 type Props = {
   lead: Lead
 }
 
-const LeadDetailNavbar = ({ lead: { fullName } }: Props) => {
+const LeadDetailNavbar = ({ lead: { fullName, id } }: Props) => {
+  const router = useRouter()
+
+  const navigateToEditPage = () => {
+    router.push(`/leads/${id}/edit-lead`)
+  }
+
   return (
     <div className="mb-4 border-b pb-4 sticky top-[76px] bg-white z-10">
       <div className="flex justify-between items-center">
@@ -16,7 +23,9 @@ const LeadDetailNavbar = ({ lead: { fullName } }: Props) => {
         <div className="grid grid-cols-3 gap-3">
           <button className="crm-button">Send Email</button>
           <button className="crm-button-secondary">Convert</button>
-          <button className="crm-button-secondary">Edit</button>
+          <button className="crm-button-secondary" onClick={navigateToEditPage}>
+            Edit
+          </button>
         </div>
       </div>
     </div>

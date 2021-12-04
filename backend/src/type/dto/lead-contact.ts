@@ -9,7 +9,7 @@ import {
   IsUUID,
   MaxLength,
   IsArray,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator'
 import { LeadStatus, LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { Paginate } from './paging'
@@ -114,14 +114,12 @@ export class UpdateLead {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
   @IsString()
   @MaxLength(250)
   address?: string
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
   @IsString()
   @MaxLength(500)
   description?: string

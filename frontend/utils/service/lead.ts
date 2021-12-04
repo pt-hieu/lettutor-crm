@@ -3,6 +3,7 @@ import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
 import { LeadAddFormData } from 'pages/leads/add-lead'
+import { LeadUpdateFromData } from 'pages/leads/[id]/edit-lead'
 
 export const getLeads =
   (
@@ -13,14 +14,13 @@ export const getLeads =
     } & PagingQuery,
     token?: string,
   ) =>
-    () =>
-      axios
-        .get<Paginate<Lead>>(API + '/api/lead-contact', {
-          headers: { authorization: 'Bearer ' + token },
-          params,
-        })
-        .then((res) => res.data)
-
+  () =>
+    axios
+      .get<Paginate<Lead>>(API + '/api/lead-contact', {
+        headers: { authorization: 'Bearer ' + token },
+        params,
+      })
+      .then((res) => res.data)
 
 export const getLead = (id?: string, token?: string) => () =>
   axios
@@ -34,3 +34,15 @@ export const addLeadService = async (leadInfo: LeadAddFormData) => {
   return data
 }
 
+export const updateLead = async (params: {
+  id: string
+  leadInfo: LeadUpdateFromData
+}) => {
+  const { id, leadInfo } = params
+  const { data } = await axios.patch<Lead>(
+    API + `/api/lead-contact/${id}`,
+    leadInfo,
+  )
+
+  return data
+}
