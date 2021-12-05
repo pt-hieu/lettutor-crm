@@ -1,4 +1,4 @@
-import { Paginate } from '@utils/models/paging'
+import { Paginate, PagingQuery } from '@utils/models/paging'
 import { Role, User, UserStatus } from '@utils/models/user'
 import axios from 'axios'
 import { API } from 'environment'
@@ -29,21 +29,19 @@ export const updateUserInformation = (data: { name: string }) =>
 export const getUsers =
   (
     params: {
-      page?: number
-      limit?: number
       search?: string
       role?: Role
       status?: UserStatus
-    },
+    } & PagingQuery,
     token?: string,
   ) =>
-  () =>
-    axios
-      .get<Paginate<User>>(API + '/api/user', {
-        headers: { authorization: 'Bearer ' + token },
-        params,
-      })
-      .then((res) => res.data)
+    () =>
+      axios
+        .get<Paginate<User>>(API + '/api/user', {
+          headers: { authorization: 'Bearer ' + token },
+          params,
+        })
+        .then((res) => res.data)
 
 export const addUser = async (data: {
   name: string

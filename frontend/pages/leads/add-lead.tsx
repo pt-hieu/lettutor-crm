@@ -58,8 +58,7 @@ const initialValue: LeadAddFormData = {
 
 const LeadsAdd = () => {
   const [session] = useTypedSession()
-  // TODO: Fix paginate
-  const { data: leadOwners } = useQuery<Paginate<User>>(['users'], {
+  const { data: leadOwners } = useQuery<User[]>(['users'], {
     enabled: false,
   })
   const { push } = useRouter()
@@ -133,7 +132,7 @@ const LeadsAdd = () => {
               as === 'select' ? (
                 id === 'ownerId' ? (
                   <>
-                    {leadOwners?.items.map((item) => (
+                    {leadOwners?.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.name}
                       </option>
@@ -202,7 +201,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const token = getSessionToken(req.cookies)
 
   if (token) {
-    await Promise.all([client.prefetchQuery(['users'], getUsers({}, token))])
+    await Promise.all([
+      client.prefetchQuery(
+        ['users'],
+        getUsers({ shouldPaginate: false }, token),
+      ),
+    ])
   }
 
   return {

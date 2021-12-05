@@ -12,4 +12,5 @@ export interface Paginate<T> {
 export type PagingQuery = {
   page?: number
   limit?: number
+  shouldPaginate?: boolean
 }

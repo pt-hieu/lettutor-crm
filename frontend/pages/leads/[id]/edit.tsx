@@ -64,8 +64,7 @@ const EditLead = () => {
   const { push, query } = useRouter()
   const id = query.id as string
 
-  // TODO: Fix paginate
-  const { data: leadOwners } = useQuery<Paginate<User>>(['users'], {
+  const { data: leadOwners } = useQuery<User[]>(['users'], {
     enabled: false,
   })
 
@@ -141,7 +140,7 @@ const EditLead = () => {
               as === 'select' ? (
                 name === 'ownerId' ? (
                   <>
-                    {leadOwners?.items.map((item) => (
+                    {leadOwners?.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.name}
                       </option>
@@ -210,7 +209,15 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   if (token) {
     await Promise.all([
-      client.prefetchQuery(['users'], getUsers({}, token)),
+      client.prefetchQuery(
+        ['users'],
+        getUsers(
+          {
+            shouldPaginate: false,
+          },
+          token,
+        ),
+      ),
       client.prefetchQuery(['lead', id], getLead(id, token)),
     ])
   }
