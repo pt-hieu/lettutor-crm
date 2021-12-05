@@ -5,6 +5,7 @@ import { AppModule } from 'src/app.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
 import { TransformInterceptor } from './transform.interceptor'
+import morgan from 'morgan'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -24,6 +25,7 @@ async function bootstrap() {
   })
 
   if (process.env.NODE_ENV !== 'production') {
+    app.use(morgan('dev'))
     const config = new DocumentBuilder()
       .addBearerAuth(
         {

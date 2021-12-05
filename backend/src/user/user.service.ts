@@ -122,7 +122,6 @@ export class UserService {
       .createQueryBuilder('u')
       .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.status'])
 
-
     if (query.status)
       q = q.where('u.status = :status', { status: query.status })
 
@@ -137,7 +136,7 @@ export class UserService {
         .orWhere('u.email ILIKE :search', { search: `%${query.search}%` })
     }
 
-    if (query.shouldPaginate === false) return q.getMany()
+    if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
   }
 

@@ -204,7 +204,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     await Promise.all([
       client.prefetchQuery(
         ['users'],
-        getUsers({ shouldPaginate: false }, token),
+        getUsers({ shouldNotPaginate: true }, token),
       ),
     ])
   }

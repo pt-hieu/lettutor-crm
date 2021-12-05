@@ -55,7 +55,7 @@ export class LeadContactService {
         .orWhere('lc.email ILIKE :search', { search: `%${query.search}%` })
     }
 
-    if (query.shouldPaginate === false) return q.getMany()
+    if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
   }
 

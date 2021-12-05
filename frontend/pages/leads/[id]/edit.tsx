@@ -68,12 +68,10 @@ const EditLead = () => {
     enabled: false,
   })
 
-  const { data: lead } = useQuery(['lead', id], getLead(id))
+  const { data: lead } = useQuery<Lead>(['lead', id], { enabled: false })
 
-  const queryClient = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('edit-lead', updateLead, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries('leads')
       notification.success({
         message: 'Edit lead successfully.',
       })
@@ -191,7 +189,7 @@ const EditLead = () => {
             onClick={editLead}
             disabled={isLoading}
           >
-            Submit
+            Save
           </button>
         </div>
       </div>
@@ -213,7 +211,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         ['users'],
         getUsers(
           {
-            shouldPaginate: false,
+            shouldNotPaginate: true,
           },
           token,
         ),
@@ -228,4 +226,5 @@ export const getServerSideProps: GetServerSideProps = async ({
     },
   }
 }
+
 export default EditLead
