@@ -213,7 +213,7 @@ describe('user service', () => {
       const dto: DTO.User.UserGetManyQuery = {
         limit: 10,
         page: 1,
-        shouldPaginate: true,
+        shouldNotPaginate: false,
       }
 
       mockQueryBuilder.getMany.mockReturnValue([user])
