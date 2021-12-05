@@ -69,6 +69,14 @@ const columns: TableColumnType<Lead>[] = [
     },
   },
   {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    sorter: {
+      compare: (a, b) => a.status.localeCompare(b.status),
+    },
+  },
+  {
     title: 'Source',
     dataIndex: 'source',
     key: 'source',
