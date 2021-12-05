@@ -65,7 +65,7 @@ describe('lead-contact service', () => {
       const dto: DTO.LeadContact.GetManyQuery = {
         limit: 10,
         page: 1,
-        shouldPaginate: true,
+        shouldNotPaginate: false,
       }
 
       mockQueryBuilder.getMany.mockReturnValue([lead])
