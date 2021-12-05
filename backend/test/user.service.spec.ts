@@ -10,6 +10,7 @@ import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import moment from 'moment'
 import { BadRequestException } from '@nestjs/common'
 import { JwtPayload } from 'src/utils/interface'
+import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 
 describe('user service', () => {
   let usersRepo: MockType<Repository<User>>
@@ -212,10 +213,14 @@ describe('user service', () => {
       const dto: DTO.User.UserGetManyQuery = {
         limit: 10,
         page: 1,
+        shouldPaginate: true,
       }
 
       mockQueryBuilder.getMany.mockReturnValue([user])
-      expect((await userService.getMany(dto)).items).toEqual([user])
+      expect(
+        ((await userService.getMany(dto)) as Pagination<User, IPaginationMeta>)
+          .items,
+      ).toEqual([user])
     })
   })
 

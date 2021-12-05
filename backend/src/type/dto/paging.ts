@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger"
-import { IsNumber, IsPositive, IsOptional } from "class-validator"
+import { IsNumber, IsPositive, IsOptional, IsBoolean } from "class-validator"
 import { Type } from "class-transformer"
 
 export class Paginate {
@@ -16,4 +16,9 @@ export class Paginate {
   @Type(() => Number)
   @IsPositive()
   limit = 10
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  shouldPaginate = true
 }

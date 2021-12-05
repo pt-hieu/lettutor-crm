@@ -7,6 +7,7 @@ import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { LeadContactService } from 'src/lead-contact/lead-contact.service'
 import { NotFoundException } from '@nestjs/common'
+import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 
 describe('lead-contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
@@ -63,35 +64,46 @@ describe('lead-contact service', () => {
     it('should return leads succeed', async () => {
       const dto: DTO.LeadContact.GetManyQuery = {
         limit: 10,
-        page: 1
+        page: 1,
+        shouldPaginate: true,
       }
 
       mockQueryBuilder.getMany.mockReturnValue([lead])
 
-      expect((await leadContactService.getMany(dto)).items).toEqual([lead])
+      expect(
+        (
+          (await leadContactService.getMany(dto)) as Pagination<
+            LeadContact,
+            IPaginationMeta
+          >
+        ).items,
+      ).toEqual([lead])
     })
   })
 
   describe('update lead', () => {
     it('should update lead succeed', async () => {
       const dto: DTO.LeadContact.UpdateLead = {
-        email: "update@mail.com"
+        email: 'update@mail.com',
       }
       leadContactRepo.findOne.mockReturnValue({ ...lead })
       leadContactRepo.save.mockReturnValue({ ...lead, ...dto })
 
-      expect(await leadContactService.updateLead(dto, lead.id)).toEqual({ ...lead, ...dto })
+      expect(await leadContactService.updateLead(dto, lead.id)).toEqual({
+        ...lead,
+        ...dto,
+      })
     })
 
     it('should throw not found exception when lead not found', async () => {
       const dto: DTO.LeadContact.UpdateLead = {
-        email: "update@mail.com"
+        email: 'update@mail.com',
       }
 
       leadContactRepo.findOne.mockReturnValue(undefined)
 
       expect(leadContactService.updateLead(dto, lead.id)).rejects.toThrow(
-        new NotFoundException(`Lead does not exist`)
+        new NotFoundException(`Lead does not exist`),
       )
     })
   })
