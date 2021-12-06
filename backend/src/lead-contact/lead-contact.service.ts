@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { Repository } from 'typeorm'
@@ -11,7 +15,7 @@ export class LeadContactService {
   constructor(
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
-  ) { }
+  ) {}
 
   async getLeadById(id: string) {
     const found = await this.leadContactRepo.findOne({ id })
@@ -33,7 +37,7 @@ export class LeadContactService {
 
     return this.leadContactRepo.save({
       ...lead,
-      ...dto
+      ...dto,
     })
   }
 
@@ -41,7 +45,6 @@ export class LeadContactService {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
       .leftJoinAndSelect('lc.owner', 'owner')
-
 
     if (query.status)
       q.andWhere('lc.status IN (:...status)', { status: query.status })
@@ -58,5 +61,4 @@ export class LeadContactService {
     if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
   }
-
 }

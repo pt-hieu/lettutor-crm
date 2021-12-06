@@ -7,7 +7,7 @@ import {
   Post,
   Patch,
   Query,
-  Request
+  Request,
 } from '@nestjs/common'
 import { AuthRequest } from 'src/utils/interface'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
@@ -18,7 +18,13 @@ import { LeadContactService } from './lead-contact.service'
 @ApiBearerAuth('jwt')
 @Controller('lead-contact')
 export class LeadContactController {
-  constructor(private readonly service: LeadContactService) { }
+  constructor(private readonly service: LeadContactService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'view, search and filter all leads or contacts' })
+  index(@Query() query: DTO.LeadContact.GetManyQuery) {
+    return this.service.getMany(query)
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'to get lead information by Id' })
@@ -28,7 +34,10 @@ export class LeadContactController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'to upate lead manually' })
-  updateLead(@Param('id', ParseUUIDPipe) id: string, @Body() dto: DTO.LeadContact.UpdateLead) {
+  updateLead(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: DTO.LeadContact.UpdateLead,
+  ) {
     return this.service.updateLead(dto, id)
   }
 
@@ -37,10 +46,4 @@ export class LeadContactController {
   addLead(@Body() dto: DTO.LeadContact.AddLead) {
     return this.service.addLead(dto)
   }
-  @Get()
-  @ApiOperation({ summary: 'view, search and filter all leads or contacts' })
-  index(@Query() query: DTO.LeadContact.GetManyQuery) {
-    return this.service.getMany(query)
-  }
-
 }
