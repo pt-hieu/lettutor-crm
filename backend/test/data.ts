@@ -17,12 +17,16 @@ export const user: User = {
   createdAt: null,
   updatedAt: null,
   leadContacts: [],
+  accounts: [],
 }
 
 export const lead: LeadContact = {
   id: '1234',
   owner: user,
   ownerId: user.id,
+  account: null,
+  accountId: null,
+  isLead: true,
   fullName: 'lead',
   email: 'lead@mail.com',
   status: LeadStatus.NONE,

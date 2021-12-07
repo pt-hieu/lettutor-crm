@@ -16,7 +16,6 @@ import { Paginate } from './paging'
 
 export class AddLead {
   @ApiProperty()
-  @IsNotEmpty()
   @IsUUID()
   ownerId: string
 
@@ -27,7 +26,6 @@ export class AddLead {
   fullName: string
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsEmail()
   @MaxLength(100)
   email: string

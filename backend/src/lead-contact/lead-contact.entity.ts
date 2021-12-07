@@ -1,3 +1,5 @@
+import { Exclude } from 'class-transformer'
+import { Account } from 'src/account/account.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
@@ -31,6 +33,18 @@ export class LeadContact extends BaseEntity {
 
   @Column({ type: 'uuid', select: false })
   ownerId: string
+
+  @ManyToOne(() => Account, (account) => account.contacts, {
+    eager: true,
+  })
+  @JoinColumn()
+  account: Account
+
+  @Column({ type: 'uuid', select: false, nullable: true, default: null })
+  accountId: string | null
+
+  @Column({ default: true, select: false })
+  isLead: boolean
 
   @Column({ type: 'varchar' })
   fullName: string
