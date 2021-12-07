@@ -17,7 +17,6 @@ export const user: User = {
   createdAt: null,
   updatedAt: null,
   leadContacts: [],
-  accounts: [],
 }
 
 export const lead: LeadContact = {

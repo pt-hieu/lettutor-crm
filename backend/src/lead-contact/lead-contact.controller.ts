@@ -45,8 +45,8 @@ export class LeadContactController {
     return this.service.updateLead(dto, id)
   }
 
-  @Get(':id/convert-to-account-and-contact')
-  @ApiOperation({ summary: 'to convert lead to account and contact' })
+  @Post(':id/convert')
+  @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
   convertToAccount(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.convertToAccountAndContact(id)
   }
