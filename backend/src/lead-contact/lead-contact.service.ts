@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
+import { Account } from 'src/account/account.entity'
 
 @Injectable()
 export class LeadContactService {
@@ -59,8 +64,13 @@ export class LeadContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async convertToAccount(id: string) {
+  async convertToAccountAndContact(id: string) {
     const lead = await this.getLeadById(id)
+
+    if (String(lead.isLead) === 'false') {
+      throw new BadRequestException('This is not a lead, cannot convert')
+    }
+
     const accountDto: DTO.Account.AddAccount = {
       ownerId: id,
       fullName: lead.fullName + ' Account',
@@ -69,6 +79,12 @@ export class LeadContactService {
       description: lead.description,
       phoneNum: lead.phoneNum,
     }
-    return this.accountService.addAccount(accountDto)
+    // Convert to account
+    const account = await this.accountService.addAccount(accountDto)
+
+    // Convert to contact
+    lead.isLead = false
+    lead.accountId = account.id
+    await this.leadContactRepo.save(lead)
   }
 }
