@@ -84,7 +84,7 @@ export class LeadContactService {
 
     // Convert to contact
     lead.isLead = false
-    lead.accountId = account.id
+    lead.account = account
     await this.leadContactRepo.save(lead)
   }
 }

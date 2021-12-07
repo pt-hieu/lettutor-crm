@@ -43,7 +43,7 @@ export class LeadContact extends BaseEntity {
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
   accountId: string | null
 
-  @Column({ default: true, select: false })
+  @Column({ default: true })
   isLead: boolean
 
   @Column({ type: 'varchar' })
