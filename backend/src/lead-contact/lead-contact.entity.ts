@@ -35,7 +35,7 @@ export class LeadContact extends BaseEntity {
   @Column({ type: 'varchar' })
   fullName: string
 
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar' })
   email: string
 
   @Column({ enum: LeadStatus, type: 'enum', default: LeadStatus.NONE })
