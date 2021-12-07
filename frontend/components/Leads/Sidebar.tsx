@@ -1,5 +1,6 @@
 import { LeadSource, LeadStatus } from '@utils/models/lead'
 import { useCallback } from 'react'
+import { flushSync } from 'react-dom'
 import { FormProvider, useForm } from 'react-hook-form'
 import MultipleQuery from '@utils/components/MultipleQuery'
 
@@ -31,7 +32,10 @@ export default function LeadSidebar({
   const applyFilter = useCallback(
     form.handleSubmit(({ source, status }) => {
       setSource(source || [])
-      setStatus(status || [])
+
+      setTimeout(() => {
+        setStatus(status || [])
+      }, 0)
     }),
     [],
   )
@@ -54,7 +58,7 @@ export default function LeadSidebar({
             type="checkbox"
           />
 
-          <div className="font-medium mb-2 mt-2">Source</div>
+          <div className="font-medium my-2">Source</div>
           <MultipleQuery
             name="source"
             options={Object.values(LeadSource)}
