@@ -3,7 +3,7 @@ import {
   Get,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { ContactService } from './contact.service'
 
@@ -15,7 +15,8 @@ export class ContactController {
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all contacts' })
-  index(@Query() query: DTO.LeadContact.GetManyQuery) {
+  @ApiQuery({ type: DTO.Contact.GetManyQuery })
+  index(@Query() query: DTO.Contact.GetManyQuery) {
     return this.service.getMany(query)
   }
 }
