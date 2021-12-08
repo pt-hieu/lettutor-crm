@@ -3,14 +3,13 @@ import {
   LeadSource,
   LeadStatus,
 } from 'src/lead-contact/lead-contact.entity'
-import { Role, User, UserStatus } from 'src/user/user.entity'
+import { User, UserStatus } from 'src/user/user.entity'
 
 export const user: User = {
   email: 'admin@mail.com',
   id: '123',
   name: 'admin',
   password: '$2b$10$CpcAGVAZ4uoVj1QOj3p99OhY5kTwYgi7JwbVYIpYganM.ZT6Bf1De',
-  role: [Role.SUPER_ADMIN],
   passwordToken: '1232',
   status: UserStatus.ACTIVE,
   tokenExpiration: null,

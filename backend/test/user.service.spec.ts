@@ -1,6 +1,6 @@
 import { MailService } from 'src/mail/mail.service'
 import { DTO } from 'src/type'
-import { Role, User } from 'src/user/user.entity'
+import { User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
@@ -175,19 +175,16 @@ describe('user service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
-        role: user.role,
       }
 
       usersRepo.findOne.mockReturnValue({
         name: user.name,
-        role: user.role,
         email: user.email,
         status: user.status,
       })
 
       expect(await userService.getOne(payload)).toEqual({
         name: user.name,
-        role: user.role,
         email: user.email,
         status: user.status,
       })
@@ -198,7 +195,6 @@ describe('user service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
-        role: user.role,
       }
 
       usersRepo.findOne.mockReturnValue(undefined)
@@ -229,7 +225,6 @@ describe('user service', () => {
       const dto: DTO.User.AddUser = {
         name: user.name,
         email: user.email,
-        role: Role.SUPER_ADMIN,
       }
 
       usersRepo.findOne.mockReturnValue(null)
@@ -243,7 +238,6 @@ describe('user service', () => {
       const dto: DTO.User.AddUser = {
         name: user.name,
         email: user.email,
-        role: Role.SUPER_ADMIN,
       }
 
       usersRepo.findOne.mockReturnValue({ ...user })
