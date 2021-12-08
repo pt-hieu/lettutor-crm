@@ -53,6 +53,7 @@ export class AuthService {
       email: user.email,
       id: user.id,
       name: user.name,
+      roles: user.roles
     }
 
     if (process.env.NODE_ENV !== 'production') {

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { AuthService } from 'src/auth/auth.service'
-import { User } from 'src/user/user.entity'
+import { Role, User } from 'src/user/user.entity'
 import { Repository } from 'typeorm'
 import { MockType, repositoryMockFactory } from './utils'
 import { user } from './data'
@@ -11,12 +11,17 @@ import { Response } from 'express'
 
 describe('auth service', () => {
   let usersRepo: MockType<Repository<User>>
+  let roleRepo: MockType<Repository<Role>>
   let authService: AuthService
   let res = {} as Response
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        {
+          provide: getRepositoryToken(Role),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
@@ -25,6 +30,7 @@ describe('auth service', () => {
     }).compile()
     res.set = jest.fn().mockReturnValue(true)
     usersRepo = ref.get(getRepositoryToken(User))
+    roleRepo = ref.get(getRepositoryToken(Role))
     authService = ref.get(AuthService)
   })
 
@@ -41,7 +47,6 @@ describe('auth service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
-        role: user.role,
       })
     })
 

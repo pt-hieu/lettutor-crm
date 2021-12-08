@@ -175,6 +175,7 @@ describe('user service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
+        roles: []
       }
 
       usersRepo.findOne.mockReturnValue({
@@ -195,6 +196,7 @@ describe('user service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
+        roles: []
       }
 
       usersRepo.findOne.mockReturnValue(undefined)

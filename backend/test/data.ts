@@ -16,6 +16,7 @@ export const user: User = {
   createdAt: null,
   updatedAt: null,
   leadContacts: [],
+  roles: []
 }
 
 export const lead: LeadContact = {
