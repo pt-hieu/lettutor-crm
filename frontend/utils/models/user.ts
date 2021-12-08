@@ -1,9 +1,6 @@
 import { Base } from './base'
-
-export enum Role {
-  SUPER_ADMIN = 'Super Admin',
-  ADMIN = 'Admin',
-}
+import { Lead } from './lead';
+import { Role } from './role';
 
 export enum UserStatus {
   ACTIVE = 'Active',
@@ -16,6 +13,7 @@ export interface User extends Base {
   name: string
   email: string
   password: string
-  role: Role[]
+  roles: Role[]
   status: UserStatus
+  leadContacts: Lead[]
 }
