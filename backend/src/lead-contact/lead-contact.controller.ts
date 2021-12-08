@@ -19,7 +19,7 @@ export class LeadContactController {
   constructor(private readonly service: LeadContactService) {}
 
   @Get()
-  @ApiOperation({ summary: 'view, search and filter all leads or contacts' })
+  @ApiOperation({ summary: 'view, search and filter all leads' })
   index(@Query() query: DTO.LeadContact.GetManyQuery) {
     return this.service.getMany(query)
   }

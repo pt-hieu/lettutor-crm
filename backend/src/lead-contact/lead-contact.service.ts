@@ -9,7 +9,6 @@ import { Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
-import { Account } from 'src/account/account.entity'
 
 @Injectable()
 export class LeadContactService {
@@ -46,7 +45,9 @@ export class LeadContactService {
   async getMany(query: DTO.LeadContact.GetManyQuery) {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
-      .leftJoinAndSelect('lc.owner', 'owner')
+      .leftJoin('lc.owner', 'owner')
+      .addSelect(["owner.name", "owner.email"])
+      .where('lc.isLead = :isLead', { isLead: true })
 
     if (query.status)
       q.andWhere('lc.status IN (:...status)', { status: query.status })
