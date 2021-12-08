@@ -9,7 +9,7 @@ import { Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
-import { Account } from 'src/account/account.entity'
+import { DealService } from 'src/deal/deal.service'
 
 @Injectable()
 export class LeadContactService {
@@ -17,6 +17,7 @@ export class LeadContactService {
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
+    private readonly dealService: DealService,
   ) {}
 
   async getLeadById(id: string) {
@@ -64,7 +65,7 @@ export class LeadContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async convertToAccountAndContact(id: string) {
+  async convertToAccountAndContact(id: string, dealDto: DTO.Deal.AddDeal) {
     const lead = await this.getLeadById(id)
 
     if (String(lead.isLead) === 'false') {
@@ -73,8 +74,7 @@ export class LeadContactService {
 
     const accountDto: DTO.Account.AddAccount = {
       ownerId: id,
-      fullName: lead.fullName + ' Account',
-      email: lead.email,
+      name: lead.fullName + ' Account',
       address: lead.address,
       description: lead.description,
       phoneNum: lead.phoneNum,
@@ -85,8 +85,20 @@ export class LeadContactService {
     // Convert to contact
     lead.isLead = false
     lead.account = account
-    await this.leadContactRepo.save(lead)
+    const contact = await this.leadContactRepo.save(lead)
 
-    return [account, lead]
+    let deal = null
+    // Convert to deal
+    if (dealDto.name !== undefined) {
+      const dto = {
+        ownerId: id,
+        accountId: account.id,
+        contactId: contact.id,
+        ...dealDto,
+      }
+      deal = await this.dealService.addDeal(dto)
+    }
+
+    return deal === null ? [account, contact] : [account, contact, deal]
   }
 }

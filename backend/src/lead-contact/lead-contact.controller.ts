@@ -37,7 +37,7 @@ export class LeadContactController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'to upate lead manually' })
+  @ApiOperation({ summary: 'to update lead manually' })
   updateLead(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.LeadContact.UpdateLead,
@@ -47,7 +47,10 @@ export class LeadContactController {
 
   @Post(':id/convert')
   @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
-  convertToAccount(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.convertToAccountAndContact(id)
+  convertToAccount(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto?: DTO.Deal.AddDeal,
+  ) {
+    return this.service.convertToAccountAndContact(id, dto)
   }
 }

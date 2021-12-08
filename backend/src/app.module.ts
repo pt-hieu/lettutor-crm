@@ -11,6 +11,7 @@ import { RolesGuard } from './role.guard'
 import { MailModule } from './mail/mail.module'
 import { LeadContactModule } from './lead-contact/lead-contact.module';
 import { AccountModule } from './account/account.module';
+import { DealModule } from './deal/deal.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AccountModule } from './account/account.module';
     JwtModule.register({ secret: process.env.JWT_SECRET }),
     LeadContactModule,
     AccountModule,
+    DealModule,
   ],
   providers: [
     JwtStrategy,

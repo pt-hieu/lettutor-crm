@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
-  IsEmail,
   IsMobilePhone,
   IsNotEmpty,
   IsOptional,
@@ -18,12 +17,7 @@ export class AddAccount {
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  fullName: string
-
-  @ApiProperty()
-  @IsEmail()
-  @MaxLength(100)
-  email: string
+  name: string
 
   @ApiPropertyOptional()
   @IsOptional()

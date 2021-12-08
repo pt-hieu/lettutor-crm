@@ -4,9 +4,10 @@ import { LeadContactController } from './lead-contact.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { AccountModule } from 'src/account/account.module'
+import { DealModule } from 'src/deal/deal.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LeadContact]), AccountModule],
+  imports: [TypeOrmModule.forFeature([LeadContact]), AccountModule, DealModule],
   providers: [LeadContactService],
   controllers: [LeadContactController],
 })

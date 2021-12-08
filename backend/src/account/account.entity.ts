@@ -6,14 +6,11 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 @Entity({ name: 'account' })
 export class Account extends BaseEntity {
-  @Column({ type: 'uuid', select: false })
+  @Column({ type: 'uuid' })
   ownerId: string
 
   @Column({ type: 'varchar' })
-  fullName: string
-
-  @Column({ type: 'varchar' })
-  email: string
+  name: string
 
   @Column({ type: 'varchar', nullable: true, default: null })
   address: string | null
