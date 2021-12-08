@@ -26,6 +26,7 @@ export interface Lead extends Base {
   email: string
   status: LeadStatus
   source: LeadSource
+  isLead: boolean
   address: string | null
   description: string | null
   phoneNum: string | null

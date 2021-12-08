@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import Link from 'next/link'
+import { useEffect } from 'react'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,

@@ -2,7 +2,6 @@ import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
 import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
-import { animate } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
@@ -17,8 +16,6 @@ type Props = {
 }
 
 export default function Search({ onSearchChange: setSearch, search }: Props) {
-  const { push } = useRouter()
-
   const { register, handleSubmit, reset } = useForm({
     defaultValues: { search },
   })
