@@ -16,7 +16,7 @@ export class LeadService {
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
-  ) {}
+  ) { }
 
   async getLeadById(id: string) {
     const found = await this.leadContactRepo.findOne({ id })
@@ -68,7 +68,7 @@ export class LeadService {
   async convertToAccountAndContact(id: string) {
     const lead = await this.getLeadById(id)
 
-    if (String(lead.isLead) === 'false') {
+    if (!lead.isLead) {
       throw new BadRequestException('This is not a lead, cannot convert')
     }
 
@@ -80,14 +80,14 @@ export class LeadService {
       description: lead.description,
       phoneNum: lead.phoneNum,
     }
-    // Convert to account
+
     const account = await this.accountService.addAccount(accountDto)
+    const contact = await this.leadContactRepo.save({
+      ...lead,
+      isLead: false, //make this lead a contact
+      accountId: account.id
+    })
 
-    // Convert to contact
-    lead.isLead = false
-    lead.account = account
-    await this.leadContactRepo.save(lead)
-
-    return [account, lead]
+    return [account, contact]
   }
 }

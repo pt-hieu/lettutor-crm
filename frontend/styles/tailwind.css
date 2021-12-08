@@ -50,6 +50,19 @@
     @apply px-[60px] py-4;
   }
 
+  .crm-scrollbar {
+    scrollbar-color: rgba(37, 99, 235, 1) white;
+    scrollbar-width: thin;
+  }
+
+  .crm-scrollbar::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .crm-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-blue-600;
+  }
+
   * {
     font-family: 'Montserrat', sans-serif;
   }

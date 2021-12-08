@@ -10,7 +10,9 @@ export const useQueryState = <Type>(
 
   const [state, setState] = useState(() => {
     if (option?.isArray) {
-      return (query[name] as string | undefined)?.split(',') as unknown as Type | undefined
+      return (query[name] as string | undefined)?.split(',') as unknown as
+        | Type
+        | undefined
     }
 
     return query[name] as unknown as Type | undefined
@@ -30,7 +32,6 @@ export const useQueryState = <Type>(
     if (!state && newQuery[name]) {
       delete newQuery[name]
     }
-
 
     const newPathname = stringifyUrl(
       {
