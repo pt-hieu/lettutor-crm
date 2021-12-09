@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common'
-import { ActionType } from './type'
+import { Actions } from './type/action'
 
 export const KEY = 'actions'
-export const DefineAction = (action: ActionType) => SetMetadata(KEY, action)
+export const DefineAction = (action: Actions) => SetMetadata(KEY, action)

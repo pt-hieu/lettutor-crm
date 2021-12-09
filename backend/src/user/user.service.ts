@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { In, Repository } from 'typeorm'
+import { Brackets, In, Repository } from 'typeorm'
 import { Role, User, UserStatus } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
@@ -69,7 +69,7 @@ export class UserService {
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
       where: { id: payload.id },
-      select: ['name', 'email', 'status'],
+      select: ['name', 'email', 'status', 'roles'],
     })
     if (!user) throw new BadRequestException('User does not exist')
 
@@ -138,9 +138,16 @@ export class UserService {
   }
 
   async addUser(dto: DTO.User.AddUser, fromUser: string) {
-    let targetUser = await this.userRepo.findOne({
-      where: { email: dto.email },
-    })
+    let [targetUser, role] = await Promise.all([
+      this.userRepo.findOne({
+        where: { email: dto.email },
+      }),
+      this.roleRepo.findOne(dto.roleId)
+    ])
+
+    if (!role) {
+      throw new BadRequestException('Role does not exist')
+    }
 
     if (targetUser)
       throw new BadRequestException(
@@ -155,36 +162,49 @@ export class UserService {
       passwordToken: token,
       tokenExpiration: moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate(),
       status: UserStatus.UNCONFIRMED,
+      roles: [role]
     })
 
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)
   }
 
-  getMany(query: DTO.User.UserGetManyQuery) {
+  getMany({
+    limit,
+    page,
+    role,
+    search,
+    shouldNotPaginate,
+    status,
+  }: DTO.User.UserGetManyQuery) {
     let q = this.userRepo
       .createQueryBuilder('u')
-      .select(['u.id', 'u.name', 'u.email', 'u.role', 'u.status'])
+      .addSelect(['u.id', 'u.name', 'u.email', 'u.status'])
 
-    if (query.status)
-      q = q.where('u.status = :status', { status: query.status })
-
-    if (query.search) {
-      q = q
-        .andWhere('u.name ILIKE :search', { search: `%${query.search}%` })
-        .orWhere('u.email ILIKE :search', { search: `%${query.search}%` })
+    if (role) {
+      q = q.leftJoinAndSelect('u.roles', 'roles', 'roles.name=:role', { role })
+    } else {
+      q = q.leftJoinAndSelect('u.roles', 'roles')
     }
 
-    if (query.shouldNotPaginate === true) return q.getMany()
-    return paginate(q, { limit: query.limit, page: query.page })
+    if (status) q = q.where('u.status = :status', { status })
+
+    if (search) {
+      q = q.andWhere(
+        new Brackets((q) =>
+          q
+            .andWhere('u.name ILIKE :search', { search: `%${search}%` })
+            .orWhere('u.email ILIKE :search', { search: `%${search}%` }),
+        ),
+      )
+    }
+
+    if (shouldNotPaginate === true) return q.getMany()
+    return paginate(q, { limit, page })
   }
 
   async updateUser(dto: DTO.User.UpdateUser, payload: JwtPayload) {
     const user = await this.userRepo.findOne({ where: { id: payload.id } })
     if (!user) throw new BadRequestException('User does not exist')
-
-    if (dto.name === user?.name) {
-      throw new BadRequestException('The name you updated is the old name')
-    }
 
     user.name = dto.name
     return this.userRepo.save(user)
