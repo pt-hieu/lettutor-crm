@@ -8,15 +8,25 @@ import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { LeadService } from 'src/lead-contact/lead.service'
 import { NotFoundException } from '@nestjs/common'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
+import { AccountService } from 'src/account/account.service'
+import { AccountModule } from 'src/account/account.module'
+import { Account } from 'src/account/account.entity'
 
 describe('lead-contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
   let leadContactService: LeadService
+  let accountServie: AccountService
+  let accountRepo: MockType<Repository<Account>>
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
       providers: [
         LeadService,
+        AccountService,
+        {
+          provide: getRepositoryToken(Account),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(LeadContact),
           useFactory: repositoryMockFactory,
@@ -25,7 +35,9 @@ describe('lead-contact service', () => {
     }).compile()
 
     leadContactRepo = ref.get(getRepositoryToken(LeadContact))
+    accountRepo = ref.get(getRepositoryToken(Account))
     leadContactService = ref.get(LeadService)
+    accountServie = ref.get(AccountService)
   })
 
   describe('add lead', () => {

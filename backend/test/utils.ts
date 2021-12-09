@@ -12,6 +12,7 @@ export const mockConnection: MockType<Connection> = {
 
 // @ts-ignore
 export const mockQueryBuilder: MockType<SelectQueryBuilder<any>> = {
+  leftJoin: jest.fn().mockReturnThis(),
   createQueryBuilder: jest.fn().mockReturnThis(),
   getQuery: jest.fn().mockReturnThis(),
   getParameters: jest.fn().mockReturnThis(),
