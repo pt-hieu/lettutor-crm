@@ -12,10 +12,10 @@ export const getContacts =
     } & PagingQuery,
     token?: string,
   ) =>
-  () =>
-    axios
-      .get<Paginate<Contact>>(API + '/api/lead-contact', {
-        headers: { authorization: 'Bearer ' + token },
-        params,
-      })
-      .then((res) => res.data)
+    () =>
+      axios
+        .get<Paginate<Contact>>(API + '/api/contact', {
+          headers: { authorization: 'Bearer ' + token },
+          params,
+        })
+        .then((res) => res.data)

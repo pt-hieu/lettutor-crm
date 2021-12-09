@@ -45,6 +45,14 @@ export class User extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   leadContacts: LeadContact[]
 
+  @OneToMany(() => Deal, (deal) => deal.owner)
+  @Exclude({ toPlainOnly: true })
+  deals: Deal[]
+
+  @OneToMany(() => Account, (account) => account.owner)
+  @Exclude({ toPlainOnly: true })
+  accounts: Account[]
+
   @ManyToMany(() => Role, (r) => r.users, { eager: true })
   @JoinTable()
   roles: Role[]

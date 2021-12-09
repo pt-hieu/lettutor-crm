@@ -18,7 +18,7 @@ export class LeadService {
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
     private readonly dealService: DealService,
-  ) {}
+  ) { }
 
   async getLeadById(id: string) {
     const found = await this.leadContactRepo.findOne({ id })
@@ -75,7 +75,7 @@ export class LeadService {
     }
 
     const accountDto: DTO.Account.AddAccount = {
-      ownerId: id,
+      ownerId: lead.owner.id,
       name: lead.fullName + ' Account',
       address: lead.address,
       description: lead.description,

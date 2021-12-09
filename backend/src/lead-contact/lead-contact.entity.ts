@@ -38,7 +38,6 @@ export class LeadContact extends BaseEntity {
   accountId: string | null
 
   @ManyToOne(() => Account, (account) => account.contacts)
-  @JoinColumn()
   account: Account
 
   @Column({ default: true })
