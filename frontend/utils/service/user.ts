@@ -1,5 +1,6 @@
 import { Paginate, PagingQuery } from '@utils/models/paging'
-import { Role, User, UserStatus } from '@utils/models/user'
+import { Role } from '@utils/models/role'
+import { User, UserStatus } from '@utils/models/user'
 import axios from 'axios'
 import { API } from 'environment'
 
@@ -17,10 +18,9 @@ export const changePassword = async (data: {
 
 export const getSelf = (token?: string) => () =>
   axios
-    .get<Pick<User, 'name' | 'email' | 'role' | 'status'>>(
-      API + '/api/user/self',
-      { headers: { authorization: 'Bearer ' + token } },
-    )
+    .get<Pick<User, 'name' | 'email' | 'status'>>(API + '/api/user/self', {
+      headers: { authorization: 'Bearer ' + token },
+    })
     .then((res) => res.data)
 
 export const updateUserInformation = (data: { name: string }) =>
@@ -30,8 +30,8 @@ export const getUsers =
   (
     params: {
       search?: string
-      role?: Role
       status?: UserStatus
+      role?: string
     } & PagingQuery,
     token?: string,
   ) =>
@@ -43,10 +43,14 @@ export const getUsers =
         })
         .then((res) => res.data)
 
-export const addUser = async (data: {
-  name: string
-  email: string
-  role: Role
-}) => {
+export const addUser = async (data: { name: string; email: string, roleId: string }) => {
   return axios.post(API + '/api/user', data).then((res) => res.data)
 }
+
+export const getRoles = (params: PagingQuery, token?: string) => () =>
+  axios
+    .get<Paginate<Role>>(API + '/api/role', {
+      params,
+      headers: { authorization: 'Bearer ' + token },
+    })
+    .then((res) => res.data)

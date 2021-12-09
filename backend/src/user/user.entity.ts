@@ -2,13 +2,17 @@ import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
+import { Actions } from 'src/type/action'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity, OneToMany } from 'typeorm'
-
-export enum Role {
-  SUPER_ADMIN = 'Super Admin',
-  ADMIN = 'Admin',
-}
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm'
 
 export enum UserStatus {
   ACTIVE = 'Active',
@@ -34,13 +38,36 @@ export class User extends BaseEntity {
   @Column({ nullable: true, default: null })
   tokenExpiration: Date | null
 
-  @Column({ enum: Role, type: 'enum', array: true })
-  role: Role[]
-
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
   status: UserStatus
 
   @OneToMany(() => LeadContact, (leadContact) => leadContact.owner)
   @Exclude({ toPlainOnly: true })
   leadContacts: LeadContact[]
+
+  @ManyToMany(() => Role, (r) => r.users, { eager: true })
+  @JoinTable()
+  roles: Role[]
+}
+
+@Entity()
+export class Role extends BaseEntity {
+  @Column({ unique: true, type: 'varchar' })
+  name: string
+
+  @Column({ type: 'varchar', array: true, default: [] })
+  actions: Actions[]
+
+  @ManyToOne(() => Role, (r) => r.children)
+  parent: Role
+
+  @Column({ type: "uuid", array: true, default: null, select: false })
+  childrenIds: string[]
+
+  @OneToMany(() => Role, (r) => r.parent)
+  @JoinColumn()
+  children: Role[]
+
+  @ManyToMany(() => User, (u) => u.roles)
+  users: User[]
 }

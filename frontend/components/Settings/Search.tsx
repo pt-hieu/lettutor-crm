@@ -1,20 +1,22 @@
 import Input from '@utils/components/Input'
 import Loading from '@utils/components/Loading'
-import { Role, UserStatus } from '@utils/models/user'
+import { UserStatus } from '@utils/models/user'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useQuery } from 'react-query'
+import { Role } from '@utils/models/role'
 
 type FormData = {
   query?: string
-  role?: Role
+  role?: string
   status?: UserStatus
 }
 
 interface Props {
   onQueryChange: (query: string | undefined) => void
-  onRoleChange: (role: Role | undefined) => void
+  onRoleChange: (role: string | undefined) => void
   onStatusChange: (status: UserStatus | undefined) => void
   loading: boolean
 }
@@ -26,6 +28,7 @@ export default function Search({
   loading,
 }: Props) {
   const { query } = useRouter()
+  const { data: roles } = useQuery<Role[]>('roles', { enabled: false })
 
   const {
     register,
@@ -39,12 +42,12 @@ export default function Search({
   const [submitted, setSubmitted] = useState(false)
 
   const search = useCallback(
-    handleSubmit(({ query, role, status }) => {
+    handleSubmit(({ query, status, role }) => {
       changeQuery(query || undefined)
       changeRole(role || undefined)
       changeStatus(status || undefined)
 
-      if (!query && !status && !role) setSubmitted(false)
+      if (!query && !status) setSubmitted(false)
       else setSubmitted(true)
     }),
     [],
@@ -80,9 +83,9 @@ export default function Search({
             children: (
               <>
                 <option value={''}>Role</option>
-                {Object.values(Role).map((role) => (
-                  <option key={role} value={role}>
-                    {role}
+                {roles?.map(({ id, name }) => (
+                  <option key={id} value={name}>
+                    {name}
                   </option>
                 ))}
               </>

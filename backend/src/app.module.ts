@@ -7,7 +7,7 @@ import { JwtAuthGuard } from './jwt.guard'
 import { PassportModule } from '@nestjs/passport'
 import { JwtModule } from '@nestjs/jwt'
 import { JwtStrategy } from './jwt.strategy'
-import { RolesGuard } from './role.guard'
+import { ActionGuard } from './action.guard'
 import { MailModule } from './mail/mail.module'
 import { LeadContactModule } from './lead-contact/lead-contact.module';
 import { AccountModule } from './account/account.module';
@@ -43,7 +43,7 @@ import { DealModule } from './deal/deal.module';
     },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard,
+      useClass: ActionGuard,
     },
   ],
 })
