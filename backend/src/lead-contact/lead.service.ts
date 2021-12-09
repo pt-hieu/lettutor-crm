@@ -12,7 +12,7 @@ import { AccountService } from 'src/account/account.service'
 import { DealService } from 'src/deal/deal.service'
 
 @Injectable()
-export class LeadContactService {
+export class LeadService {
   constructor(
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
@@ -30,11 +30,11 @@ export class LeadContactService {
     return found
   }
 
-  async addLead(dto: DTO.LeadContact.AddLead) {
+  async addLead(dto: DTO.Lead.AddLead) {
     return this.leadContactRepo.save(dto)
   }
 
-  async updateLead(dto: DTO.LeadContact.UpdateLead, id: string) {
+  async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
     const lead = await this.leadContactRepo.findOne({ id })
     if (!lead) throw new NotFoundException('Lead does not exist')
 
@@ -44,10 +44,12 @@ export class LeadContactService {
     })
   }
 
-  async getMany(query: DTO.LeadContact.GetManyQuery) {
+  async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
-      .leftJoinAndSelect('lc.owner', 'owner')
+      .leftJoin('lc.owner', 'owner')
+      .addSelect(['owner.name', 'owner.email'])
+      .where('lc.isLead = :isLead', { isLead: true })
 
     if (query.status)
       q.andWhere('lc.status IN (:...status)', { status: query.status })
@@ -65,10 +67,10 @@ export class LeadContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async convertToAccountAndContact(id: string, dealDto: DTO.Deal.AddDeal) {
+  async convert(id: string, dealDto: DTO.Deal.AddDeal) {
     const lead = await this.getLeadById(id)
 
-    if (String(lead.isLead) === 'false') {
+    if (!lead.isLead) {
       throw new BadRequestException('This is not a lead, cannot convert')
     }
 
@@ -79,16 +81,17 @@ export class LeadContactService {
       description: lead.description,
       phoneNum: lead.phoneNum,
     }
-    // Convert to account
-    const account = await this.accountService.addAccount(accountDto)
 
-    // Convert to contact
-    lead.isLead = false
-    lead.account = account
-    const contact = await this.leadContactRepo.save(lead)
+    const account = await this.accountService.addAccount(accountDto)
+    const contact = await this.leadContactRepo.save({
+      ...lead,
+      isLead: false, //make this lead a contact
+      accountId: account.id,
+    })
 
     let deal = null
     // Convert to deal
+    // Name is require, if name is exists -> add deal
     if (dealDto.name !== undefined) {
       const dto = {
         ownerId: id,

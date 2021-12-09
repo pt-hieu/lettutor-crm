@@ -34,14 +34,12 @@ export class LeadContact extends BaseEntity {
   @Column({ type: 'uuid', select: false })
   ownerId: string
 
-  @ManyToOne(() => Account, (account) => account.contacts, {
-    eager: true,
-  })
-  @JoinColumn()
-  account: Account
-
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
   accountId: string | null
+
+  @ManyToOne(() => Account, (account) => account.contacts)
+  @JoinColumn()
+  account: Account
 
   @Column({ default: true })
   isLead: boolean

@@ -1,14 +1,7 @@
 import Animate from '@utils/components/Animate'
-import ButtonAdd from '@utils/components/ButtonAdd'
-import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
-import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
-
-type FormData = {
-  search: string
-}
 
 type Props = {
   search: string | undefined
@@ -63,15 +56,15 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      <ButtonAdd
-        title="Create Lead"
+      {/* <ButtonAdd
+        title="Create Contact"
         asLink
-        link="/leads/add-lead"
+        link="/contacts/add-contact"
         menuItems={
           <>
             <button className={menuItemClass}>
               <span className="fa fa-upload mr-4" />
-              Import Leads
+              Import Contacts
             </button>
             <button className={menuItemClass}>
               <span className="fa fa-book mr-4" />
@@ -79,7 +72,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
             </button>
           </>
         }
-      />
+      /> */}
     </div>
   )
 }

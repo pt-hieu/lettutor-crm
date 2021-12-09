@@ -28,7 +28,7 @@ type Props = DetailedHTMLProps<
         shouldAnimateOnExit: true
         presenceProps?: AnimatePresenceProps
         animation: AnimationWithExit
-        on: any
+        on?: any
       }
     | {
         shouldAnimateOnExit?: false
@@ -53,6 +53,7 @@ export default function Animate({
         //@ts-ignore
         <motion.div
           initial="start"
+          key={on}
           animate="animate"
           exit={shouldAnimateOnExit ? 'end' : undefined}
           variants={animation as any}

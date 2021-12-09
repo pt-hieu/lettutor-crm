@@ -183,10 +183,6 @@ export default function ResetPassword({ isValidToken }: Props) {
     [state, query],
   )
 
-  useEffect(() => {
-    console.log(errors)
-  }, [errors])
-
   const renderByState: Record<State, JSX.Element> = useMemo(
     () => ({
       [State.INPUT_EMAIL]: (

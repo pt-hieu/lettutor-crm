@@ -1,7 +1,7 @@
 import { DTO } from 'src/type'
 import { Public } from 'src/utils/decorators/public.decorator'
 import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiExtraModels, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { UserService } from './user.service'
 import { Payload } from 'src/utils/decorators/payload.decorator'
 import { Role } from './user.entity'
@@ -11,6 +11,7 @@ import { Roles } from 'src/role.decorator'
 @ApiTags('user')
 @ApiBearerAuth('jwt')
 @Controller('user')
+@ApiExtraModels(DTO.Paging.Paginate)
 export class UserController {
   constructor(private readonly service: UserService) { }
 
@@ -35,10 +36,11 @@ export class UserController {
     return this.service.resetPwd(dto)
   }
 
-  @Patch('change-password')
-  @ApiOperation({ summary: 'to request change password' })
-  changePwd(@Body() dto: DTO.User.ChangePwd, @Payload() payload: JwtPayload) {
-    return this.service.changePwd(dto, payload)
+  @Get()
+  @ApiOperation({ summary: 'to get all users in the system' })
+  @ApiQuery({ type: DTO.User.UserGetManyQuery })
+  async index(@Query() query: DTO.User.UserGetManyQuery) {
+    return this.service.getMany(query)
   }
 
   @Post()
@@ -46,13 +48,6 @@ export class UserController {
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
   addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
     return this.service.addUser(dto, payload.name)
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'to get all users in the system' })
-  @ApiQuery({ type: DTO.User.UserGetManyQuery })
-  async index(@Query() query: DTO.User.UserGetManyQuery) {
-    return this.service.getMany(query)
   }
 
   @Patch()
@@ -65,5 +60,11 @@ export class UserController {
   @ApiOperation({ summary: 'to get user information' })
   getOne(@Payload() payload: JwtPayload) {
     return this.service.getOne(payload)
+  }
+
+  @Patch('change-password')
+  @ApiOperation({ summary: 'to request change password' })
+  changePwd(@Body() dto: DTO.User.ChangePwd, @Payload() payload: JwtPayload) {
+    return this.service.changePwd(dto, payload)
   }
 }

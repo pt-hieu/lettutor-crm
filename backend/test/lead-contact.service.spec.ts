@@ -5,18 +5,18 @@ import { Repository } from 'typeorm'
 import { lead } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
-import { LeadContactService } from 'src/lead-contact/lead-contact.service'
+import { LeadService } from 'src/lead-contact/lead.service'
 import { NotFoundException } from '@nestjs/common'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 
 describe('lead-contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
-  let leadContactService: LeadContactService
+  let leadContactService: LeadService
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
       providers: [
-        LeadContactService,
+        LeadService,
         {
           provide: getRepositoryToken(LeadContact),
           useFactory: repositoryMockFactory,
@@ -25,12 +25,12 @@ describe('lead-contact service', () => {
     }).compile()
 
     leadContactRepo = ref.get(getRepositoryToken(LeadContact))
-    leadContactService = ref.get(LeadContactService)
+    leadContactService = ref.get(LeadService)
   })
 
   describe('add lead', () => {
     it('should add lead succeed', async () => {
-      const dto: DTO.LeadContact.AddLead = {
+      const dto: DTO.Lead.AddLead = {
         ownerId: lead.ownerId,
         fullName: lead.fullName,
         email: lead.email,
@@ -62,7 +62,7 @@ describe('lead-contact service', () => {
 
   describe('getMany', () => {
     it('should return leads succeed', async () => {
-      const dto: DTO.LeadContact.GetManyQuery = {
+      const dto: DTO.Lead.GetManyQuery = {
         limit: 10,
         page: 1,
         shouldNotPaginate: false,
@@ -83,7 +83,7 @@ describe('lead-contact service', () => {
 
   describe('update lead', () => {
     it('should update lead succeed', async () => {
-      const dto: DTO.LeadContact.UpdateLead = {
+      const dto: DTO.Lead.UpdateLead = {
         email: 'update@mail.com',
       }
       leadContactRepo.findOne.mockReturnValue({ ...lead })
@@ -96,7 +96,7 @@ describe('lead-contact service', () => {
     })
 
     it('should throw not found exception when lead not found', async () => {
-      const dto: DTO.LeadContact.UpdateLead = {
+      const dto: DTO.Lead.UpdateLead = {
         email: 'update@mail.com',
       }
 

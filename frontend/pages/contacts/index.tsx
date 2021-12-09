@@ -1,17 +1,17 @@
-import LeadsViewLayout from '@components/Leads/LeadsViewLayout'
-import Search from '@components/Leads/Search'
-import LeadSidebar from '@components/Leads/Sidebar'
+import Search from '@components/Contacts/Search'
+import ContactsSidebar from '@components/Contacts/Sidebar'
+import ContactsViewLayout from '@components/Contacts/ViewLayout'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
-import { getLeads } from '@utils/service/lead'
+import { Contact } from '@utils/models/contact'
+import { LeadSource } from '@utils/models/lead'
+import { getContacts } from '@utils/service/contact'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { dehydrate, QueryClient, useQuery } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -24,13 +24,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   const limit = Number(q.limit) || 10
   const search = q.search as string | undefined
   const source = q.source as LeadSource[] | undefined
-  const status = q.status as LeadStatus[] | undefined
 
   if (token) {
     await Promise.all([
       client.prefetchQuery(
-        ['leads', page, limit, search || '', source || [], status || []],
-        getLeads({ limit, page, search, source, status }, token),
+        ['contacts', page, limit, search || '', source || []],
+        getContacts({ limit, page, search, source }, token),
       ),
     ])
   }
@@ -42,18 +41,24 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 }
 
-const columns: TableColumnType<Lead>[] = [
+const columns: TableColumnType<Contact>[] = [
   {
-    title: 'Lead Name',
+    title: 'Contact Name',
     dataIndex: 'fullName',
     key: 'name',
     sorter: { compare: (a, b) => a.fullName.localeCompare(b.fullName) },
     fixed: 'left',
     render: (_, { id, fullName }) => (
-      <Link href={`/leads/${id}`}>
+      <Link href={`/contacts/${id}`}>
         <a className="crm-link underline hover:underline">{fullName}</a>
       </Link>
     ),
+  },
+  {
+    title: 'Account Name',
+    dataIndex: 'accountName',
+    key: 'accountName',
+    sorter: { compare: (a, b) => a.accountName.localeCompare(b.email) },
   },
   {
     title: 'Email',
@@ -67,14 +72,6 @@ const columns: TableColumnType<Lead>[] = [
     key: 'phone',
     sorter: {
       compare: (a, b) => a.phoneNum?.localeCompare(b.phoneNum || '') || -1,
-    },
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    sorter: {
-      compare: (a, b) => a.status.localeCompare(b.status),
     },
   },
   {
@@ -96,7 +93,7 @@ const columns: TableColumnType<Lead>[] = [
   },
 ]
 
-export default function LeadsViews() {
+export default function ContactsView() {
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -105,28 +102,17 @@ export default function LeadsViews() {
     isArray: true,
   })
 
-  const [status, setStatus] = useQueryState<Array<LeadStatus>>('status', {
-    isArray: true,
-  })
-
   const { data: leads, isLoading } = useQuery(
-    ['leads', page || 1, limit || 10, search || '', source || [], status || []],
-    getLeads({ limit, page, search, source, status }),
+    ['contacts', page || 1, limit || 10, search || '', source || []],
+    getContacts({ limit, page, search, source }),
   )
 
   const [start, end, total] = usePaginateItem(leads)
 
   return (
-    <LeadsViewLayout
-      title="CRM | Leads"
-      sidebar={
-        <LeadSidebar
-          source={source}
-          status={status}
-          onSourceChange={setSource}
-          onStatusChange={setStatus}
-        />
-      }
+    <ContactsViewLayout
+      title="CRM | Contacts"
+      sidebar={<ContactsSidebar source={source} onSourceChange={setSource} />}
     >
       <Search search={search} onSearchChange={setSearch} />
 
@@ -168,6 +154,6 @@ export default function LeadsViews() {
           />
         </div>
       </div>
-    </LeadsViewLayout>
+    </ContactsViewLayout>
   )
 }

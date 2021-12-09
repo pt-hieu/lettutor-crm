@@ -8,19 +8,19 @@ import {
   Patch,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { DTO } from 'src/type'
-import { LeadContactService } from './lead-contact.service'
+import { LeadService } from './lead.service'
 
-@ApiTags('lead-contact')
+@ApiTags('lead')
 @ApiBearerAuth('jwt')
-@Controller('lead-contact')
-export class LeadContactController {
-  constructor(private readonly service: LeadContactService) {}
+@Controller('lead')
+export class LeadController {
+  constructor(private readonly service: LeadService) {}
 
   @Get()
-  @ApiOperation({ summary: 'view, search and filter all leads or contacts' })
-  index(@Query() query: DTO.LeadContact.GetManyQuery) {
+  @ApiOperation({ summary: 'view, search and filter all leads' })
+  index(@Query() query: DTO.Lead.GetManyQuery) {
     return this.service.getMany(query)
   }
 
@@ -32,7 +32,7 @@ export class LeadContactController {
 
   @Post()
   @ApiOperation({ summary: 'to add new lead manually' })
-  addLead(@Body() dto: DTO.LeadContact.AddLead) {
+  addLead(@Body() dto: DTO.Lead.AddLead) {
     return this.service.addLead(dto)
   }
 
@@ -40,17 +40,18 @@ export class LeadContactController {
   @ApiOperation({ summary: 'to update lead manually' })
   updateLead(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: DTO.LeadContact.UpdateLead,
+    @Body() dto: DTO.Lead.UpdateLead,
   ) {
     return this.service.updateLead(dto, id)
   }
 
   @Post(':id/convert')
   @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
-  convertToAccount(
+  @ApiBody({ required: false, type: DTO.Deal.AddDeal })
+  convert(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto?: DTO.Deal.AddDeal,
   ) {
-    return this.service.convertToAccountAndContact(id, dto)
+    return this.service.convert(id, dto)
   }
 }
