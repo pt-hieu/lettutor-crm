@@ -5,7 +5,7 @@ import { User } from './user';
 
 export interface Account extends Base {
   owner: User
-  name: string
+  fullName: string
   address: string | null
   description: string | null
   phoneNum: string | null

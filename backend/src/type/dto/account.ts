@@ -17,7 +17,7 @@ export class AddAccount {
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  name: string
+  fullName: string
 
   @ApiPropertyOptional()
   @IsOptional()

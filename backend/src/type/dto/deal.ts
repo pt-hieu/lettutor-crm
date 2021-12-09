@@ -15,7 +15,7 @@ export class AddDeal {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  name?: string
+  fullName?: string
 
   @ApiPropertyOptional({ type: Double })
   @IsOptional()

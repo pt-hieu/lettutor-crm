@@ -15,7 +15,7 @@ export class Account extends BaseEntity {
   ownerId: string
 
   @Column({ type: 'varchar' })
-  name: string
+  fullName: string
 
   @Column({ type: 'varchar', nullable: true, default: null })
   address: string | null

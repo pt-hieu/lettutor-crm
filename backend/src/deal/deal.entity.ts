@@ -37,7 +37,7 @@ export class Deal extends BaseEntity {
   contactId: string | null
 
   @Column({ type: 'varchar' })
-  name: string
+  fullName: string
 
   @Column({ type: 'double precision', nullable: true, default: null })
   amount: number | null

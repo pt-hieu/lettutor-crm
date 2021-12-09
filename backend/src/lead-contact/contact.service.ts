@@ -17,7 +17,7 @@ export class ContactService {
       .leftJoin('lc.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
       .leftJoin('lc.account', 'account')
-      .addSelect(['account.name', 'account.description'])
+      .addSelect(['account.fullName', 'account.description'])
       .where('lc.isLead = :isLead', { isLead: false })
 
     if (query.source)
@@ -30,7 +30,7 @@ export class ContactService {
             .andWhere('lc.fullName ILIKE :search', {
               search: `%${query.search}%`,
             })
-            .orWhere('lc.email ILIKE :search', { search: `%${query.search}%` }),
+            .orWhere('lc.description ILIKE :search', { search: `%${query.search}%` }),
         ),
       )
     }

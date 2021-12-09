@@ -220,11 +220,9 @@ export default function ConvertModal({ close, visible }: Props) {
           <div className="mb-2 mt-4 font-semibold">Details</div>
 
           <div className="flex flex-col gap-2">
-            {/* Fixme */}
-            {/* @ts-ignore */}
-            {data?.map(({ id, name }) => (
+            {data?.map(({ id, fullName }) => (
               <Link href="" key={id}>
-                <a className="crm-link underline hover:underline">{name}</a>
+                <a className="crm-link underline hover:underline">{fullName}</a>
               </Link>
             ))}
           </div>
