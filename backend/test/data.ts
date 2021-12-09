@@ -30,6 +30,8 @@ export const user: User = {
   updatedAt: null,
   leadContacts: [],
   roles: [role],
+  accounts: [],
+  deals: []
 }
 
 export const lead: LeadContact = {
