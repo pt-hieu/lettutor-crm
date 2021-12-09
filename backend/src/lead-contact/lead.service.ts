@@ -9,6 +9,7 @@ import { Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
+import { DealService } from 'src/deal/deal.service'
 
 @Injectable()
 export class LeadService {
@@ -16,7 +17,8 @@ export class LeadService {
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
-  ) { }
+    private readonly dealService: DealService,
+  ) {}
 
   async getLeadById(id: string) {
     const found = await this.leadContactRepo.findOne({ id })
@@ -46,7 +48,7 @@ export class LeadService {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
       .leftJoin('lc.owner', 'owner')
-      .addSelect(["owner.name", "owner.email"])
+      .addSelect(['owner.name', 'owner.email'])
       .where('lc.isLead = :isLead', { isLead: true })
 
     if (query.status)
@@ -65,7 +67,7 @@ export class LeadService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async convertToAccountAndContact(id: string) {
+  async convert(id: string, dealDto: DTO.Deal.AddDeal) {
     const lead = await this.getLeadById(id)
 
     if (!lead.isLead) {
@@ -74,8 +76,7 @@ export class LeadService {
 
     const accountDto: DTO.Account.AddAccount = {
       ownerId: id,
-      fullName: lead.fullName + ' Account',
-      email: lead.email,
+      name: lead.fullName + ' Account',
       address: lead.address,
       description: lead.description,
       phoneNum: lead.phoneNum,
@@ -85,9 +86,22 @@ export class LeadService {
     const contact = await this.leadContactRepo.save({
       ...lead,
       isLead: false, //make this lead a contact
-      accountId: account.id
+      accountId: account.id,
     })
 
-    return [account, contact]
+    let deal = null
+    // Convert to deal
+    // Name is require, if name is exists -> add deal
+    if (dealDto.name !== undefined) {
+      const dto = {
+        ownerId: id,
+        accountId: account.id,
+        contactId: contact.id,
+        ...dealDto,
+      }
+      deal = await this.dealService.addDeal(dto)
+    }
+
+    return deal === null ? [account, contact] : [account, contact, deal]
   }
 }

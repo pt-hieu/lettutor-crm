@@ -6,10 +6,11 @@ import { LeadContact } from './lead-contact.entity'
 import { AccountModule } from 'src/account/account.module'
 import { ContactController } from './contact.controller'
 import { ContactService } from './contact.service'
+import { DealModule } from 'src/deal/deal.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LeadContact]), AccountModule],
+  imports: [TypeOrmModule.forFeature([LeadContact]), AccountModule, DealModule],
   providers: [LeadService, ContactService],
   controllers: [LeadController, ContactController],
 })
-export class LeadContactModule { }
+export class LeadContactModule {}

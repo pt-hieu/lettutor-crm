@@ -1,5 +1,6 @@
 import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
+import { Deal } from 'src/deal/deal.entity'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { Actions } from 'src/type/action'
 import { BaseEntity } from 'src/utils/base.entity'

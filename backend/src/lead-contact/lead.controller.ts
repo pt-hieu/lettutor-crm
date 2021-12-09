@@ -8,7 +8,7 @@ import {
   Patch,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { LeadService } from './lead.service'
 
@@ -37,7 +37,7 @@ export class LeadController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'to upate lead manually' })
+  @ApiOperation({ summary: 'to update lead manually' })
   updateLead(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.Lead.UpdateLead,
@@ -47,7 +47,11 @@ export class LeadController {
 
   @Post(':id/convert')
   @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
-  convertToAccount(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.convertToAccountAndContact(id)
+  @ApiBody({ required: false, type: DTO.Deal.AddDeal })
+  convert(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto?: DTO.Deal.AddDeal,
+  ) {
+    return this.service.convert(id, dto)
   }
 }
