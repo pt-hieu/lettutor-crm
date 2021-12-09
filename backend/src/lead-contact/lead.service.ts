@@ -10,6 +10,7 @@ import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { DealService } from 'src/deal/deal.service'
+import { Deal } from 'src/deal/deal.entity'
 
 @Injectable()
 export class LeadService {
@@ -89,19 +90,18 @@ export class LeadService {
       accountId: account.id,
     })
 
-    let deal = null
-    // Convert to deal
-    // Name is require, if name is exists -> add deal
-    if (dealDto.name !== undefined) {
+    let deal: Deal | null = null
+    if (!!dealDto) {
       const dto = {
-        ownerId: id,
+        ownerId: lead.owner.id,
         accountId: account.id,
         contactId: contact.id,
         ...dealDto,
       }
+
       deal = await this.dealService.addDeal(dto)
     }
 
-    return deal === null ? [account, contact] : [account, contact, deal]
+    return [account, contact, deal] as const
   }
 }

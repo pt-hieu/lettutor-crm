@@ -1,5 +1,3 @@
 import { Lead } from './lead'
 
-export interface Contact extends Omit<Lead, 'status'> {
-  accountName: string
-}
+export interface Contact extends Lead { }

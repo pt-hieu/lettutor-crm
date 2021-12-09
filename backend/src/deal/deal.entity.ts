@@ -1,5 +1,5 @@
 import { Account } from 'src/account/account.entity'
-import { LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { LeadContact, LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
@@ -30,8 +30,11 @@ export class Deal extends BaseEntity {
   @Column({ type: 'uuid' })
   accountId: string
 
+  @ManyToOne(() => LeadContact)
+  contact: LeadContact
+
   @Column({ type: 'uuid', nullable: true, default: null })
-  contactId?: string
+  contactId: string | null
 
   @Column({ type: 'varchar' })
   name: string
