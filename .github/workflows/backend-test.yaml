@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    if: ${{ github.event.label.name == 'backend' }}
+    if: ${{ github.event.label.name == 'backend' || github.event.push_id != 'undefined' }}
     runs-on: ubuntu-latest
     defaults:
       run:
