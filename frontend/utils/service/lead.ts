@@ -1,4 +1,5 @@
 import { Account } from '@utils/models/account'
+import { Deal } from '@utils/models/deal'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
@@ -49,4 +50,4 @@ export const updateLead = async (params: {
 }
 
 export const convertLead = (id: string) => () =>
-  axios.post<[Account, Lead]>(API + '/api/lead/' + id + '/convert').then((res) => res.data)
+  axios.post<[Account, Lead, Deal]>(API + '/api/lead/' + id + '/convert').then((res) => res.data)
