@@ -1,6 +1,8 @@
+import { Account } from 'src/account/account.entity'
 import { LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 export enum DealStage {
   AUTHENTICATION = 'Authentication',
@@ -17,6 +19,12 @@ export enum DealStage {
 export class Deal extends BaseEntity {
   @Column({ type: 'uuid' })
   ownerId: string
+
+  @ManyToOne(() => Account, (account) => account.deals, {
+    eager: true,
+  })
+  @JoinColumn()
+  account: Account
 
   @Column({ type: 'uuid' })
   accountId: string
