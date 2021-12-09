@@ -15,6 +15,7 @@ export const mockQueryBuilder: MockType<SelectQueryBuilder<any>> = {
   createQueryBuilder: jest.fn().mockReturnThis(),
   getQuery: jest.fn().mockReturnThis(),
   getParameters: jest.fn().mockReturnThis(),
+  addSelect: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
   orWhere: jest.fn().mockReturnThis(),
   andWhere: jest.fn().mockReturnThis(),

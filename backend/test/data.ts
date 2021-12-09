@@ -3,7 +3,20 @@ import {
   LeadSource,
   LeadStatus,
 } from 'src/lead-contact/lead-contact.entity'
-import { User, UserStatus } from 'src/user/user.entity'
+import { Actions } from 'src/type/action'
+import { Role, User, UserStatus } from 'src/user/user.entity'
+
+export const role: Role = {
+  actions: [Actions.IS_ADMIN],
+  name: 'Admin',
+  children: [],
+  id: '24',
+  childrenIds: [],
+  parent: null,
+  users: [],
+  createdAt: null,
+  updatedAt: null,
+}
 
 export const user: User = {
   email: 'admin@mail.com',
@@ -16,7 +29,7 @@ export const user: User = {
   createdAt: null,
   updatedAt: null,
   leadContacts: [],
-  roles: []
+  roles: [role],
 }
 
 export const lead: LeadContact = {

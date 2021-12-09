@@ -4,7 +4,7 @@ import { AuthService } from 'src/auth/auth.service'
 import { Role, User } from 'src/user/user.entity'
 import { Repository } from 'typeorm'
 import { MockType, repositoryMockFactory } from './utils'
-import { user } from './data'
+import { role, user } from './data'
 import { DTO } from 'src/type'
 import { BadRequestException } from '@nestjs/common'
 import { Response } from 'express'
@@ -47,6 +47,7 @@ describe('auth service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
+        roles: [role]
       })
     })
 

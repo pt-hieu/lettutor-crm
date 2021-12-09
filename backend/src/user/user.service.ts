@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, In, Repository } from 'typeorm'
+import { Brackets, In, Not, Repository } from 'typeorm'
 import { Role, User, UserStatus } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
@@ -33,6 +33,9 @@ export class UserService {
     const role = await this.roleRepo.findOne({ where: { name: dto.name } })
     if (role) throw new BadRequestException('Role existed')
 
+    if (await this.roleRepo.findOne({ where: { name: dto.name } }))
+      throw new BadRequestException('Name has been taken')
+
     const users = await this.userRepo.find({ where: { id: In(dto.userIds) } })
 
     return this.roleRepo.save({
@@ -47,7 +50,7 @@ export class UserService {
     const role = this.roleRepo.findOne(id)
     if (!role) throw new BadRequestException('Role does not exist')
 
-    if (await this.roleRepo.findOne({ where: { name: dto.name } }))
+    if (await this.roleRepo.findOne({ where: { name: dto.name, id: Not(id) } }))
       throw new BadRequestException('Name has been taken')
 
     const users = await this.userRepo.find({ where: { id: In(dto.userIds) } })
