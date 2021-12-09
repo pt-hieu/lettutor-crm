@@ -8,8 +8,6 @@ import {
   IsString,
   IsUUID,
   MaxLength,
-  IsArray,
-  ValidateNested,
 } from 'class-validator'
 import { LeadStatus, LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { Paginate } from './paging'
