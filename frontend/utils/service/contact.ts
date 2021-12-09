@@ -19,3 +19,10 @@ export const getContacts =
         params,
       })
       .then((res) => res.data)
+
+export const getContact = (id?: string, token?: string) => () =>
+  axios
+    .get<Contact>(API + `/api/lead-contact/${id}`, {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    .then((res) => res.data)
