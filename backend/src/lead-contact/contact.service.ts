@@ -33,7 +33,9 @@ export class ContactService {
             .andWhere('lc.fullName ILIKE :search', {
               search: `%${query.search}%`,
             })
-            .orWhere('lc.description ILIKE :search', { search: `%${query.search}%` }),
+            .orWhere('lc.description ILIKE :search', {
+              search: `%${query.search}%`,
+            }),
         ),
       )
     }
@@ -48,7 +50,7 @@ export class ContactService {
 
     if (dto.accountId) {
       const account = await this.accountService.getOneById(dto.accountId);
-      if (!account) 
+      if (!account)
         throw new NotFoundException('Account does not exist')
     }
 
@@ -56,6 +58,16 @@ export class ContactService {
       ...contact,
       ...dto
     })
-    return {affected: res.affected}
+    return { affected: res.affected }
+  }
+
+  async getContactById(id: string) {
+    const found = await this.leadContactRepo.findOne({ id })
+
+    if (!found || found.isLead) {
+      throw new NotFoundException(`Contact with ID ${id} not found`)
+    }
+
+    return found
   }
 }

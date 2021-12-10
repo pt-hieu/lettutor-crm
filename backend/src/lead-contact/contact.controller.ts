@@ -33,4 +33,9 @@ export class ContactController {
     return this.service.update(id, dto)
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'to get contact information by Id' })
+  getContactById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.getContactById(id)
+  }
 }

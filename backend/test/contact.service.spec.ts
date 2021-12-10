@@ -71,6 +71,21 @@ describe('lead-contact service', () => {
     })
   })
 
+  describe('view contact detail', () => {
+    it('should view contact detail success', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+
+      expect(await contactService.getContactById(contact.id)).toEqual(contact)
+    })
+
+    it('should throw not found exception when contact not found ', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+
+      expect(contactService.getContactById(contact.id)).rejects.toThrow(
+        new NotFoundException(`Contact with ID ${contact.id} not found`),
+      )
+    })
+  })
 
   describe('update contact', () => {
     it('should update the contact successfully', async () => {
@@ -78,9 +93,9 @@ describe('lead-contact service', () => {
         email: 'update@mail.com',
       }
       leadContactRepo.findOne.mockReturnValue({ ...contact })
-      leadContactRepo.update.mockReturnValue({affected: 1})
+      leadContactRepo.update.mockReturnValue({ affected: 1 })
 
-      expect(await contactService.update(contact.id, dto)).toEqual({affected: 1})
+      expect(await contactService.update(contact.id, dto)).toEqual({ affected: 1 })
     })
 
     it('should throw not found exception when contact is not found', async () => {
@@ -102,10 +117,10 @@ describe('lead-contact service', () => {
       }
 
       leadContactRepo.findOne.mockReturnValue({ ...contact })
-      accountRepo.findOne.mockReturnValue({...account})
-      leadContactRepo.update.mockReturnValue({affected: 1})
+      accountRepo.findOne.mockReturnValue({ ...account })
+      leadContactRepo.update.mockReturnValue({ affected: 1 })
 
-      expect(await contactService.update(contact.id, dto)).toEqual({affected: 1})
+      expect(await contactService.update(contact.id, dto)).toEqual({ affected: 1 })
     })
 
     it('should throw not found exception in case update body have any field is invalid', async () => {
@@ -117,8 +132,10 @@ describe('lead-contact service', () => {
       leadContactRepo.findOne.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue(undefined)
       expect(contactService.update(contact.id, dto)).rejects.toThrow(
-        new NotFoundException('Account does not exist'),
-      )
+        new NotFoundException('Account does not exist'))
     })
   })
+
+  
 })
+

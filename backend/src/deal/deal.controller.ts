@@ -24,9 +24,15 @@ export class DealController {
     return this.service.getMany(query)
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'to get deal information by Id' })
+  getDealById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.getDealById(id)
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'to update deal manually' })
-  updateLead(
+  updateDeal(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.Deal.UpdateDeal,
   ) {
