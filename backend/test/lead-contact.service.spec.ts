@@ -147,7 +147,7 @@ describe('lead-contact service', () => {
 
     it('should convert lead to deal succeed', async () => {
       const dto: DTO.Deal.AddDeal = {
-        name: deal.name,
+        fullName: deal.fullName,
         amount: deal.amount,
         closingDate: deal.closingDate,
         stage: deal.stage,
