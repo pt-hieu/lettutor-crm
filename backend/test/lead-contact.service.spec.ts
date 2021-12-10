@@ -12,11 +12,13 @@ import { AccountService } from 'src/account/account.service'
 import { Account } from 'src/account/account.entity'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
+import { ContactService } from 'src/lead-contact/contact.service'
 
 describe('lead-contact service', () => {
-  let leadContactRepo: MockType<Repository<LeadContact>>
   let leadService: LeadService
-  let accountServie: AccountService
+  let contactService: ContactService
+  let leadContactRepo: MockType<Repository<LeadContact>>
+  let accountService: AccountService
   let accountRepo: MockType<Repository<Account>>
   let dealService: DealService
   let dealRepo: MockType<Repository<Deal>>
@@ -25,6 +27,8 @@ describe('lead-contact service', () => {
     const ref: TestingModule = await Test.createTestingModule({
       providers: [
         LeadService,
+        ContactService,
+        DealService,
         AccountService,
         DealService,
         {
@@ -46,8 +50,9 @@ describe('lead-contact service', () => {
     accountRepo = ref.get(getRepositoryToken(Account))
     dealRepo = ref.get(getRepositoryToken(Deal))
     leadService = ref.get(LeadService)
-    accountServie = ref.get(AccountService)
+    accountService = ref.get(AccountService)
     dealService = ref.get(LeadService)
+    contactService = ref.get(ContactService)
   })
 
   describe('add lead', () => {
@@ -171,12 +176,27 @@ describe('lead-contact service', () => {
       ])
     })
 
-    it('should convert lead fail', async () => {
-      lead.isLead = false
+    it('should throw not found exception when lead not found', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+
+      expect(leadService.convert(contact.id, null)).rejects.toThrow(
+        new NotFoundException(`Lead with ID ${contact.id} not found`),
+      )
+    })
+  })
+
+  describe('view contact detail', () => {
+    it('should view contact detail success', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+
+      expect(await contactService.getContactById(contact.id)).toEqual(contact)
+    })
+
+    it('should throw not found exception when contact not found ', async () => {
       leadContactRepo.findOne.mockReturnValue({ ...lead })
 
-      expect(leadService.convert(lead.id, null)).rejects.toThrow(
-        new NotFoundException(`Lead with ID ${lead.id} not found`),
+      expect(contactService.getContactById(lead.id)).rejects.toThrow(
+        new NotFoundException(`Contact with ID ${lead.id} not found`),
       )
     })
   })
