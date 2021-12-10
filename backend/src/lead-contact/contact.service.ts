@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { Brackets, Repository } from 'typeorm'
@@ -9,7 +9,7 @@ export class ContactService {
   constructor(
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
-  ) { }
+  ) {}
 
   async getMany(query: DTO.Contact.GetManyQuery) {
     let q = this.leadContactRepo
@@ -30,12 +30,24 @@ export class ContactService {
             .andWhere('lc.fullName ILIKE :search', {
               search: `%${query.search}%`,
             })
-            .orWhere('lc.description ILIKE :search', { search: `%${query.search}%` }),
+            .orWhere('lc.description ILIKE :search', {
+              search: `%${query.search}%`,
+            }),
         ),
       )
     }
 
     if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
+  }
+
+  async getContactById(id: string) {
+    const found = await this.leadContactRepo.findOne({ id })
+
+    if (!found || found.isLead) {
+      throw new NotFoundException(`Contact with ID ${id} not found`)
+    }
+
+    return found
   }
 }
