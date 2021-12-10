@@ -19,7 +19,7 @@ export class LeadService {
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
     private readonly dealService: DealService,
-  ) { }
+  ) {}
 
   async getLeadById(id: string) {
     const found = await this.leadContactRepo.findOne({ id })

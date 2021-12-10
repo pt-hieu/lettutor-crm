@@ -276,6 +276,34 @@ describe('user service', () => {
     })
   })
 
+  describe('update user', () => {
+    it('should update user succeed', async () => {
+      const dto: DTO.User.UpdateUser = {
+        name: 'Admin',
+      }
+
+      usersRepo.findOne.mockReturnValue({ ...user })
+      usersRepo.save.mockReturnValue({ ...user, ...dto })
+
+      expect(await userService.updateUser(dto, user)).toEqual({
+        ...user,
+        ...dto,
+      })
+    })
+
+    it('should throw error when user does not exist', () => {
+      const dto: DTO.User.UpdateUser = {
+        name: 'Admin',
+      }
+
+      usersRepo.findOne.mockReturnValue(undefined)
+
+      expect(userService.updateUser(dto, user)).rejects.toThrow(
+        new BadRequestException('User does not exist'),
+      )
+    })
+  })
+
   describe('getManyRole', () => {
     it('should return roles successfully', async () => {
       const dto: DTO.Role.GetManyRole = {
