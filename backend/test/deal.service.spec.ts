@@ -67,7 +67,23 @@ describe('deal service', () => {
       dealRepo.findOne.mockReturnValue(undefined)
 
       expect(dealService.updateDeal(dto, deal.id)).rejects.toThrow(
-        new NotFoundException(`Deal does not exist`),
+        new NotFoundException(`Deal with ID ${deal.id} not found`),
+      )
+    })
+  })
+
+  describe('view deal detail', () => {
+    it('should view deal detail success', async () => {
+      dealRepo.findOne.mockReturnValue({ ...deal })
+
+      expect(await dealService.getDealById(deal.id)).toEqual(deal)
+    })
+
+    it('should throw not found exception when deal not found ', async () => {
+      dealRepo.findOne.mockReturnValue(undefined)
+
+      expect(dealService.getDealById(deal.id)).rejects.toThrow(
+        new NotFoundException(`Deal with ID ${deal.id} not found`),
       )
     })
   })
