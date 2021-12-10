@@ -15,22 +15,6 @@ type ContactInfo = {
   value: ReactNode
 }
 
-type Deal = {
-  id: string
-  name: string
-  amount: number
-  stage: string
-  closingDate: string
-}
-
-const DealData: Deal = {
-  name: 'Deal Name',
-  amount: 60000,
-  id: 'id',
-  stage: 'Value Proposition',
-  closingDate: '01/12/2021',
-}
-
 const ContactDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
@@ -89,20 +73,26 @@ const ContactDetail = () => {
             {/* FakeData */}
             <div className="pt-4">
               <div className="font-semibold mb-4 text-[17px]">Deals</div>
-              <p className="font-semibold">
-                <Link href={`/deals/${DealData.id}`}>
-                  <a className=" text-gray-700 hover:text-gray-600">
-                    {DealData.name}
-                  </a>
-                </Link>
-                <span className="bg-red-400 px-2 ml-4 text-white rounded-sm">
-                  VND {DealData.amount}
-                </span>
-              </p>
-              <p>
-                <span>{DealData.stage}</span>
-                <span className="ml-4">{DealData.closingDate}</span>
-              </p>
+              {contact?.deals?.map(
+                ({ id, fullName, amount, stage, closingDate }) => (
+                  <>
+                    <p className="font-semibold">
+                      <Link href={`/deals/${id}`}>
+                        <a className=" text-gray-700 hover:text-gray-600">
+                          {fullName}
+                        </a>
+                      </Link>
+                      <span className="bg-red-400 px-2 ml-4 text-white rounded-sm">
+                        VND {amount}
+                      </span>
+                    </p>
+                    <p>
+                      <span>{stage}</span>
+                      <span className="ml-4">{closingDate}</span>
+                    </p>
+                  </>
+                ),
+              )}
             </div>
           </div>
         </div>
