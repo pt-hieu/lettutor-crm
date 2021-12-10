@@ -1,3 +1,4 @@
+import { Account } from './account'
 import { Base } from './base'
 import { User } from './user'
 
@@ -23,6 +24,7 @@ export enum LeadSource {
 export interface Lead extends Base {
   owner: User
   fullName: string
+  account: Account
   email: string
   status: LeadStatus
   source: LeadSource

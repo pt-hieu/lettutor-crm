@@ -39,7 +39,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
 export default function UpdateInformation() {
   const { data } = useQuery('self-info', getSelf())
-  const { email, name, role, status } = data || {}
+  const { email, name, roles, status } = data || {}
 
   const [edit, turnOn, turnOff] = useModal()
   const client = useQueryClient()
@@ -85,7 +85,9 @@ export default function UpdateInformation() {
         <div>
           <div className="font-semibold">{name}</div>
           <div className="font-semibold">{email}</div>
-          <div className="capitalize">{role?.join(', ')}</div>
+          <div className="capitalize">
+            {roles?.map((r) => r.name).join(', ')}
+          </div>
         </div>
       </div>
 
@@ -139,7 +141,7 @@ export default function UpdateInformation() {
             props={{
               type: 'text',
               disabled: true,
-              value: role?.join(', '),
+              value: roles?.map((r) => r.name).join(', '),
               className: 'capitalize',
             }}
           />

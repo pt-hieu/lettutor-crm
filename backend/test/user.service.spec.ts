@@ -5,7 +5,7 @@ import { UserService } from 'src/user/user.service'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { user } from './data'
+import { role, user } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import moment from 'moment'
 import { BadRequestException } from '@nestjs/common'
@@ -14,6 +14,7 @@ import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 
 describe('user service', () => {
   let usersRepo: MockType<Repository<User>>
+  let roleRepo: MockType<Repository<Role>>
   let userService: UserService
   let mailService: MailService
 
@@ -32,10 +33,15 @@ describe('user service', () => {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: getRepositoryToken(Role),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile()
 
     usersRepo = ref.get(getRepositoryToken(User))
+    roleRepo = ref.get(getRepositoryToken(Role))
     mailService = ref.get(MailService)
     userService = ref.get(UserService)
   })
@@ -175,19 +181,17 @@ describe('user service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
-        role: user.role,
+        roles: [],
       }
 
       usersRepo.findOne.mockReturnValue({
         name: user.name,
-        role: user.role,
         email: user.email,
         status: user.status,
       })
 
       expect(await userService.getOne(payload)).toEqual({
         name: user.name,
-        role: user.role,
         email: user.email,
         status: user.status,
       })
@@ -198,7 +202,7 @@ describe('user service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
-        role: user.role,
+        roles: [],
       }
 
       usersRepo.findOne.mockReturnValue(undefined)
@@ -224,16 +228,16 @@ describe('user service', () => {
     })
   })
 
-  describe('add password', () => {
-    it('should add pwd succeed', async () => {
+  describe('add user', () => {
+    it('should add user succeed', async () => {
       const dto: DTO.User.AddUser = {
         name: user.name,
         email: user.email,
-        role: Role.SUPER_ADMIN,
+        roleId: '24',
       }
 
       usersRepo.findOne.mockReturnValue(null)
-
+      roleRepo.findOne.mockReturnValue(role)
       usersRepo.save.mockReturnValue({ ...dto })
 
       expect(await userService.addUser(dto, user.name)).toEqual(true)
@@ -243,15 +247,163 @@ describe('user service', () => {
       const dto: DTO.User.AddUser = {
         name: user.name,
         email: user.email,
-        role: Role.SUPER_ADMIN,
+        roleId: '24',
       }
 
       usersRepo.findOne.mockReturnValue({ ...user })
+      roleRepo.findOne.mockReturnValue(role)
 
       expect(userService.addUser(dto, user.name)).rejects.toThrow(
         new BadRequestException(
           'User you want to add is exist, cannot add new user',
         ),
+      )
+    })
+
+    it('should throw error when role does not exist', () => {
+      const dto: DTO.User.AddUser = {
+        name: user.name,
+        email: user.email,
+        roleId: '24',
+      }
+
+      usersRepo.findOne.mockReturnValue({ ...user })
+      roleRepo.findOne.mockReturnValue(undefined)
+
+      expect(userService.addUser(dto, user.name)).rejects.toThrow(
+        new BadRequestException('Role does not exist'),
+      )
+    })
+  })
+
+  describe('getManyRole', () => {
+    it('should return roles successfully', async () => {
+      const dto: DTO.Role.GetManyRole = {
+        limit: 10,
+        page: 1,
+      }
+
+      mockQueryBuilder.getMany.mockReturnValue([role])
+
+      expect(
+        (
+          (await userService.getManyRole(dto)) as Pagination<
+            Role,
+            IPaginationMeta
+          >
+        ).items,
+      ).toEqual([role])
+    })
+  })
+
+  describe('createRole', () => {
+    it('should create role successfully', async () => {
+      const dto: DTO.Role.CreateRole = {
+        actions: [],
+        name: 'Test',
+        userIds: [],
+        childrenIds: [],
+      }
+
+      roleRepo.findOne.mockReturnValue(undefined)
+      usersRepo.find.mockReturnValue([])
+      roleRepo.save.mockReturnValue(role)
+
+      expect(await userService.createRole(dto)).toEqual(role)
+    })
+
+    it('should throw error when role existed', () => {
+      const dto: DTO.Role.CreateRole = {
+        actions: [],
+        name: 'Test',
+        userIds: [],
+        childrenIds: [],
+      }
+
+      roleRepo.findOne.mockReturnValue(role)
+      usersRepo.find.mockReturnValue([])
+      roleRepo.save.mockReturnValue(role)
+
+      expect(userService.createRole(dto)).rejects.toThrow(
+        new BadRequestException('Role existed'),
+      )
+    })
+
+    it('should throw error when name has been already taken', () => {
+      const dto: DTO.Role.CreateRole = {
+        actions: [],
+        name: 'Test',
+        userIds: [],
+        childrenIds: [],
+      }
+
+      roleRepo.findOne.mockReturnValueOnce(undefined).mockReturnValueOnce(role)
+
+      expect(userService.createRole(dto)).rejects.toThrow(
+        new BadRequestException('Name has been taken'),
+      )
+    })
+  })
+
+  describe('updateRole', () => {
+    it('should update role successfully', async () => {
+      const dto: DTO.Role.UpdateRole = {
+        actions: [],
+        childrenIds: [],
+        userIds: [],
+        name: 'test',
+      }
+
+      roleRepo.findOne.mockReturnValue(undefined).mockReturnValueOnce(role)
+
+      usersRepo.find.mockReturnValue([])
+      roleRepo.save.mockReturnValue(role)
+
+      expect(await userService.updateRole('12', dto)).toEqual(role)
+    })
+
+    it('should throw error when role does not exist', () => {
+      const dto: DTO.Role.UpdateRole = {
+        actions: [],
+        childrenIds: [],
+        userIds: [],
+        name: 'test',
+      }
+
+      roleRepo.findOne.mockReturnValue(undefined)
+
+      expect(userService.updateRole('12', dto)).rejects.toThrow(
+        new BadRequestException('Role does not exist'),
+      )
+    })
+
+    it('should throw error when name already exist', () => {
+      const dto: DTO.Role.UpdateRole = {
+        actions: [],
+        childrenIds: [],
+        userIds: [],
+        name: 'test',
+      }
+
+      roleRepo.findOne.mockReturnValue(role)
+      expect(userService.updateRole('12', dto)).rejects.toThrow(
+        new BadRequestException('Name has been taken'),
+      )
+    })
+  })
+
+  describe('removeRole', () => {
+    it('should remove the role successfully', async () => {
+      roleRepo.findOne.mockReturnValue(role)
+      roleRepo.remove.mockReturnValue(role)
+
+      expect(await userService.removeRole('')).toEqual(role)
+    })
+
+    it('should throw error when role does not exist', () => {
+      roleRepo.findOne.mockReturnValue(undefined)
+      expect(userService.removeRole('2')).rejects.toThrow(
+        new BadRequestException('Role does not exist'),
       )
     })
   })

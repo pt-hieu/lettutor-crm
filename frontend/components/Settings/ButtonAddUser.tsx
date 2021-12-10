@@ -4,25 +4,25 @@ import Input from '@utils/components/Input'
 import Loading from '@utils/components/Loading'
 import { useModal } from '@utils/hooks/useModal'
 import { IErrorResponse } from '@utils/libs/functionalTryCatch'
-import { Role } from '@utils/models/user'
+import { Role } from '@utils/models/role'
 import { addUser as addUserService } from '@utils/service/user'
 import { Divider, Modal, notification } from 'antd'
 import { requireRule } from 'pages/change-password'
 import { emailReg } from 'pages/reset-password'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 interface FormData {
   name: string
   email: string
-  userRole: Role | ''
+  roleId: string
 }
 
 const initialValue: FormData = {
   name: '',
   email: '',
-  userRole: '',
+  roleId: '',
 }
 
 const validateData = (
@@ -39,6 +39,8 @@ const validateData = (
 
 const ButtonAddUser = () => {
   const [modal, showModal, hideModal] = useModal()
+
+  const { data: roles } = useQuery<Role[]>('roles', { enabled: false })
 
   const {
     register,
@@ -78,8 +80,7 @@ const ButtonAddUser = () => {
         message: error.message,
       })
     }
-    const { email, name, userRole } = data
-    mutateAsync({ email, name, role: userRole as Role })
+    mutateAsync(data)
   })
 
   useEffect(() => {
@@ -159,17 +160,17 @@ const ButtonAddUser = () => {
             </label>
             <div className="col-span-10">
               <Input
-                error={errors.userRole?.message}
+                error={errors.roleId?.message}
                 as="select"
                 props={{
                   className: 'w-full text-sm p-3',
-                  ...register('userRole', requireRule('Role')),
+                  ...register('roleId', requireRule('Role')),
                   children: (
                     <>
                       <option value={''}>Select a role</option>
-                      {Object.values(Role).map((role) => (
-                        <option key={role} value={role}>
-                          {role}
+                      {roles?.map(({ id, name }) => (
+                        <option key={id} value={id}>
+                          {name}
                         </option>
                       ))}
                     </>

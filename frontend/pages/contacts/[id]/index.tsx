@@ -90,7 +90,7 @@ const ContactDetail = () => {
             <div className="pt-4">
               <div className="font-semibold mb-4 text-[17px]">Deals</div>
               <p className="font-semibold">
-                <Link href={`leads/${DealData.id}`}>
+                <Link href={`/deals/${DealData.id}`}>
                   <a className=" text-gray-700 hover:text-gray-600">
                     {DealData.name}
                   </a>

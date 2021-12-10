@@ -1,4 +1,5 @@
 import { Account } from '@utils/models/account'
+import { Deal } from '@utils/models/deal'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
@@ -17,7 +18,7 @@ export const getLeads =
   ) =>
     () =>
       axios
-        .get<Paginate<Lead>>(API + '/api/lead-contact', {
+        .get<Paginate<Lead>>(API + '/api/lead', {
           headers: { authorization: 'Bearer ' + token },
           params,
         })
@@ -25,13 +26,13 @@ export const getLeads =
 
 export const getLead = (id?: string, token?: string) => () =>
   axios
-    .get<Lead>(API + `/api/lead-contact/${id}`, {
+    .get<Lead>(API + `/api/lead/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
 
 export const addLeadService = async (leadInfo: LeadAddFormData) => {
-  const { data } = await axios.post<Lead>(API + '/api/lead-contact', leadInfo)
+  const { data } = await axios.post<Lead>(API + '/api/lead', leadInfo)
   return data
 }
 
@@ -41,7 +42,7 @@ export const updateLead = async (params: {
 }) => {
   const { id, leadInfo } = params
   const { data } = await axios.patch<Lead>(
-    API + `/api/lead-contact/${id}`,
+    API + `/api/lead/${id}`,
     leadInfo,
   )
 
@@ -49,4 +50,4 @@ export const updateLead = async (params: {
 }
 
 export const convertLead = (id: string) => () =>
-  axios.post<[Account, Lead]>(API + '/api/lead-contact/' + id + '/convert').then((res) => res.data)
+  axios.post<[Account, Lead, Deal]>(API + '/api/lead/' + id + '/convert').then((res) => res.data)

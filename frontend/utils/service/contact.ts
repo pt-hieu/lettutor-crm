@@ -14,7 +14,7 @@ export const getContacts =
   ) =>
   () =>
     axios
-      .get<Paginate<Contact>>(API + '/api/lead-contact', {
+      .get<Paginate<Contact>>(API + '/api/contact', {
         headers: { authorization: 'Bearer ' + token },
         params,
       })
@@ -22,7 +22,7 @@ export const getContacts =
 
 export const getContact = (id?: string, token?: string) => () =>
   axios
-    .get<Contact>(API + `/api/lead-contact/${id}`, {
+    .get<Contact>(API + `/api/contact/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)

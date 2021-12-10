@@ -56,9 +56,11 @@ const columns: TableColumnType<Contact>[] = [
   },
   {
     title: 'Account Name',
-    dataIndex: 'accountName',
     key: 'accountName',
-    sorter: { compare: (a, b) => a.accountName.localeCompare(b.email) },
+    sorter: {
+      compare: (a, b) => a.account.fullName.localeCompare(b.account.fullName),
+    },
+    render: (_, { account }) => account?.fullName,
   },
   {
     title: 'Email',
