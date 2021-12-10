@@ -60,7 +60,7 @@ const columns: TableColumnType<Deal>[] = [
     dataIndex: 'amount',
     key: 'amount',
     sorter: {
-      compare: (a, b) => (a.amount ? (b.amount ? a.amount - b.amount : 1) : -1),
+      compare: (a, b) => (a.amount || 0) - (b.amount || 0),
     },
   },
   {
