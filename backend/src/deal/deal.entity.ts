@@ -17,7 +17,7 @@ export enum DealStage {
 
 @Entity({ name: 'deal' })
 export class Deal extends BaseEntity {
-  @ManyToOne(() => User, u => u.deals, { eager: true })
+  @ManyToOne(() => User, (u) => u.deals, { eager: true })
   @JoinColumn()
   owner: User
 
