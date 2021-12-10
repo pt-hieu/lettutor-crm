@@ -77,7 +77,7 @@ export class LeadService {
 
     const accountDto: DTO.Account.AddAccount = {
       ownerId: lead.owner.id,
-      name: lead.fullName + ' Account',
+      fullName: lead.fullName + ' Account',
       address: lead.address,
       description: lead.description,
       phoneNum: lead.phoneNum,
