@@ -79,7 +79,7 @@ describe('lead-contact service', () => {
     })
 
     it('should throw not found exception when contact not found ', async () => {
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      leadContactRepo.findOne.mockReturnValue(undefined)
 
       expect(contactService.getContactById(contact.id)).rejects.toThrow(
         new NotFoundException(`Contact with ID ${contact.id} not found`),
