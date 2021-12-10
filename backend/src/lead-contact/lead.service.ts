@@ -24,7 +24,7 @@ export class LeadService {
   async getLeadById(id: string) {
     const found = await this.leadContactRepo.findOne({ id })
 
-    if (!found) {
+    if (!found || !found.isLead) {
       throw new NotFoundException(`Lead with ID ${id} not found`)
     }
 
@@ -36,8 +36,7 @@ export class LeadService {
   }
 
   async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
-    const lead = await this.leadContactRepo.findOne({ id })
-    if (!lead) throw new NotFoundException('Lead does not exist')
+    const lead = await this.getLeadById(id)
 
     return this.leadContactRepo.save({
       ...lead,
@@ -70,10 +69,6 @@ export class LeadService {
 
   async convert(id: string, dealDto: DTO.Deal.AddDeal) {
     const lead = await this.getLeadById(id)
-
-    if (!lead.isLead) {
-      throw new BadRequestException('This is not a lead, cannot convert')
-    }
 
     const accountDto: DTO.Account.AddAccount = {
       ownerId: lead.owner.id,

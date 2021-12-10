@@ -2,7 +2,7 @@ import { DTO } from 'src/type'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { contact } from './data'
+import { contact, lead } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
@@ -11,6 +11,7 @@ import { Account } from 'src/account/account.entity'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
 import { ContactService } from 'src/lead-contact/contact.service'
+import { NotFoundException } from '@nestjs/common'
 
 describe('lead-contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
@@ -70,5 +71,19 @@ describe('lead-contact service', () => {
     })
   })
 
+  describe('view contact detail', () => {
+    it('should view contact detail success', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
 
+      expect(await contactService.getContactById(contact.id)).toEqual(contact)
+    })
+
+    it('should throw not found exception when contact not found ', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...lead })
+
+      expect(contactService.getContactById(lead.id)).rejects.toThrow(
+        new NotFoundException(`Contact with ID ${lead.id} not found`),
+      )
+    })
+  })
 })
