@@ -6,17 +6,15 @@ import { account, contact, deal, lead } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { LeadService } from 'src/lead-contact/lead.service'
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { NotFoundException } from '@nestjs/common'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { Account } from 'src/account/account.entity'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
-import { ContactService } from 'src/lead-contact/contact.service'
 
 describe('lead-contact service', () => {
   let leadService: LeadService
-  let contactService: ContactService
   let leadContactRepo: MockType<Repository<LeadContact>>
   let accountService: AccountService
   let accountRepo: MockType<Repository<Account>>
@@ -27,7 +25,6 @@ describe('lead-contact service', () => {
     const ref: TestingModule = await Test.createTestingModule({
       providers: [
         LeadService,
-        ContactService,
         DealService,
         AccountService,
         DealService,
@@ -52,7 +49,6 @@ describe('lead-contact service', () => {
     leadService = ref.get(LeadService)
     accountService = ref.get(AccountService)
     dealService = ref.get(LeadService)
-    contactService = ref.get(ContactService)
   })
 
   describe('add lead', () => {
@@ -87,7 +83,7 @@ describe('lead-contact service', () => {
     })
   })
 
-  describe('getMany', () => {
+  describe('get many leads', () => {
     it('should return leads succeed', async () => {
       const dto: DTO.Lead.GetManyQuery = {
         limit: 10,
@@ -181,22 +177,6 @@ describe('lead-contact service', () => {
 
       expect(leadService.convert(contact.id, null)).rejects.toThrow(
         new NotFoundException(`Lead with ID ${contact.id} not found`),
-      )
-    })
-  })
-
-  describe('view contact detail', () => {
-    it('should view contact detail success', async () => {
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
-
-      expect(await contactService.getContactById(contact.id)).toEqual(contact)
-    })
-
-    it('should throw not found exception when contact not found ', async () => {
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
-
-      expect(contactService.getContactById(lead.id)).rejects.toThrow(
-        new NotFoundException(`Contact with ID ${lead.id} not found`),
       )
     })
   })
