@@ -7,8 +7,11 @@ import {
   Post,
   Patch,
   Query,
+  BadRequestException,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ClassTransformer, plainToClass } from 'class-transformer'
+import { validate } from 'class-validator'
 import { DTO } from 'src/type'
 import { LeadService } from './lead.service'
 
@@ -47,11 +50,23 @@ export class LeadController {
 
   @Post(':id/convert')
   @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
-  @ApiBody({ required: false, type: DTO.Deal.AddDeal })
-  convert(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto?: DTO.Deal.AddDeal,
-  ) {
-    return this.service.convert(id, dto)
+  @ApiBody({ required: false, type: DTO.Deal.ConvertToDeal })
+  async convert(@Param('id', ParseUUIDPipe) id: string, @Body() body: object) {
+    let shouldConvertToDeal = Object.keys(body).length !== 0
+    let dto: DTO.Deal.ConvertToDeal
+
+    if (shouldConvertToDeal) {
+      dto = plainToClass(DTO.Deal.ConvertToDeal, body, {
+        ignoreDecorators: false,
+      })
+
+      const errors = await validate('ConvertToDeal', dto)
+      if (errors.length)
+        throw new BadRequestException(
+          errors.map((e) => Object.values(e.constraints)).flat(),
+        )
+    }
+
+    return this.service.convert(id, dto, shouldConvertToDeal)
   }
 }

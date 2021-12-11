@@ -45,8 +45,7 @@ export class ContactService {
   }
 
   async update(id: string, dto: DTO.Contact.UpdateBody) {
-    const contact = await this.leadContactRepo.findOne({ id, isLead: false })
-    if (!contact) throw new NotFoundException('Contact does not exist')
+    const contact = await this.getContactById(id)
 
     if (dto.accountId) {
       const account = await this.accountService.getOneById(dto.accountId);
@@ -54,17 +53,16 @@ export class ContactService {
         throw new NotFoundException('Account does not exist')
     }
 
-    const res = await this.leadContactRepo.update(id, {
+    return this.leadContactRepo.save({
       ...contact,
       ...dto
     })
-    return { affected: res.affected }
   }
 
   async getContactById(id: string) {
-    const found = await this.leadContactRepo.findOne({ id })
+    const found = await this.leadContactRepo.findOne({ where: { id, isLead: false } })
 
-    if (!found || found.isLead) {
+    if (!found) {
       throw new NotFoundException(`Contact with ID ${id} not found`)
     }
 
