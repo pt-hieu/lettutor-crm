@@ -4,7 +4,7 @@ import DealsViewLayout from '@components/Deals/ViewLayout'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Deal } from '@utils/models/deal'
+import { Deal, DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { getDeals } from '@utils/service/deal'
 import { Table, TableColumnType } from 'antd'
@@ -24,12 +24,13 @@ export const getServerSideProps: GetServerSideProps = async ({
   const limit = Number(q.limit) || 10
   const search = q.search as string | undefined
   const source = q.source as LeadSource[] | undefined
+  const stage = q.stage as DealStage[] | undefined
 
   if (token) {
     await Promise.all([
       client.prefetchQuery(
-        ['deals', page, limit, search || '', source || []],
-        getDeals({ limit, page, search, source }, token),
+        ['deals', page, limit, search || '', source || [], stage || []],
+        getDeals({ limit, page, search, source, stage }, token),
       ),
     ])
   }
@@ -114,10 +115,13 @@ export default function DealsView() {
   const [source, setSource] = useQueryState<Array<LeadSource>>('source', {
     isArray: true,
   })
+  const [stage, setStage] = useQueryState<Array<DealStage>>('stage', {
+    isArray: true,
+  })
 
   const { data: leads, isLoading } = useQuery(
-    ['deals', page || 1, limit || 10, search || '', source || []],
-    getDeals({ limit, page, search, source }),
+    ['deals', page || 1, limit || 10, search || '', source || [], stage || []],
+    getDeals({ limit, page, search, source, stage }),
   )
 
   const [start, end, total] = usePaginateItem(leads)
@@ -125,7 +129,14 @@ export default function DealsView() {
   return (
     <DealsViewLayout
       title="CRM | Deals"
-      sidebar={<DealsSidebar source={source} onSourceChange={setSource} />}
+      sidebar={
+        <DealsSidebar
+          source={source}
+          onSourceChange={setSource}
+          stage={stage}
+          onStageChange={setStage}
+        />
+      }
     >
       <DealsSearch search={search} onSearchChange={setSearch} />
 

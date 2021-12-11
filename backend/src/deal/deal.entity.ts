@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { LeadContact, LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { User } from 'src/user/user.entity'

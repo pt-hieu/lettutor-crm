@@ -1,31 +1,38 @@
 import MultipleQuery from '@utils/components/MultipleQuery'
-import { LeadSource, LeadStatus } from '@utils/models/lead'
+import { DealStage } from '@utils/models/deal'
+import { LeadSource } from '@utils/models/lead'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 type FormData = {
-  status: Array<LeadStatus>
   source: Array<LeadSource>
+  stage: Array<DealStage>
 }
 
 type Props = {
   onSourceChange: (v: LeadSource[] | undefined) => void
   source: LeadSource[] | undefined
+  onStageChange: (v: DealStage[] | undefined) => void
+  stage: DealStage[] | undefined
 }
 
 export default function DealsSidebar({
   onSourceChange: setSource,
   source,
+  onStageChange: setStage,
+  stage,
 }: Props) {
   const form = useForm<FormData>({
     defaultValues: {
       source,
+      stage,
     },
   })
 
   const applyFilter = useCallback(
-    form.handleSubmit(({ source }) => {
+    form.handleSubmit(({ source, stage }) => {
       setSource(source || [])
+      setStage(stage || [])
     }),
     [],
   )
@@ -41,10 +48,16 @@ export default function DealsSidebar({
 
       <form>
         <FormProvider {...form}>
-          <div className="font-medium my-2">Source</div>
+          <div className="font-medium my-2">Lead Source</div>
           <MultipleQuery
             name="source"
             options={Object.values(LeadSource)}
+            type="checkbox"
+          />
+          <div className="font-medium my-2">Deal Stage</div>
+          <MultipleQuery
+            name="stage"
+            options={Object.values(DealStage)}
             type="checkbox"
           />
         </FormProvider>

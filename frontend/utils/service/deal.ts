@@ -1,4 +1,4 @@
-import { Deal } from '@utils/models/deal'
+import { Deal, DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
@@ -10,6 +10,7 @@ export const getDeals =
     params: {
       search?: string
       source?: LeadSource[]
+      stage?: DealStage[]
     } & PagingQuery,
     token?: string,
   ) =>

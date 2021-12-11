@@ -22,13 +22,13 @@ import { Account } from '@utils/models/account'
 export type DealUpdateFormData = {
   ownerId: string
   accountId: string
-  contactId?: string
+  contactId: string | null
   fullName: string
   amount: number | null
   closingDate: Date
   stage: string
   source: LeadSource
-  probability: number | 10
+  probability: number | null
   description: string | null
 }
 
@@ -39,7 +39,11 @@ const schema = yup.object().shape({
     .required('Deal Name is required.')
     .max(100, 'Deal Name must be at most 100 characters.'),
   accountId: yup.string().required('Account Name is required.'),
-  amount: yup.number().typeError('Amount must be a number.'),
+  amount: yup
+    .number()
+    .typeError('Amount must be a number.')
+    .nullable(true)
+    .transform((v, o) => (o === '' ? null : v)),
   closingDate: yup.date().required('Closing Date is required.'),
   stage: yup.string().required('Stage is required.'),
   source: yup.string().required('Lead Source is required.'),
@@ -53,7 +57,8 @@ const schema = yup.object().shape({
     .transform((v, o) => (o === '' ? null : v)),
   description: yup
     .string()
-    .max(500, 'Description must be at most 500 characters.'),
+    .max(500, 'Description must be at most 500 characters.')
+    .nullable(true),
 })
 
 const EditDeal = () => {
@@ -144,12 +149,12 @@ const EditDeal = () => {
 
   const editDeal = handleSubmit((data) => {
     if (data.contactId === 'None') {
-      delete data.contactId
+      data.contactId = null
     }
 
     console.log('submit data: ', data)
 
-    //mutateAsync({ id, dealInfo: data })
+    mutateAsync({ id, dealInfo: data })
   })
 
   const renderField = ({
