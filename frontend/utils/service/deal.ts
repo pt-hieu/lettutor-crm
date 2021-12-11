@@ -3,6 +3,7 @@ import { LeadSource } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
+import { DealUpdateFormData } from 'pages/deals/[id]/edit'
 
 export const getDeals =
   (
@@ -26,3 +27,13 @@ export const getDeal = (id?: string, token?: string) => () =>
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
+
+export const updateDeal = async (params: {
+  id: string
+  dealInfo: DealUpdateFormData
+}) => {
+  const { id, dealInfo } = params
+  const { data } = await axios.patch<Deal>(API + `/api/deal/${id}`, dealInfo)
+
+  return data
+}

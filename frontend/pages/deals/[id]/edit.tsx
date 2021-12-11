@@ -1,7 +1,6 @@
 import Input from '@utils/components/Input'
 import { getSessionToken } from '@utils/libs/getToken'
 import { LeadSource } from '@utils/models/lead'
-import { updateLead } from '@utils/service/lead'
 import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
@@ -13,14 +12,17 @@ import Layout from '@utils/components/Layout'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { DealUpdateData, Field } from '@utils/data/update-deal-data'
-import { getDeal } from '@utils/service/deal'
+import { getDeal, updateDeal } from '@utils/service/deal'
 import { Deal } from '@utils/models/deal'
 import { getContacts } from '@utils/service/contact'
+import { getAccounts } from '@utils/service/account'
+import { Contact } from '@utils/models/contact'
+import { Account } from '@utils/models/account'
 
-export type FormFields = {
+export type DealUpdateFormData = {
   ownerId: string
   accountId: string
-  contactId: string
+  contactId?: string
   fullName: string
   amount: number | null
   closingDate: Date
@@ -46,7 +48,9 @@ const schema = yup.object().shape({
     .number()
     .typeError('Probability must be a number')
     .min(0, 'Probability must be at least 0')
-    .max(100, 'Probability must be at most 100'),
+    .max(100, 'Probability must be at most 100')
+    .nullable(true)
+    .transform((v, o) => (o === '' ? null : v)),
   description: yup
     .string()
     .max(500, 'Description must be at most 500 characters.'),
@@ -56,25 +60,64 @@ const EditDeal = () => {
   const { push, query } = useRouter()
   const id = query.id as string
 
-  const { data: owner } = useQuery<User[]>(['users'], {
+  const { data: owners } = useQuery<User[]>(['users'], {
     enabled: false,
   })
 
-  console.log('owner: ', owner)
+  const { data: contacts } = useQuery<Contact[]>(['contacts'], {
+    enabled: false,
+  })
+
+  const { data: accounts } = useQuery<Account[]>(['accounts'], {
+    enabled: false,
+  })
 
   const { data: deal } = useQuery<Deal>(['deal', id], { enabled: false })
 
-  console.log('lead: ', deal)
+  const ownerOptions = owners?.map((owner) => ({
+    value: owner.id,
+    option: owner.name,
+  }))
 
-  const { isLoading, mutateAsync } = useMutation('edit-lead', updateLead, {
+  const accoutOptions = accounts?.map((account) => ({
+    value: account.id,
+    option: account.fullName,
+  }))
+
+  const contactOptions = contacts?.map((contact) => ({
+    value: contact.id,
+    option: contact.fullName,
+  }))
+
+  contactOptions?.unshift({ value: 'None', option: 'None' })
+
+  const selectChildren = {
+    ownerId: ownerOptions?.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.option}
+      </option>
+    )),
+    accountId: accoutOptions?.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.option}
+      </option>
+    )),
+    contactId: contactOptions?.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.option}
+      </option>
+    )),
+  }
+
+  const { isLoading, mutateAsync } = useMutation('edit-deal', updateDeal, {
     onSuccess: (res) => {
       notification.success({
-        message: 'Edit lead successfully.',
+        message: 'Edit deal successfully.',
       })
-      push(`/leads/${res.id}`)
+      push(`/deals/${res.id}`)
     },
     onError: () => {
-      notification.error({ message: 'Edit lead unsuccessfully.' })
+      notification.error({ message: 'Edit deal unsuccessfully.' })
     },
   })
 
@@ -82,7 +125,7 @@ const EditDeal = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormFields>({
+  } = useForm<DealUpdateFormData>({
     mode: 'all',
     resolver: yupResolver(schema),
     defaultValues: {
@@ -100,8 +143,13 @@ const EditDeal = () => {
   })
 
   const editDeal = handleSubmit((data) => {
-    console.log('I am here')
-    //mutateAsync({ id, leadInfo: data })
+    if (data.contactId === 'None') {
+      delete data.contactId
+    }
+
+    console.log('submit data: ', data)
+
+    //mutateAsync({ id, dealInfo: data })
   })
 
   const renderField = ({
@@ -124,7 +172,7 @@ const EditDeal = () => {
       <div className="col-span-2">
         {/* @ts-ignore */}
         <Input
-          error={errors[name as keyof FormFields]?.message}
+          error={errors[name as keyof DealUpdateFormData]?.message}
           as={as!}
           props={{
             type: type,
@@ -135,15 +183,25 @@ const EditDeal = () => {
             }`,
             children:
               as === 'select' ? (
-                <>
-                  {selectSource?.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </>
+                name in selectChildren ? (
+                  <>
+                    {
+                      selectChildren[
+                        name as 'contactId' | 'ownerId' | 'accountId'
+                      ]
+                    }
+                  </>
+                ) : (
+                  <>
+                    {selectSource?.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </>
+                )
               ) : undefined,
-            ...register(name as keyof FormFields),
+            ...register(name as keyof DealUpdateFormData),
           }}
         />
       </div>
@@ -203,6 +261,14 @@ export const getServerSideProps: GetServerSideProps = async ({
           },
           token,
         ),
+      ),
+      client.prefetchQuery(
+        ['contacts'],
+        getContacts({ shouldNotPaginate: true }, token),
+      ),
+      client.prefetchQuery(
+        ['accounts'],
+        getAccounts({ shouldNotPaginate: true }, token),
       ),
       client.prefetchQuery(['deal', id], getDeal(id, token)),
     ])

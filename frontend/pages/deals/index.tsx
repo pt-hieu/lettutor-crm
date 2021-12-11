@@ -84,12 +84,7 @@ const columns: TableColumnType<Deal>[] = [
     sorter: {
       compare: (a, b) => a.contact.fullName.localeCompare(b.contact.fullName),
     },
-    // render: (_, { contact: { id, fullName } }) => (
-    //   <Link href={`/contacts/${id}`}>
-    //     <a className="crm-link underline hover:underline">{fullName}</a>
-    //   </Link>
-    // ),
-    render: (_, { contact }) => contact.fullName,
+    render: (_, { contact }) => contact?.fullName,
   },
   {
     title: 'Account Name',
@@ -98,11 +93,6 @@ const columns: TableColumnType<Deal>[] = [
     sorter: {
       compare: (a, b) => a.account.fullName.localeCompare(b.account.fullName),
     },
-    // render: (_, { account: { fullName, id } }) => (
-    //   <Link href={`/accounts/${id}`}>
-    //     <a className="crm-link underline hover:underline">{fullName}</a>
-    //   </Link>
-    // ),
     render: (_, { account }) => account.fullName,
   },
   {
