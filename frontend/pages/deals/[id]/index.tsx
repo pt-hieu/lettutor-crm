@@ -2,29 +2,16 @@ import Layout from '@utils/components/Layout'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import { getSessionToken } from '@utils/libs/getToken'
 import { GetServerSideProps } from 'next'
-import { getLead } from '@utils/service/lead'
 import { useRouter } from 'next/router'
 import DetailPageSidebar, {
   SidebarStructure,
 } from '@utils/components/DetailPageSidebar'
 import DealDetailNavbar from 'components/Deals/DealDetailNavbar'
 import { ReactNode, useMemo } from 'react'
+import { getDeal } from '@utils/service/deal'
+import { Deal } from '@utils/models/deal'
 
-export type SampleDeal = {
-  id: string
-  owner: string
-  name: string
-  accountName: string
-  amount: number
-  closingDate: string
-  stage: string
-  leadSource: string
-  contactName: string
-  probability: number
-  description: string
-}
-
-type LeadInfo = {
+type DealInfo = {
   label: string
   value: ReactNode
 }
@@ -55,73 +42,58 @@ const DealDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
 
-  // Waiting backend api
-  //const { data: lead } = useQuery<Lead>(['lead', id], {
-  //enabled: false,
-  //})
-
-  const deal: SampleDeal = {
-    id: '123',
-    owner: 'Hoa Pham',
-    name: 'Hoa Pham Deal',
-    accountName: 'Hoa Pham Account',
-    amount: 1000,
-    closingDate: '08/12/2021',
-    stage: 'Chứng thực',
-    leadSource: 'Facebook',
-    contactName: 'Hoa Pham Contact',
-    probability: 10,
-    description: 'description ne',
-  }
+  const { data: deal } = useQuery<Deal>(['deal', id], {
+    enabled: false,
+  })
 
   const dealInfo = useMemo(
-    (): LeadInfo[] => [
+    (): DealInfo[] => [
       {
         label: 'Deal Owner',
-        value: deal.owner,
+        value: deal?.owner.name,
       },
       {
         label: 'Deal Name',
-        value: deal.name,
+        value: deal?.fullName,
       },
       {
         label: 'Account Name',
-        value: deal.accountName,
+        value: deal?.account.fullName,
       },
       {
         label: 'Amount',
-        value: deal.amount,
+        value: deal?.amount,
       },
       {
         label: 'Closing Date',
-        value: deal.closingDate,
+        value: deal?.closingDate,
       },
       {
         label: 'Stage',
-        value: deal.stage,
+        value: deal?.stage,
       },
       {
         label: 'Lead Source',
-        value: deal.leadSource,
+        value: deal?.source,
       },
       {
         label: 'Contact Name',
-        value: deal.contactName,
+        value: deal?.contact?.fullName,
       },
       {
         label: 'Probability (%)',
-        value: deal.probability,
+        value: deal?.probability,
       },
       {
         label: 'Description',
-        value: deal.description,
+        value: deal?.description,
       },
     ],
     [deal],
   )
 
   return (
-    <Layout title={`CRM | Deal | ${deal?.name}`} requireLogin>
+    <Layout title={`CRM | Deal | ${deal?.fullName}`} requireLogin>
       <div className="crm-container">
         <DealDetailNavbar deal={deal!} />
 
@@ -147,24 +119,23 @@ const DealDetail = () => {
   )
 }
 
-// Waiting backend api
-//export const getServerSideProps: GetServerSideProps = async ({
-//req,
-//params,
-//}) => {
-//const client = new QueryClient()
-//const token = getSessionToken(req.cookies)
-//const id = params?.id as string
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  params,
+}) => {
+  const client = new QueryClient()
+  const token = getSessionToken(req.cookies)
+  const id = params?.id as string
 
-//if (token) {
-//await Promise.all([client.prefetchQuery(['lead', id], getLead(id, token))])
-//}
+  if (token) {
+    await Promise.all([client.prefetchQuery(['deal', id], getDeal(id, token))])
+  }
 
-//return {
-//props: {
-//dehydratedState: dehydrate(client),
-//},
-//}
-//}
+  return {
+    props: {
+      dehydratedState: dehydrate(client),
+    },
+  }
+}
 
 export default DealDetail

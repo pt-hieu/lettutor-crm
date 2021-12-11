@@ -19,3 +19,10 @@ export const getDeals =
         params,
       })
       .then((res) => res.data)
+
+export const getDeal = (id?: string, token?: string) => () =>
+  axios
+    .get<Deal>(API + `/api/deal/${id}`, {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    .then((res) => res.data)

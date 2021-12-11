@@ -1,5 +1,3 @@
-import { Fragment } from 'react'
-
 export type SidebarStructure = {
   title: string
   options: {

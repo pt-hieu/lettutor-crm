@@ -24,13 +24,13 @@ export class Deal extends BaseEntity {
   @Column({ type: 'uuid' })
   ownerId: string
 
-  @ManyToOne(() => Account, (account) => account.deals)
+  @ManyToOne(() => Account, (account) => account.deals, { eager: true })
   account: Account
 
   @Column({ type: 'uuid' })
   accountId: string
 
-  @ManyToOne(() => LeadContact)
+  @ManyToOne(() => LeadContact, { eager: true })
   contact: LeadContact
 
   @Column({ type: 'uuid', nullable: true, default: null })
