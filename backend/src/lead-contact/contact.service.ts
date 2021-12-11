@@ -58,7 +58,7 @@ export class ContactService {
     const contact = await this.getContactById(id)
 
     if (dto.accountId) {
-      await this.accountService.getOneById(dto.accountId)
+      await this.accountService.getAccountById(dto.accountId)
     }
 
     return this.leadContactRepo.update(id, {
