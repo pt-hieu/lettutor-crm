@@ -12,7 +12,7 @@ export class ContactService {
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
-  ) {}
+  ) { }
 
   async getMany(query: DTO.Contact.GetManyQuery) {
     let q = this.leadContactRepo
@@ -45,9 +45,9 @@ export class ContactService {
   }
 
   async getContactById(id: string) {
-    const found = await this.leadContactRepo.findOne({ id })
+    const found = await this.leadContactRepo.findOne({ where: { id, isLead: false } })
 
-    if (!found || found.isLead) {
+    if (!found) {
       throw new NotFoundException(`Contact with ID ${id} not found`)
     }
 

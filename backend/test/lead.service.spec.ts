@@ -141,13 +141,23 @@ describe('lead-contact service', () => {
 
   describe('convert lead', () => {
     it('should convert lead to account and contact succeed', async () => {
+      const dto: DTO.Deal.AddDeal = {
+        fullName: deal.fullName,
+        amount: deal.amount,
+        closingDate: deal.closingDate,
+        stage: deal.stage,
+        source: deal.source,
+        probability: deal.probability,
+        description: deal.description,
+      }
+
       leadContactRepo.findOne.mockReturnValue({ ...lead })
 
       accountRepo.save.mockReturnValue({ ...account })
 
       leadContactRepo.save.mockReturnValue({ ...contact })
 
-      expect(await leadService.convert(lead.id, {})).toEqual([
+      expect(await leadService.convert(lead.id, dto, false)).toEqual([
         account,
         contact,
         null,
@@ -173,7 +183,7 @@ describe('lead-contact service', () => {
 
       dealRepo.save.mockReturnValue({ ...deal })
 
-      expect(await leadService.convert(lead.id, dto)).toEqual([
+      expect(await leadService.convert(lead.id, dto, true)).toEqual([
         account,
         contact,
         deal,
@@ -181,17 +191,37 @@ describe('lead-contact service', () => {
     })
 
     it('should throw not found exception when lead not found', async () => {
+      const dto: DTO.Deal.AddDeal = {
+        fullName: deal.fullName,
+        amount: deal.amount,
+        closingDate: deal.closingDate,
+        stage: deal.stage,
+        source: deal.source,
+        probability: deal.probability,
+        description: deal.description,
+      }
+
       leadContactRepo.findOne.mockReturnValue(undefined)
 
-      expect(leadService.convert(lead.id, {})).rejects.toThrow(
+      expect(leadService.convert(lead.id, dto, true)).rejects.toThrow(
         new NotFoundException(`Lead with ID ${lead.id} not found`),
       )
     })
 
     it('should throw not found exception when try to convert a contact', async () => {
+      const dto: DTO.Deal.AddDeal = {
+        fullName: deal.fullName,
+        amount: deal.amount,
+        closingDate: deal.closingDate,
+        stage: deal.stage,
+        source: deal.source,
+        probability: deal.probability,
+        description: deal.description,
+      }
+
       leadContactRepo.findOne.mockReturnValue({ ...contact })
 
-      expect(leadService.convert(contact.id, {})).rejects.toThrow(
+      expect(leadService.convert(contact.id, dto, true)).rejects.toThrow(
         new NotFoundException(`Lead with ID ${contact.id} not found`),
       )
     })

@@ -39,11 +39,11 @@ export class Deal extends BaseEntity {
   @Column({ type: 'varchar' })
   fullName: string
 
-  @Column({ type: 'double precision', nullable: true, default: null })
-  amount: number | null
-
   @Column({ type: 'date' })
   closingDate: Date
+
+  @Column({ type: 'double precision', nullable: true, default: null })
+  amount: number | null
 
   @Column({ enum: DealStage, type: 'enum', default: DealStage.AUTHENTICATION })
   stage: DealStage
