@@ -1,14 +1,15 @@
-import { DTO } from 'src/type'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { account, lead } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
-import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { Account } from 'src/account/account.entity'
+import { NotFoundException } from '@nestjs/common'
+import { DTO } from 'src/type'
+import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 
-describe('lead-contact service', () => {
+describe('account service', () => {
   let accountService: AccountService
   let accountRepo: MockType<Repository<Account>>
 
@@ -19,7 +20,7 @@ describe('lead-contact service', () => {
         {
           provide: getRepositoryToken(Account),
           useFactory: repositoryMockFactory,
-        }
+        },
       ],
     }).compile()
 
@@ -60,6 +61,22 @@ describe('lead-contact service', () => {
       ).toEqual([account])
     })
   })
+  describe('view account detail', () => {
+    it('should view account detail success', async () => {
+      accountRepo.findOne.mockReturnValue({ ...account })
+
+      expect(await accountService.getAccountById(account.id)).toEqual(account)
+    })
+
+    it('should throw not found exception when account not found ', async () => {
+      accountRepo.findOne.mockReturnValue(undefined)
+
+      expect(accountService.getAccountById(account.id)).rejects.toThrow(
+        new NotFoundException(`Account with ID ${account.id} not found`),
+      )
+    })
+  })
 
 })
+
 

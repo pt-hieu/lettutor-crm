@@ -2,7 +2,7 @@ import { DTO } from 'src/type'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { account, contact } from './data'
+import { account, contact, lead } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
@@ -16,7 +16,7 @@ import { NotFoundException } from '@nestjs/common'
 describe('lead-contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
   let contactService: ContactService
-  let accountServie: AccountService
+  let accountService: AccountService
   let accountRepo: MockType<Repository<Account>>
   let dealService: DealService
   let dealRepo: MockType<Repository<Deal>>
@@ -46,7 +46,7 @@ describe('lead-contact service', () => {
     accountRepo = ref.get(getRepositoryToken(Account))
     dealRepo = ref.get(getRepositoryToken(Deal))
     contactService = ref.get(ContactService)
-    accountServie = ref.get(AccountService)
+    accountService = ref.get(AccountService)
     dealService = ref.get(DealService)
   })
 
@@ -78,11 +78,19 @@ describe('lead-contact service', () => {
       expect(await contactService.getContactById(contact.id)).toEqual(contact)
     })
 
-    it('should throw not found exception when contact not found ', async () => {
+    it('should throw not found exception when contact not found', async () => {
       leadContactRepo.findOne.mockReturnValue(undefined)
 
       expect(contactService.getContactById(contact.id)).rejects.toThrow(
         new NotFoundException(`Contact with ID ${contact.id} not found`),
+      )
+    })
+
+    it('should throw not found exception when try to view a lead', async () => {
+      leadContactRepo.findOne.mockReturnValue({ ...lead })
+
+      expect(contactService.getContactById(contact.id)).rejects.toThrow(
+        new NotFoundException(`Contact with ID ${lead.id} not found`),
       )
     })
   })
@@ -93,9 +101,12 @@ describe('lead-contact service', () => {
         email: 'update@mail.com',
       }
       leadContactRepo.findOne.mockReturnValue({ ...contact })
-      leadContactRepo.update.mockReturnValue({ affected: 1 })
+      leadContactRepo.update.mockReturnValue({ ...contact, ...dto })
 
-      expect(await contactService.update(contact.id, dto)).toEqual({ affected: 1 })
+      expect(await contactService.update(contact.id, dto)).toEqual({
+        ...contact,
+        ...dto,
+      })
     })
 
     it('should throw not found exception when contact is not found', async () => {
@@ -106,7 +117,7 @@ describe('lead-contact service', () => {
       leadContactRepo.findOne.mockReturnValue(undefined)
 
       expect(contactService.update(contact.id, dto)).rejects.toThrow(
-        new NotFoundException(`Contact does not exist`),
+        new NotFoundException(`Contact with ID ${lead.id} not found`),
       )
     })
 
@@ -118,9 +129,12 @@ describe('lead-contact service', () => {
 
       leadContactRepo.findOne.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue({ ...account })
-      leadContactRepo.update.mockReturnValue({ affected: 1 })
+      leadContactRepo.update.mockReturnValue({ ...contact, ...dto })
 
-      expect(await contactService.update(contact.id, dto)).toEqual({ affected: 1 })
+      expect(await contactService.update(contact.id, dto)).toEqual({
+        ...contact,
+        ...dto,
+      })
     })
 
     it('should throw not found exception in case update body have any field is invalid', async () => {
@@ -131,11 +145,10 @@ describe('lead-contact service', () => {
 
       leadContactRepo.findOne.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue(undefined)
+
       expect(contactService.update(contact.id, dto)).rejects.toThrow(
-        new NotFoundException('Account does not exist'))
+        new NotFoundException(`Account with ID ${lead.id} not found`),
+      )
     })
   })
-
-  
 })
-
