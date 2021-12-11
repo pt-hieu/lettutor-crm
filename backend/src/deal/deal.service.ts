@@ -12,29 +12,6 @@ export class DealService {
     private dealRepo: Repository<Deal>,
   ) {}
 
-  async getDealById(id: string) {
-    const found = await this.dealRepo.findOne({ id })
-
-    if (!found) {
-      throw new NotFoundException(`Deal with ID ${id} not found`)
-    }
-
-    return found
-  }
-
-  async addDeal(dto: DTO.Deal.AddDeal) {
-    return this.dealRepo.save(dto)
-  }
-
-  async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
-    const deal = await this.getDealById(id)
-
-    return this.dealRepo.save({
-      ...deal,
-      ...dto,
-    })
-  }
-
   async getMany(query: DTO.Deal.GetManyQuery) {
     let q = this.dealRepo
       .createQueryBuilder('d')
@@ -57,5 +34,28 @@ export class DealService {
 
     if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
+  }
+
+  async getDealById(id: string) {
+    const found = await this.dealRepo.findOne({ id })
+
+    if (!found) {
+      throw new NotFoundException(`Deal with ID ${id} not found`)
+    }
+
+    return found
+  }
+
+  async addDeal(dto: DTO.Deal.AddDeal) {
+    return this.dealRepo.save(dto)
+  }
+
+  async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
+    const deal = await this.getDealById(id)
+
+    return this.dealRepo.save({
+      ...deal,
+      ...dto,
+    })
   }
 }
