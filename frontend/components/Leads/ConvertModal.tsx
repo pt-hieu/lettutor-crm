@@ -16,6 +16,7 @@ import {
 } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
+import { Deal, DealStage } from '@utils/models/deal'
 
 interface Props {
   visible: boolean
@@ -28,6 +29,8 @@ enum State {
   CONVERT = '1',
   SUCCEED = '2',
 }
+
+type FormData = {} & Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
 
 export default function ConvertModal({ close, visible }: Props) {
   const { query, push } = useRouter()
@@ -63,7 +66,7 @@ export default function ConvertModal({ close, visible }: Props) {
     register,
     formState: { errors },
     reset,
-  } = useForm()
+  } = useForm<FormData>()
 
   useEffect(reset, [convertToDeal])
 
@@ -82,16 +85,21 @@ export default function ConvertModal({ close, visible }: Props) {
     },
   )
 
-  const convert = useCallback(() => {
-    mutateAsync()
-  }, [])
+  const convert = useCallback(
+    handleSubmit((data) => {
+      console.log(data)
+
+      mutateAsync(convertToDeal ? data : undefined)
+    }),
+    [convertToDeal],
+  )
 
   const closeOnState = useCallback(() => {
     if (state === State.SUCCEED) {
       push('/leads')
     }
 
-    close
+    close()
   }, [state])
 
   const { data: lead } = useQuery<Lead>(['lead', id], { enabled: false })
@@ -150,6 +158,9 @@ export default function ConvertModal({ close, visible }: Props) {
                       type: 'number',
                       id: 'amount',
                       className: 'w-full',
+                      ...register('amount', {
+                        setValueAs: (v: string) => Number(v),
+                      }),
                     }}
                   />
                 </div>
@@ -164,6 +175,7 @@ export default function ConvertModal({ close, visible }: Props) {
                       type: 'text',
                       id: 'name',
                       className: 'w-full',
+                      ...register('fullName'),
                     }}
                   />
                 </div>
@@ -178,6 +190,7 @@ export default function ConvertModal({ close, visible }: Props) {
                       type: 'date',
                       id: 'date',
                       className: 'w-full',
+                      ...register('closingDate'),
                     }}
                   />
                 </div>
@@ -192,6 +205,16 @@ export default function ConvertModal({ close, visible }: Props) {
                     props={{
                       id: 'stage',
                       className: 'w-full',
+                      ...register('stage'),
+                      children: (
+                        <>
+                          {Object.values(DealStage).map((stage) => (
+                            <option key={stage} value={stage}>
+                              {stage}
+                            </option>
+                          ))}
+                        </>
+                      ),
                     }}
                   />
                 </div>
@@ -220,11 +243,16 @@ export default function ConvertModal({ close, visible }: Props) {
           <div className="mb-2 mt-4 font-semibold">Details</div>
 
           <div className="flex flex-col gap-2">
-            {data?.map(({ id, fullName }) => (
-              <Link href="" key={id}>
-                <a className="crm-link underline hover:underline">{fullName}</a>
-              </Link>
-            ))}
+            {data?.map(
+              (entity) =>
+                entity && (
+                  <Link href="" key={entity.id}>
+                    <a className="crm-link underline hover:underline">
+                      {entity.fullName}
+                    </a>
+                  </Link>
+                ),
+            )}
           </div>
         </Animate>
       ),
