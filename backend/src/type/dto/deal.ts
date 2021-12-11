@@ -103,6 +103,16 @@ export class UpdateDeal {
   @MaxLength(100)
   fullName?: string
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  accountId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  contactId?: string
+
   @ApiPropertyOptional({ type: Double })
   @IsOptional()
   @IsNumber()
