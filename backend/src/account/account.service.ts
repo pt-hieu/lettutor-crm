@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { DTO } from 'src/type'
-import { Brackets, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { Account } from './account.entity'
 
 @Injectable()
@@ -19,6 +19,7 @@ export class AccountService {
   async getOneById(id: string) {
     return this.accountRepo.findOne({id})
   }
+
   async getMany(query: DTO.Account.GetManyQuery) {
     let q = this.accountRepo
       .createQueryBuilder('acc')
