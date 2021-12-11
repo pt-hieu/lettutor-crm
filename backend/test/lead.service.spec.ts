@@ -81,6 +81,14 @@ describe('lead-contact service', () => {
         new NotFoundException(`Lead with ID ${lead.id} not found`),
       )
     })
+
+    // it('should throw exception when try to view a contact', async () => {
+    //   leadContactRepo.findOne.mockReturnValue({ ...contact })
+
+    //   expect(leadService.getLeadById(lead.id)).rejects.toThrow(
+    //     new NotFoundException(`Lead with ID ${lead.id} not found`),
+    //   )
+    // })
   })
 
   describe('get many leads', () => {
@@ -139,7 +147,7 @@ describe('lead-contact service', () => {
 
       leadContactRepo.save.mockReturnValue({ ...contact })
 
-      expect(await leadService.convert(lead.id, null)).toEqual([
+      expect(await leadService.convert(lead.id, {})).toEqual([
         account,
         contact,
         null,
@@ -173,9 +181,17 @@ describe('lead-contact service', () => {
     })
 
     it('should throw not found exception when lead not found', async () => {
+      leadContactRepo.findOne.mockReturnValue(undefined)
+
+      expect(leadService.convert(lead.id, {})).rejects.toThrow(
+        new NotFoundException(`Lead with ID ${lead.id} not found`),
+      )
+    })
+
+    it('should throw not found exception when try to convert a contact', async () => {
       leadContactRepo.findOne.mockReturnValue({ ...contact })
 
-      expect(leadService.convert(contact.id, null)).rejects.toThrow(
+      expect(leadService.convert(contact.id, {})).rejects.toThrow(
         new NotFoundException(`Lead with ID ${contact.id} not found`),
       )
     })

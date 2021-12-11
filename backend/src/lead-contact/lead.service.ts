@@ -21,29 +21,6 @@ export class LeadService {
     private readonly dealService: DealService,
   ) {}
 
-  async getLeadById(id: string) {
-    const found = await this.leadContactRepo.findOne({ id })
-
-    if (!found || !found.isLead) {
-      throw new NotFoundException(`Lead with ID ${id} not found`)
-    }
-
-    return found
-  }
-
-  async addLead(dto: DTO.Lead.AddLead) {
-    return this.leadContactRepo.save(dto)
-  }
-
-  async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
-    const lead = await this.getLeadById(id)
-
-    return this.leadContactRepo.save({
-      ...lead,
-      ...dto,
-    })
-  }
-
   async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
@@ -67,6 +44,29 @@ export class LeadService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
+  async getLeadById(id: string) {
+    const found = await this.leadContactRepo.findOne({ id })
+
+    if (!found || !found.isLead) {
+      throw new NotFoundException(`Lead with ID ${id} not found`)
+    }
+
+    return found
+  }
+
+  async addLead(dto: DTO.Lead.AddLead) {
+    return this.leadContactRepo.save(dto)
+  }
+
+  async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
+    const lead = await this.getLeadById(id)
+
+    return this.leadContactRepo.save({
+      ...lead,
+      ...dto,
+    })
+  }
+
   async convert(id: string, dealDto: DTO.Deal.AddDeal) {
     const lead = await this.getLeadById(id)
 
@@ -86,7 +86,7 @@ export class LeadService {
     })
 
     let deal: Deal | null = null
-    if (!!dealDto) {
+    if (Object.keys(dealDto).length !== 0) {
       const dto = {
         ownerId: lead.owner.id,
         accountId: account.id,

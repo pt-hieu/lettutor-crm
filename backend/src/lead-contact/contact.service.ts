@@ -12,7 +12,7 @@ export class ContactService {
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
-  ) { }
+  ) {}
 
   async getMany(query: DTO.Contact.GetManyQuery) {
     let q = this.leadContactRepo
@@ -44,23 +44,6 @@ export class ContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async update(id: string, dto: DTO.Contact.UpdateBody) {
-    const contact = await this.leadContactRepo.findOne({ id, isLead: false })
-    if (!contact) throw new NotFoundException('Contact does not exist')
-
-    if (dto.accountId) {
-      const account = await this.accountService.getOneById(dto.accountId);
-      if (!account)
-        throw new NotFoundException('Account does not exist')
-    }
-
-    const res = await this.leadContactRepo.update(id, {
-      ...contact,
-      ...dto
-    })
-    return { affected: res.affected }
-  }
-
   async getContactById(id: string) {
     const found = await this.leadContactRepo.findOne({ id })
 
@@ -69,5 +52,18 @@ export class ContactService {
     }
 
     return found
+  }
+
+  async update(id: string, dto: DTO.Contact.UpdateBody) {
+    const contact = await this.getContactById(id)
+
+    if (dto.accountId) {
+      await this.accountService.getAccountById(dto.accountId)
+    }
+
+    return this.leadContactRepo.update(id, {
+      ...contact,
+      ...dto,
+    })
   }
 }
