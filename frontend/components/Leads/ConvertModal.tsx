@@ -17,6 +17,8 @@ import {
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
 import { Deal, DealStage } from '@utils/models/deal'
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 interface Props {
   visible: boolean
@@ -32,10 +34,21 @@ enum State {
 
 type FormData = {} & Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
 
+const schema = yup.object().shape({
+  amount: yup.number().typeError('Invalid amount'),
+  closingDate: yup.date().typeError('Invalid date'),
+  fullName: yup.string().max(100, 'Name has to be at most 100 characters'),
+  stage: yup.string(),
+})
+
 export default function ConvertModal({ close, visible }: Props) {
   const { query, push } = useRouter()
-  const [convertToDeal, setConvertToDeal] = useState(false)
   const id = query.id as string
+
+  const { data: lead } = useQuery<Lead>(['lead', id], { enabled: false })
+  const { fullName, owner } = lead || {}
+
+  const [convertToDeal, setConvertToDeal] = useState(false)
 
   const convertRef = useRef<HTMLDivElement>(null)
   const mutation = useRef<ResizeObserver | undefined>(undefined)
@@ -66,7 +79,12 @@ export default function ConvertModal({ close, visible }: Props) {
     register,
     formState: { errors },
     reset,
-  } = useForm<FormData>()
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      fullName: fullName + ' Account',
+    },
+  })
 
   useEffect(reset, [convertToDeal])
 
@@ -101,9 +119,6 @@ export default function ConvertModal({ close, visible }: Props) {
 
     close()
   }, [state])
-
-  const { data: lead } = useQuery<Lead>(['lead', id], { enabled: false })
-  const { fullName, owner } = lead || {}
 
   const renderState = useMemo(
     (): Record<State, ReactNode> => ({
@@ -153,7 +168,7 @@ export default function ConvertModal({ close, visible }: Props) {
                     Amount
                   </label>
                   <Input
-                    error=""
+                    error={errors.amount?.message}
                     props={{
                       type: 'number',
                       id: 'amount',
@@ -170,7 +185,7 @@ export default function ConvertModal({ close, visible }: Props) {
                     Deal Name
                   </label>
                   <Input
-                    error=""
+                    error={errors.fullName?.message}
                     props={{
                       type: 'text',
                       id: 'name',
@@ -185,7 +200,7 @@ export default function ConvertModal({ close, visible }: Props) {
                     Closing Date
                   </label>
                   <Input
-                    error=""
+                    error={errors.closingDate?.message}
                     props={{
                       type: 'date',
                       id: 'date',
@@ -200,7 +215,7 @@ export default function ConvertModal({ close, visible }: Props) {
                     Stage
                   </label>
                   <Input
-                    error=""
+                    error={errors.stage?.message}
                     as="select"
                     props={{
                       id: 'stage',
@@ -257,7 +272,7 @@ export default function ConvertModal({ close, visible }: Props) {
         </Animate>
       ),
     }),
-    [fullName, owner?.name, convertToDeal, data, height],
+    [fullName, owner?.name, convertToDeal, data, height, errors],
   )
 
   return (
