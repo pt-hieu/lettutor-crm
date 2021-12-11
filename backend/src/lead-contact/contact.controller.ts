@@ -1,4 +1,12 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Query,
+  Patch,
+  ParseUUIDPipe,
+  Param,
+  Body
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { ContactService } from './contact.service'
@@ -7,13 +15,22 @@ import { ContactService } from './contact.service'
 @ApiBearerAuth('jwt')
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly service: ContactService) {}
+  constructor(private readonly service: ContactService) { }
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all contacts' })
   @ApiQuery({ type: DTO.Contact.GetManyQuery })
   index(@Query() query: DTO.Contact.GetManyQuery) {
     return this.service.getMany(query)
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'to edit a contact' })
+  updateLead(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: DTO.Contact.UpdateBody,
+  ) {
+    return this.service.update(id, dto)
   }
 
   @Get(':id')

@@ -14,4 +14,8 @@ export class AccountService {
   async addAccount(dto: DTO.Account.AddAccount) {
     return this.accountRepo.save(dto)
   }
+
+  async getOneById(id: string) {
+    return this.accountRepo.findOne({id})
+  }
 }

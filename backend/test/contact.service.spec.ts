@@ -2,7 +2,7 @@ import { DTO } from 'src/type'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { contact, lead } from './data'
+import { account, contact } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
@@ -79,11 +79,63 @@ describe('lead-contact service', () => {
     })
 
     it('should throw not found exception when contact not found ', async () => {
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      leadContactRepo.findOne.mockReturnValue(undefined)
 
-      expect(contactService.getContactById(lead.id)).rejects.toThrow(
-        new NotFoundException(`Contact with ID ${lead.id} not found`),
+      expect(contactService.getContactById(contact.id)).rejects.toThrow(
+        new NotFoundException(`Contact with ID ${contact.id} not found`),
       )
     })
   })
+
+  describe('update contact', () => {
+    it('should update the contact successfully', async () => {
+      const dto: DTO.Contact.UpdateBody = {
+        email: 'update@mail.com',
+      }
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      leadContactRepo.update.mockReturnValue({ affected: 1 })
+
+      expect(await contactService.update(contact.id, dto)).toEqual({ affected: 1 })
+    })
+
+    it('should throw not found exception when contact is not found', async () => {
+      const dto: DTO.Contact.UpdateBody = {
+        email: 'update@mail.com',
+      }
+
+      leadContactRepo.findOne.mockReturnValue(undefined)
+
+      expect(contactService.update(contact.id, dto)).rejects.toThrow(
+        new NotFoundException(`Contact does not exist`),
+      )
+    })
+
+    it('should update the contact with accountId successfully', async () => {
+      const dto: DTO.Contact.UpdateBody = {
+        accountId: account.id,
+        email: 'update@mail.com',
+      }
+
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      accountRepo.findOne.mockReturnValue({ ...account })
+      leadContactRepo.update.mockReturnValue({ affected: 1 })
+
+      expect(await contactService.update(contact.id, dto)).toEqual({ affected: 1 })
+    })
+
+    it('should throw not found exception in case update body have any field is invalid', async () => {
+      const dto: DTO.Contact.UpdateBody = {
+        accountId: account.id,
+        email: 'update@mail.com',
+      }
+
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      accountRepo.findOne.mockReturnValue(undefined)
+      expect(contactService.update(contact.id, dto)).rejects.toThrow(
+        new NotFoundException('Account does not exist'))
+    })
+  })
+
+  
 })
+
