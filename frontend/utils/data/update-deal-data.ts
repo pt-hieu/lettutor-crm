@@ -1,8 +1,11 @@
+import { DealStage } from '@utils/models/deal'
+import { LeadSource } from '@utils/models/lead'
+
 export type Field = {
   label: string
   name: string
   as?: 'input' | 'select' | 'textarea'
-  type?: 'email' | 'text'
+  type?: 'email' | 'text' | 'date'
   selectSource?: any[]
   required: boolean
 }
@@ -21,27 +24,23 @@ export const DealUpdateData: UpdateDealTemplate = [
         label: 'Deal Owner',
         name: 'ownerId',
         as: 'select',
-        selectSource: ['dummy1', 'dummy2'],
         required: true,
       },
       {
         label: 'Account name',
         name: 'accountId',
         as: 'select',
-        selectSource: ['dummy1', 'dummy2'],
         required: true,
       },
-
       {
         label: 'Contact Name',
         name: 'contactId',
         as: 'select',
-        selectSource: ['dummy1', 'dummy2'],
         required: false,
       },
       {
         label: 'Deal Name',
-        name: 'name',
+        name: 'fullName',
         required: true,
       },
       {
@@ -52,20 +51,21 @@ export const DealUpdateData: UpdateDealTemplate = [
       {
         label: 'Closing Date',
         name: 'closingDate',
+        type: 'date',
         required: true,
       },
       {
         label: 'Stage',
         name: 'stage',
         as: 'select',
-        selectSource: ['dummy1', 'dummy2'],
+        selectSource: Object.values(DealStage),
         required: true,
       },
       {
         label: 'Lead Source',
         name: 'source',
         as: 'select',
-        selectSource: ['dummy1', 'dummy2'],
+        selectSource: Object.values(LeadSource),
         required: true,
       },
       {

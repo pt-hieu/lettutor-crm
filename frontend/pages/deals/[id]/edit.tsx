@@ -1,7 +1,7 @@
 import Input from '@utils/components/Input'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Lead, LeadSource } from '@utils/models/lead'
-import { getLead, updateLead } from '@utils/service/lead'
+import { LeadSource } from '@utils/models/lead'
+import { updateLead } from '@utils/service/lead'
 import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
@@ -11,14 +11,17 @@ import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
 import { User } from '@utils/models/user'
 import Layout from '@utils/components/Layout'
 import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 import { DealUpdateData, Field } from '@utils/data/update-deal-data'
+import { getDeal } from '@utils/service/deal'
+import { Deal } from '@utils/models/deal'
+import { getContacts } from '@utils/service/contact'
 
 export type FormFields = {
   ownerId: string
   accountId: string
   contactId: string
-  name: string
+  fullName: string
   amount: number | null
   closingDate: Date
   stage: string
@@ -29,7 +32,7 @@ export type FormFields = {
 
 const schema = yup.object().shape({
   ownerId: yup.string().required('Deal Owner is required.'),
-  name: yup
+  fullName: yup
     .string()
     .required('Deal Name is required.')
     .max(100, 'Deal Name must be at most 100 characters.'),
@@ -53,11 +56,15 @@ const EditDeal = () => {
   const { push, query } = useRouter()
   const id = query.id as string
 
-  //const { data: leadOwners } = useQuery<User[]>(['users'], {
-  //enabled: false,
-  //})
+  const { data: owner } = useQuery<User[]>(['users'], {
+    enabled: false,
+  })
 
-  //const { data: lead } = useQuery<Lead>(['lead', id], { enabled: false })
+  console.log('owner: ', owner)
+
+  const { data: deal } = useQuery<Deal>(['deal', id], { enabled: false })
+
+  console.log('lead: ', deal)
 
   const { isLoading, mutateAsync } = useMutation('edit-lead', updateLead, {
     onSuccess: (res) => {
@@ -78,9 +85,22 @@ const EditDeal = () => {
   } = useForm<FormFields>({
     mode: 'all',
     resolver: yupResolver(schema),
+    defaultValues: {
+      ownerId: deal?.owner.id,
+      accountId: deal?.account.id,
+      contactId: deal?.contact?.id,
+      fullName: deal?.fullName,
+      amount: deal?.amount,
+      closingDate: deal?.closingDate,
+      stage: deal?.stage,
+      source: deal?.source,
+      probability: deal?.probability,
+      description: deal?.description,
+    },
   })
 
   const editDeal = handleSubmit((data) => {
+    console.log('I am here')
     //mutateAsync({ id, leadInfo: data })
   })
 
@@ -165,34 +185,34 @@ const EditDeal = () => {
   )
 }
 
-//export const getServerSideProps: GetServerSideProps = async ({
-//req,
-//params,
-//}) => {
-//const client = new QueryClient()
-//const id = params?.id as string
-//const token = getSessionToken(req.cookies)
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  params,
+}) => {
+  const client = new QueryClient()
+  const id = params?.id as string
+  const token = getSessionToken(req.cookies)
 
-//if (token) {
-//await Promise.all([
-//client.prefetchQuery(
-//['users'],
-//getUsers(
-//{
-//shouldNotPaginate: true,
-//},
-//token,
-//),
-//),
-//client.prefetchQuery(['lead', id], getLead(id, token)),
-//])
-//}
+  if (token) {
+    await Promise.all([
+      client.prefetchQuery(
+        ['users'],
+        getUsers(
+          {
+            shouldNotPaginate: true,
+          },
+          token,
+        ),
+      ),
+      client.prefetchQuery(['deal', id], getDeal(id, token)),
+    ])
+  }
 
-//return {
-//props: {
-//dehydratedState: dehydrate(client),
-//},
-//}
-//}
+  return {
+    props: {
+      dehydratedState: dehydrate(client),
+    },
+  }
+}
 
 export default EditDeal
