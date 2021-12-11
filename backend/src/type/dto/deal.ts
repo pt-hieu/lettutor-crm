@@ -99,12 +99,6 @@ export class UpdateDeal {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  fullName?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
   @IsUUID()
   accountId?: string
 
@@ -112,6 +106,12 @@ export class UpdateDeal {
   @IsOptional()
   @IsUUID()
   contactId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  fullName?: string
 
   @ApiPropertyOptional({ type: Double })
   @IsOptional()
@@ -134,7 +134,7 @@ export class UpdateDeal {
   @IsEnum(LeadSource)
   source?: LeadSource
 
-  @ApiPropertyOptional({ default: 10 })
+  @ApiPropertyOptional({ type: Double })
   @IsOptional()
   @IsNumber()
   probability?: number

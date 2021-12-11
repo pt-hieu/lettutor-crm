@@ -52,9 +52,9 @@ export class Deal extends BaseEntity {
   @Column({ enum: LeadSource, type: 'enum', default: LeadSource.NONE })
   source: LeadSource
 
-  @Column({ default: 10 })
-  probability: number
+  @Column({ type: 'double precision', nullable: true, default: null })
+  probability: number | null
 
-  @Column({ type: 'varchar', nullable: true, default: null })
+  @Column({ type: 'varchar', nullable: true, default: 10 })
   description: string | null
 }

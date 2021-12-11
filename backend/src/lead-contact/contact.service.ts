@@ -61,6 +61,7 @@ export class ContactService {
       await this.accountService.getAccountById(dto.accountId)
     }
 
+    delete contact.owner
     return this.leadContactRepo.update(id, {
       ...contact,
       ...dto,
