@@ -7,6 +7,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
+import { Paginate } from './paging'
 
 export class AddAccount {
   @ApiProperty()
@@ -35,4 +36,11 @@ export class AddAccount {
   @IsOptional()
   @IsMobilePhone()
   phoneNum?: string
+}
+
+export class GetManyQuery extends Paginate {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  search?: string
 }
