@@ -44,21 +44,6 @@ export class ContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async update(id: string, dto: DTO.Contact.UpdateBody) {
-    const contact = await this.getContactById(id)
-
-    if (dto.accountId) {
-      const account = await this.accountService.getOneById(dto.accountId);
-      if (!account)
-        throw new NotFoundException('Account does not exist')
-    }
-
-    return this.leadContactRepo.save({
-      ...contact,
-      ...dto
-    })
-  }
-
   async getContactById(id: string) {
     const found = await this.leadContactRepo.findOne({ where: { id, isLead: false } })
 
@@ -67,5 +52,18 @@ export class ContactService {
     }
 
     return found
+  }
+
+  async update(id: string, dto: DTO.Contact.UpdateBody) {
+    const contact = await this.getContactById(id)
+
+    if (dto.accountId) {
+      await this.accountService.getOneById(dto.accountId)
+    }
+
+    return this.leadContactRepo.update(id, {
+      ...contact,
+      ...dto,
+    })
   }
 }

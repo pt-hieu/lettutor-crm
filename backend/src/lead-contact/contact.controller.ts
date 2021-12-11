@@ -15,7 +15,7 @@ import { ContactService } from './contact.service'
 @ApiBearerAuth('jwt')
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly service: ContactService) { }
+  constructor(private readonly service: ContactService) {}
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all contacts' })
