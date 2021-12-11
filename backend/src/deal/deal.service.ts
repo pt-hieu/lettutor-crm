@@ -46,6 +46,15 @@ export class DealService {
     return found
   }
 
+  async getDealsByContactId(id: string) {
+    let q = this.dealRepo
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.contact', 'contact')
+      .andWhere('contact.id = :id', { id: id })
+
+    return q.getMany()
+  }
+
   async addDeal(dto: DTO.Deal.AddDeal) {
     return this.dealRepo.save(dto)
   }
