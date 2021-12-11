@@ -9,44 +9,24 @@ import { Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
-import { Account } from 'src/account/account.entity'
+import { DealService } from 'src/deal/deal.service'
+import { Deal } from 'src/deal/deal.entity'
 
 @Injectable()
-export class LeadContactService {
+export class LeadService {
   constructor(
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
-  ) { }
+    private readonly dealService: DealService,
+  ) {}
 
-  async getLeadById(id: string) {
-    const found = await this.leadContactRepo.findOne({ id })
-
-    if (!found) {
-      throw new NotFoundException(`Lead with ID ${id} not found`)
-    }
-
-    return found
-  }
-
-  async addLead(dto: DTO.LeadContact.AddLead) {
-    return this.leadContactRepo.save(dto)
-  }
-
-  async updateLead(dto: DTO.LeadContact.UpdateLead, id: string) {
-    const lead = await this.leadContactRepo.findOne({ id })
-    if (!lead) throw new NotFoundException('Lead does not exist')
-
-    return this.leadContactRepo.save({
-      ...lead,
-      ...dto,
-    })
-  }
-
-  async getMany(query: DTO.LeadContact.GetManyQuery) {
+  async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
-      .leftJoinAndSelect('lc.owner', 'owner')
+      .leftJoin('lc.owner', 'owner')
+      .addSelect(['owner.name', 'owner.email'])
+      .where('lc.isLead = :isLead', { isLead: true })
 
     if (query.status)
       q.andWhere('lc.status IN (:...status)', { status: query.status })
@@ -64,17 +44,35 @@ export class LeadContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async convertToAccountAndContact(id: string) {
-    const lead = await this.getLeadById(id)
+  async getLeadById(id: string) {
+    const found = await this.leadContactRepo.findOne({ id })
 
-    if (!lead.isLead) {
-      throw new BadRequestException('This is not a lead, cannot convert')
+    if (!found || !found.isLead) {
+      throw new NotFoundException(`Lead with ID ${id} not found`)
     }
 
+    return found
+  }
+
+  async addLead(dto: DTO.Lead.AddLead) {
+    return this.leadContactRepo.save(dto)
+  }
+
+  async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
+    const lead = await this.getLeadById(id)
+
+    return this.leadContactRepo.save({
+      ...lead,
+      ...dto,
+    })
+  }
+
+  async convert(id: string, dealDto: DTO.Deal.AddDeal) {
+    const lead = await this.getLeadById(id)
+
     const accountDto: DTO.Account.AddAccount = {
-      ownerId: id,
+      ownerId: lead.owner.id,
       fullName: lead.fullName + ' Account',
-      email: lead.email,
       address: lead.address,
       description: lead.description,
       phoneNum: lead.phoneNum,
@@ -84,9 +82,21 @@ export class LeadContactService {
     const contact = await this.leadContactRepo.save({
       ...lead,
       isLead: false, //make this lead a contact
-      accountId: account.id
+      accountId: account.id,
     })
 
-    return [account, contact]
+    let deal: Deal | null = null
+    if (Object.keys(dealDto).length !== 0) {
+      const dto = {
+        ownerId: lead.owner.id,
+        accountId: account.id,
+        contactId: contact.id,
+        ...dealDto,
+      }
+
+      deal = await this.dealService.addDeal(dto)
+    }
+
+    return [account, contact, deal] as const
   }
 }

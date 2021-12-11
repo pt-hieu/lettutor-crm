@@ -1,4 +1,4 @@
-import { Role, User } from 'src/user/user.entity'
+import { User, Role } from 'src/user/user.entity'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -7,18 +7,37 @@ import { DTO } from 'src/type'
 import { Response } from 'express'
 import { JwtPayload } from 'src/utils/interface'
 import jwt from 'jsonwebtoken'
+import { Actions } from 'src/type/action'
+
+const ADMINISTRATIVE_ROLE_NAME = 'Admin'
+
 @Injectable()
 export class AuthService {
-  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(Role) private roleRepo: Repository<Role>,
+  ) { }
 
   async signup(dto: DTO.Auth.SignUp) {
     if (await this.checkExistence(dto.email))
       throw new BadRequestException('User already exists')
 
+    let role: Role
+    role = await this.roleRepo.findOne({
+      where: { name: ADMINISTRATIVE_ROLE_NAME },
+    })
+
+    if (!role) {
+      role = await this.roleRepo.save({
+        name: ADMINISTRATIVE_ROLE_NAME,
+        actions: [Actions.IS_ADMIN],
+      })
+    }
+
     await this.userRepo.save({
       ...dto,
       password: await hash(dto.password, 10),
-      role: [Role.SUPER_ADMIN],
+      roles: [role],
     })
   }
 
@@ -34,7 +53,7 @@ export class AuthService {
       email: user.email,
       id: user.id,
       name: user.name,
-      role: user.role,
+      roles: user.roles
     }
 
     if (process.env.NODE_ENV !== 'production') {

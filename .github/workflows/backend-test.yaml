@@ -3,13 +3,13 @@ name: run test
 on:
   pull_request:
     branches: [dev]
-    types: [labeled]
+    types: [labeled, synchronize]
   push:
     branches: [dev, master]
 
 jobs:
   build:
-    if: ${{ github.event.label.name == 'backend' }}
+    if: ${{ github.event.label.name == 'backend' || github.event.push_id != 'undefined' }}
     runs-on: ubuntu-latest
     defaults:
       run:

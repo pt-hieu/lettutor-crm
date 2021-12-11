@@ -1,12 +1,12 @@
-import Search from '@components/Contacts/Search'
-import ContactsSidebar from '@components/Contacts/Sidebar'
-import ContactsViewLayout from '@components/Contacts/ViewLayout'
+import DealsSearch from '@components/Deals/Search'
+import DealsSidebar from '@components/Deals/Sidebar'
+import DealsViewLayout from '@components/Deals/ViewLayout'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Contact } from '@utils/models/contact'
+import { Deal } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
-import { getContacts } from '@utils/service/contact'
+import { getDeals } from '@utils/service/deal'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
@@ -28,8 +28,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (token) {
     await Promise.all([
       client.prefetchQuery(
-        ['contacts', page, limit, search || '', source || []],
-        getContacts({ limit, page, search, source }, token),
+        ['deals', page, limit, search || '', source || []],
+        getDeals({ limit, page, search, source }, token),
       ),
     ])
   }
@@ -41,61 +41,82 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 }
 
-const columns: TableColumnType<Contact>[] = [
+const columns: TableColumnType<Deal>[] = [
   {
-    title: 'Contact Name',
+    title: 'Deal Name',
     dataIndex: 'fullName',
-    key: 'name',
-    sorter: { compare: (a, b) => a.fullName.localeCompare(b.fullName) },
-    fixed: 'left',
+    key: 'fullName',
+    sorter: {
+      compare: (a, b) => a.fullName.localeCompare(b.fullName),
+    },
     render: (_, { id, fullName }) => (
-      <Link href={`/contacts/${id}`}>
+      <Link href={`/deals/${id}`}>
         <a className="crm-link underline hover:underline">{fullName}</a>
       </Link>
     ),
   },
   {
+    title: 'Amount',
+    dataIndex: 'amount',
+    key: 'amount',
+    sorter: {
+      compare: (a, b) => (a.amount || 0) - (b.amount || 0),
+    },
+  },
+  {
+    title: 'Stage',
+    dataIndex: 'stage',
+    key: 'stage',
+    sorter: { compare: (a, b) => a.stage.localeCompare(b.stage) },
+  },
+  {
+    title: 'Closing Date',
+    dataIndex: 'closingDate',
+    key: 'closingDate',
+    sorter: {
+      compare: (a, b) => a.closingDate.getTime() - b.closingDate.getTime(),
+    },
+  },
+  {
+    title: 'Contact Name',
+    dataIndex: 'contact',
+    key: 'contact',
+    sorter: {
+      compare: (a, b) => a.contact.fullName.localeCompare(b.contact.fullName),
+    },
+    // render: (_, { contact: { id, fullName } }) => (
+    //   <Link href={`/contacts/${id}`}>
+    //     <a className="crm-link underline hover:underline">{fullName}</a>
+    //   </Link>
+    // ),
+    render: (_, { contact }) => contact.fullName,
+  },
+  {
     title: 'Account Name',
-    key: 'accountName',
+    dataIndex: 'account',
+    key: 'account',
     sorter: {
       compare: (a, b) => a.account.fullName.localeCompare(b.account.fullName),
     },
-    render: (_, { account }) => account?.fullName,
+    // render: (_, { account: { fullName, id } }) => (
+    //   <Link href={`/accounts/${id}`}>
+    //     <a className="crm-link underline hover:underline">{fullName}</a>
+    //   </Link>
+    // ),
+    render: (_, { account }) => account.fullName,
   },
   {
-    title: 'Email',
-    dataIndex: 'email',
-    key: 'email',
-    sorter: { compare: (a, b) => a.email.localeCompare(b.email) },
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phoneNum',
-    key: 'phone',
-    sorter: {
-      compare: (a, b) => a.phoneNum?.localeCompare(b.phoneNum || '') || -1,
-    },
-  },
-  {
-    title: 'Source',
-    dataIndex: 'source',
-    key: 'source',
-    sorter: {
-      compare: (a, b) => a.source.localeCompare(b.source),
-    },
-  },
-  {
-    title: 'Owner',
+    title: 'Deal Owner',
     dataIndex: 'owner',
     key: 'owner',
     sorter: {
       compare: (a, b) => a.owner.name.localeCompare(b.owner.name),
     },
-    render: (_, record) => record.owner.name,
+    render: (_, { owner }) => owner.name,
   },
 ]
 
-export default function ContactsView() {
+export default function DealsView() {
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -105,18 +126,18 @@ export default function ContactsView() {
   })
 
   const { data: leads, isLoading } = useQuery(
-    ['contacts', page || 1, limit || 10, search || '', source || []],
-    getContacts({ limit, page, search, source }),
+    ['deals', page || 1, limit || 10, search || '', source || []],
+    getDeals({ limit, page, search, source }),
   )
 
   const [start, end, total] = usePaginateItem(leads)
 
   return (
-    <ContactsViewLayout
-      title="CRM | Contacts"
-      sidebar={<ContactsSidebar source={source} onSourceChange={setSource} />}
+    <DealsViewLayout
+      title="CRM | Deals"
+      sidebar={<DealsSidebar source={source} onSourceChange={setSource} />}
     >
-      <Search search={search} onSearchChange={setSearch} />
+      <DealsSearch search={search} onSearchChange={setSearch} />
 
       <div className="mt-4">
         <AnimatePresence presenceAffectsLayout>
@@ -156,6 +177,6 @@ export default function ContactsView() {
           />
         </div>
       </div>
-    </ContactsViewLayout>
+    </DealsViewLayout>
   )
 }

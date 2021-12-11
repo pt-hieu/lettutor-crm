@@ -14,6 +14,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
+      enableDebugMessages: process.env.NODE_ENV !== 'production'
     }),
   )
   app.useGlobalInterceptors(new TransformInterceptor())
