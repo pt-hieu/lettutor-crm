@@ -3,3 +3,4 @@ export interface Base {
   updatedAt: Date
   createdAt: Date
 }
+

@@ -30,7 +30,6 @@ export const LeadUpdateData: UpdateLeadTemplate = [
         name: 'fullName',
         required: true,
       },
-
       {
         label: 'Phone',
         name: 'phoneNum',
