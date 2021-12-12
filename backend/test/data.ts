@@ -30,10 +30,7 @@ export const user: User = {
   tokenExpiration: null,
   createdAt: null,
   updatedAt: null,
-  leadContacts: [],
   roles: [role],
-  accounts: [],
-  deals: [],
 }
 
 export const lead: LeadContact = {
@@ -63,14 +60,13 @@ export const account: Account = {
   address: lead.address,
   description: lead.description,
   phoneNum: lead.phoneNum,
-  contacts: null,
-  deals: null,
   createdAt: null,
   updatedAt: null,
 }
 
 export const contact: LeadContact = {
   ...lead,
+  owner: user,
   account: account,
   accountId: account.id,
   isLead: false,

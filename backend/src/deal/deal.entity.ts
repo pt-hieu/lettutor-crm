@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { LeadContact, LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { User } from 'src/user/user.entity'
@@ -17,20 +18,22 @@ export enum DealStage {
 
 @Entity({ name: 'deal' })
 export class Deal extends BaseEntity {
-  @ManyToOne(() => User, (u) => u.deals, { eager: true })
+  @ManyToOne(() => User, { eager: true })
   @JoinColumn()
   owner: User
 
   @Column({ type: 'uuid' })
   ownerId: string
 
-  @ManyToOne(() => Account, (account) => account.deals)
+  @ManyToOne(() => Account, { eager: true })
+  @JoinColumn()
   account: Account
 
   @Column({ type: 'uuid' })
   accountId: string
 
-  @ManyToOne(() => LeadContact)
+  @ManyToOne(() => LeadContact, { eager: true })
+  @JoinColumn()
   contact: LeadContact
 
   @Column({ type: 'uuid', nullable: true, default: null })

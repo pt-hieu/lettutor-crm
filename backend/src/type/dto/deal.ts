@@ -120,6 +120,8 @@ export class UpdateDeal {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsDate()
+  @Type(() => Date)
   closingDate?: Date
 
   @ApiPropertyOptional()
