@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, In, Not, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, In, Not, Repository } from 'typeorm'
 import { Role, User, UserStatus } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
@@ -102,6 +102,13 @@ export class UserService {
     if (!user) throw new BadRequestException('Token does not exist')
 
     return true
+  }
+
+  async getOneUserById(option: FindOneOptions<User>) {
+    const user = await this.userRepo.findOne(option)
+
+    if (!user) throw new NotFoundException('User does not exist')
+    return user
   }
 
   async resetPwd(dto: DTO.User.ResetPwd) {

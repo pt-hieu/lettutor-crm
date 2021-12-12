@@ -7,6 +7,7 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
+import { UserService } from 'src/user/user.service'
 
 @Injectable()
 export class LeadService {
@@ -15,6 +16,7 @@ export class LeadService {
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
     private readonly dealService: DealService,
+    private readonly userService: UserService,
   ) {}
 
   async getMany(query: DTO.Lead.GetManyQuery) {
@@ -56,6 +58,10 @@ export class LeadService {
 
   async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
     const lead = await this.getLeadById({ where: { id, isLead: true } })
+
+    if (dto.ownerId) {
+      await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+    }
 
     return this.leadContactRepo.save({
       ...lead,

@@ -5,13 +5,15 @@ import { Brackets, FindOneOptions, Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
+import { UserService } from 'src/user/user.service'
 
 @Injectable()
 export class ContactService {
   constructor(
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
-    // private readonly accountService: AccountService,
+    private readonly accountService: AccountService,
+    private readonly userRepo: UserService,
   ) {}
 
   async getMany(query: DTO.Contact.GetManyQuery) {
@@ -56,6 +58,15 @@ export class ContactService {
 
   async update(id: string, dto: DTO.Contact.UpdateBody) {
     const contact = await this.getContactById({ where: { id, isLead: false } })
+
+    await Promise.all([
+      dto.accountId
+        ? this.accountService.getAccountById({ where: { id: dto.accountId } })
+        : undefined,
+      dto.ownerId
+        ? this.userRepo.getOneUserById({ where: { id: dto.ownerId } })
+        : undefined,
+    ])
 
     return this.leadContactRepo.save({
       ...contact,
