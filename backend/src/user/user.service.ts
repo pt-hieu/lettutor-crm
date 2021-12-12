@@ -18,7 +18,7 @@ export class UserService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Role) private roleRepo: Repository<Role>,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   getManyRole(dto: DTO.Role.GetManyRole) {
     const qb = this.roleRepo
@@ -74,16 +74,6 @@ export class UserService {
       where: { id: payload.id },
       select: ['name', 'email', 'status', 'roles'],
     })
-    if (!user) throw new BadRequestException('User does not exist')
-
-    return user
-  }
-
-  async getOneById(id: String) {
-    const user = await this.userRepo.findOne({
-      where: { id },
-    })
-
     if (!user) throw new BadRequestException('User does not exist')
 
     return user
@@ -155,7 +145,7 @@ export class UserService {
       this.userRepo.findOne({
         where: { email: dto.email },
       }),
-      this.roleRepo.findOne(dto.roleId),
+      this.roleRepo.findOne(dto.roleId)
     ])
 
     if (!role) {
@@ -175,7 +165,7 @@ export class UserService {
       passwordToken: token,
       tokenExpiration: moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate(),
       status: UserStatus.UNCONFIRMED,
-      roles: [role],
+      roles: [role]
     })
 
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)

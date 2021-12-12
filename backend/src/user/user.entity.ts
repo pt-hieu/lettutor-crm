@@ -29,20 +29,29 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', unique: true })
   email: string
 
-  @Exclude({ toPlainOnly: true })
   @Column({ type: 'varchar', nullable: true, default: null })
   password: string | null
 
-  @Exclude({ toPlainOnly: true })
   @Column({ type: 'varchar', nullable: true, default: null, unique: true })
   passwordToken: string | null
 
-  @Exclude({ toPlainOnly: true })
   @Column({ nullable: true, default: null })
   tokenExpiration: Date | null
 
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
   status: UserStatus
+
+  @OneToMany(() => LeadContact, (leadContact) => leadContact.owner)
+  @Exclude({ toPlainOnly: true })
+  leadContacts: LeadContact[]
+
+  @OneToMany(() => Deal, (deal) => deal.owner)
+  @Exclude({ toPlainOnly: true })
+  deals: Deal[]
+
+  @OneToMany(() => Account, (account) => account.owner)
+  @Exclude({ toPlainOnly: true })
+  accounts: Account[]
 
   @ManyToMany(() => Role, (r) => r.users, { eager: true })
   @JoinTable()
@@ -60,7 +69,7 @@ export class Role extends BaseEntity {
   @ManyToOne(() => Role, (r) => r.children)
   parent: Role
 
-  @Column({ type: 'uuid', array: true, default: null, select: false })
+  @Column({ type: "uuid", array: true, default: null, select: false })
   childrenIds: string[]
 
   @OneToMany(() => Role, (r) => r.parent)
