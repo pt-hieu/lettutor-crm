@@ -32,6 +32,12 @@ enum State {
   SUCCEED = '2',
 }
 
+const linkMapping = {
+  0: '/accounts/',
+  1: '/contacts/',
+  2: '/deals/',
+}
+
 type FormData = {} & Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
 
 const schema = yup.object().shape({
@@ -259,9 +265,9 @@ export default function ConvertModal({ close, visible }: Props) {
 
           <div className="flex flex-col gap-2">
             {data?.map(
-              (entity) =>
+              (entity, index) =>
                 entity && (
-                  <Link href="" key={entity.id}>
+                  <Link href={linkMapping[index as 0 | 1 | 2] + entity.id} key={entity.id}>
                     <a className="crm-link underline hover:underline">
                       {entity.fullName}
                     </a>

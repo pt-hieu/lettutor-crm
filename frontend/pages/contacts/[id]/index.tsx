@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import { ReactNode, useMemo } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import Link from 'next/link'
+import moment from 'moment'
 
 type ContactInfo = {
   label: string
@@ -22,8 +23,6 @@ const ContactDetail = () => {
   const { data: contact } = useQuery<Contact>(['contact', id], {
     enabled: false,
   })
-
-  console.log('contact', contact)
 
   const contactInfo = useMemo(
     (): ContactInfo[] => [
@@ -90,7 +89,7 @@ const ContactDetail = () => {
                     </p>
                     <p>
                       <span>{stage}</span>
-                      <span className="ml-4">{closingDate}</span>
+                      <span className="ml-4">{moment(closingDate).format('DD/MM/YYYY')}</span>
                     </p>
                   </>
                 ),
