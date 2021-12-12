@@ -8,18 +8,13 @@ import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
-import {
-  dehydrate,
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from 'react-query'
-import { Paginate } from '@utils/models/paging'
+import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
 import { User } from '@utils/models/user'
 import Layout from '@utils/components/Layout'
 import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
+//This import cause error in local environment
+//import { yupResolver } from '@hookform/resolvers/yup'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 
 export interface LeadUpdateFromData
   extends Pick<

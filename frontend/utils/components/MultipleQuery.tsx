@@ -1,12 +1,13 @@
 import Input from '@utils/components/Input'
-import { Fragment } from 'react'
-import { useForm, useFormContext } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 
 type Props = {
   type: 'checkbox' | 'radio'
   options: Array<string | number>
   name: string
 }
+
+const reg = /[-\/]/g
 
 export default function MultipleQuery({ options, type, name }: Props) {
   const { register } = useFormContext()
@@ -22,7 +23,7 @@ export default function MultipleQuery({ options, type, name }: Props) {
               type,
               value,
               ...register(name),
-              id: value + name,
+              id: (value + name).replaceAll(reg, ' '),
             }}
           />
           <label
