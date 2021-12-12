@@ -1,4 +1,3 @@
-import { Account } from './account'
 import { Deal } from './deal'
 import { Lead } from './lead'
 

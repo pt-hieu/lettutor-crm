@@ -16,6 +16,10 @@ import {
 } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
+import { Deal, DealStage } from '@utils/models/deal'
+import * as yup from 'yup'
+//import { yupResolver } from '@hookform/resolvers/yup'
+import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
 
 interface Props {
   visible: boolean
@@ -29,10 +33,23 @@ enum State {
   SUCCEED = '2',
 }
 
+type FormData = {} & Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
+
+const schema = yup.object().shape({
+  amount: yup.number().typeError('Invalid amount'),
+  closingDate: yup.date().typeError('Invalid date'),
+  fullName: yup.string().max(100, 'Name has to be at most 100 characters'),
+  stage: yup.string(),
+})
+
 export default function ConvertModal({ close, visible }: Props) {
   const { query, push } = useRouter()
-  const [convertToDeal, setConvertToDeal] = useState(false)
   const id = query.id as string
+
+  const { data: lead } = useQuery<Lead>(['lead', id], { enabled: false })
+  const { fullName, owner } = lead || {}
+
+  const [convertToDeal, setConvertToDeal] = useState(false)
 
   const convertRef = useRef<HTMLDivElement>(null)
   const mutation = useRef<ResizeObserver | undefined>(undefined)
@@ -63,7 +80,12 @@ export default function ConvertModal({ close, visible }: Props) {
     register,
     formState: { errors },
     reset,
-  } = useForm()
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      fullName: fullName + ' Account',
+    },
+  })
 
   useEffect(reset, [convertToDeal])
 
@@ -82,20 +104,22 @@ export default function ConvertModal({ close, visible }: Props) {
     },
   )
 
-  const convert = useCallback(() => {
-    mutateAsync()
-  }, [])
+  const convert = useCallback(
+    handleSubmit((data) => {
+      console.log(data)
+
+      mutateAsync(convertToDeal ? data : undefined)
+    }),
+    [convertToDeal],
+  )
 
   const closeOnState = useCallback(() => {
     if (state === State.SUCCEED) {
       push('/leads')
     }
 
-    close
+    close()
   }, [state])
-
-  const { data: lead } = useQuery<Lead>(['lead', id], { enabled: false })
-  const { fullName, owner } = lead || {}
 
   const renderState = useMemo(
     (): Record<State, ReactNode> => ({
@@ -145,11 +169,14 @@ export default function ConvertModal({ close, visible }: Props) {
                     Amount
                   </label>
                   <Input
-                    error=""
+                    error={errors.amount?.message}
                     props={{
                       type: 'number',
                       id: 'amount',
                       className: 'w-full',
+                      ...register('amount', {
+                        setValueAs: (v: string) => Number(v),
+                      }),
                     }}
                   />
                 </div>
@@ -159,11 +186,12 @@ export default function ConvertModal({ close, visible }: Props) {
                     Deal Name
                   </label>
                   <Input
-                    error=""
+                    error={errors.fullName?.message}
                     props={{
                       type: 'text',
                       id: 'name',
                       className: 'w-full',
+                      ...register('fullName'),
                     }}
                   />
                 </div>
@@ -173,11 +201,12 @@ export default function ConvertModal({ close, visible }: Props) {
                     Closing Date
                   </label>
                   <Input
-                    error=""
+                    error={errors.closingDate?.message}
                     props={{
                       type: 'date',
                       id: 'date',
                       className: 'w-full',
+                      ...register('closingDate'),
                     }}
                   />
                 </div>
@@ -187,11 +216,21 @@ export default function ConvertModal({ close, visible }: Props) {
                     Stage
                   </label>
                   <Input
-                    error=""
+                    error={errors.stage?.message}
                     as="select"
                     props={{
                       id: 'stage',
                       className: 'w-full',
+                      ...register('stage'),
+                      children: (
+                        <>
+                          {Object.values(DealStage).map((stage) => (
+                            <option key={stage} value={stage}>
+                              {stage}
+                            </option>
+                          ))}
+                        </>
+                      ),
                     }}
                   />
                 </div>
@@ -220,16 +259,21 @@ export default function ConvertModal({ close, visible }: Props) {
           <div className="mb-2 mt-4 font-semibold">Details</div>
 
           <div className="flex flex-col gap-2">
-            {data?.map(({ id, fullName }) => (
-              <Link href="" key={id}>
-                <a className="crm-link underline hover:underline">{fullName}</a>
-              </Link>
-            ))}
+            {data?.map(
+              (entity) =>
+                entity && (
+                  <Link href="" key={entity.id}>
+                    <a className="crm-link underline hover:underline">
+                      {entity.fullName}
+                    </a>
+                  </Link>
+                ),
+            )}
           </div>
         </Animate>
       ),
     }),
-    [fullName, owner?.name, convertToDeal, data, height],
+    [fullName, owner?.name, convertToDeal, data, height, errors],
   )
 
   return (

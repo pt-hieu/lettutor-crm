@@ -6,6 +6,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
 import { TransformInterceptor } from './transform.interceptor'
 import morgan from 'morgan'
+import { registerSchema } from 'class-validator'
+import { ConvertToDealSchema } from './utils/ValidateSchema/ConvertToDeal.schema'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -14,7 +16,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      enableDebugMessages: process.env.NODE_ENV !== 'production'
+      enableDebugMessages: process.env.NODE_ENV !== 'production',
     }),
   )
   app.useGlobalInterceptors(new TransformInterceptor())
@@ -24,6 +26,8 @@ async function bootstrap() {
     credentials: true,
     origin: [process.env.FE_URL],
   })
+
+  registerSchema(ConvertToDealSchema)
 
   if (process.env.NODE_ENV !== 'production') {
     app.use(morgan('dev'))

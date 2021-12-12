@@ -1,5 +1,7 @@
-import { ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 import {
+  IsDate,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -13,20 +15,20 @@ import { Double } from 'typeorm'
 import { Paginate } from './paging'
 
 export class AddDeal {
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @IsString()
   @MaxLength(100)
-  fullName?: string
+  fullName: string
 
   @ApiPropertyOptional({ type: Double })
   @IsOptional()
   @IsNumber()
   amount?: number
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  closingDate?: Date
+  @ApiProperty()
+  @IsDate()
+  @Type(() => Date)
+  closingDate: Date
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -48,6 +50,28 @@ export class AddDeal {
   @IsString()
   @MaxLength(500)
   description?: string
+}
+
+export class ConvertToDeal {
+  @ApiProperty()
+  @IsString()
+  @MaxLength(100)
+  fullName: string
+
+  @ApiPropertyOptional({ type: Double })
+  @IsOptional()
+  @IsNumber()
+  amount?: number
+
+  @ApiProperty()
+  @IsDate()
+  @Type(() => Date)
+  closingDate: Date
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(DealStage)
+  stage?: DealStage
 }
 
 export class GetManyQuery extends Paginate {
@@ -75,6 +99,16 @@ export class UpdateDeal {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsUUID()
+  accountId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  contactId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   @MaxLength(100)
   fullName?: string
@@ -86,6 +120,8 @@ export class UpdateDeal {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsDate()
+  @Type(() => Date)
   closingDate?: Date
 
   @ApiPropertyOptional()
@@ -98,7 +134,7 @@ export class UpdateDeal {
   @IsEnum(LeadSource)
   source?: LeadSource
 
-  @ApiPropertyOptional({ default: 10 })
+  @ApiPropertyOptional({ type: Double })
   @IsOptional()
   @IsNumber()
   probability?: number

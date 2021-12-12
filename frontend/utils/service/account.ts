@@ -8,7 +8,6 @@ export const getAccounts =
   (
     params: {
       search?: string
-      source?: LeadSource[]
     } & PagingQuery,
     token?: string,
   ) =>

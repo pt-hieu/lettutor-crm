@@ -41,13 +41,14 @@ export const updateLead = async (params: {
   leadInfo: LeadUpdateFromData
 }) => {
   const { id, leadInfo } = params
-  const { data } = await axios.patch<Lead>(
-    API + `/api/lead/${id}`,
-    leadInfo,
-  )
+  const { data } = await axios.patch<Lead>(API + `/api/lead/${id}`, leadInfo)
 
   return data
 }
 
-export const convertLead = (id: string) => () =>
-  axios.post<[Account, Lead, Deal]>(API + '/api/lead/' + id + '/convert').then((res) => res.data)
+export const convertLead =
+  (id: string) =>
+    (data?: Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'> | undefined) =>
+      axios
+        .post<[Account, Lead, Deal]>(API + '/api/lead/' + id + '/convert', data)
+        .then((res) => res.data)

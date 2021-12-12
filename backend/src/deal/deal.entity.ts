@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { LeadContact, LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { User } from 'src/user/user.entity'
@@ -24,13 +25,13 @@ export class Deal extends BaseEntity {
   @Column({ type: 'uuid' })
   ownerId: string
 
-  @ManyToOne(() => Account, (account) => account.deals)
+  @ManyToOne(() => Account, (account) => account.deals, { eager: true })
   account: Account
 
   @Column({ type: 'uuid' })
   accountId: string
 
-  @ManyToOne(() => LeadContact)
+  @ManyToOne(() => LeadContact, { eager: true })
   contact: LeadContact
 
   @Column({ type: 'uuid', nullable: true, default: null })
@@ -39,11 +40,11 @@ export class Deal extends BaseEntity {
   @Column({ type: 'varchar' })
   fullName: string
 
-  @Column({ type: 'double precision', nullable: true, default: null })
-  amount: number | null
-
   @Column({ type: 'date' })
   closingDate: Date
+
+  @Column({ type: 'double precision', nullable: true, default: null })
+  amount: number | null
 
   @Column({ enum: DealStage, type: 'enum', default: DealStage.AUTHENTICATION })
   stage: DealStage
@@ -51,9 +52,9 @@ export class Deal extends BaseEntity {
   @Column({ enum: LeadSource, type: 'enum', default: LeadSource.NONE })
   source: LeadSource
 
-  @Column({ default: 10 })
-  probability: number
+  @Column({ type: 'double precision', nullable: true, default: null })
+  probability: number | null
 
-  @Column({ type: 'varchar', nullable: true, default: null })
+  @Column({ type: 'varchar', nullable: true, default: 10 })
   description: string | null
 }
