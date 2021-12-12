@@ -32,7 +32,9 @@ export default function DealsSidebar({
   const applyFilter = useCallback(
     form.handleSubmit(({ source, stage }) => {
       setSource(source || [])
-      setStage(stage || [])
+      setTimeout(() => {
+        setStage(stage || [])
+      }, 0)
     }),
     [],
   )
