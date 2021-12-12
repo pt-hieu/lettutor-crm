@@ -7,15 +7,9 @@ import { AccountModule } from 'src/account/account.module'
 import { ContactController } from './contact.controller'
 import { ContactService } from './contact.service'
 import { DealModule } from 'src/deal/deal.module'
-import { UserModule } from 'src/user/user.module'
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([LeadContact]),
-    AccountModule,
-    DealModule,
-    UserModule,
-  ],
+  imports: [TypeOrmModule.forFeature([LeadContact]), AccountModule, DealModule],
   providers: [LeadService, ContactService],
   controllers: [LeadController, ContactController],
 })

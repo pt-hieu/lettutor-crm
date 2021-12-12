@@ -27,15 +27,17 @@ export class AccountService {
   }
 
   async getMany(query: DTO.Account.GetManyQuery) {
-    let q = this.accountRepo.createQueryBuilder('acc').select()
-
+    let q = this.accountRepo
+      .createQueryBuilder('acc')
+      .select()
+      
     if (query.search) {
-      q = q.andWhere('acc.fullName ILIKE :search', {
-        search: `%${query.search}%`,
-      })
+      q = q
+        .andWhere('acc.fullName ILIKE :search', { search: `%${query.search}%` })
     }
 
     if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
   }
+
 }

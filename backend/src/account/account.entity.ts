@@ -7,7 +7,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 @Entity({ name: 'account' })
 export class Account extends BaseEntity {
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne(() => User, u => u.accounts, { eager: true })
   @JoinColumn()
   owner: User
 
@@ -25,4 +25,14 @@ export class Account extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: true, default: null })
   phoneNum: string | null
+
+  @OneToMany(() => LeadContact, (leadContact) => leadContact.account)
+  @Exclude({ toPlainOnly: true })
+  @JoinColumn()
+  contacts: LeadContact[]
+
+  @OneToMany(() => Deal, (deal) => deal.account)
+  @Exclude({ toPlainOnly: true })
+  @JoinColumn()
+  deals: Deal[]
 }
