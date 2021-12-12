@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Brackets, FindOneOptions, In, Not, Repository } from 'typeorm'
 import { Role, User, UserStatus } from './user.entity'
@@ -18,12 +22,13 @@ export class UserService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Role) private roleRepo: Repository<Role>,
     private mailService: MailService,
-  ) { }
+  ) {}
 
   getManyRole(dto: DTO.Role.GetManyRole) {
     const qb = this.roleRepo
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.children', 'children')
+      .loadRelationCountAndMap('r.usersCount', 'r.users')
 
     if (dto.shouldNotPaginate) return qb.getMany()
     return paginate(qb, { limit: dto.limit, page: dto.page })
@@ -47,18 +52,18 @@ export class UserService {
   }
 
   async updateRole(id: string, dto: DTO.Role.UpdateRole) {
-    const role = this.roleRepo.findOne(id)
+    const role = await this.roleRepo.findOne(id)
     if (!role) throw new BadRequestException('Role does not exist')
 
-    if (await this.roleRepo.findOne({ where: { name: dto.name, id: Not(id) } }))
+    if (
+      dto.name &&
+      (await this.roleRepo.findOne({ where: { name: dto.name, id: Not(id) } }))
+    )
       throw new BadRequestException('Name has been taken')
-
-    const users = await this.userRepo.find({ where: { id: In(dto.userIds) } })
 
     return this.roleRepo.save({
       ...role,
       ...dto,
-      users,
     })
   }
 
@@ -72,7 +77,7 @@ export class UserService {
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
       where: { id: payload.id },
-      relations: ['roles']
+      relations: ['roles'],
     })
     if (!user) throw new BadRequestException('User does not exist')
 
@@ -152,7 +157,7 @@ export class UserService {
       this.userRepo.findOne({
         where: { email: dto.email },
       }),
-      this.roleRepo.findOne(dto.roleId)
+      this.roleRepo.findOne(dto.roleId),
     ])
 
     if (!role) {
@@ -172,7 +177,7 @@ export class UserService {
       passwordToken: token,
       tokenExpiration: moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate(),
       status: UserStatus.UNCONFIRMED,
-      roles: [role]
+      roles: [role],
     })
 
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)

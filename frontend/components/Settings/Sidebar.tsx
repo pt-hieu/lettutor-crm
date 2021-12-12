@@ -19,11 +19,17 @@ const variants = {
 
 export default function Sidebar() {
   const { pathname } = useRouter()
-  const [activeIndex, setActiveIndex] = useState<number>()
+  const [toggles, setToggles] = useState<boolean[]>(
+    SettingData.map(() => false),
+  )
 
   const toggle = useCallback(
     (index: number) => () => {
-      setActiveIndex((current) => (current === index ? undefined : index))
+      setToggles((current) => {
+        current[index] = !current[index]
+
+        return [...current]
+      })
     },
     [],
   )
@@ -36,14 +42,14 @@ export default function Sidebar() {
             {title}
           </button>
           <AnimatePresence presenceAffectsLayout>
-            {index === activeIndex && (
+            {toggles[index] && (
               <motion.div
                 initial="notExpand"
                 animate="expand"
                 exit="notExpand"
                 variants={variants}
                 transition={{ duration: 0.2 }}
-                className="flex flex-col gap-2"
+                className="flex flex-col gap-2 overflow-y-hidden"
               >
                 {items.map(({ link, title: itemTitle }) => (
                   <Link key={itemTitle} href={link}>

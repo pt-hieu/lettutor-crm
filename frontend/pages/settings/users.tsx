@@ -1,6 +1,7 @@
 import Search from '@components/Settings/Search'
 import SettingsLayout from '@components/Settings/SettingsLayout'
-import { getRoles, getUsers } from '@utils/service/user'
+import { getUsers } from '@utils/service/user'
+import { getRoles } from '@utils/service/role'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Table, TableColumnType } from 'antd'
 import { GetServerSideProps } from 'next'

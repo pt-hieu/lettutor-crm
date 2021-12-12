@@ -26,6 +26,10 @@ export const SettingData: SG[] = [
         link: '/settings/users',
       },
       {
+        title: 'Roles',
+        link: '/settings/roles',
+      },
+      {
         title: 'Controls',
         link: '/settings',
       },
