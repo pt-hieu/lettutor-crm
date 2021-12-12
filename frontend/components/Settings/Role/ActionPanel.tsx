@@ -5,11 +5,12 @@ import { Draggable, Droppable } from 'react-beautiful-dnd'
 
 type Props = {
   role?: Role
+  disabled?: boolean
 }
 
-export default function ActionPanel({ role }: Props) {
+export default function ActionPanel({ role, disabled }: Props) {
   return (
-    <Droppable droppableId="action">
+    <Droppable droppableId="action" isDropDisabled={disabled}>
       {(provided) => (
         <div
           {...provided.droppableProps}
@@ -25,10 +26,11 @@ export default function ActionPanel({ role }: Props) {
             <span className="font-medium text-[17px]">Actions</span>
           </div>
 
-          <div className="mt-4 w-full">
+          <div className="mt-4 w-full flex flex-col gap-2">
             {role?.actions.map((action, index) => (
               <Draggable
                 draggableId={action}
+                isDragDisabled={disabled}
                 key={action + 'alreadyhaveaction'}
                 index={index}
               >

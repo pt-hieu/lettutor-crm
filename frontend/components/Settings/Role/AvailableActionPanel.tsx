@@ -6,9 +6,10 @@ import Action from './Action'
 
 type Props = {
   data?: Role
+  disabled?: boolean
 }
 
-export default function AvailableActionPanel({ data }: Props) {
+export default function AvailableActionPanel({ data, disabled }: Props) {
   const availableActions = useMemo(
     () =>
       Object.values(Actions).filter(
@@ -23,7 +24,10 @@ export default function AvailableActionPanel({ data }: Props) {
   )
 
   return (
-    <Droppable droppableId="available-action">
+    <Droppable
+      droppableId="available-action"
+      isDropDisabled={disabled}
+    >
       {(provided) => (
         <div
           {...provided.droppableProps}
@@ -40,13 +44,13 @@ export default function AvailableActionPanel({ data }: Props) {
             <span className="font-medium text-[17px]">Available Actions</span>
           </div>
 
-          <div className="mt-4 w-full">
+          <div className="mt-4 w-full flex flex-col gap-2">
             {availableActions.map((action, index) => (
               <Draggable
                 draggableId={action}
                 key={action + 'alreadyhaveaction'}
                 index={index}
-                isDragDisabled={isDisabled}
+                isDragDisabled={isDisabled || disabled}
               >
                 {(provided) => (
                   <div

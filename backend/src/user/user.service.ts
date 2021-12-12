@@ -38,16 +38,12 @@ export class UserService {
     const role = await this.roleRepo.findOne({ where: { name: dto.name } })
     if (role) throw new BadRequestException('Role existed')
 
-    if (await this.roleRepo.findOne({ where: { name: dto.name } }))
-      throw new BadRequestException('Name has been taken')
-
-    const users = await this.userRepo.find({ where: { id: In(dto.userIds) } })
+    // const users = await this.userRepo.find({ where: { id: In(dto.userIds) } })
 
     return this.roleRepo.save({
       name: dto.name,
       childrenIds: dto.childrenIds,
       actions: dto.actions,
-      users,
     })
   }
 
@@ -77,8 +73,8 @@ export class UserService {
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
       where: { id: payload.id },
-      relations: ['roles'],
     })
+
     if (!user) throw new BadRequestException('User does not exist')
 
     return user

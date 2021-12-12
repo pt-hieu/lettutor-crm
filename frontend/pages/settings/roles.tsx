@@ -1,6 +1,7 @@
 import ActionPanel from '@components/Settings/Role/ActionPanel'
 import AvailableActionPanel from '@components/Settings/Role/AvailableActionPanel'
 import SettingsLayout from '@components/Settings/SettingsLayout'
+import Confirm from '@utils/components/Confirm'
 import Input from '@utils/components/Input'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
@@ -9,6 +10,7 @@ import { getRoles, updateRole } from '@utils/service/role'
 import { GetServerSideProps } from 'next'
 import { useEffect, useMemo, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { useModal } from '@utils/hooks/useModal'
 import {
   dehydrate,
   QueryClient,
@@ -18,6 +20,7 @@ import {
 } from 'react-query'
 import { DragDropContext, OnDragEndResponder } from 'react-beautiful-dnd'
 import { notification } from 'antd'
+import CreateRoleModal from '@components/Settings/Role/CreateRoleModal'
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const client = new QueryClient()
@@ -51,13 +54,18 @@ export default function SettingRoles() {
   )
 
   const [selectedRoleName, setSelectedRoleName] = useQueryState<string>('role')
-  const { register, watch } = useForm<FormData>()
+  const { register, watch } = useForm<FormData>({
+    defaultValues: {
+      role: selectedRoleName,
+    },
+  })
 
   const changedRole = watch('role')
-
   useEffect(() => {
     setSelectedRoleName(changedRole)
   }, [changedRole])
+
+  const [createRole, openCreateRole, closeCreateRole] = useModal()
 
   const selectedRole = useMemo(
     () => roles?.find((role) => role.name === selectedRoleName),
@@ -126,19 +134,34 @@ export default function SettingRoles() {
           </form>
 
           <div className="flex gap-2">
-            <button className="crm-button">Delete</button>
-            <button className="crm-button">
+            {selectedRole && (
+              <Confirm
+                asInform={(selectedRole?.usersCount || 0) > 0}
+                message={
+                  (selectedRole?.usersCount || 0) > 0
+                    ? `This role can not be deleted. There still ${selectedRole?.usersCount} users attached to this role.`
+                    : 'Are you sure you want to delete this role'
+                }
+                onYes={() => {}}
+              >
+                <button disabled={isLoading} className="crm-button-danger">
+                  Delete
+                </button>
+              </Confirm>
+            )}
+            <button onClick={openCreateRole} className="crm-button">
               <span className="fa fa-plus mr-2" />
               Add New Role
             </button>
+            <CreateRoleModal visible={createRole} close={closeCreateRole} />
           </div>
         </div>
 
         <DragDropContext onDragEnd={dndUpdate}>
           <div className="w-full grid grid-cols-[1fr,30px,1fr] gap-4 h-[calc(100vh-60px-102px)] mt-8 text-gray-700">
-            <ActionPanel role={selectedRole} />
+            <ActionPanel disabled={isLoading} role={selectedRole} />
             <div className=""></div>
-            <AvailableActionPanel data={selectedRole} />
+            <AvailableActionPanel disabled={isLoading} data={selectedRole} />
           </div>
         </DragDropContext>
       </>

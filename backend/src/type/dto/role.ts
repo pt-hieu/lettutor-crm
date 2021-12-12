@@ -14,10 +14,10 @@ export class CreateRole {
   @IsEnum(Actions, { each: true })
   actions: Actions[]
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID(undefined, { each: true })
-  userIds?: string[]
+  // @ApiPropertyOptional()
+  // @IsOptional()
+  // @IsUUID(undefined, { each: true })
+  // userIds?: string[]
 
   @ApiPropertyOptional()
   @IsOptional()

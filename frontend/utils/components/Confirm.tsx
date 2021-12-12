@@ -15,9 +15,10 @@ type Props = {
   message: string
   title?: string
   shouldStopPropagation?: boolean
+  asInform?: boolean
 } & (
   | { visible: boolean; close: () => void; children?: never }
-  | { visible?: undefined; close: never; children: ReactNode }
+  | { visible?: undefined; close?: never; children: ReactNode }
 )
 
 const Confirm = ({
@@ -28,6 +29,7 @@ const Confirm = ({
   shouldStopPropagation,
   visible,
   close,
+  asInform,
 }: Props) => {
   const [modalVisibility, setModalVisibility] = useState(visible)
 
@@ -74,17 +76,19 @@ const Confirm = ({
         centered
         footer={
           <div className="space-x-2">
-            <button
-              className="crm-button w-24"
-              onClick={(e) => {
-                onYes()
-                closeModal(e)
-              }}
-            >
-              OK
-            </button>
+            {!asInform && (
+              <button
+                className="crm-button w-24"
+                onClick={(e) => {
+                  onYes()
+                  closeModal(e)
+                }}
+              >
+                OK
+              </button>
+            )}
             <button className="crm-button-outline w-24" onClick={closeModal}>
-              Cancel
+              {asInform ? 'Close' : 'Cancel'}
             </button>
           </div>
         }

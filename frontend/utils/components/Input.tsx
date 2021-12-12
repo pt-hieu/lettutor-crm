@@ -7,7 +7,6 @@ import {
   forwardRef,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
-  useState,
 } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -51,6 +50,7 @@ type NativeProps<T> = T extends undefined
 type Props<T> = NativeProps<T> & {
   editable?: boolean
   onInvalid?: never
+  wrapperClassname?: string
 } & (
     | { showError?: true; error: string | undefined }
     | { showError: false; error?: never }
@@ -66,6 +66,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
     error,
     as,
     showError,
+    wrapperClassname,
     editable,
     props: { id, name, className, disabled, ...rest },
   }: Props<T>,
@@ -88,7 +89,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
   const Component = as || 'input'
 
   return (
-    <div>
+    <div className={wrapperClassname}>
       <Component
         // @ts-ignore
         onInvalid={removeBubble}

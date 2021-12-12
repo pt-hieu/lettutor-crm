@@ -17,6 +17,14 @@
     @apply box-border px-3 py-2 rounded-md border border-gray-400 bg-white text-gray-600  hover:text-blue-400 hover:border-blue-400  crm-transition;
   }
 
+  .crm-button-danger {
+    @apply crm-button bg-red-600 hover:bg-red-500;
+  }
+
+  .crm-button-danger:disabled {
+    @apply cursor-default bg-gray-600;
+  }
+
   .crm-button-outline:disabled {
     @apply cursor-default;
   }
