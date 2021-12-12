@@ -1,35 +1,14 @@
+import { LeadSource, LeadStatus } from '@utils/models/lead'
 import { emailReg } from 'pages/reset-password'
-import { LeadSource, LeadStatus } from '../models/lead'
+import { SectionTemplate } from './add-lead-data'
 
-type Validation = {
-  required?: boolean
-  regExp?: {
-    value: RegExp
-    message: string
-  }
-}
-
-export type Field = {
-  name: string
-  id: string
-  as?: 'input' | 'select' | 'textarea'
-  validation?: Validation
-  type?: 'email' | 'text'
-  selectSource?: any[]
-}
-
-export type SectionTemplate = {
-  title: string
-  items: Field[]
-}
-
-type AddLeadTemplate = SectionTemplate[]
-export const LeadAddData: AddLeadTemplate = [
+type UpdateContactTemplate = SectionTemplate[]
+export const ContactUpdateData: UpdateContactTemplate = [
   {
-    title: 'Lead Information',
+    title: 'Contact Information',
     items: [
       {
-        name: 'Lead Owner',
+        name: 'Contact Owner',
         id: 'ownerId',
         as: 'select',
         validation: {
@@ -56,15 +35,6 @@ export const LeadAddData: AddLeadTemplate = [
         },
       },
       {
-        name: 'Lead Status',
-        id: 'status',
-        as: 'select',
-        validation: {
-          required: true,
-        },
-        selectSource: Object.values(LeadStatus),
-      },
-      {
         name: 'Email',
         id: 'email',
         type: 'email',
@@ -76,7 +46,6 @@ export const LeadAddData: AddLeadTemplate = [
           },
         },
       },
-
       {
         name: 'Lead Source',
         id: 'source',
@@ -86,26 +55,20 @@ export const LeadAddData: AddLeadTemplate = [
         },
         selectSource: Object.values(LeadSource),
       },
+      {
+        name: 'Account',
+        id: 'accountId',
+        as: 'select',
+      },
     ],
   },
   {
     title: 'Address Information',
     items: [
       {
-        name: 'Street',
-        id: 'street',
-      },
-      {
-        name: 'State',
-        id: 'state',
-      },
-      {
-        name: 'City',
-        id: 'city',
-      },
-      {
-        name: 'Country',
-        id: 'country',
+        name: 'Address',
+        id: 'address',
+        as: 'textarea',
       },
     ],
   },

@@ -3,6 +3,7 @@ import { LeadSource } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
+import { ContactUpdateFormData } from 'pages/contacts/[id]/edit'
 
 export const getContacts =
   (
@@ -26,3 +27,16 @@ export const getContact = (id?: string, token?: string) => () =>
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
+
+export const updateContact = async (params: {
+  id: string
+  contactInfo: ContactUpdateFormData
+}) => {
+  const { id, contactInfo } = params
+  const { data } = await axios.patch<Contact>(
+    API + `/api/contact/${id}`,
+    contactInfo,
+  )
+
+  return data
+}

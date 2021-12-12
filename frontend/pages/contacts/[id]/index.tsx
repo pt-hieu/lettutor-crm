@@ -23,6 +23,8 @@ const ContactDetail = () => {
     enabled: false,
   })
 
+  console.log('contact', contact)
+
   const contactInfo = useMemo(
     (): ContactInfo[] => [
       {

@@ -1,6 +1,8 @@
+import { LeadSource } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
+import { Account } from 'next-auth'
 
 export const getAccounts =
   (
