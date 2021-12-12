@@ -11,6 +11,7 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
+import { UserService } from 'src/user/user.service'
 
 @Injectable()
 export class LeadService {
@@ -19,7 +20,8 @@ export class LeadService {
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
     private readonly dealService: DealService,
-  ) { }
+    private readonly userService: UserService,
+  ) {}
 
   async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadContactRepo
@@ -45,9 +47,11 @@ export class LeadService {
   }
 
   async getLeadById(id: string) {
-    const found = await this.leadContactRepo.findOne({ id })
+    const found = await this.leadContactRepo.findOne({
+      where: { id, isLead: true },
+    })
 
-    if (!found || !found.isLead) {
+    if (!found) {
       throw new NotFoundException(`Lead with ID ${id} not found`)
     }
 
@@ -61,13 +65,22 @@ export class LeadService {
   async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
     const lead = await this.getLeadById(id)
 
+    if (dto.ownerId) {
+      const user = await this.userService.getOneById(dto.ownerId)
+      lead.owner = user
+    }
+
     return this.leadContactRepo.save({
       ...lead,
       ...dto,
     })
   }
 
-  async convert(id: string, dealDto: DTO.Deal.ConvertToDeal, shouldConvertToDeal: boolean) {
+  async convert(
+    id: string,
+    dealDto: DTO.Deal.ConvertToDeal,
+    shouldConvertToDeal: boolean,
+  ) {
     const lead = await this.getLeadById(id)
 
     const accountDto: DTO.Account.AddAccount = {
@@ -78,6 +91,7 @@ export class LeadService {
       phoneNum: lead.phoneNum,
     }
 
+    delete lead.account
     const account = await this.accountService.addAccount(accountDto)
     const contact = await this.leadContactRepo.save({
       ...lead,
