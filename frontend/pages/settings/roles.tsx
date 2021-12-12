@@ -6,7 +6,7 @@ import Input from '@utils/components/Input'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Actions, Role } from '@utils/models/role'
-import { getRoles, updateRole } from '@utils/service/role'
+import { deleteRole as deleteRoleService, getRoles, updateRole } from '@utils/service/role'
 import { GetServerSideProps } from 'next'
 import { useEffect, useMemo, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
@@ -86,6 +86,24 @@ export default function SettingRoles() {
     },
   )
 
+  const { mutateAsync: deleteMutateAsync, isLoading: isDeleting } = useMutation(
+    ['delete-role', selectedRole?.id],
+    deleteRoleService(selectedRole?.id || ''),
+    {
+      onSuccess() {
+        client.invalidateQueries('roles')
+        notification.success({ message: 'Delete role successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete role unsuccessfully' })
+      },
+    },
+  )
+
+  const deleteRole = useCallback(() => {
+    deleteMutateAsync()
+  } , [])
+
   const dndUpdate: OnDragEndResponder = useCallback(
     (res) => {
       if (!res.destination) return
@@ -142,9 +160,9 @@ export default function SettingRoles() {
                     ? `This role can not be deleted. There still ${selectedRole?.usersCount} users attached to this role.`
                     : 'Are you sure you want to delete this role'
                 }
-                onYes={() => {}}
+                onYes={deleteRole}
               >
-                <button disabled={isLoading} className="crm-button-danger">
+                <button disabled={isLoading || isDeleting} className="crm-button-danger">
                   Delete
                 </button>
               </Confirm>
@@ -159,9 +177,9 @@ export default function SettingRoles() {
 
         <DragDropContext onDragEnd={dndUpdate}>
           <div className="w-full grid grid-cols-[1fr,30px,1fr] gap-4 h-[calc(100vh-60px-102px)] mt-8 text-gray-700">
-            <ActionPanel disabled={isLoading} role={selectedRole} />
+            <ActionPanel disabled={isLoading || isDeleting} role={selectedRole} />
             <div className=""></div>
-            <AvailableActionPanel disabled={isLoading} data={selectedRole} />
+            <AvailableActionPanel disabled={isLoading || isDeleting} data={selectedRole} />
           </div>
         </DragDropContext>
       </>

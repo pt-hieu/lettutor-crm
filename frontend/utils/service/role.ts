@@ -21,3 +21,6 @@ export const updateRole =
 
 export const createRole = (data: Pick<Role, 'actions' | 'name'>) =>
   axios.post(API + '/api/role', data).then((res) => res.data)
+
+export const deleteRole = (id: string) => () =>
+  axios.delete(API + '/api/role/' + id).then((res) => res.data)

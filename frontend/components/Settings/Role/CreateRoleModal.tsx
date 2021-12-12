@@ -109,7 +109,7 @@ export default function CreateRoleModal({ close, visible }: Props) {
         </div>
         <div className="mb-4 grid grid-cols-[100px,1fr]">
           <div></div>
-          <div className="p-4 border rounded-md flex flex-col gap-2">
+          <div className="p-4 border rounded-md flex flex-col gap-2 max-h-[300px] overflow-auto crm-scrollbar">
             {Object.values(Actions).map((action, index) => (
               <div key={action + 'select'} className="flex gap-2 items-center">
                 <Input
