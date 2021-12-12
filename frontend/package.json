@@ -26,6 +26,7 @@
     "react-hook-form": "^7.17.5",
     "react-query": "^3.29.1",
     "react-useanimations": "^2.0.6",
+    "typeorm": "^0.2.41",
     "yup": "^0.32.11"
   },
   "devDependencies": {
