@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
-import { Brackets, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
@@ -11,8 +11,8 @@ export class ContactService {
   constructor(
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
-    private readonly accountService: AccountService,
-  ) { }
+    // private readonly accountService: AccountService,
+  ) {}
 
   async getMany(query: DTO.Contact.GetManyQuery) {
     let q = this.leadContactRepo
@@ -44,25 +44,20 @@ export class ContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async getContactById(id: string) {
-    const found = await this.leadContactRepo.findOne({ where: { id, isLead: false } })
+  async getContactById(option: FindOneOptions<LeadContact>) {
+    const found = await this.leadContactRepo.findOne(option)
 
     if (!found) {
-      throw new NotFoundException(`Contact with ID ${id} not found`)
+      throw new NotFoundException(`Contact with ID ${option.where} not found`)
     }
 
     return found
   }
 
   async update(id: string, dto: DTO.Contact.UpdateBody) {
-    const contact = await this.getContactById(id)
+    const contact = await this.getContactById({ where: { id, isLead: false } })
 
-    if (dto.accountId) {
-      await this.accountService.getAccountById(dto.accountId)
-    }
-
-    delete contact.owner
-    return this.leadContactRepo.update(id, {
+    return this.leadContactRepo.save({
       ...contact,
       ...dto,
     })

@@ -10,7 +10,7 @@ import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
 import { User } from '@utils/models/user'
 import Layout from '@utils/components/Layout'
 import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import {yupResolver} from '@hookform/resolvers/yup';
 import { DealUpdateData, Field } from '@utils/data/update-deal-data'
 import { getDeal, updateDeal } from '@utils/service/deal'
 import { Deal } from '@utils/models/deal'

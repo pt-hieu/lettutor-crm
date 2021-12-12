@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer'
 import { Deal } from 'src/deal/deal.entity'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { User } from 'src/user/user.entity'
@@ -7,7 +6,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 @Entity({ name: 'account' })
 export class Account extends BaseEntity {
-  @ManyToOne(() => User, u => u.accounts, { eager: true })
+  @ManyToOne(() => User, (u) => u.accounts)
   @JoinColumn()
   owner: User
 
@@ -27,12 +26,8 @@ export class Account extends BaseEntity {
   phoneNum: string | null
 
   @OneToMany(() => LeadContact, (leadContact) => leadContact.account)
-  @Exclude({ toPlainOnly: true })
-  @JoinColumn()
   contacts: LeadContact[]
 
   @OneToMany(() => Deal, (deal) => deal.account)
-  @Exclude({ toPlainOnly: true })
-  @JoinColumn()
   deals: Deal[]
 }

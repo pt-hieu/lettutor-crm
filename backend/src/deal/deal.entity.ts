@@ -18,20 +18,22 @@ export enum DealStage {
 
 @Entity({ name: 'deal' })
 export class Deal extends BaseEntity {
-  @ManyToOne(() => User, (u) => u.deals, { eager: true })
+  @ManyToOne(() => User, (u) => u.deals)
   @JoinColumn()
   owner: User
 
   @Column({ type: 'uuid' })
   ownerId: string
 
-  @ManyToOne(() => Account, (account) => account.deals, { eager: true })
+  @ManyToOne(() => Account, (account) => account.deals)
+  @JoinColumn()
   account: Account
 
   @Column({ type: 'uuid' })
   accountId: string
 
-  @ManyToOne(() => LeadContact, { eager: true })
+  @ManyToOne(() => LeadContact)
+  @JoinColumn()
   contact: LeadContact
 
   @Column({ type: 'uuid', nullable: true, default: null })

@@ -12,9 +12,7 @@ import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
 import { User } from '@utils/models/user'
 import Layout from '@utils/components/Layout'
 import * as yup from 'yup'
-//This import cause error in local environment
-//import { yupResolver } from '@hookform/resolvers/yup'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 export interface LeadUpdateFromData
   extends Pick<

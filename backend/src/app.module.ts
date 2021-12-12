@@ -25,6 +25,7 @@ import { DealModule } from './deal/deal.module';
       entities: [],
       synchronize: process.env.NODE_ENV !== 'production',
       autoLoadEntities: true,
+      logging: process.env.NODE_ENV !== 'production'
     }),
     UserModule,
     MailModule,

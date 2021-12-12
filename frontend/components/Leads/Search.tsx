@@ -2,13 +2,8 @@ import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
 import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
-import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
-
-type FormData = {
-  search: string
-}
 
 type Props = {
   search: string | undefined

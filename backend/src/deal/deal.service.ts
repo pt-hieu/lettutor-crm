@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { DTO } from 'src/type'
-import { Repository } from 'typeorm'
+import { FindOneOptions, Repository } from 'typeorm'
 import { Deal } from './deal.entity'
 
 @Injectable()
@@ -36,14 +36,14 @@ export class DealService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async getDealById(id: string) {
-    const found = await this.dealRepo.findOne({ id })
+  async getDealById(option: FindOneOptions<Deal>) {
+    const deal = await this.dealRepo.findOne(option)
 
-    if (!found) {
-      throw new NotFoundException(`Deal with ID ${id} not found`)
+    if (!deal) {
+      throw new NotFoundException(`Deal with ${option.where} not found`)
     }
 
-    return found
+    return deal
   }
 
   async addDeal(dto: DTO.Deal.AddDeal) {
@@ -51,7 +51,7 @@ export class DealService {
   }
 
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
-    const deal = await this.getDealById(id)
+    const deal = await this.getDealById({ where: { id } })
 
     return this.dealRepo.save({
       ...deal,

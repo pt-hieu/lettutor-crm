@@ -27,7 +27,10 @@ export class DealController {
   @Get(':id')
   @ApiOperation({ summary: 'to get deal information by Id' })
   getDealById(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.getDealById(id)
+    return this.service.getDealById({
+      where: { id },
+      relations: ['owner', 'account', 'contact'],
+    })
   }
 
   @Patch(':id')

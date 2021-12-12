@@ -27,7 +27,10 @@ export class ContactController {
   @Get(':id')
   @ApiOperation({ summary: 'to get contact information by Id' })
   getContactById(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.getContactById(id)
+    return this.service.getContactById({
+      where: { id, isLead: false },
+      relations: ['owner', 'account', 'deals'],
+    })
   }
 
   @Patch(':id')

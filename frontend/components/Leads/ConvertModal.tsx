@@ -18,8 +18,7 @@ import { useForm } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
 import { Deal, DealStage } from '@utils/models/deal'
 import * as yup from 'yup'
-//import { yupResolver } from '@hookform/resolvers/yup'
-import { yupResolver } from '@hookform/resolvers/yup/dist/yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 interface Props {
   visible: boolean

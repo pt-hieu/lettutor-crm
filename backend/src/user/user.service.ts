@@ -72,7 +72,7 @@ export class UserService {
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
       where: { id: payload.id },
-      select: ['name', 'email', 'status', 'roles'],
+      relations: ['roles']
     })
     if (!user) throw new BadRequestException('User does not exist')
 

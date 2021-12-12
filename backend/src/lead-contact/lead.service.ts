@@ -1,11 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
-import { Repository } from 'typeorm'
+import { FindOneOptions, Repository } from 'typeorm'
 import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
@@ -19,7 +15,7 @@ export class LeadService {
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
     private readonly dealService: DealService,
-  ) { }
+  ) {}
 
   async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadContactRepo
@@ -44,14 +40,14 @@ export class LeadService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async getLeadById(id: string) {
-    const found = await this.leadContactRepo.findOne({ id })
+  async getLeadById(option: FindOneOptions<LeadContact>) {
+    const lead = await this.leadContactRepo.findOne(option)
 
-    if (!found || !found.isLead) {
-      throw new NotFoundException(`Lead with ID ${id} not found`)
+    if (!lead) {
+      throw new NotFoundException(`Lead with ${option.where} not found`)
     }
 
-    return found
+    return lead
   }
 
   async addLead(dto: DTO.Lead.AddLead) {
@@ -59,7 +55,7 @@ export class LeadService {
   }
 
   async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
-    const lead = await this.getLeadById(id)
+    const lead = await this.getLeadById({ where: { id, isLead: true } })
 
     return this.leadContactRepo.save({
       ...lead,
@@ -67,8 +63,12 @@ export class LeadService {
     })
   }
 
-  async convert(id: string, dealDto: DTO.Deal.ConvertToDeal, shouldConvertToDeal: boolean) {
-    const lead = await this.getLeadById(id)
+  async convert(
+    id: string,
+    dealDto: DTO.Deal.ConvertToDeal,
+    shouldConvertToDeal: boolean,
+  ) {
+    const lead = await this.getLeadById({ where: { id, isLead: false } })
 
     const accountDto: DTO.Account.AddAccount = {
       ownerId: lead.owner.id,

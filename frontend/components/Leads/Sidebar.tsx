@@ -1,6 +1,5 @@
 import { LeadSource, LeadStatus } from '@utils/models/lead'
 import { useCallback } from 'react'
-import { flushSync } from 'react-dom'
 import { FormProvider, useForm } from 'react-hook-form'
 import MultipleQuery from '@utils/components/MultipleQuery'
 

@@ -1,8 +1,9 @@
 import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
+import { Deal } from 'src/deal/deal.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 export enum LeadStatus {
   NONE = 'None',
@@ -25,9 +26,7 @@ export enum LeadSource {
 
 @Entity({ name: 'lead_contact' })
 export class LeadContact extends BaseEntity {
-  @ManyToOne(() => User, (user) => user.leadContacts, {
-    eager: true,
-  })
+  @ManyToOne(() => User, (user) => user.leadContacts)
   @JoinColumn()
   owner: User
 
@@ -38,7 +37,11 @@ export class LeadContact extends BaseEntity {
   accountId: string | null
 
   @ManyToOne(() => Account, (account) => account.contacts)
+  @JoinColumn()
   account: Account
+
+  @OneToMany(() => Deal, deal => deal.contact)
+  deals: Deal[]
 
   @Column({ default: true })
   isLead: boolean
