@@ -17,8 +17,12 @@ const DealDetailNavbar = ({ deal: { id, fullName, amount } }: Props) => {
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <span className="font-semibold">{`${fullName}`}</span>
-          <span className="mx-2">{`-`}</span>
-          <span className="text-gray-500">{`$${amount}`}</span>
+          {amount && (
+            <>
+              <span className="mx-2">{`-`}</span>
+              <span className="text-gray-500">{`$${amount}`}</span>
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-3">
