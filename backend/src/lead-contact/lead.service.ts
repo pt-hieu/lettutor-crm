@@ -68,7 +68,7 @@ export class LeadService {
     dealDto: DTO.Deal.ConvertToDeal,
     shouldConvertToDeal: boolean,
   ) {
-    const lead = await this.getLeadById({ where: { id, isLead: false } })
+    const lead = await this.getLeadById({ where: { id, isLead: true } })
 
     const accountDto: DTO.Account.AddAccount = {
       ownerId: lead.owner.id,
