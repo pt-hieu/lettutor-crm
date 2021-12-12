@@ -34,7 +34,7 @@ export interface LeadAddFormData
   address?: string
 }
 
-const validate: (field: Field) => RegisterOptions = (field) => ({
+export const validate: (field: Field) => RegisterOptions = (field) => ({
   required: {
     message: field.name + ' is required',
     value: true,

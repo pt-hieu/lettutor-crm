@@ -19,9 +19,11 @@ const ContactDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
 
-  const { data: contact } = useQuery<Contact>(['contacts', id], {
+  const { data: contact } = useQuery<Contact>(['contact', id], {
     enabled: false,
   })
+
+  console.log('contact', contact)
 
   const contactInfo = useMemo(
     (): ContactInfo[] => [
@@ -111,7 +113,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   if (token) {
     await Promise.all([
-      client.prefetchQuery(['contacts', id], getContact(id, token)),
+      client.prefetchQuery(['contact', id], getContact(id, token)),
     ])
   }
 
