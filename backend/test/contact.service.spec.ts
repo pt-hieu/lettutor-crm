@@ -2,7 +2,7 @@ import { DTO } from 'src/type'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { account, contact, lead } from './data'
+import { account, contact, user } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
@@ -12,6 +12,9 @@ import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
 import { ContactService } from 'src/lead-contact/contact.service'
 import { NotFoundException } from '@nestjs/common'
+import { UserService } from 'src/user/user.service'
+import { Role, User } from 'src/user/user.entity'
+import { MailService } from 'src/mail/mail.service'
 
 describe('lead-contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
@@ -20,6 +23,10 @@ describe('lead-contact service', () => {
   let accountRepo: MockType<Repository<Account>>
   let dealService: DealService
   let dealRepo: MockType<Repository<Deal>>
+  let userService: UserService
+  let userRepo: MockType<Repository<User>>
+  let roleRepo: MockType<Repository<Role>>
+  let mailService: MailService
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -27,6 +34,22 @@ describe('lead-contact service', () => {
         ContactService,
         AccountService,
         DealService,
+        UserService,
+        {
+          provide: MailService,
+          useValue: {
+            sendResetPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+            sendAddPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+          },
+        },
+        {
+          provide: getRepositoryToken(Role),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(Account),
           useFactory: repositoryMockFactory,
@@ -43,11 +66,15 @@ describe('lead-contact service', () => {
     }).compile()
 
     leadContactRepo = ref.get(getRepositoryToken(LeadContact))
+    roleRepo = ref.get(getRepositoryToken(Role))
     accountRepo = ref.get(getRepositoryToken(Account))
     dealRepo = ref.get(getRepositoryToken(Deal))
+    userRepo = ref.get(getRepositoryToken(User))
     contactService = ref.get(ContactService)
+    mailService = ref.get(MailService)
     accountService = ref.get(AccountService)
     dealService = ref.get(DealService)
+    userService = ref.get(UserService)
   })
 
   describe('get many contacts', () => {
@@ -75,23 +102,17 @@ describe('lead-contact service', () => {
     it('should view contact detail success', async () => {
       leadContactRepo.findOne.mockReturnValue({ ...contact })
 
-      expect(await contactService.getContactById(contact.id)).toEqual(contact)
+      expect(
+        await contactService.getContactById({ where: { id: contact.id } }),
+      ).toEqual(contact)
     })
 
     it('should throw not found exception when contact not found', async () => {
       leadContactRepo.findOne.mockReturnValue(undefined)
 
-      expect(contactService.getContactById(contact.id)).rejects.toThrow(
-        new NotFoundException(`Contact with ID ${contact.id} not found`),
-      )
-    })
-
-    it('should throw not found exception when try to view a lead', async () => {
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
-
-      expect(contactService.getContactById(contact.id)).rejects.toThrow(
-        new NotFoundException(`Contact with ID ${lead.id} not found`),
-      )
+      expect(
+        contactService.getContactById({ where: { id: contact.id } }),
+      ).rejects.toThrow(new NotFoundException(`Contact not found`))
     })
   })
 
@@ -100,8 +121,12 @@ describe('lead-contact service', () => {
       const dto: DTO.Contact.UpdateBody = {
         email: 'update@mail.com',
       }
+
       leadContactRepo.findOne.mockReturnValue({ ...contact })
-      leadContactRepo.update.mockReturnValue({ ...contact, ...dto })
+      leadContactRepo.save.mockReturnValue({ ...contact, ...dto })
+
+      accountRepo.findOne.mockReturnValue({ ...account })
+      userRepo.findOne.mockReturnValue({ ...user })
 
       expect(await contactService.update(contact.id, dto)).toEqual({
         ...contact,
@@ -117,7 +142,7 @@ describe('lead-contact service', () => {
       leadContactRepo.findOne.mockReturnValue(undefined)
 
       expect(contactService.update(contact.id, dto)).rejects.toThrow(
-        new NotFoundException(`Contact with ID ${lead.id} not found`),
+        new NotFoundException(`Contact not found`),
       )
     })
 
@@ -128,8 +153,9 @@ describe('lead-contact service', () => {
       }
 
       leadContactRepo.findOne.mockReturnValue({ ...contact })
+      leadContactRepo.save.mockReturnValue({ ...contact, ...dto })
       accountRepo.findOne.mockReturnValue({ ...account })
-      leadContactRepo.update.mockReturnValue({ ...contact, ...dto })
+      userRepo.findOne.mockReturnValue({ ...user })
 
       expect(await contactService.update(contact.id, dto)).toEqual({
         ...contact,
@@ -147,7 +173,7 @@ describe('lead-contact service', () => {
       accountRepo.findOne.mockReturnValue(undefined)
 
       expect(contactService.update(contact.id, dto)).rejects.toThrow(
-        new NotFoundException(`Account with ID ${lead.id} not found`),
+        new NotFoundException(`Account not found`),
       )
     })
   })

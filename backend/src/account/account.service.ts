@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { DTO } from 'src/type'
@@ -16,7 +16,8 @@ export class AccountService {
     const account = await this.accountRepo.findOne(option)
 
     if (!account) {
-      throw new NotFoundException(`Account with ${option.where} not found`)
+      Logger.error(JSON.stringify(option, null, 2))
+      throw new NotFoundException(`Account not found`)
     }
 
     return account

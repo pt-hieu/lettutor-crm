@@ -12,6 +12,9 @@ import { AccountService } from 'src/account/account.service'
 import { Account } from 'src/account/account.entity'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
+import { UserService } from 'src/user/user.service'
+import { Role, User } from 'src/user/user.entity'
+import { MailService } from 'src/mail/mail.service'
 
 describe('lead-contact service', () => {
   let leadService: LeadService
@@ -20,6 +23,10 @@ describe('lead-contact service', () => {
   let accountRepo: MockType<Repository<Account>>
   let dealService: DealService
   let dealRepo: MockType<Repository<Deal>>
+  let userService: UserService
+  let mailService: MailService
+  let userRepo: MockType<Repository<User>>
+  let roleRepo: MockType<Repository<Role>>
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -28,6 +35,22 @@ describe('lead-contact service', () => {
         DealService,
         AccountService,
         DealService,
+        UserService,
+        {
+          provide: MailService,
+          useValue: {
+            sendResetPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+            sendAddPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+          },
+        },
+        {
+          provide: getRepositoryToken(Role),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(Account),
           useFactory: repositoryMockFactory,
@@ -44,11 +67,15 @@ describe('lead-contact service', () => {
     }).compile()
 
     leadContactRepo = ref.get(getRepositoryToken(LeadContact))
+    roleRepo = ref.get(getRepositoryToken(Role))
+    userRepo = ref.get(getRepositoryToken(User))
     accountRepo = ref.get(getRepositoryToken(Account))
     dealRepo = ref.get(getRepositoryToken(Deal))
     leadService = ref.get(LeadService)
+    mailService = ref.get(MailService)
     accountService = ref.get(AccountService)
     dealService = ref.get(LeadService)
+    userService = ref.get(UserService)
   })
 
   describe('add lead', () => {
@@ -71,24 +98,22 @@ describe('lead-contact service', () => {
     it('should view lead detail succeed', async () => {
       leadContactRepo.findOne.mockReturnValue({ ...lead })
 
-      expect(await leadService.getLeadById(lead.id)).toEqual(lead)
-    })
-
-    it('should throw exception when lead not found', async () => {
-      leadContactRepo.findOne.mockReturnValue(undefined)
-
-      expect(leadService.getLeadById(lead.id)).rejects.toThrow(
-        new NotFoundException(`Lead with ID ${lead.id} not found`),
+      expect(await leadService.getLeadById({ where: { id: lead.id } })).toEqual(
+        lead,
       )
     })
 
-    // it('should throw exception when try to view a contact', async () => {
-    //   leadContactRepo.findOne.mockReturnValue({ ...contact })
+    it('should throw exception when lead not found', () => {
+      leadContactRepo.findOne.mockReturnValue(undefined)
 
-    //   expect(leadService.getLeadById(lead.id)).rejects.toThrow(
-    //     new NotFoundException(`Lead with ID ${lead.id} not found`),
-    //   )
-    // })
+      expect(
+        leadService.getLeadById({ where: { id: lead.id } }),
+      ).rejects.toThrow(
+        new NotFoundException(
+          `Lead not found`,
+        ),
+      )
+    })
   })
 
   describe('get many leads', () => {
@@ -134,7 +159,9 @@ describe('lead-contact service', () => {
       leadContactRepo.findOne.mockReturnValue(undefined)
 
       expect(leadService.updateLead(dto, lead.id)).rejects.toThrow(
-        new NotFoundException(`Lead with ID ${lead.id} not found`),
+        new NotFoundException(
+          `Lead not found`,
+        ),
       )
     })
   })
@@ -152,9 +179,7 @@ describe('lead-contact service', () => {
       }
 
       leadContactRepo.findOne.mockReturnValue({ ...lead })
-
       accountRepo.save.mockReturnValue({ ...account })
-
       leadContactRepo.save.mockReturnValue({ ...contact })
 
       expect(await leadService.convert(lead.id, dto, false)).toEqual([
@@ -176,11 +201,8 @@ describe('lead-contact service', () => {
       }
 
       leadContactRepo.findOne.mockReturnValue({ ...lead })
-
       accountRepo.save.mockReturnValue({ ...account })
-
       leadContactRepo.save.mockReturnValue({ ...contact })
-
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(await leadService.convert(lead.id, dto, true)).toEqual([
@@ -201,10 +223,16 @@ describe('lead-contact service', () => {
         description: deal.description,
       }
 
+
       leadContactRepo.findOne.mockReturnValue(undefined)
+      accountRepo.save.mockReturnValue({ ...account })
+      leadContactRepo.save.mockReturnValue({ ...contact })
+      dealRepo.save.mockReturnValue({ ...deal })
 
       expect(leadService.convert(lead.id, dto, true)).rejects.toThrow(
-        new NotFoundException(`Lead with ID ${lead.id} not found`),
+        new NotFoundException(
+          `Lead not found`,
+        ),
       )
     })
 
@@ -219,10 +247,15 @@ describe('lead-contact service', () => {
         description: deal.description,
       }
 
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      leadContactRepo.findOne.mockReturnValue(undefined)
+      accountRepo.save.mockReturnValue({ ...account })
+      leadContactRepo.save.mockReturnValue({ ...contact })
+      dealRepo.save.mockReturnValue({ ...deal })
 
       expect(leadService.convert(contact.id, dto, true)).rejects.toThrow(
-        new NotFoundException(`Lead with ID ${contact.id} not found`),
+        new NotFoundException(
+          `Lead not found`,
+        ),
       )
     })
   })

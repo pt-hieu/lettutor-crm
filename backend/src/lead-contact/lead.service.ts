@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { FindOneOptions, Repository } from 'typeorm'
@@ -46,7 +46,8 @@ export class LeadService {
     const lead = await this.leadContactRepo.findOne(option)
 
     if (!lead) {
-      throw new NotFoundException(`Lead with ${option.where} not found`)
+      Logger.error(JSON.stringify(option, null, 2))
+      throw new NotFoundException(`Lead not found`)
     }
 
     return lead

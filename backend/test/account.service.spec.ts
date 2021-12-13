@@ -40,7 +40,10 @@ describe('account service', () => {
 
       expect(
         (
-          (await accountService.getMany(dto)) as Pagination<Account, IPaginationMeta>
+          (await accountService.getMany(dto)) as Pagination<
+            Account,
+            IPaginationMeta
+          >
         ).items,
       ).toEqual([account])
     })
@@ -56,7 +59,10 @@ describe('account service', () => {
 
       expect(
         (
-          (await accountService.getMany(dto)) as Pagination<Account, IPaginationMeta>
+          (await accountService.getMany(dto)) as Pagination<
+            Account,
+            IPaginationMeta
+          >
         ).items,
       ).toEqual([account])
     })
@@ -65,18 +71,19 @@ describe('account service', () => {
     it('should view account detail success', async () => {
       accountRepo.findOne.mockReturnValue({ ...account })
 
-      expect(await accountService.getAccountById(account.id)).toEqual(account)
+      expect(
+        await accountService.getAccountById({ where: { id: account.id } }),
+      ).toEqual(account)
     })
 
     it('should throw not found exception when account not found ', async () => {
       accountRepo.findOne.mockReturnValue(undefined)
 
-      expect(accountService.getAccountById(account.id)).rejects.toThrow(
-        new NotFoundException(`Account with ID ${account.id} not found`),
+      expect(
+        accountService.getAccountById({ where: { id: account.id } }),
+      ).rejects.toThrow(
+        new NotFoundException(`Account not found`),
       )
     })
   })
-
 })
-
-

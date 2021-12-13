@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { DTO } from 'src/type'
@@ -40,7 +40,8 @@ export class DealService {
     const deal = await this.dealRepo.findOne(option)
 
     if (!deal) {
-      throw new NotFoundException(`Deal with ${option.where} not found`)
+      Logger.error(JSON.stringify(option, null, 2))
+      throw new NotFoundException(`Deal not found`)
     }
 
     return deal

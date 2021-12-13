@@ -53,6 +53,7 @@ export const lead: LeadContact = {
   socialAccount: null,
   createdAt: null,
   updatedAt: null,
+  deals: []
 }
 
 export const account: Account = {
