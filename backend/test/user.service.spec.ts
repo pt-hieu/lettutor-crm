@@ -329,7 +329,6 @@ describe('user service', () => {
       const dto: DTO.Role.CreateRole = {
         actions: [],
         name: 'Test',
-        userIds: [],
         childrenIds: [],
       }
 
@@ -344,7 +343,6 @@ describe('user service', () => {
       const dto: DTO.Role.CreateRole = {
         actions: [],
         name: 'Test',
-        userIds: [],
         childrenIds: [],
       }
 
@@ -356,21 +354,6 @@ describe('user service', () => {
         new BadRequestException('Role existed'),
       )
     })
-
-    it('should throw error when name has been already taken', () => {
-      const dto: DTO.Role.CreateRole = {
-        actions: [],
-        name: 'Test',
-        userIds: [],
-        childrenIds: [],
-      }
-
-      roleRepo.findOne.mockReturnValueOnce(undefined).mockReturnValueOnce(role)
-
-      expect(userService.createRole(dto)).rejects.toThrow(
-        new BadRequestException('Name has been taken'),
-      )
-    })
   })
 
   describe('updateRole', () => {
@@ -378,7 +361,6 @@ describe('user service', () => {
       const dto: DTO.Role.UpdateRole = {
         actions: [],
         childrenIds: [],
-        userIds: [],
         name: 'test',
       }
 
@@ -394,7 +376,6 @@ describe('user service', () => {
       const dto: DTO.Role.UpdateRole = {
         actions: [],
         childrenIds: [],
-        userIds: [],
         name: 'test',
       }
 
@@ -409,7 +390,6 @@ describe('user service', () => {
       const dto: DTO.Role.UpdateRole = {
         actions: [],
         childrenIds: [],
-        userIds: [],
         name: 'test',
       }
 
