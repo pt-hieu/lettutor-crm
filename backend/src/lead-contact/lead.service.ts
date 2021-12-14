@@ -54,6 +54,10 @@ export class LeadService {
   }
 
   async addLead(dto: DTO.Lead.AddLead) {
+    if (dto.ownerId) {
+      await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+    }
+
     return this.leadContactRepo.save(dto)
   }
 

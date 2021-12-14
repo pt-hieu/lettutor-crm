@@ -88,9 +88,27 @@ describe('lead-contact service', () => {
         source: lead.source,
       }
 
+      userRepo.findOne.mockReturnValue({ ...user })
       leadContactRepo.save.mockReturnValue({ ...lead })
 
       expect(await leadService.addLead(dto)).toEqual(lead)
+    })
+
+    it('should add lead succeed', async () => {
+      const dto: DTO.Lead.AddLead = {
+        ownerId: lead.ownerId,
+        fullName: lead.fullName,
+        email: lead.email,
+        status: lead.status,
+        source: lead.source,
+      }
+
+      userRepo.findOne.mockReturnValue(undefined)
+      leadContactRepo.save.mockReturnValue({ ...lead })
+
+      expect(leadService.addLead(dto)).rejects.toThrow(
+        new NotFoundException('User does not exist'),
+      )
     })
   })
 
