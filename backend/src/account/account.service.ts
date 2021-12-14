@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { DTO } from 'src/type'
+import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
 import { Account } from './account.entity'
 
@@ -10,6 +11,7 @@ export class AccountService {
   constructor(
     @InjectRepository(Account)
     private accountRepo: Repository<Account>,
+    private readonly userService: UserService,
   ) {}
 
   async getAccountById(option: FindOneOptions<Account>) {
@@ -24,6 +26,10 @@ export class AccountService {
   }
 
   async addAccount(dto: DTO.Account.AddAccount) {
+    if (dto.ownerId) {
+      await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+    }
+
     return this.accountRepo.save(dto)
   }
 

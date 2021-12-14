@@ -2,7 +2,7 @@ import { DTO } from 'src/type'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { account, contact, deal, lead } from './data'
+import { account, contact, deal, lead, user } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { LeadService } from 'src/lead-contact/lead.service'
@@ -88,9 +88,27 @@ describe('lead-contact service', () => {
         source: lead.source,
       }
 
+      userRepo.findOne.mockReturnValue({ ...user })
       leadContactRepo.save.mockReturnValue({ ...lead })
 
       expect(await leadService.addLead(dto)).toEqual(lead)
+    })
+
+    it('should add lead succeed', async () => {
+      const dto: DTO.Lead.AddLead = {
+        ownerId: lead.ownerId,
+        fullName: lead.fullName,
+        email: lead.email,
+        status: lead.status,
+        source: lead.source,
+      }
+
+      userRepo.findOne.mockReturnValue(undefined)
+      leadContactRepo.save.mockReturnValue({ ...lead })
+
+      expect(leadService.addLead(dto)).rejects.toThrow(
+        new NotFoundException('User does not exist'),
+      )
     })
   })
 
@@ -108,11 +126,7 @@ describe('lead-contact service', () => {
 
       expect(
         leadService.getLeadById({ where: { id: lead.id } }),
-      ).rejects.toThrow(
-        new NotFoundException(
-          `Lead not found`,
-        ),
-      )
+      ).rejects.toThrow(new NotFoundException(`Lead not found`))
     })
   })
 
@@ -159,9 +173,7 @@ describe('lead-contact service', () => {
       leadContactRepo.findOne.mockReturnValue(undefined)
 
       expect(leadService.updateLead(dto, lead.id)).rejects.toThrow(
-        new NotFoundException(
-          `Lead not found`,
-        ),
+        new NotFoundException(`Lead not found`),
       )
     })
   })
@@ -178,6 +190,7 @@ describe('lead-contact service', () => {
         description: deal.description,
       }
 
+      userRepo.findOne.mockReturnValue({ ...user })
       leadContactRepo.findOne.mockReturnValue({ ...lead })
       accountRepo.save.mockReturnValue({ ...account })
       leadContactRepo.save.mockReturnValue({ ...contact })
@@ -200,6 +213,7 @@ describe('lead-contact service', () => {
         description: deal.description,
       }
 
+      userRepo.findOne.mockReturnValue({ ...user })
       leadContactRepo.findOne.mockReturnValue({ ...lead })
       accountRepo.save.mockReturnValue({ ...account })
       leadContactRepo.save.mockReturnValue({ ...contact })
@@ -223,16 +237,13 @@ describe('lead-contact service', () => {
         description: deal.description,
       }
 
-
       leadContactRepo.findOne.mockReturnValue(undefined)
       accountRepo.save.mockReturnValue({ ...account })
       leadContactRepo.save.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(leadService.convert(lead.id, dto, true)).rejects.toThrow(
-        new NotFoundException(
-          `Lead not found`,
-        ),
+        new NotFoundException(`Lead not found`),
       )
     })
 
@@ -253,9 +264,7 @@ describe('lead-contact service', () => {
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(leadService.convert(contact.id, dto, true)).rejects.toThrow(
-        new NotFoundException(
-          `Lead not found`,
-        ),
+        new NotFoundException(`Lead not found`),
       )
     })
   })
