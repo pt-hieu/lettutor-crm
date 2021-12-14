@@ -6,14 +6,15 @@ import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 export enum DealStage {
-  AUTHENTICATION = 'Authentication',
-  NEED_ANALYSIS = 'Need Analysis',
+  QUALIFICATION = 'Qualification',
+  NEEDS_ANALYSIS = 'Needs Analysis',
   VALUE_PROPOSITION = 'Value Proposition',
-  SUBMIT_ESTIMATE_PRICE = 'Submit Estimate / Price',
-  NEGOTIATE_REVIEW = 'Negotiate / Review',
-  ENDED_SUCCESSFULLY = 'Ended Successfully',
-  SKIP_THE_ENDING = 'Skip The Ending',
-  ENDED_LOST_COMPLETELY = 'Ended - Lost Completely',
+  IDENTIFY_DECISION_MAKERS = 'Identify Decision Makers',
+  PROPOSAL_PRICE_QUOTE = 'Proposal/Price Quote',
+  NEGOTIATION_REVIEW = 'Negotiation/Review',
+  CLOSED_WON = 'Closed Won',
+  CLOSED_LOST = 'Closed Lost',
+  CLOSED_LOST_TO_COMPETITION = 'Closed-Lost To Competition',
 }
 
 @Entity({ name: 'deal' })
@@ -48,7 +49,7 @@ export class Deal extends BaseEntity {
   @Column({ type: 'double precision', nullable: true, default: null })
   amount: number | null
 
-  @Column({ enum: DealStage, type: 'enum', default: DealStage.AUTHENTICATION })
+  @Column({ enum: DealStage, type: 'enum', default: DealStage.QUALIFICATION })
   stage: DealStage
 
   @Column({ enum: LeadSource, type: 'enum', default: LeadSource.NONE })

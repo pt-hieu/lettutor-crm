@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
+  IsEnum,
   IsMobilePhone,
   IsNotEmpty,
   IsOptional,
@@ -7,6 +8,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
+import { AccountType } from 'src/account/account.entity'
 import { Paginate } from './paging'
 
 export class AddAccount {
@@ -19,6 +21,11 @@ export class AddAccount {
   @IsString()
   @MaxLength(100)
   fullName: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(AccountType)
+  type?: AccountType
 
   @ApiPropertyOptional()
   @IsOptional()

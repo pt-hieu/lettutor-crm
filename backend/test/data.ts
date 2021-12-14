@@ -1,4 +1,4 @@
-import { Account } from 'src/account/account.entity'
+import { Account, AccountType } from 'src/account/account.entity'
 import { Deal, DealStage } from 'src/deal/deal.entity'
 import {
   LeadContact,
@@ -53,7 +53,7 @@ export const lead: LeadContact = {
   socialAccount: null,
   createdAt: null,
   updatedAt: null,
-  deals: []
+  deals: [],
 }
 
 export const account: Account = {
@@ -61,6 +61,7 @@ export const account: Account = {
   owner: user,
   ownerId: lead.owner.id,
   fullName: lead.fullName + ' Account',
+  type: AccountType.NONE,
   address: lead.address,
   description: lead.description,
   phoneNum: lead.phoneNum,
@@ -88,7 +89,7 @@ export const deal: Deal = {
   fullName: 'deal',
   amount: 0,
   closingDate: null,
-  stage: DealStage.AUTHENTICATION,
+  stage: DealStage.QUALIFICATION,
   source: LeadSource.NONE,
   probability: 10,
   description: null,
