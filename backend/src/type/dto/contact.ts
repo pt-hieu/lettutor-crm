@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsEnum,
   IsOptional,
@@ -7,7 +7,7 @@ import {
   IsUUID,
   IsNotEmpty,
   MaxLength,
-  IsMobilePhone
+  IsMobilePhone,
 } from 'class-validator'
 import { LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { Paginate } from './paging'
@@ -23,7 +23,6 @@ export class GetManyQuery extends Paginate {
   @IsEnum(LeadSource, { each: true })
   source?: LeadSource[]
 }
-
 
 export class UpdateBody {
   @ApiPropertyOptional()
@@ -74,6 +73,56 @@ export class UpdateBody {
   @ApiPropertyOptional()
   @IsOptional()
   @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  socialAccount?: string
+}
+
+export class AddContact {
+  @ApiProperty()
+  @IsUUID()
+  ownerId: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  fullName: string
+
+  @ApiProperty()
+  @IsEmail()
+  @MaxLength(100)
+  email: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  accountId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(LeadSource)
+  source?: LeadSource
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(250)
+  address?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsMobilePhone()
+  phoneNum?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   @MaxLength(100)
   socialAccount?: string
