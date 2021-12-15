@@ -13,6 +13,7 @@ import { LeadContactModule } from './lead-contact/lead-contact.module';
 import { AccountModule } from './account/account.module';
 import { DealModule } from './deal/deal.module';
 import { WebhookModule } from './webhook/webhook.module'
+import { HttpModule } from '@nestjs/axios'
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { WebhookModule } from './webhook/webhook.module'
     AccountModule,
     DealModule,
     WebhookModule,
+    HttpModule
   ],
   providers: [
     JwtStrategy,
