@@ -596,6 +596,13 @@
     handlebars "^4.7.6"
     pug "^3.0.1"
 
+"@nestjs/axios@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@nestjs/axios/-/axios-0.0.3.tgz#f53ba265e15687b9acb036642ed5f29998695bd1"
+  integrity sha512-Cc+D2S2uesthRpalmZEPdm5wF2N9ji4l9Wsb2vFaug/CVWg2BoegHm0L1jzFUL+6kS+mXWSFvwXJmofv+7bajw==
+  dependencies:
+    axios "0.23.0"
+
 "@nestjs/cli@^8.1.4":
   version "8.1.4"
   resolved "https://registry.yarnpkg.com/@nestjs/cli/-/cli-8.1.4.tgz#8105c791eae3ead67e8ba7b4df2c0f45a445d0cd"
@@ -2195,6 +2202,8 @@ debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.2:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
   integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==
+  dependencies:
+    ms "2.1.2"
 
 debug@^3.1.0:
   version "3.2.7"
