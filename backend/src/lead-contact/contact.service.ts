@@ -57,6 +57,19 @@ export class ContactService {
     return found
   }
 
+  async addContact(dto: DTO.Contact.AddContact) {
+    await Promise.all([
+      dto.accountId
+        ? this.accountService.getAccountById({ where: { id: dto.accountId } })
+        : undefined,
+      dto.ownerId
+        ? this.userRepo.getOneUserById({ where: { id: dto.ownerId } })
+        : undefined,
+    ])
+
+    return this.leadContactRepo.save(dto)
+  }
+
   async update(id: string, dto: DTO.Contact.UpdateBody) {
     const contact = await this.getContactById({ where: { id, isLead: false } })
 
