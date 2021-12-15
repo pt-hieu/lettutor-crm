@@ -28,15 +28,15 @@ export class AddLead {
   @MaxLength(100)
   email: string
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsEnum(LeadStatus)
-  status: LeadStatus
+  status?: LeadStatus
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsEnum(LeadSource)
-  source: LeadSource
+  source?: LeadSource
 
   @ApiPropertyOptional()
   @IsOptional()
