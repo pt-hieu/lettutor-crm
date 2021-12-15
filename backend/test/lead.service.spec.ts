@@ -94,7 +94,7 @@ describe('lead-contact service', () => {
       expect(await leadService.addLead(dto)).toEqual(lead)
     })
 
-    it('should add lead succeed', async () => {
+    it('should throw not found exception when owner not found', async () => {
       const dto: DTO.Lead.AddLead = {
         ownerId: lead.ownerId,
         fullName: lead.fullName,
