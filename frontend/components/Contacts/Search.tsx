@@ -1,4 +1,6 @@
 import Animate from '@utils/components/Animate'
+import ButtonAdd from '@utils/components/ButtonAdd'
+import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
@@ -56,7 +58,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      {/* <ButtonAdd
+      <ButtonAdd
         title="Create Contact"
         asLink
         link="/contacts/add-contact"
@@ -72,7 +74,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
             </button>
           </>
         }
-      /> */}
+      />
     </div>
   )
 }
