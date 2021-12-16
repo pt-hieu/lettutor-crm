@@ -16,7 +16,7 @@ import { UserService } from 'src/user/user.service'
 import { Role, User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
 
-describe('lead-contact service', () => {
+describe('contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
   let contactService: ContactService
   let accountService: AccountService

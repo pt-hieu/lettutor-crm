@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { LeadService } from './lead.service'
 import { LeadController } from './lead.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -10,8 +10,14 @@ import { DealModule } from 'src/deal/deal.module'
 import { UserModule } from 'src/user/user.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LeadContact]), AccountModule, DealModule, UserModule],
+  imports: [
+    TypeOrmModule.forFeature([LeadContact]),
+    AccountModule,
+    UserModule,
+    forwardRef(() => DealModule),
+  ],
   providers: [LeadService, ContactService],
   controllers: [LeadController, ContactController],
+  exports: [LeadService, ContactService],
 })
 export class LeadContactModule {}
