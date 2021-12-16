@@ -27,7 +27,7 @@ export class ContactController {
 
   @Post()
   @ApiOperation({ summary: 'to add new contact manually' })
-  addLead(@Body() dto: DTO.Contact.AddContact) {
+  addContact(@Body() dto: DTO.Contact.AddContact) {
     return this.service.addContact(dto)
   }
 
@@ -42,7 +42,7 @@ export class ContactController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'to edit a contact' })
-  updateLead(
+  updateContact(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.Contact.UpdateBody,
   ) {

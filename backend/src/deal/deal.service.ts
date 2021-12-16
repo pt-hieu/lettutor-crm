@@ -1,7 +1,10 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { AccountService } from 'src/account/account.service'
+import { ContactService } from 'src/lead-contact/contact.service'
 import { DTO } from 'src/type'
+import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
 import { Deal } from './deal.entity'
 
@@ -10,6 +13,9 @@ export class DealService {
   constructor(
     @InjectRepository(Deal)
     private dealRepo: Repository<Deal>,
+    private readonly accountService: AccountService,
+    private readonly userService: UserService,
+    private readonly contactService: ContactService,
   ) {}
 
   async getMany(query: DTO.Deal.GetManyQuery) {
@@ -48,6 +54,18 @@ export class DealService {
   }
 
   async addDeal(dto: DTO.Deal.AddDeal) {
+    await Promise.all([
+      dto.accountId
+        ? this.accountService.getAccountById({ where: { id: dto.accountId } })
+        : undefined,
+      dto.ownerId
+        ? this.userService.getOneUserById({ where: { id: dto.ownerId } })
+        : undefined,
+      dto.contactId
+        ? this.contactService.getContactById({ where: { id: dto.contactId } })
+        : undefined,
+    ])
+
     return this.dealRepo.save(dto)
   }
 
