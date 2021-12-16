@@ -3,6 +3,7 @@ import { LeadSource } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
+import { ContactAddFormData } from 'pages/contacts/add-contact'
 import { ContactUpdateFormData } from 'pages/contacts/[id]/edit'
 
 export const getContacts =
@@ -38,5 +39,13 @@ export const updateContact = async (params: {
     contactInfo,
   )
 
+  return data
+}
+
+export const addContact = async (contactInfo: ContactAddFormData) => {
+  if (contactInfo.accountId === '') {
+    delete contactInfo.accountId
+  } //avoid bad request: accountId is not UUID
+  const { data } = await axios.post<Contact>(API + `/api/contact`, contactInfo)
   return data
 }
