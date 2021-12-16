@@ -67,7 +67,7 @@ export class ContactService {
         : undefined,
     ])
 
-    return this.leadContactRepo.save(dto)
+    return this.leadContactRepo.save({ ...dto, isLead: false })
   }
 
   async update(id: string, dto: DTO.Contact.UpdateBody) {
