@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { ApiOperation, ApiQuery } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { AccountService } from './account.service'
@@ -12,6 +20,15 @@ export class AccountController {
   @ApiQuery({ type: DTO.Account.GetManyQuery })
   index(@Query() query: DTO.Account.GetManyQuery) {
     return this.service.getMany(query)
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'to get account information by Id' })
+  getAccountById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.getAccountById({
+      where: { id },
+      relations: ['owner'],
+    })
   }
 
   @Post()
