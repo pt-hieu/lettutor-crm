@@ -1,67 +1,71 @@
-import ContactDetailNavbar from '@components/Contacts/ContactDetailNavbar'
-import ContactDetailSidebar from '@components/Contacts/ContactDetailSidebar'
+import AccountDetailNavbar from '@components/Accounts/AccountDetailNavbar'
+import AccountDetailSidebar from '@components/Accounts/AccountDetailSidebar'
 import Layout from '@utils/components/Layout'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Contact } from '@utils/models/contact'
-import { getContact } from '@utils/service/contact'
+import { Account } from '@utils/models/account'
+import { getAccount } from '@utils/service/account'
+import moment from 'moment'
 import { GetServerSideProps } from 'next'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { ReactNode, useMemo } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
-import Link from 'next/link'
-import moment from 'moment'
 
-type ContactInfo = {
+type AccountInfo = {
   label: string
   value: ReactNode
 }
 
-const ContactDetail = () => {
+const AccountDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
 
-  const { data: contact } = useQuery<Contact>(['contact', id], {
+  const { data: account } = useQuery<Account>(['account', id], {
     enabled: false,
   })
 
-  const contactInfo = useMemo(
-    (): ContactInfo[] => [
+  const accountInfo = useMemo(
+    (): AccountInfo[] => [
       {
-        label: 'Contact Owner',
-        value: contact?.owner.name,
+        label: 'Account Owner',
+        value: account?.owner.name,
       },
       {
-        label: 'Full Name',
-        value: contact?.fullName,
-      },
-      {
-        label: 'Email',
-        value: contact?.email,
+        label: 'Account Name',
+        value: account?.fullName,
       },
       {
         label: 'Phone',
-        value: contact?.phoneNum,
+        value: account?.phoneNum,
+      },
+      {
+        label: 'Address',
+        value: account?.address,
+      },
+      {
+        label: 'Description',
+        value: account?.description,
       },
     ],
-    [contact],
+    [account],
   )
 
   return (
-    <Layout title={`CRM | Contact | ${contact?.fullName}`} requireLogin>
+    <Layout title={`CRM | Account | ${account?.fullName}`} requireLogin>
       <div className="crm-container">
-        <ContactDetailNavbar
-          fullName={contact?.fullName || ''}
-          id={contact?.id || ''}
+        <AccountDetailNavbar
+          fullName={account?.fullName || ''}
+          id={account?.id || ''}
         />
 
         <div className="grid grid-cols-[250px,1fr]">
-          <ContactDetailSidebar />
+          <AccountDetailSidebar />
 
           <div className="flex flex-col divide-y gap-4">
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <ul className="flex flex-col gap-4">
-                {contactInfo.map(({ label, value }) => (
+                {accountInfo.map(({ label, value }) => (
                   <li key={label} className="grid grid-cols-[250px,1fr] gap-4">
                     <span className="inline-block text-right font-medium">
                       {label}
@@ -74,7 +78,7 @@ const ContactDetail = () => {
             {/* FakeData */}
             <div className="pt-4">
               <div className="font-semibold mb-4 text-[17px]">Deals</div>
-              {contact?.deals?.map(
+              {account?.deals?.map(
                 ({ id, fullName, amount, stage, closingDate }) => (
                   <>
                     <p className="font-semibold">
@@ -114,7 +118,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   if (token) {
     await Promise.all([
-      client.prefetchQuery(['contact', id], getContact(id, token)),
+      client.prefetchQuery(['account', id], getAccount(id, token)),
     ])
   }
 
@@ -125,4 +129,4 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 }
 
-export default ContactDetail
+export default AccountDetail

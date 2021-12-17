@@ -1,4 +1,3 @@
-import { LeadSource } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
@@ -24,3 +23,10 @@ export const addAccount = async (contactInfo: AccountAddFormData) => {
   const { data } = await axios.post<Account>(API + `/api/account`, contactInfo)
   return data
 }
+
+export const getAccount = (id?: string, token?: string) => () =>
+  axios
+    .get<Account>(API + `/api/account/${id}`, {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    .then((res) => res.data)
