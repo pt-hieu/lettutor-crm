@@ -5,14 +5,15 @@ import { LeadSource } from './lead'
 import { User } from './user'
 
 export enum DealStage {
-  AUTHENTICATION = 'Authentication',
-  NEED_ANALYSIS = 'Need Analysis',
+  QUALIFICATION = 'Qualification',
+  NEEDS_ANALYSIS = 'Needs Analysis',
   VALUE_PROPOSITION = 'Value Proposition',
-  SUBMIT_ESTIMATE_PRICE = 'Submit Estimate / Price',
-  NEGOTIATE_REVIEW = 'Negotiate / Review',
-  ENDED_SUCCESSFULLY = 'Ended Successfully',
-  SKIP_THE_ENDING = 'Skip The Ending',
-  ENDED_LOST_COMPLETELY = 'Ended - Lost Completely',
+  IDENTIFY_DECISION_MAKERS = 'Identify Decision Makers',
+  PROPOSAL_PRICE_QUOTE = 'Proposal/Price Quote',
+  NEGOTIATION_REVIEW = 'Negotiation/Review',
+  CLOSED_WON = 'Closed Won',
+  CLOSED_LOST = 'Closed Lost',
+  CLOSED_LOST_TO_COMPETITION = 'Closed-Lost To Competition',
 }
 
 export interface Deal extends Base {

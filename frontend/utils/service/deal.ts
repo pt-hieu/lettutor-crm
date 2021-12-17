@@ -38,3 +38,8 @@ export const updateDeal = async (params: {
 
   return data
 }
+
+export const addDeal = async (dealInfo: DealUpdateFormData) => {
+  const { data } = await axios.post<Deal>(API + `/api/deal`, dealInfo)
+  return data
+}
