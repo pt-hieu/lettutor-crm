@@ -48,7 +48,7 @@ const columns: TableColumnType<Account>[] = [
     sorter: { compare: (a, b) => a.fullName.localeCompare(b.fullName) },
     fixed: 'left',
     render: (_, { id, fullName }) => (
-      <Link href={`/contacts/${id}`}>
+      <Link href={`/accounts/${id}`}>
         <a className="crm-link underline hover:underline">{fullName}</a>
       </Link>
     ),
@@ -89,21 +89,29 @@ export default function AccountsView() {
     isArray: true,
   })
 
+  const applySearch = (keyword: string | undefined) => {
+    setPage(1)
+    setSearch(keyword)
+  }
+
+  const applyFilter = (types: AccountType[] | undefined) => {
+    setPage(1)
+    setType(types)
+  }
+
   const { data: accounts, isLoading } = useQuery(
     ['accounts', page || 1, limit || 10, search || '', type || []],
     getAccounts({ limit, page, search, type }),
   )
 
-  console.log('Accounts: ', accounts)
-
   const [start, end, total] = usePaginateItem(accounts)
 
   return (
     <AccountsViewLayout
-      title="CRM | accounts"
-      sidebar={<AccountsSidebar type={type} onTypeChange={setType} />}
+      title="CRM | Accounts"
+      sidebar={<AccountsSidebar type={type} onTypeChange={applyFilter} />}
     >
-      <Search search={search} onSearchChange={setSearch} />
+      <Search search={search} onSearchChange={applySearch} />
 
       <div className="mt-4">
         <AnimatePresence presenceAffectsLayout>
