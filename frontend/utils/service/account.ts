@@ -1,13 +1,14 @@
+import { AccountType, Account } from '@utils/models/account'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
-import { Account } from 'next-auth'
 import { AccountAddFormData } from 'pages/accounts/add-account'
 
 export const getAccounts =
   (
     params: {
       search?: string
+      type?: AccountType[]
     } & PagingQuery,
     token?: string,
   ) =>
