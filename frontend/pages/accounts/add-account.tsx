@@ -86,7 +86,6 @@ const CreateAccount = () => {
   }, [session?.user.id])
 
   const handleAddAccount = handleSubmit((data) => {
-    console.log('submit', data)
     mutateAsync(data)
   })
 
