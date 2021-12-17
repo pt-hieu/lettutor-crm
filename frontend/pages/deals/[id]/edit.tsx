@@ -152,8 +152,6 @@ const EditDeal = () => {
       data.contactId = null
     }
 
-    console.log('submit data: ', data)
-
     mutateAsync({ id, dealInfo: data })
   })
 

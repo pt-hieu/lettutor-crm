@@ -111,8 +111,6 @@ export default function ConvertModal({ close, visible }: Props) {
 
   const convert = useCallback(
     handleSubmit((data) => {
-      console.log(data)
-
       mutateAsync(convertToDeal ? data : undefined)
     }),
     [convertToDeal],
@@ -267,7 +265,10 @@ export default function ConvertModal({ close, visible }: Props) {
             {data?.map(
               (entity, index) =>
                 entity && (
-                  <Link href={linkMapping[index as 0 | 1 | 2] + entity.id} key={entity.id}>
+                  <Link
+                    href={linkMapping[index as 0 | 1 | 2] + entity.id}
+                    key={entity.id}
+                  >
                     <a className="crm-link underline hover:underline">
                       {entity.fullName}
                     </a>

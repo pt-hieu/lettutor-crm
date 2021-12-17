@@ -13,6 +13,7 @@ import { User } from '@utils/models/user'
 import Layout from '@utils/components/Layout'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { phoneRegExp } from '@utils/data/regex'
 
 export interface LeadUpdateFromData
   extends Pick<
@@ -27,8 +28,6 @@ export interface LeadUpdateFromData
   > {
   ownerId: string
 }
-
-const phoneRegExp = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/
 
 const schema = yup.object().shape({
   ownerId: yup.string().required('Lead Owner is required.'),

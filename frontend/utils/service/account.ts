@@ -3,6 +3,7 @@ import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
 import { AccountAddFormData } from 'pages/accounts/add-account'
+import { AccountUpdateFormData } from 'pages/accounts/[id]/edit'
 
 export const getAccounts =
   (
@@ -31,3 +32,16 @@ export const getAccount = (id?: string, token?: string) => () =>
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
+
+export const updateAccount = async (params: {
+  id: string
+  accountInfo: AccountUpdateFormData
+}) => {
+  const { id, accountInfo } = params
+  const { data } = await axios.patch<Account>(
+    API + `/api/account/${id}`,
+    accountInfo,
+  )
+
+  return data
+}
