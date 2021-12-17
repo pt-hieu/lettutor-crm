@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Param,
   Body,
+  Post,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger'
 import { DTO } from 'src/type'
@@ -24,6 +25,12 @@ export class ContactController {
     return this.service.getMany(query)
   }
 
+  @Post()
+  @ApiOperation({ summary: 'to add new contact manually' })
+  addContact(@Body() dto: DTO.Contact.AddContact) {
+    return this.service.addContact(dto)
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'to get contact information by Id' })
   getContactById(@Param('id', ParseUUIDPipe) id: string) {
@@ -35,7 +42,7 @@ export class ContactController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'to edit a contact' })
-  updateLead(
+  updateContact(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.Contact.UpdateBody,
   ) {

@@ -3,6 +3,7 @@ import { Type } from 'class-transformer'
 import {
   IsDate,
   IsEnum,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -16,6 +17,20 @@ import { Paginate } from './paging'
 
 export class AddDeal {
   @ApiProperty()
+  @IsUUID()
+  ownerId: string
+
+  @ApiProperty()
+  @IsUUID()
+  accountId: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  contactId?: string
+
+  @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   @MaxLength(100)
   fullName: string
@@ -54,6 +69,7 @@ export class AddDeal {
 
 export class ConvertToDeal {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   @MaxLength(100)
   fullName: string

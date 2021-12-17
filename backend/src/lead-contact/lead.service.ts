@@ -101,7 +101,7 @@ export class LeadService {
 
     let deal: Deal | null = null
     if (shouldConvertToDeal) {
-      const dto = {
+      const dto: DTO.Deal.AddDeal = {
         ownerId: lead.owner.id,
         accountId: account.id,
         contactId: contact.id,

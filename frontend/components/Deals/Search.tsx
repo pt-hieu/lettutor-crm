@@ -1,4 +1,6 @@
 import Animate from '@utils/components/Animate'
+import ButtonAdd from '@utils/components/ButtonAdd'
+import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
@@ -59,15 +61,15 @@ export default function DealsSearch({
           </button>
         </Animate>
       </form>
-      {/* <ButtonAdd
-        title="Create Contact"
+      <ButtonAdd
+        title="Create Deal"
         asLink
-        link="/contacts/add-contact"
+        link="/deals/add-deal"
         menuItems={
           <>
             <button className={menuItemClass}>
               <span className="fa fa-upload mr-4" />
-              Import Contacts
+              Import Deals
             </button>
             <button className={menuItemClass}>
               <span className="fa fa-book mr-4" />
@@ -75,7 +77,7 @@ export default function DealsSearch({
             </button>
           </>
         }
-      /> */}
+      />
     </div>
   )
 }

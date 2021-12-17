@@ -16,7 +16,7 @@ import { UserService } from 'src/user/user.service'
 import { Role, User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
 
-describe('lead-contact service', () => {
+describe('contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
   let contactService: ContactService
   let accountService: AccountService
@@ -174,6 +174,74 @@ describe('lead-contact service', () => {
 
       expect(contactService.update(contact.id, dto)).rejects.toThrow(
         new NotFoundException(`Account not found`),
+      )
+    })
+  })
+
+  describe('add contact', () => {
+    it('should add contact succeed with both owner and account', async () => {
+      const dto: DTO.Contact.AddContact = {
+        ownerId: contact.ownerId,
+        accountId: contact.accountId,
+        fullName: contact.fullName,
+        email: contact.email,
+        source: contact.source,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      accountRepo.findOne.mockReturnValue({ ...account })
+      leadContactRepo.save.mockReturnValue({ ...contact })
+
+      expect(await contactService.addContact(dto)).toEqual(contact)
+    })
+
+    it('should add contact succeed with only owner', async () => {
+      const dto: DTO.Contact.AddContact = {
+        ownerId: contact.ownerId,
+        fullName: contact.fullName,
+        email: contact.email,
+        source: contact.source,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      leadContactRepo.save.mockReturnValue({ ...contact })
+
+      expect(await contactService.addContact(dto)).toEqual(contact)
+    })
+
+    it('should throw not found exception when owner not found', async () => {
+      const dto: DTO.Contact.AddContact = {
+        ownerId: contact.ownerId,
+        accountId: contact.accountId,
+        fullName: contact.fullName,
+        email: contact.email,
+        source: contact.source,
+      }
+
+      userRepo.findOne.mockReturnValue(undefined)
+      accountRepo.findOne.mockReturnValue({ ...account })
+      leadContactRepo.save.mockReturnValue({ ...contact })
+
+      expect(contactService.addContact(dto)).rejects.toThrow(
+        new NotFoundException('User does not exist'),
+      )
+    })
+
+    it('should throw not found exception when account not found', async () => {
+      const dto: DTO.Contact.AddContact = {
+        ownerId: contact.ownerId,
+        accountId: contact.accountId,
+        fullName: contact.fullName,
+        email: contact.email,
+        source: contact.source,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      accountRepo.findOne.mockReturnValue(undefined)
+      leadContactRepo.save.mockReturnValue({ ...contact })
+
+      expect(contactService.addContact(dto)).rejects.toThrow(
+        new NotFoundException('Account not found'),
       )
     })
   })

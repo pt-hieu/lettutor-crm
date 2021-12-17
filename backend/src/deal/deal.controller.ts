@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
@@ -22,6 +23,12 @@ export class DealController {
   @ApiQuery({ type: DTO.Deal.GetManyQuery })
   index(@Query() query: DTO.Deal.GetManyQuery) {
     return this.service.getMany(query)
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'to add new deal manually' })
+  addDeal(@Body() dto: DTO.Deal.AddDeal) {
+    return this.service.addDeal(dto)
   }
 
   @Get(':id')

@@ -13,7 +13,7 @@ export class ContactService {
     @InjectRepository(LeadContact)
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
-    private readonly userRepo: UserService,
+    private readonly userService: UserService,
   ) {}
 
   async getMany(query: DTO.Contact.GetManyQuery) {
@@ -57,6 +57,19 @@ export class ContactService {
     return found
   }
 
+  async addContact(dto: DTO.Contact.AddContact) {
+    await Promise.all([
+      dto.accountId
+        ? this.accountService.getAccountById({ where: { id: dto.accountId } })
+        : undefined,
+      dto.ownerId
+        ? this.userService.getOneUserById({ where: { id: dto.ownerId } })
+        : undefined,
+    ])
+
+    return this.leadContactRepo.save({ ...dto, isLead: false })
+  }
+
   async update(id: string, dto: DTO.Contact.UpdateBody) {
     const contact = await this.getContactById({ where: { id, isLead: false } })
 
@@ -65,7 +78,7 @@ export class ContactService {
         ? this.accountService.getAccountById({ where: { id: dto.accountId } })
         : undefined,
       dto.ownerId
-        ? this.userRepo.getOneUserById({ where: { id: dto.ownerId } })
+        ? this.userService.getOneUserById({ where: { id: dto.ownerId } })
         : undefined,
     ])
 

@@ -2,36 +2,34 @@ import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import { Field } from '@utils/data/add-lead-data'
 import { ContactUpdateData } from '@utils/data/update-contact-data'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
+import { LeadSource } from '@utils/models/lead'
 import { User } from '@utils/models/user'
 import { getAccounts } from '@utils/service/account'
-import { getContact, updateContact } from '@utils/service/contact'
+import { addContact } from '@utils/service/contact'
 import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { validate } from 'pages/leads/add-lead'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
 
-export interface ContactUpdateFormData
+export interface ContactAddFormData
   extends Pick<
     Contact,
-    | 'fullName'
-    | 'email'
-    | 'status'
-    | 'source'
-    | 'description'
-    | 'phoneNum'
-    | 'address'
+    'fullName' | 'email' | 'source' | 'description' | 'phoneNum' | 'address'
   > {
   ownerId: string
-  accountId: string
+  accountId?: string
 }
 
-const UpdateContact = () => {
+const CreateContact = () => {
+  const [session] = useTypedSession()
   const { push, query } = useRouter()
   const id = query.id as string
 
@@ -43,47 +41,43 @@ const UpdateContact = () => {
     enabled: false,
   })
 
-  const { data: contact } = useQuery<Contact>(['contact', id], {
-    enabled: false,
-  })
-
-  const { isLoading, mutateAsync } = useMutation(
-    'update-contact',
-    updateContact,
-    {
-      onSuccess: () => {
-        notification.success({
-          message: 'Edit contact successfully.',
-        })
-        push(`/contacts/${id}`)
-      },
-      onError: () => {
-        notification.error({ message: 'Edit contact unsuccessfully.' })
-      },
+  const { isLoading, mutateAsync } = useMutation('add-contact', addContact, {
+    onSuccess: (res) => {
+      notification.success({
+        message: 'Add contact successfully.',
+      })
+      push(`/contacts/${res.id}`)
     },
-  )
+    onError: () => {
+      notification.error({ message: 'Add contact unsuccessfully.' })
+    },
+  })
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
-  } = useForm<ContactUpdateFormData>({
+  } = useForm<ContactAddFormData>({
     mode: 'all',
     defaultValues: {
-      ownerId: contact?.owner.id,
-      fullName: contact?.fullName,
-      email: contact?.email,
-      status: contact?.status,
-      source: contact?.source,
-      address: contact?.address,
-      description: contact?.description,
-      phoneNum: contact?.phoneNum,
-      accountId: contact?.account?.id,
+      ownerId: '',
+      fullName: '',
+      email: '',
+      source: LeadSource.NONE,
+      address: '',
+      description: '',
+      phoneNum: '',
+      accountId: undefined,
     },
   })
 
-  const editContact = handleSubmit((data) => {
-    mutateAsync({ id, contactInfo: data })
+  useEffect(() => {
+    setValue('ownerId', session?.user.id || '')
+  }, [session?.user.id])
+
+  const handleAddContact = handleSubmit((data) => {
+    mutateAsync(data)
   })
 
   const renderField = ({
@@ -106,7 +100,7 @@ const UpdateContact = () => {
       <div className="col-span-2">
         {/* @ts-ignore */}
         <Input
-          error={errors[id as keyof ContactUpdateFormData]?.message}
+          error={errors[id as keyof ContactAddFormData]?.message}
           as={as!}
           props={{
             type: type,
@@ -142,7 +136,7 @@ const UpdateContact = () => {
                 )
               ) : undefined,
             ...register(
-              id as keyof ContactUpdateFormData,
+              id as keyof ContactAddFormData,
               validation
                 ? validate({
                     id,
@@ -161,7 +155,7 @@ const UpdateContact = () => {
   )
 
   return (
-    <Layout requireLogin title="CRM | Edit contact">
+    <Layout requireLogin title="CRM | Add contact">
       <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
         <div>
           {/* Lead Infomation Start */}
@@ -179,13 +173,13 @@ const UpdateContact = () => {
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
           <button
             className="crm-button-outline"
-            onClick={() => push(`/contacts/${id}`)}
+            onClick={() => push(`/contacts`)}
           >
             Cancel
           </button>
           <button
             className="crm-button"
-            onClick={editContact}
+            onClick={handleAddContact}
             disabled={isLoading}
           >
             Save
@@ -196,12 +190,8 @@ const UpdateContact = () => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async ({
-  req,
-  params,
-}) => {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const client = new QueryClient()
-  const id = params?.id as string
   const token = getSessionToken(req.cookies)
 
   if (token) {
@@ -219,7 +209,6 @@ export const getServerSideProps: GetServerSideProps = async ({
         ['accounts'],
         getAccounts({ shouldNotPaginate: true }, token),
       ),
-      client.prefetchQuery(['contact', id], getContact(id, token)),
     ])
   }
 
@@ -230,4 +219,4 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 }
 
-export default UpdateContact
+export default CreateContact

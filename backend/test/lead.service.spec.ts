@@ -15,8 +15,9 @@ import { Deal } from 'src/deal/deal.entity'
 import { UserService } from 'src/user/user.service'
 import { Role, User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
+import { ContactService } from 'src/lead-contact/contact.service'
 
-describe('lead-contact service', () => {
+describe('lead service', () => {
   let leadService: LeadService
   let leadContactRepo: MockType<Repository<LeadContact>>
   let accountService: AccountService
@@ -32,10 +33,10 @@ describe('lead-contact service', () => {
     const ref: TestingModule = await Test.createTestingModule({
       providers: [
         LeadService,
-        DealService,
         AccountService,
         DealService,
         UserService,
+        ContactService,
         {
           provide: MailService,
           useValue: {
@@ -94,7 +95,7 @@ describe('lead-contact service', () => {
       expect(await leadService.addLead(dto)).toEqual(lead)
     })
 
-    it('should add lead succeed', async () => {
+    it('should throw not found exception when owner not found', async () => {
       const dto: DTO.Lead.AddLead = {
         ownerId: lead.ownerId,
         fullName: lead.fullName,
@@ -180,14 +181,11 @@ describe('lead-contact service', () => {
 
   describe('convert lead', () => {
     it('should convert lead to account and contact succeed', async () => {
-      const dto: DTO.Deal.AddDeal = {
+      const dto: DTO.Deal.ConvertToDeal = {
         fullName: deal.fullName,
         amount: deal.amount,
         closingDate: deal.closingDate,
         stage: deal.stage,
-        source: deal.source,
-        probability: deal.probability,
-        description: deal.description,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -203,20 +201,18 @@ describe('lead-contact service', () => {
     })
 
     it('should convert lead to deal succeed', async () => {
-      const dto: DTO.Deal.AddDeal = {
+      const dto: DTO.Deal.ConvertToDeal = {
         fullName: deal.fullName,
         amount: deal.amount,
         closingDate: deal.closingDate,
         stage: deal.stage,
-        source: deal.source,
-        probability: deal.probability,
-        description: deal.description,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
       leadContactRepo.findOne.mockReturnValue({ ...lead })
       accountRepo.save.mockReturnValue({ ...account })
       leadContactRepo.save.mockReturnValue({ ...contact })
+      accountRepo.findOne.mockReturnValue({ ...account })
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(await leadService.convert(lead.id, dto, true)).toEqual([
@@ -227,14 +223,11 @@ describe('lead-contact service', () => {
     })
 
     it('should throw not found exception when lead not found', async () => {
-      const dto: DTO.Deal.AddDeal = {
+      const dto: DTO.Deal.ConvertToDeal = {
         fullName: deal.fullName,
         amount: deal.amount,
         closingDate: deal.closingDate,
         stage: deal.stage,
-        source: deal.source,
-        probability: deal.probability,
-        description: deal.description,
       }
 
       leadContactRepo.findOne.mockReturnValue(undefined)
@@ -248,14 +241,11 @@ describe('lead-contact service', () => {
     })
 
     it('should throw not found exception when try to convert a contact', async () => {
-      const dto: DTO.Deal.AddDeal = {
+      const dto: DTO.Deal.ConvertToDeal = {
         fullName: deal.fullName,
         amount: deal.amount,
         closingDate: deal.closingDate,
         stage: deal.stage,
-        source: deal.source,
-        probability: deal.probability,
-        description: deal.description,
       }
 
       leadContactRepo.findOne.mockReturnValue(undefined)
