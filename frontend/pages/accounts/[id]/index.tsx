@@ -31,8 +31,8 @@ const AccountDetail = () => {
         value: account?.owner.name,
       },
       {
-        label: 'Account Name',
-        value: account?.fullName,
+        label: 'Account Type',
+        value: account?.type,
       },
       {
         label: 'Phone',
