@@ -12,6 +12,8 @@ import { MailModule } from './mail/mail.module'
 import { LeadContactModule } from './lead-contact/lead-contact.module';
 import { AccountModule } from './account/account.module';
 import { DealModule } from './deal/deal.module';
+import { WebhookModule } from './webhook/webhook.module'
+import { HttpModule } from '@nestjs/axios'
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { DealModule } from './deal/deal.module';
       entities: [],
       synchronize: process.env.NODE_ENV !== 'production',
       autoLoadEntities: true,
-      logging: process.env.NODE_ENV !== 'production'
+      logging: false
     }),
     UserModule,
     MailModule,
@@ -35,6 +37,8 @@ import { DealModule } from './deal/deal.module';
     LeadContactModule,
     AccountModule,
     DealModule,
+    WebhookModule,
+    HttpModule
   ],
   providers: [
     JwtStrategy,
