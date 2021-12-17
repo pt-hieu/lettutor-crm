@@ -9,7 +9,7 @@ export type Field = {
   required: boolean
 }
 
-type SectionTemplate = {
+export type SectionTemplate = {
   title: string
   items: Field[]
 }
