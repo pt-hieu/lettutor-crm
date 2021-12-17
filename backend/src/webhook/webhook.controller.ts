@@ -14,7 +14,7 @@ export class WebhookController {
   ) { }
 
   @Get()
-  @ApiOperation({ summary: '' })
+  @ApiOperation({ summary: 'to verify webhook callback_url' })
   @Public()
   verify(@Query() query: any) {
     if (query['hub.mode'] !== 'subscribe')
@@ -25,16 +25,19 @@ export class WebhookController {
   }
 
   @Post()
-  @ApiOperation({ summary: '' })
+  @ApiOperation({ summary: 'to submit lead from Facebook' })
   @Public()
   async listenForLead(@Body() body: any) {
-    if (!body.entry)
+    if (!body.entry || !body.entry[0])
       throw new BadRequestException('Invalid POST data received');
-    for (const entry of body.entry) {
-      for (const change of entry.changes) {
-        await this.service.processNewLeadFromFacebook(change.value.leadgen_id);
-      }
+    const entry = body.entry[0]
+
+    for (const change of entry.changes) {
+      if (!change.value || !change.value.leadgen_id)
+        throw new BadRequestException('Invalid POST data received');
+      await this.service.processNewLeadFromFacebook(change.value.leadgen_id);
     }
+
     return 1
   }
 }

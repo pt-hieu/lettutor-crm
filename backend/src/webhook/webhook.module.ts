@@ -11,8 +11,8 @@ import { WebhookController } from '../webhook/webhook.controller'
 import { WebhookService } from './webhook.service'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LeadContact]), AccountModule, DealModule, UserModule, HttpModule ],
+  imports: [TypeOrmModule.forFeature([LeadContact]), AccountModule, DealModule, UserModule, HttpModule],
   providers: [LeadService, WebhookService],
-  controllers: [LeadController,  WebhookController],
+  controllers: [LeadController, WebhookController],
 })
-export class WebhookModule {}
+export class WebhookModule { }
