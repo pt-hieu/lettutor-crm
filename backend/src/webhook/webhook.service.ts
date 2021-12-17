@@ -11,13 +11,15 @@ import { Repository } from 'typeorm'
 export class WebhookService {
   constructor(
     @InjectRepository(LeadContact)
+    private leadContactRepo: Repository<LeadContact>,
     private leadService: LeadService,
     private httpService: HttpService
   ) { }
 
   async processNewLeadFromFacebook(leadId: string) {
     let response;
-    let requestURL = `https://graph.facebook.com/v12.0/${leadId}/?access_token=${process.env.FACEBOOK_PAGE_ACCESS_TOKEN}`
+    const apiVersion = process.env.FACEBOOK_API_VERSION || "v12.0"
+    let requestURL = `https://graph.facebook.com/${apiVersion}/${leadId}/?access_token=${process.env.FACEBOOK_PAGE_ACCESS_TOKEN}`
 
     response = await lastValueFrom(
       this.httpService.get(requestURL).pipe(
@@ -42,7 +44,7 @@ export class WebhookService {
     }
     leadInfo.status = LeadStatus.NONE
     leadInfo.source = LeadSource.FACEBOOK
-    leadInfo.ownerId = "a87d1d69-c868-4e78-afff-82a6e9dc1a28"
+    
     return this.leadService.addLead(leadInfo)
   }
 }

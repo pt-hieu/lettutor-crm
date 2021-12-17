@@ -28,10 +28,10 @@ export enum LeadSource {
 export class LeadContact extends BaseEntity {
   @ManyToOne(() => User, (user) => user.leadContacts)
   @JoinColumn()
-  owner: User
+  owner: User | null
 
-  @Column({ type: 'uuid', select: false })
-  ownerId: string
+  @Column({ type: 'uuid', nullable: true, select: false })
+  ownerId: string | null
 
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
   accountId: string | null
