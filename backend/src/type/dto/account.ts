@@ -50,4 +50,45 @@ export class GetManyQuery extends Paginate {
   @IsString()
   @IsOptional()
   search?: string
+
+  @ApiPropertyOptional({ type: AccountType, enum: AccountType, isArray: true })
+  @IsOptional()
+  @IsEnum(AccountType, { each: true })
+  type?: AccountType[]
+}
+
+export class UpdateAccount {
+  @ApiProperty()
+  @IsOptional()
+  @IsUUID()
+  ownerId?: string
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  fullName?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsMobilePhone()
+  phoneNum?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(AccountType)
+  type?: AccountType
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(250)
+  address?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string
 }
