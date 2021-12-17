@@ -1,5 +1,5 @@
 import { AccountType } from '@utils/models/account'
-import { SectionTemplate } from './add-lead-data'
+import { SectionTemplate } from './update-lead-data'
 
 type AddAccountTemplate = SectionTemplate[]
 export const AccountAddData: AddAccountTemplate = [
@@ -7,38 +7,26 @@ export const AccountAddData: AddAccountTemplate = [
     title: 'Account Information',
     items: [
       {
-        name: 'Account Owner',
-        id: 'ownerId',
+        label: 'Account Owner',
+        name: 'ownerId',
         as: 'select',
-        validation: {
-          required: true,
-        },
+        required: true,
       },
       {
-        name: 'Account Name',
-        id: 'fullName',
-        validation: {
-          required: true,
-        },
+        label: 'Account Name',
+        name: 'fullName',
+        required: true,
       },
       {
-        name: 'Phone',
-        id: 'phoneNum',
-        validation: {
-          required: true,
-          regExp: {
-            value: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
-            message: 'Please enter a valid phone number',
-          },
-        },
+        label: 'Phone',
+        name: 'phoneNum',
+        required: true,
       },
       {
-        name: 'Account Type',
-        id: 'type',
+        label: 'Account Type',
+        name: 'type',
         as: 'select',
-        validation: {
-          required: true,
-        },
+        required: true,
         selectSource: Object.values(AccountType),
       },
     ],
@@ -47,9 +35,10 @@ export const AccountAddData: AddAccountTemplate = [
     title: 'Address Information',
     items: [
       {
-        name: 'Address',
-        id: 'address',
+        label: 'Address',
+        name: 'address',
         as: 'textarea',
+        required: false,
       },
     ],
   },
@@ -57,9 +46,10 @@ export const AccountAddData: AddAccountTemplate = [
     title: 'Description Information',
     items: [
       {
-        name: 'Description',
-        id: 'description',
+        label: 'Description',
+        name: 'description',
         as: 'textarea',
+        required: false,
       },
     ],
   },

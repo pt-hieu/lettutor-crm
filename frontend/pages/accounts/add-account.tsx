@@ -1,7 +1,8 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import { AccountAddData } from '@utils/data/add-account-data'
-import { Field } from '@utils/data/add-lead-data'
+import { Field } from '@utils/data/update-deal-data'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Account, AccountType } from '@utils/models/account'
@@ -11,10 +12,10 @@ import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { validate } from 'pages/leads/add-lead'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
+import * as yup from 'yup'
 
 export interface AccountAddFormData
   extends Pick<
@@ -24,11 +25,29 @@ export interface AccountAddFormData
   ownerId: string
 }
 
+const phoneRegExp = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/
+
+const schema = yup.object().shape({
+  ownerId: yup.string().required('Account Owner is required.'),
+  phoneNum: yup
+    .string()
+    .required('Phone is required.')
+    .matches(phoneRegExp, 'Phone is invalid.'),
+  fullName: yup
+    .string()
+    .required('Full Name is required.')
+    .max(100, 'Full Name must be at most 100 characters.'),
+  description: yup
+    .string()
+    .max(500, 'Description must be at most 500 characters.'),
+  address: yup.string().max(100, 'Address must be at most 250 characters.'),
+})
+
 const CreateAccount = () => {
   const [session] = useTypedSession()
   const { push } = useRouter()
 
-  const { data: contactOwners } = useQuery<User[]>(['users'], {
+  const { data: accountOwners } = useQuery<User[]>(['users'], {
     enabled: false,
   })
 
@@ -51,6 +70,7 @@ const CreateAccount = () => {
     formState: { errors },
   } = useForm<AccountAddFormData>({
     mode: 'all',
+    resolver: yupResolver(schema),
     defaultValues: {
       ownerId: '',
       fullName: '',
@@ -65,44 +85,47 @@ const CreateAccount = () => {
     setValue('ownerId', session?.user.id || '')
   }, [session?.user.id])
 
-  const handleAddContact = handleSubmit((data) => {
+  const handleAddAccount = handleSubmit((data) => {
+    console.log('submit', data)
     mutateAsync(data)
   })
 
   const renderField = ({
-    id,
     name,
+    label,
     as,
     selectSource,
     type,
-    validation,
+    required,
   }: Field) => (
-    <div key={id} className="grid grid-cols-3 mb-6 gap-6">
+    <div key={name} className="grid grid-cols-3 mb-6 gap-6">
       <label
-        htmlFor={id}
+        htmlFor={name}
         className={`mt-[10px] crm-label text-right ${
-          validation?.required ? '' : "after:content-['']"
+          required ? '' : "after:content-['']"
         }`}
       >
-        {name}
+        {label}
       </label>
       <div className="col-span-2">
         {/* @ts-ignore */}
         <Input
-          error={errors[id as keyof AccountAddFormData]?.message}
+          error={errors[name as keyof AccountAddFormData]?.message}
           as={as!}
           props={{
             type: type,
             className: `text-sm p-3 min-h-[44px] ${
-              id === 'description' || id === 'address' ? 'w-[600px]' : 'w-full'
+              name === 'description' || name === 'address'
+                ? 'w-[600px]'
+                : 'w-full'
             }`,
             children:
               as === 'select' ? (
-                id === 'ownerId' ? (
+                name === 'ownerId' ? (
                   <>
-                    {contactOwners?.map(({ id, name }) => (
-                      <option key={id} value={id}>
-                        {name}
+                    {accountOwners?.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
                       </option>
                     ))}
                   </>
@@ -116,19 +139,7 @@ const CreateAccount = () => {
                   </>
                 )
               ) : undefined,
-            ...register(
-              id as keyof AccountAddFormData,
-              validation
-                ? validate({
-                    id,
-                    name,
-                    as,
-                    selectSource,
-                    validation,
-                    type,
-                  })
-                : undefined,
-            ),
+            ...register(name as keyof AccountAddFormData),
           }}
         />
       </div>
@@ -160,7 +171,7 @@ const CreateAccount = () => {
           </button>
           <button
             className="crm-button"
-            onClick={handleAddContact}
+            onClick={handleAddAccount}
             disabled={isLoading}
           >
             Submit
