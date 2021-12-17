@@ -148,4 +148,48 @@ describe('account service', () => {
       )
     })
   })
+
+  describe('update account', () => {
+    it('should update the account successfully', async () => {
+      const dto: DTO.Account.UpdateAccount = {
+        fullName: 'Update Account',
+      }
+
+      accountRepo.findOne.mockReturnValue({ ...account })
+      userRepo.findOne.mockReturnValue({ ...user })
+
+      accountRepo.save.mockReturnValue({ ...account, ...dto })
+
+      expect(await accountService.updateAccount(dto, account.id)).toEqual({
+        ...account,
+        ...dto,
+      })
+    })
+
+    it('should throw not found exception when account is not found', async () => {
+      const dto: DTO.Account.UpdateAccount = {
+        fullName: 'Update Account',
+      }
+
+      accountRepo.findOne.mockReturnValue(undefined)
+
+      expect(accountService.updateAccount(dto, account.id)).rejects.toThrow(
+        new NotFoundException(`Account not found`)
+      )
+    })
+
+    it('should throw not found exception when userId update is not found', async () => {
+      const dto: DTO.Account.UpdateAccount = {
+        ownerId: account.ownerId,
+        fullName: 'Update Account',
+      }
+
+      accountRepo.findOne.mockReturnValue({ ...account })
+      userRepo.findOne.mockReturnValue(undefined)
+
+      expect(accountService.updateAccount(dto, account.id)).rejects.toThrow(
+        new NotFoundException(`User does not exist`)
+      )
+    })
+  })
 })
