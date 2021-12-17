@@ -3,6 +3,7 @@ import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
 import { Account } from 'next-auth'
+import { AccountAddFormData } from 'pages/accounts/add-account'
 
 export const getAccounts =
   (
@@ -18,3 +19,8 @@ export const getAccounts =
         params,
       })
       .then((res) => res.data)
+
+export const addAccount = async (contactInfo: AccountAddFormData) => {
+  const { data } = await axios.post<Account>(API + `/api/account`, contactInfo)
+  return data
+}

@@ -1,11 +1,28 @@
 import { Base } from './base'
-import { Deal } from './deal';
-import { Lead } from './lead';
-import { User } from './user';
+import { Deal } from './deal'
+import { Lead } from './lead'
+import { User } from './user'
+
+export enum AccountType {
+  NONE = 'None',
+  ANALYST = 'Analyst',
+  COMPETITOR = 'Competitor',
+  CUSTOMER = 'Customer',
+  DISTRIBUTOR = 'Distributor',
+  INTEGRATOR = 'Integrator',
+  INVESTOR = 'Investor',
+  OTHER = 'Other',
+  PARTNER = 'Partner',
+  PRESS = 'Press',
+  PROSPECT = 'Prospect',
+  RESELLER = 'Reseller',
+  Vendor = 'Vendor',
+}
 
 export interface Account extends Base {
   owner: User
   fullName: string
+  type: AccountType
   address: string | null
   description: string | null
   phoneNum: string | null
