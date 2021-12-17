@@ -1,7 +1,5 @@
-import { HttpService } from "@nestjs/axios";
 import { BadRequestException, Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { lastValueFrom, map, tap } from "rxjs";
 import { Public } from "src/utils/decorators/public.decorator";
 import { WebhookService } from "./webhook.service";
 
