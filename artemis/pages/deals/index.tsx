@@ -76,7 +76,8 @@ const columns: TableColumnType<Deal>[] = [
     dataIndex: 'closingDate',
     key: 'closingDate',
     sorter: {
-      compare: (a, b) => a.closingDate.getTime() - b.closingDate.getTime(),
+      compare: (a, b) =>
+        new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime(),
     },
   },
   {
@@ -84,7 +85,7 @@ const columns: TableColumnType<Deal>[] = [
     dataIndex: 'contact',
     key: 'contact',
     sorter: {
-      compare: (a, b) => a.contact.fullName.localeCompare(b.contact.fullName),
+      compare: (a, b) => a.contact?.fullName.localeCompare(b.contact?.fullName),
     },
     render: (_, { contact }) => contact?.fullName,
   },
@@ -122,7 +123,7 @@ export default function DealsView() {
 
   const { data: leads, isLoading } = useQuery(
     ['deals', page || 1, limit || 10, search || '', source || [], stage || []],
-    getDeals({ limit, page, search, source, stage }) 
+    getDeals({ limit, page, search, source, stage }),
   )
 
   const [start, end, total] = usePaginateItem(leads)
