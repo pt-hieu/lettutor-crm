@@ -76,7 +76,7 @@ const ContactDetail = () => {
               <div className="font-semibold mb-4 text-[17px]">Deals</div>
               {contact?.deals?.map(
                 ({ id, fullName, amount, stage, closingDate }) => (
-                  <>
+                  <div key={id}>
                     <p className="font-semibold">
                       <Link href={`/deals/${id}`}>
                         <a className=" text-gray-700 hover:text-gray-600">
@@ -93,7 +93,7 @@ const ContactDetail = () => {
                         {moment(closingDate).format('DD/MM/YYYY')}
                       </span>
                     </p>
-                  </>
+                  </div>
                 ),
               )}
             </div>
