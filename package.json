@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "main": "index.js",
   "scripts": {
-    "bootstrap": "concurrently \"cd migrate && yarn\" \"cd frontend && yarn\" \"cd backend && yarn\"",
-    "dev": "concurrently -k \"cd frontend && yarn dev\" \"cd backend && yarn dev\"",
-    "dev:legacy": "concurrently -k \"cd frontend && yarn dev:legacy\" \"cd backend && yarn dev\"",
+    "bootstrap": "concurrently \"cd hades && yarn\" \"cd artemis && yarn\" \"cd apollo && yarn\"",
+    "dev": "concurrently -k \"cd artemis && yarn dev\" \"cd apollo && yarn dev\"",
+    "dev:legacy": "concurrently -k \"cd artemis && yarn dev:legacy\" \"cd apollo && yarn dev\"",
     "postgres": "docker run -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=crm -dp 5432:5432 --name postgres postgres",
     "psql": "docker exec -it postgres /bin/bash",
-    "migrate": "cd migrate && yarn migrate"
+    "migrate": "cd hades && yarn migrate"
   },
   "devDependencies": {
     "concurrently": "^6.5.0"
