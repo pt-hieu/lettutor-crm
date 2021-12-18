@@ -1,28 +1,51 @@
-import { yupResolver } from '@hookform/resolvers/yup'
 import Input from '@utils/components/Input'
-import Layout from '@utils/components/Layout'
-import { DealUpdateData, Field } from '@utils/data/update-deal-data'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Account } from '@utils/models/account'
-import { Contact } from '@utils/models/contact'
-import { DealStage } from '@utils/models/deal'
-import { LeadSource } from '@utils/models/lead'
-import { User } from '@utils/models/user'
-import { getAccounts } from '@utils/service/account'
-import { getContacts } from '@utils/service/contact'
-import { addDeal } from '@utils/service/deal'
 import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
-import { DealUpdateFormData, schema } from './[id]/edit'
+import { User } from '@utils/models/user'
+import Layout from '@utils/components/Layout'
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { getAccount, updateAccount } from '@utils/service/account'
+import { Account, AccountType } from '@utils/models/account'
+import { phoneRegExp } from '@utils/data/regex'
+import { AccountUpdateData, Field } from '@utils/data/update-account-data'
 
-const AddDeal = () => {
-  const [session] = useTypedSession()
+export type AccountUpdateFormData = {
+  ownerId: string
+  fullName: string
+  phoneNum: string | null
+  address: string | null
+  description: string | null
+  type: AccountType
+}
+
+export const schema = yup.object().shape({
+  ownerId: yup.string().required('Account Owner is required.'),
+  fullName: yup
+    .string()
+    .required('Account Name is required.')
+    .max(100, 'Account Name must be at most 100 characters.'),
+  phoneNum: yup
+    .string()
+    .required('Phone is required.')
+    .matches(phoneRegExp, 'Phone is invalid.'),
+  description: yup
+    .string()
+    .max(500, 'Description must be at most 500 characters.')
+    .nullable(true),
+  address: yup
+    .string()
+    .max(250, 'Address must be at most 250 characters.')
+    .nullable(true),
+  type: yup.string().required('Account Type is required.'),
+})
+
+const EditAccount = () => {
   const { push, query } = useRouter()
   const id = query.id as string
 
@@ -30,11 +53,7 @@ const AddDeal = () => {
     enabled: false,
   })
 
-  const { data: contacts } = useQuery<Contact[]>(['contacts'], {
-    enabled: false,
-  })
-
-  const { data: accounts } = useQuery<Account[]>(['accounts'], {
+  const { data: account } = useQuery<Account>(['account', id], {
     enabled: false,
   })
 
@@ -43,74 +62,49 @@ const AddDeal = () => {
     option: owner.name,
   }))
 
-  const accountOptions = accounts?.map((account) => ({
-    value: account.id,
-    option: account.fullName,
-  }))
-
-  const contactOptions = contacts?.map((contact) => ({
-    value: contact.id,
-    option: contact.fullName,
-  }))
-
-  contactOptions?.unshift({ value: 'None', option: 'None' })
-
   const selectChildren = {
     ownerId: ownerOptions?.map((option) => (
       <option key={option.value} value={option.value}>
         {option.option}
       </option>
     )),
-    accountId: accountOptions?.map((option) => (
-      <option key={option.value} value={option.value}>
-        {option.option}
-      </option>
-    )),
-    contactId: contactOptions?.map((option) => (
-      <option key={option.value} value={option.value}>
-        {option.option}
-      </option>
-    )),
   }
 
-  const { isLoading, mutateAsync } = useMutation('add-deal', addDeal, {
-    onSuccess: (res) => {
-      notification.success({
-        message: 'Add deal successfully.',
-      })
-      push(`/deals/${res.id}`)
+  const { isLoading, mutateAsync } = useMutation(
+    'edit-account',
+    updateAccount,
+    {
+      onSuccess: (res) => {
+        notification.success({
+          message: 'Edit account successfully.',
+        })
+        push(`/accounts/${res.id}`)
+      },
+      onError: () => {
+        notification.error({ message: 'Edit account unsuccessfully.' })
+      },
     },
-    onError: () => {
-      notification.error({ message: 'Add deal unsuccessfully.' })
-    },
-  })
+  )
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
-  } = useForm<DealUpdateFormData>({
+  } = useForm<AccountUpdateFormData>({
     mode: 'all',
     resolver: yupResolver(schema),
     defaultValues: {
-      ownerId: '',
-      stage: DealStage.QUALIFICATION,
-      source: LeadSource.NONE,
-      contactId: 'None',
+      ownerId: account?.owner.id,
+      fullName: account?.fullName,
+      phoneNum: account?.phoneNum,
+      address: account?.address,
+      description: account?.description,
+      type: account?.type,
     },
   })
 
-  useEffect(() => {
-    setValue('ownerId', session?.user.id || '')
-  }, [session?.user.id])
-
-  const editDeal = handleSubmit((data) => {
-    if (data.contactId === 'None') {
-      data.contactId = null
-    }
-
-    mutateAsync(data)
+  const editAccount = handleSubmit((data) => {
+    mutateAsync({ id, accountInfo: data })
   })
 
   const renderField = ({
@@ -133,7 +127,7 @@ const AddDeal = () => {
       <div className="col-span-2">
         {/* @ts-ignore */}
         <Input
-          error={errors[name as keyof DealUpdateFormData]?.message}
+          error={errors[name as keyof AccountUpdateFormData]?.message}
           as={as!}
           props={{
             type: type,
@@ -145,7 +139,7 @@ const AddDeal = () => {
             children:
               as === 'select' ? (
                 name in selectChildren ? (
-                  <>{selectChildren[name as keyof typeof selectChildren]}</>
+                  <>{selectChildren[name as 'ownerId']}</>
                 ) : (
                   <>
                     {selectSource?.map((item) => (
@@ -156,7 +150,7 @@ const AddDeal = () => {
                   </>
                 )
               ) : undefined,
-            ...register(name as keyof DealUpdateFormData),
+            ...register(name as keyof AccountUpdateFormData),
           }}
         />
       </div>
@@ -164,10 +158,10 @@ const AddDeal = () => {
   )
 
   return (
-    <Layout requireLogin title="CRM | Add Deal">
+    <Layout requireLogin title="CRM | Edit account">
       <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
         <div>
-          {DealUpdateData.map(({ title, items }) => (
+          {AccountUpdateData.map(({ title, items }) => (
             <div className="flex flex-col gap-6" key={title}>
               <h1 className="font-semibold text-lg text-gray-700">{title}</h1>
 
@@ -187,7 +181,7 @@ const AddDeal = () => {
           </button>
           <button
             className="crm-button"
-            onClick={editDeal}
+            onClick={editAccount}
             disabled={isLoading}
           >
             Save
@@ -217,14 +211,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           token,
         ),
       ),
-      client.prefetchQuery(
-        ['contacts'],
-        getContacts({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        ['accounts'],
-        getAccounts({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery(['account', id], getAccount(id, token)),
     ])
   }
 
@@ -235,4 +222,4 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 }
 
-export default AddDeal
+export default EditAccount
