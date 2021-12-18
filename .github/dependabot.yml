@@ -9,7 +9,7 @@ updates:
     reviewers:
       - 'pt-hieu'
     commit-message:
-      prefix: 'deps: '
+      prefix: 'deps'
       include: 'scope'
 
   - package-ecosystem: 'docker'
@@ -22,5 +22,5 @@ updates:
     reviewers:
       - 'pt-hieu'
     commit-message:
-      prefix: 'deps: '
+      prefix: 'deps'
       include: 'scope'

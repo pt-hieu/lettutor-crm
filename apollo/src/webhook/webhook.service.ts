@@ -9,6 +9,7 @@ import {
 } from 'src/lead-contact/lead-contact.entity'
 import { LeadService } from 'src/lead-contact/lead.service'
 import { DTO } from 'src/type'
+import { Repository } from 'typeorm'
 
 const ApiVersion = process.env.FACEBOOK_API_VERSION || 'v12.0'
 
@@ -16,6 +17,7 @@ const ApiVersion = process.env.FACEBOOK_API_VERSION || 'v12.0'
 export class WebhookService {
   constructor(
     @InjectRepository(LeadContact)
+    private leadContactRepo: Repository<LeadContact>,
     private leadService: LeadService,
     private httpService: HttpService,
   ) {}
