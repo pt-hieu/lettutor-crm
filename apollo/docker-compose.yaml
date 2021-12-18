@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  apollo:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - postgres
+    ports:
+      - '8000:8000'
+
+  postgres:
+    image: postgres:alpine
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
