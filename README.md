@@ -2,8 +2,9 @@
 
 # Folder Structure
 
-| Name    | Description |
-| ------- | ----------- |
-| apollo  | Backend     |
-| artemis | Frontend    |
-| hades   | Migrate     |
+| Name     | Description |
+| -------- | ----------- |
+| apollo   | Backend     |
+| artemis  | Frontend    |
+| hades    | Migrate     |
+| poseidon | CMS         |
