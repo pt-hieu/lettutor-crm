@@ -20,9 +20,13 @@ export class ContactService {
     let q = this.leadContactRepo
       .createQueryBuilder('lc')
       .leftJoin('lc.owner', 'owner')
-      .addSelect(['owner.name', 'owner.email'])
       .leftJoin('lc.account', 'account')
-      .addSelect(['account.fullName', 'account.description'])
+      .addSelect([
+        'owner.name',
+        'owner.email',
+        'account.fullName',
+        'account.description',
+      ])
       .where('lc.isLead = :isLead', { isLead: false })
 
     if (query.source)

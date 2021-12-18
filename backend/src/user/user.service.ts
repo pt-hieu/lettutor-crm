@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, In, Not, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, Not, Repository } from 'typeorm'
 import { Role, User, UserStatus } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
@@ -37,8 +37,6 @@ export class UserService {
   async createRole(dto: DTO.Role.CreateRole) {
     const role = await this.roleRepo.findOne({ where: { name: dto.name } })
     if (role) throw new BadRequestException('Role existed')
-
-    // const users = await this.userRepo.find({ where: { id: In(dto.userIds) } })
 
     return this.roleRepo.save({
       name: dto.name,

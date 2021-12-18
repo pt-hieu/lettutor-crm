@@ -24,9 +24,8 @@ export default function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({
-    shouldUseNativeValidation: true,
-  })
+  } = useForm<FormData>()
+
   const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   useEffect(() => {
@@ -44,7 +43,7 @@ export default function Login() {
         ...data,
       })
     }),
-    [],
+    [query],
   )
 
   return (

@@ -17,7 +17,6 @@ import {
   useQuery,
   useQueryClient,
 } from 'react-query'
-import { Paginate } from '@utils/models/paging'
 import { User } from '@utils/models/user'
 import Layout from '@utils/components/Layout'
 
@@ -83,7 +82,6 @@ const LeadsAdd = () => {
     formState: { errors },
     setValue,
   } = useForm<LeadAddFormData>({
-    shouldUseNativeValidation: true,
     defaultValues: initialValue,
   })
 

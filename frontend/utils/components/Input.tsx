@@ -1,9 +1,6 @@
 import {
   DetailedHTMLProps,
   InputHTMLAttributes,
-  useCallback,
-  useEffect,
-  useRef,
   forwardRef,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
@@ -49,7 +46,6 @@ type NativeProps<T> = T extends undefined
 
 type Props<T> = NativeProps<T> & {
   editable?: boolean
-  onInvalid?: never
   wrapperClassname?: string
 } & (
     | { showError?: true; error: string | undefined }
@@ -68,37 +64,22 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
     showError,
     wrapperClassname,
     editable,
-    props: { id, name, className, disabled, ...rest },
+    props: { name, className, disabled, ...rest },
   }: Props<T>,
   _ref: any,
 ) {
-  const ele = useRef<any | null>(null)
-
-  useEffect(() => {
-    if (!ele.current) {
-      ele.current = document.querySelector('#' + id)
-    }
-
-    ele.current?.setCustomValidity(error || '')
-  }, [error, id])
-
-  const removeBubble = useCallback((e: any) => {
-    e.preventDefault()
-  }, [])
-
   const Component = as || 'input'
 
   return (
     <div className={wrapperClassname}>
+      {/* @ts-ignore */}
       <Component
-        // @ts-ignore
-        onInvalid={removeBubble}
         className={
           `crm-input ${
             (editable === undefined || editable === true) && disabled
               ? 'bg-gray-300 '
               : ' '
-          }` +
+          } ${error ? 'crm-input--invalid ' : ''}` +
           (className || '') +
           (editable !== undefined
             ? editable
@@ -108,7 +89,6 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
         }
         disabled={disabled ?? editable === false}
         name={name}
-        id={id || name}
         {...rest}
       />
       <AnimatePresence presenceAffectsLayout>

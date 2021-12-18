@@ -33,7 +33,7 @@
     @apply focus:outline-none text-[14px] border-none focus:border-none !ring-1 ring-gray-200 rounded-md text-gray-600 !crm-transition;
   }
 
-  .crm-input:invalid {
+  .crm-input--invalid {
     @apply ring-red-600;
   }
 

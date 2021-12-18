@@ -48,9 +48,7 @@ const ButtonAddUser = () => {
     formState: { errors },
     setError,
     reset,
-  } = useForm<FormData>({
-    shouldUseNativeValidation: true,
-  })
+  } = useForm<FormData>()
 
   const queryClient = useQueryClient()
 

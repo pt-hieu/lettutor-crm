@@ -30,8 +30,7 @@ export interface ContactAddFormData
 
 const CreateContact = () => {
   const [session] = useTypedSession()
-  const { push, query } = useRouter()
-  const id = query.id as string
+  const { push } = useRouter()
 
   const { data: contactOwners } = useQuery<User[]>(['users'], {
     enabled: false,
@@ -59,7 +58,6 @@ const CreateContact = () => {
     setValue,
     formState: { errors },
   } = useForm<ContactAddFormData>({
-    mode: 'all',
     defaultValues: {
       ownerId: '',
       fullName: '',

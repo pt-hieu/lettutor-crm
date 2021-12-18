@@ -69,7 +69,6 @@ const CreateAccount = () => {
     setValue,
     formState: { errors },
   } = useForm<AccountAddFormData>({
-    mode: 'all',
     resolver: yupResolver(schema),
     defaultValues: {
       ownerId: '',

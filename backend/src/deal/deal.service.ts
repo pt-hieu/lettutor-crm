@@ -22,9 +22,15 @@ export class DealService {
     let q = this.dealRepo
       .createQueryBuilder('d')
       .leftJoin('d.owner', 'owner')
-      .addSelect(['owner.name', 'owner.email'])
       .leftJoin('d.account', 'account')
-      .addSelect(['account.fullName', 'account.description'])
+      .leftJoin('d.contact', 'contact')
+      .addSelect([
+        'owner.name',
+        'owner.email',
+        'account.fullName',
+        'account.description',
+        'contact.fullName',
+      ])
 
     if (query.source)
       q.andWhere('d.source IN (:...source)', { source: query.source })

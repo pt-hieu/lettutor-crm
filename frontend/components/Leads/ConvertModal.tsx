@@ -38,6 +38,12 @@ const linkMapping = {
   2: '/deals/',
 }
 
+const labelMapping = {
+  0: 'Account: ',
+  1: 'Contact: ',
+  2: 'Deal: '
+}
+
 type FormData = {} & Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
 
 const schema = yup.object().shape({
@@ -270,7 +276,7 @@ export default function ConvertModal({ close, visible }: Props) {
                     key={entity.id}
                   >
                     <a className="crm-link underline hover:underline">
-                      {entity.fullName}
+                      {labelMapping[index as 0| 1| 2]}{entity.fullName}
                     </a>
                   </Link>
                 ),
