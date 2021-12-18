@@ -8,6 +8,8 @@ services:
       - postgres
     ports:
       - '8000:8000'
+    links:
+      - postgres
 
   postgres:
     image: postgres:alpine
