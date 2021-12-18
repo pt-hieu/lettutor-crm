@@ -179,10 +179,7 @@ const AddDeal = () => {
         </div>
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
-          <button
-            className="crm-button-outline"
-            onClick={() => push(`/deals/${id}`)}
-          >
+          <button className="crm-button-outline" onClick={() => push(`/deals`)}>
             Cancel
           </button>
           <button
