@@ -11,6 +11,7 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
+import { useEffect } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -121,7 +122,7 @@ export default function DealsView() {
 
   const { data: leads, isLoading } = useQuery(
     ['deals', page || 1, limit || 10, search || '', source || [], stage || []],
-    getDeals({ limit, page, search, source, stage }),
+    getDeals({ limit, page, search, source, stage }) 
   )
 
   const [start, end, total] = usePaginateItem(leads)

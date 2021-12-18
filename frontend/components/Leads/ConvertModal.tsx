@@ -41,7 +41,7 @@ const linkMapping = {
 const labelMapping = {
   0: 'Account: ',
   1: 'Contact: ',
-  2: 'Deal: '
+  2: 'Deal: ',
 }
 
 type FormData = {} & Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
@@ -271,14 +271,17 @@ export default function ConvertModal({ close, visible }: Props) {
             {data?.map(
               (entity, index) =>
                 entity && (
-                  <Link
-                    href={linkMapping[index as 0 | 1 | 2] + entity.id}
-                    key={entity.id}
-                  >
-                    <a className="crm-link underline hover:underline">
-                      {labelMapping[index as 0| 1| 2]}{entity.fullName}
-                    </a>
-                  </Link>
+                  <span>
+                    {labelMapping[index as 0 | 1 | 2]}
+                    <Link
+                      href={linkMapping[index as 0 | 1 | 2] + entity.id}
+                      key={entity.id}
+                    >
+                      <a className="crm-link underline hover:underline">
+                        {entity.fullName}
+                      </a>
+                    </Link>
+                  </span>
                 ),
             )}
           </div>
