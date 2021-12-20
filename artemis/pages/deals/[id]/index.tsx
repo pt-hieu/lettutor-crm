@@ -10,6 +10,7 @@ import DealDetailNavbar from 'components/Deals/DealDetailNavbar'
 import { ReactNode, useMemo } from 'react'
 import { getDeal } from '@utils/service/deal'
 import { Deal } from '@utils/models/deal'
+import { investigate } from '@utils/libs/investigate'
 
 type DealInfo = {
   label: string
@@ -132,6 +133,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: investigate(client, ['deal', id]).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

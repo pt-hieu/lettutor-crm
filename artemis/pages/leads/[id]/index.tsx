@@ -8,6 +8,7 @@ import LeadDetailSidebar from 'components/Leads/LeadDetailSidebar'
 import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
 import { ReactNode, useMemo } from 'react'
 import { Lead } from '@utils/models/lead'
+import { investigate } from '@utils/libs/investigate'
 
 type LeadInfo = {
   label: string
@@ -63,7 +64,7 @@ const LeadDetail = () => {
   return (
     <Layout title={`CRM | Lead | ${lead?.fullName}`} requireLogin>
       <div className="crm-container">
-        <LeadDetailNavbar lead={lead!} />
+        <LeadDetailNavbar lead={lead} />
 
         <div className="grid grid-cols-[250px,1fr]">
           <LeadDetailSidebar />
@@ -102,6 +103,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: investigate(client, ['lead', id]).isError,
     props: {
       dehydratedState: dehydrate(client),
     },
