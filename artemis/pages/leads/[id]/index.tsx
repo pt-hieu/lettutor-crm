@@ -26,7 +26,7 @@ const LeadDetail = () => {
     (): LeadInfo[] => [
       {
         label: 'Lead Owner',
-        value: lead?.owner.name,
+        value: lead?.owner?.name,
       },
       {
         label: 'Full Name',
@@ -96,7 +96,9 @@ export const getServerSideProps: GetServerSideProps = async ({
   const id = params?.id as string
 
   if (token) {
-    await Promise.all([client.prefetchQuery(['lead', id], getLead(id, token))])
+    await Promise.all([
+      client.prefetchQuery(['lead', id], getLead(id, token)),
+    ])
   }
 
   return {

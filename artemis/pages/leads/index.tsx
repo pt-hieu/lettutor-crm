@@ -89,9 +89,9 @@ const columns: TableColumnType<Lead>[] = [
     dataIndex: 'owner',
     key: 'owner',
     sorter: {
-      compare: (a, b) => a.owner.name.localeCompare(b.owner.name),
+      compare: (a, b) => a.owner?.name.localeCompare(b.owner?.name || '') || 1,
     },
-    render: (_, record) => record.owner.name,
+    render: (_, record) => record.owner?.name,
   },
 ]
 
@@ -110,7 +110,7 @@ export default function LeadsViews() {
 
   const { data: leads, isLoading } = useQuery(
     ['leads', page || 1, limit || 10, search || '', source || [], status || []],
-    getLeads({ limit, page, search, source, status }) 
+    getLeads({ limit, page, search, source, status }),
   )
 
   const [start, end, total] = usePaginateItem(leads)
