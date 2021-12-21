@@ -4,8 +4,6 @@ WORKDIR /app
 
 COPY . .
 RUN yarn install --frozen-lockfile
-# RUN yarn remove bcrypt && yarn add bcrypt
-
 RUN yarn build
 
 ENV NODE_ENV dev
