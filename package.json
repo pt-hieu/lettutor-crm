@@ -11,6 +11,6 @@
     "migrate": "cd hades && yarn migrate"
   },
   "devDependencies": {
-    "concurrently": "^6.5.0"
+    "concurrently": "^6.5.1"
   }
 }
