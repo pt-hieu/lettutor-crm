@@ -2,12 +2,10 @@ FROM node:alpine
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json yarn.lock .
-RUN yarn install --frozen-lockfile
-RUN yarn remove bcrypt && yarn add bcrypt
-
 COPY . .
-RUN npm install -g typescript
+RUN yarn install --frozen-lockfile
+# RUN yarn remove bcrypt && yarn add bcrypt
+
 RUN yarn build
 
 ENV NODE_ENV dev

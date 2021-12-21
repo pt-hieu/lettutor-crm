@@ -1,13 +1,9 @@
 FROM node:alpine
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
+
 COPY . .
 RUN yarn install --frozen-lockfile
-
-ARG api=http://18.167.61.239:8000
-ENV NEXT_PUBLIC_API $api
-
-RUN npm install -g typescript
 RUN yarn build
 
 ENV NODE_ENV production
@@ -19,6 +15,9 @@ USER nextjs
 
 EXPOSE 3000
 LABEL project="crm"
+
+ARG api=http://18.167.61.239:8000
+ENV NEXT_PUBLIC_API $api
 
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV JWT_SECRET asdasbzxcihqqwheacapsdnlkn
