@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   postgres:
+    container_name: postgres
     image: postgres:alpine
     ports:
       - '5432:5432'
@@ -9,6 +10,7 @@ services:
       POSTGRES_PASSWORD: postgres
 
   apollo:
+    container_name: apollo
     build: .
     depends_on:
       - postgres
