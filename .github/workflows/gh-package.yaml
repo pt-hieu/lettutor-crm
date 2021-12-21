@@ -36,7 +36,7 @@ jobs:
         with:
           context: ./apollo
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: apollo
           labels: ${{ steps.meta.outputs.labels }}
   build-n-push-artemis:
     runs-on: ubuntu-latest
@@ -66,5 +66,5 @@ jobs:
         with:
           context: ./artemis
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: artemis
           labels: ${{ steps.meta.outputs.labels }}
