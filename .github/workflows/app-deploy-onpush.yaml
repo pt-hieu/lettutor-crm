@@ -64,5 +64,5 @@ jobs:
             cd ./apollo && docker-compose down &&
             cd ../artemis && ./start.sh &&
             cd ../apollo && docker-compose up -d --build
-            yes | docker prune -a --filter="label=project"  &&
+            yes | docker prune -a --filter="label=project"
           '

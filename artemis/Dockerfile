@@ -3,6 +3,12 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV JWT_SECRET asdasbzxcihqqwheacapsdnlkn
+ENV NEXTAUTH_URL http://18.167.61.239:3000
+ENV NEXT_PUBLIC_API http://18.167.61.239:8000
+
 RUN yarn install --frozen-lockfile
 RUN yarn build
 
@@ -15,13 +21,5 @@ USER nextjs
 
 EXPOSE 3000
 LABEL project="crm"
-
-ARG api=http://18.167.61.239:8000
-ENV NEXT_PUBLIC_API $api
-
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV JWT_SECRET asdasbzxcihqqwheacapsdnlkn
-ENV NEXTAUTH_URL http://18.167.61.239:3000
-ENV NEXT_PUBLIC_API $api
 
 CMD ["yarn", "start"]
