@@ -63,6 +63,6 @@ jobs:
             git pull &&
             cd ./apollo && docker-compose down &&
             cd ../artemis && ./start.sh &&
-            cd ./apollo && docker-compose up -d --build
+            cd ../apollo && docker-compose up -d --build
             docker prune -a --filter="label=project"  &&
           '
