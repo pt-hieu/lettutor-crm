@@ -23,5 +23,6 @@ ENV FE_URL http://18.167.61.239:3000
 ENV DB_HOST postgres
 
 EXPOSE 8000
+LABEL project="crm"
 
 CMD ["npm", "start"]
