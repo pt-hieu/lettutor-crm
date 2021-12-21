@@ -5,7 +5,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: apollo
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-n-push-apollo:
@@ -36,5 +36,5 @@ jobs:
         with:
           context: ./apollo
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: apollo
           labels: ${{ steps.meta.outputs.labels }}
