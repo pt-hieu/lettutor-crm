@@ -70,7 +70,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   deploy:
     runs-on: ubuntu-latest
-    timeout-mintes: 20
+    timeout-minutes: 20
     needs: [apollo, artemis]
     steps:
       - uses: actions/checkout@v2
