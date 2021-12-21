@@ -36,5 +36,5 @@ jobs:
         with:
           context: ./apollo
           push: true
-          tags: apollo
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
