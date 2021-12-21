@@ -14,6 +14,7 @@ import Layout from '@utils/components/Layout'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { phoneRegExp } from '@utils/data/regex'
+import { investigate } from '@utils/libs/investigate'
 
 export interface LeadUpdateFromData
   extends Pick<
@@ -82,7 +83,7 @@ const EditLead = () => {
     mode: 'all',
     resolver: yupResolver(schema),
     defaultValues: {
-      ownerId: lead?.owner.id,
+      ownerId: lead?.owner?.id,
       fullName: lead?.fullName,
       email: lead?.email,
       status: lead?.status,
@@ -213,6 +214,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: investigate(client, ['lead', id], ['users']).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

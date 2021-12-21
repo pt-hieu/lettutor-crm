@@ -24,7 +24,7 @@ export class WebhookService {
 
   async processNewLeadFromFacebook(leadId?: string) {
     if (!leadId) throw new BadRequestException('Invalid POST data received')
-    
+
     const requestURL = `https://graph.facebook.com/${ApiVersion}/${leadId}/?access_token=${process.env.FACEBOOK_PAGE_ACCESS_TOKEN}`
     const response = await lastValueFrom(
       this.httpService.get(requestURL).pipe(map((res) => res.data)),
@@ -35,18 +35,19 @@ export class WebhookService {
         `An invalid response was received from the Facebook API: ${response}`,
       )
 
-    const fieldMapping = {
+    const fieldMapping: Record<string, keyof DTO.Lead.AddLead> = {
       email: 'email',
       full_name: 'fullName',
       phone: 'phoneNum',
       street_address: 'address',
     }
 
-    const leadInfo = new DTO.Lead.AddLead()
+    const leadInfo: DTO.Lead.AddLead = new DTO.Lead.AddLead()
 
-    ;(response.field_data as { name: string; values: any[] }[]).forEach(
+    ;(response.field_data as { name: string; values: string[] }[]).forEach(
       (field) => {
-        leadInfo[fieldMapping[field.name.toLocaleLowerCase()]] = field.values[0]
+        ;(leadInfo[fieldMapping[field.name.toLocaleLowerCase()]] as string) =
+          field.values[0]
       },
     )
 

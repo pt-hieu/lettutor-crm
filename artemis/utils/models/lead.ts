@@ -22,7 +22,7 @@ export enum LeadSource {
 }
 
 export interface Lead extends Base {
-  owner: User
+  owner: User | null
   fullName: string
   account: Account
   email: string

@@ -3,6 +3,7 @@ import Layout from '@utils/components/Layout'
 import { Field } from '@utils/data/add-lead-data'
 import { ContactUpdateData } from '@utils/data/update-contact-data'
 import { getSessionToken } from '@utils/libs/getToken'
+import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { User } from '@utils/models/user'
@@ -70,7 +71,7 @@ const UpdateContact = () => {
   } = useForm<ContactUpdateFormData>({
     mode: 'all',
     defaultValues: {
-      ownerId: contact?.owner.id,
+      ownerId: contact?.owner?.id,
       fullName: contact?.fullName,
       email: contact?.email,
       status: contact?.status,
@@ -224,6 +225,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: investigate(client, ['users'], ['accounts'], ['contact', id])
+      .isError,
     props: {
       dehydratedState: dehydrate(client),
     },
