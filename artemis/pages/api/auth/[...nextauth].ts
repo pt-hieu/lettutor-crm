@@ -12,7 +12,7 @@ export default NextAuth({
       id: 'login',
       name: 'Credentials',
       async authorize(credentials: Record<string, string>) {
-        const [res] = await asyncTryCatch(() =>
+        const [res, err] = await asyncTryCatch(() =>
           axios
             .post(`${API}/api/auth/validate`, {
               email: credentials.email,
@@ -21,6 +21,7 @@ export default NextAuth({
             .then((res) => res.data),
         )
 
+        err && console.log(err);
         return res
       },
     }),
