@@ -1,4 +1,4 @@
-name: run test
+name: Artemis Test
 
 on:
   pull_request:
@@ -6,12 +6,12 @@ on:
     types: [labeled, synchronize]
 
 jobs:
-  build:
-    if: ${{ github.event.label.name == 'backend' }}
+  test:
+    if: ${{ github.event.label.name == 'frontend' }}
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./apollo
+        working-directory: ./artemis
 
     steps:
       - uses: actions/checkout@v2
@@ -25,5 +25,5 @@ jobs:
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install
 
-      - name: Run Unit Test
-        run: yarn test
+      - name: Build
+        run: yarn build

@@ -11,7 +11,7 @@ services:
 
   apollo:
     container_name: apollo
-    build: .
+    image: ghcr.io/pt-hieu/lettutor-crm:apollo
     depends_on:
       - postgres
     ports:

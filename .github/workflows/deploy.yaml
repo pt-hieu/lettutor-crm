@@ -1,4 +1,4 @@
-name: Create and publish a Docker image
+name: Build Docker images and perform deployment
 on:
   push:
     branches: ["dev"]
@@ -8,7 +8,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-n-push-apollo:
+  apollo:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,7 +38,7 @@ jobs:
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:apollo
           labels: ${{ steps.meta.outputs.labels }}
-  build-n-push-artemis:
+  artemis:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -68,3 +68,17 @@ jobs:
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:artemis
           labels: ${{ steps.meta.outputs.labels }}
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-mintes: 20
+    needs: [apollo, artemis]
+    steps:
+      - uses: actions/checkout@v2
+      - name: deploy on ec2
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@18.167.61.239 '
+            cd ~/lettutor-crm && ./start.sh
+          '
