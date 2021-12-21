@@ -1,4 +1,4 @@
-#! bin/sh
+#!bin/sh
 
 docker stop artemis || true
 docker pull ghcr.io/pt-hieu/lettutor-crm:artemis
