@@ -18,6 +18,7 @@ import { getContacts } from '@utils/service/contact'
 import { getAccounts } from '@utils/service/account'
 import { Contact } from '@utils/models/contact'
 import { Account } from '@utils/models/account'
+import { investigate } from '@utils/libs/investigate'
 
 export type DealUpdateFormData = {
   ownerId: string
@@ -278,6 +279,13 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: investigate(
+      client,
+      ['users'],
+      ['contacts'],
+      ['accounts'],
+      ['deal', id],
+    ).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

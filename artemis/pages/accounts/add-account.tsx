@@ -5,6 +5,7 @@ import { AccountAddData } from '@utils/data/add-account-data'
 import { Field } from '@utils/data/update-deal-data'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
+import { investigate } from '@utils/libs/investigate'
 import { Account, AccountType } from '@utils/models/account'
 import { User } from '@utils/models/user'
 import { addAccount } from '@utils/service/account'
@@ -199,6 +200,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   return {
+    notFound: investigate(client, ['users']).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

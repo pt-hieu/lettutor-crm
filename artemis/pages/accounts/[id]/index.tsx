@@ -2,6 +2,7 @@ import AccountDetailNavbar from '@components/Accounts/AccountDetailNavbar'
 import AccountDetailSidebar from '@components/Accounts/AccountDetailSidebar'
 import Layout from '@utils/components/Layout'
 import { getSessionToken } from '@utils/libs/getToken'
+import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { getAccount } from '@utils/service/account'
 import moment from 'moment'
@@ -75,7 +76,6 @@ const AccountDetail = () => {
                 ))}
               </ul>
             </div>
-            {/* FakeData */}
             <div className="pt-4">
               <div className="font-semibold mb-4 text-[17px]">Deals</div>
               {account?.deals?.map(
@@ -123,6 +123,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: investigate(client, ['account', id]).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   postgres:
+    container_name: postgres
     image: postgres:alpine
     ports:
       - '5432:5432'
@@ -9,7 +10,8 @@ services:
       POSTGRES_PASSWORD: postgres
 
   apollo:
-    build: .
+    container_name: apollo
+    image: ghcr.io/pt-hieu/lettutor-crm:apollo
     depends_on:
       - postgres
     ports:

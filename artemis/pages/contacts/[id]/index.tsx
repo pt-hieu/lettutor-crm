@@ -10,6 +10,7 @@ import { ReactNode, useMemo } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import Link from 'next/link'
 import moment from 'moment'
+import { investigate } from '@utils/libs/investigate'
 
 type ContactInfo = {
   label: string
@@ -28,7 +29,7 @@ const ContactDetail = () => {
     (): ContactInfo[] => [
       {
         label: 'Contact Owner',
-        value: contact?.owner.name,
+        value: contact?.owner?.name,
       },
       {
         label: 'Full Name',
@@ -119,6 +120,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: investigate(client, ['contact', id]).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

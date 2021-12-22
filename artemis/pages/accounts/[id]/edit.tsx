@@ -14,6 +14,7 @@ import { getAccount, updateAccount } from '@utils/service/account'
 import { Account, AccountType } from '@utils/models/account'
 import { phoneRegExp } from '@utils/data/regex'
 import { AccountUpdateData, Field } from '@utils/data/update-account-data'
+import { investigate } from '@utils/libs/investigate'
 
 export type AccountUpdateFormData = {
   ownerId: string
@@ -216,6 +217,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: investigate(client, ['users'], ['account', id]).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

@@ -89,9 +89,9 @@ const columns: TableColumnType<Contact>[] = [
     dataIndex: 'owner',
     key: 'owner',
     sorter: {
-      compare: (a, b) => a.owner.name.localeCompare(b.owner.name),
+      compare: (a, b) => a.owner?.name.localeCompare(b.owner?.name || '') || 1,
     },
-    render: (_, record) => record.owner.name,
+    render: (_, record) => record.owner?.name,
   },
 ]
 

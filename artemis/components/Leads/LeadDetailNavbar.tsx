@@ -4,10 +4,11 @@ import { useRouter } from 'next/router'
 import ConvertModal from './ConvertModal'
 
 type Props = {
-  lead: Lead
+  lead: Lead | undefined
 }
 
-const LeadDetailNavbar = ({ lead: { fullName, id } }: Props) => {
+const LeadDetailNavbar = ({ lead }: Props) => {
+  const { fullName, id } = lead || {}
   const router = useRouter()
   const [convert, openConvert, closeConvert] = useModal()
 

@@ -1,4 +1,4 @@
-name: run test
+name: Apollo Test
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
     types: [labeled, synchronize]
 
 jobs:
-  build:
+  test:
     if: ${{ github.event.label.name == 'backend' }}
     runs-on: ubuntu-latest
     defaults:
