@@ -18,6 +18,8 @@ export const role: Role = {
   users: [],
   createdAt: null,
   updatedAt: null,
+  createdBy: null,
+  updatedBy: null,
 }
 
 export const user: User = {
@@ -34,6 +36,9 @@ export const user: User = {
   roles: [role],
   accounts: [],
   deals: [],
+
+  createdBy: null,
+  updatedBy: null,
 }
 
 export const lead: LeadContact = {
@@ -54,6 +59,9 @@ export const lead: LeadContact = {
   createdAt: null,
   updatedAt: null,
   deals: [],
+
+  createdBy: null,
+  updatedBy: null,
 }
 
 export const account: Account = {
@@ -69,6 +77,9 @@ export const account: Account = {
   deals: null,
   createdAt: null,
   updatedAt: null,
+
+  createdBy: null,
+  updatedBy: null,
 }
 
 export const contact: LeadContact = {
@@ -95,4 +106,7 @@ export const deal: Deal = {
   description: null,
   createdAt: null,
   updatedAt: null,
+
+  createdBy: null,
+  updatedBy: null,
 }
