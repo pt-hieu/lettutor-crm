@@ -12,7 +12,7 @@ export class AccountService {
     @InjectRepository(Account)
     private accountRepo: Repository<Account>,
     private readonly userService: UserService,
-  ) { }
+  ) {}
 
   async getAccountById(option: FindOneOptions<Account>) {
     const account = await this.accountRepo.findOne(option)
@@ -39,8 +39,7 @@ export class AccountService {
       .leftJoin('acc.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
 
-    if (query.type)
-      q.andWhere('acc.type IN (:...type)', { type: query.type })
+    if (query.type) q.andWhere('acc.type IN (:...type)', { type: query.type })
 
     if (query.search) {
       q = q.andWhere('acc.fullName ILIKE :search', {

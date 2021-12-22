@@ -1,5 +1,7 @@
+import { Exclude } from 'class-transformer'
 import { Deal } from 'src/deal/deal.entity'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
+import { Task } from 'src/task/task.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
@@ -49,4 +51,8 @@ export class Account extends BaseEntity {
 
   @OneToMany(() => Deal, (deal) => deal.account)
   deals: Deal[]
+
+  @OneToMany(() => Task, (task) => task.account)
+  @Exclude({ toPlainOnly: true })
+  tasks: Task[]
 }

@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { Task } from 'src/task/task.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
@@ -69,4 +70,12 @@ export class LeadContact extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: true, default: null })
   socialAccount: string | null
+
+  @OneToMany(() => Task, (task) => task.lead)
+  @Exclude({ toPlainOnly: true })
+  tasksOfLead: Task[]
+
+  @OneToMany(() => Task, (task) => task.lead)
+  @Exclude({ toPlainOnly: true })
+  tasksOfContact: Task[]
 }
