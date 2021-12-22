@@ -14,6 +14,7 @@ import { AccountModule } from './account/account.module';
 import { DealModule } from './deal/deal.module';
 import { WebhookModule } from './webhook/webhook.module'
 import { HttpModule } from '@nestjs/axios'
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { HttpModule } from '@nestjs/axios'
     AccountModule,
     DealModule,
     WebhookModule,
-    HttpModule
+    HttpModule,
+    TaskModule
   ],
   providers: [
     JwtStrategy,
