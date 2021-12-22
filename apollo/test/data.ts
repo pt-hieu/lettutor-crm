@@ -7,6 +7,7 @@ import {
 } from 'src/lead-contact/lead-contact.entity'
 import { Actions } from 'src/type/action'
 import { Role, User, UserStatus } from 'src/user/user.entity'
+import { Task, TaskPriority, TaskStatus } from 'src/task/task.entity'
 
 export const role: Role = {
   actions: [Actions.IS_ADMIN],
@@ -36,9 +37,9 @@ export const user: User = {
   roles: [role],
   accounts: [],
   deals: [],
-
   createdBy: null,
   updatedBy: null,
+  tasks: [],
 }
 
 export const lead: LeadContact = {
@@ -59,9 +60,10 @@ export const lead: LeadContact = {
   createdAt: null,
   updatedAt: null,
   deals: [],
-
   createdBy: null,
   updatedBy: null,
+  tasksOfContact: [],
+  tasksOfLead: [],
 }
 
 export const account: Account = {
@@ -75,9 +77,9 @@ export const account: Account = {
   phoneNum: lead.phoneNum,
   contacts: null,
   deals: null,
+  tasks: [],
   createdAt: null,
   updatedAt: null,
-
   createdBy: null,
   updatedBy: null,
 }
@@ -103,6 +105,30 @@ export const deal: Deal = {
   stage: DealStage.QUALIFICATION,
   source: LeadSource.NONE,
   probability: 10,
+  tasks: [],
+  description: null,
+  createdAt: null,
+  updatedAt: null,
+  createdBy: null,
+  updatedBy: null,
+}
+
+export const task: Task = {
+  id: '1234',
+  owner: user,
+  ownerId: lead.owner.id,
+  lead: lead,
+  contact: contact,
+  contactId: contact.id,
+  leadId: lead.id,
+  account: account,
+  accountId: account.id,
+  deal: deal,
+  dealId: deal.id,
+  priority: TaskPriority.HIGH,
+  status: TaskStatus.NOT_STARTED,
+  subject: 'test',
+  dueDate: null,
   description: null,
   createdAt: null,
   updatedAt: null,

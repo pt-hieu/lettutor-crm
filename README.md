@@ -1,6 +1,6 @@
 # CRM System
 
-[![Deployment](https://github.com/pt-hieu/lettutor-crm/actions/workflows/app-deploy-onpush.yaml/badge.svg?branch=dev)](https://github.com/pt-hieu/lettutor-crm/actions/workflows/app-deploy-onpush.yaml)
+[![Deployment](https://github.com/pt-hieu/lettutor-crm/actions/workflows/deploy.yaml/badge.svg)](https://github.com/pt-hieu/lettutor-crm/actions/workflows/deploy.yaml)
 
 # Folder Structure
 
