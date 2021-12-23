@@ -151,19 +151,6 @@ describe('task service', () => {
       )
     })
 
-    it('should throw bad request exception when leadId and contactId are undefined', async () => {
-      const dto: DTO.Task.AddTask = {
-        ownerId: task.ownerId,
-        subject: task.subject,
-      }
-
-      userRepo.findOne.mockReturnValue({ ...user })
-
-      expect(taskService.addTask(dto)).rejects.toThrow(
-        new BadRequestException('Lead or Contact must be chosen'),
-      )
-    })
-
     it('should throw not found exception when lead not found', async () => {
       const dto: DTO.Task.AddTask = {
         ownerId: task.ownerId,
@@ -176,20 +163,6 @@ describe('task service', () => {
 
       expect(taskService.addTask(dto)).rejects.toThrow(
         new NotFoundException(`Lead not found`),
-      )
-    })
-
-    it('should throw bad request exception when accountId and dealId are undefined', async () => {
-      const dto: DTO.Task.AddTask = {
-        ownerId: task.ownerId,
-        contactId: task.contactId,
-        subject: task.subject,
-      }
-
-      userRepo.findOne.mockReturnValue({ ...user })
-
-      expect(taskService.addTask(dto)).rejects.toThrow(
-        new BadRequestException('Account or Deal must be chosen'),
       )
     })
 
