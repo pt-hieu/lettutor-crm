@@ -180,7 +180,7 @@ const CreateTask = () => {
       push(`/tasks/${res.id}`)
     },
     onError: () => {
-      notification.error({ message: 'Add account unsuccessfully.' })
+      notification.error({ message: 'Add task unsuccessfully.' })
     },
   })
 
