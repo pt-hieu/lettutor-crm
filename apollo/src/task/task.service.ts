@@ -24,10 +24,6 @@ export class TaskService {
   async addTask(dto: DTO.Task.AddTask) {
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
 
-    if (dto.leadId === undefined && dto.contactId === undefined) {
-      throw new BadRequestException('Lead or Contact must be chosen')
-    }
-
     if (dto.leadId) {
       await this.leadService.getLeadById({ where: { id: dto.leadId } })
       dto.accountId = null
@@ -35,9 +31,6 @@ export class TaskService {
       dto.dealId = null
     } else if (dto.contactId) {
       dto.leadId = null
-      if (dto.accountId === undefined && dto.dealId === undefined) {
-        throw new BadRequestException('Account or Deal must be chosen')
-      }
 
       if (dto.accountId) {
         dto.dealId = null

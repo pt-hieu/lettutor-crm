@@ -19,7 +19,7 @@ export enum AccountType {
   PRESS = 'Press',
   PROSPECT = 'Prospect',
   RESELLER = 'Reseller',
-  Vendor = 'Vendor',
+  VENDOR = 'Vendor',
 }
 
 @Entity({ name: 'account' })
