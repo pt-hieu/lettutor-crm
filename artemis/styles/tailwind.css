@@ -34,7 +34,7 @@
   }
 
   .crm-input--invalid {
-    @apply ring-red-600;
+    @apply ring-red-600 focus:ring-red-600;
   }
 
   .crm-label {
