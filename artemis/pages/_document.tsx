@@ -22,7 +22,7 @@ class MyDocument extends Document {
             referrerPolicy="no-referrer"
           />
 
-          <link rel="shortcut icon" href="/favicon.png" />
+          <link rel="shortcut icon" href="/favicon.ico" />
         </Head>
         <body>
           <Main />
