@@ -4,14 +4,20 @@ import { Deal } from './deal'
 import { Lead } from './lead'
 import { User } from './user'
 
-export enum TaskStatus {
-  DUMMY1 = 'DUMMY1',
-  DUMMY2 = 'DUMMY2',
+export enum TaskPriority {
+  HIGH = 'High',
+  HIGHEST = 'Highest',
+  LOW = 'Low',
+  LOWEST = 'Lowest',
+  NORMAL = 'Normal',
 }
 
-export enum TaskPriority {
-  DUMMY1 = 'DUMMY1',
-  DUMMY2 = 'DUMMY2',
+export enum TaskStatus {
+  NOT_STARTED = 'Not Started',
+  DEFERRED = 'Deferred',
+  IN_PROGRESS = 'In Progress',
+  COMPLETED = 'Completed',
+  WAITING_FOR_INPUT = 'Waiting For Input',
 }
 
 export interface Task extends Base {
