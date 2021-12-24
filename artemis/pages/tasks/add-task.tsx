@@ -381,7 +381,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         ['accounts'],
         getAccounts({ shouldNotPaginate: true }, token),
       ),
-
       client.prefetchQuery(
         ['deals'],
         getDeals({ shouldNotPaginate: true }, token),
@@ -390,14 +389,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   return {
-    notFound: investigate(
-      client,
-      ['users'],
-      ['leads'],
-      ['contacts'],
-      ['accounts'],
-      ['deals'],
-    ).isError,
     props: {
       dehydratedState: dehydrate(client),
     },
