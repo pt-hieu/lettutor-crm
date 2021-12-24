@@ -47,15 +47,9 @@ export default function InlineEdit<
   }, [])
 
   return (
-    <div
-      className={`flex gap-2 relative group ${enabled ? '' : 'cursor-pointer'}`}
-    >
+    <div className="flex gap-2 relative group">
       {/* @ts-ignore */}
-      <Input
-        wrapperOnClick={() => setEnabled(true)}
-        editable={enabled}
-        {...inputProps}
-      />
+      <Input editable={enabled} {...inputProps} showError={enabled} />
 
       <Animate
         shouldAnimateOnExit

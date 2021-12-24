@@ -99,7 +99,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
             animate="animating"
             exit="init"
             variants={variants}
-            className="text-red-600 overflow-hidden"
+            className="text-red-600 overflow-hidden pl-2"
           >
             {error}
           </motion.div>

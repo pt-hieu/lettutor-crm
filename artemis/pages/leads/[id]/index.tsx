@@ -214,7 +214,7 @@ const LeadDetail = () => {
             <form onSubmit={submit} className="flex flex-col gap-2">
               {fields(register, errors, users || []).map(({ label, props }) => (
                 <div key={label} className="grid grid-cols-[250px,350px] gap-4">
-                  <span className="inline-block text-right font-medium pt-[10px]">
+                  <span className="inline-block text-right font-medium pt-[8px]">
                     {label}
                   </span>
                   <InlineEdit
