@@ -194,6 +194,7 @@ const CreateTask = () => {
     defaultValues: {
       ownerId: '',
       description: '',
+      dueDate: null,
     },
   })
 
