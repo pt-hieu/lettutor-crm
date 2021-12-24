@@ -2,15 +2,22 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-} from 'typeorm';
+  Column,
+} from 'typeorm'
 
 export abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string
 
   @CreateDateColumn({ name: 'created_at', select: false })
-  createdAt?: Date;
+  createdAt?: Date
+
+  @Column({ type: 'uuid', nullable: true })
+  createdBy: string | null
 
   @UpdateDateColumn({ name: 'updated_at', select: false })
-  updatedAt?: Date;
+  updatedAt?: Date
+
+  @Column({ type: 'uuid', nullable: true })
+  updatedBy: string | null
 }

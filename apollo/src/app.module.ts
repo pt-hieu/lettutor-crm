@@ -9,11 +9,14 @@ import { JwtModule } from '@nestjs/jwt'
 import { JwtStrategy } from './jwt.strategy'
 import { ActionGuard } from './action.guard'
 import { MailModule } from './mail/mail.module'
-import { LeadContactModule } from './lead-contact/lead-contact.module';
-import { AccountModule } from './account/account.module';
-import { DealModule } from './deal/deal.module';
+import { LeadContactModule } from './lead-contact/lead-contact.module'
+import { AccountModule } from './account/account.module'
+import { DealModule } from './deal/deal.module'
 import { WebhookModule } from './webhook/webhook.module'
 import { HttpModule } from '@nestjs/axios'
+import { PayloadService } from './payload.service'
+import { BaseSubscriber } from './base.subscriber'
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -27,7 +30,7 @@ import { HttpModule } from '@nestjs/axios'
       entities: [],
       synchronize: process.env.NODE_ENV !== 'production',
       autoLoadEntities: true,
-      logging: false
+      logging: false,
     }),
     UserModule,
     MailModule,
@@ -38,10 +41,13 @@ import { HttpModule } from '@nestjs/axios'
     AccountModule,
     DealModule,
     WebhookModule,
-    HttpModule
+    HttpModule,
+    TaskModule
   ],
   providers: [
     JwtStrategy,
+    PayloadService,
+    BaseSubscriber,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -52,4 +58,4 @@ import { HttpModule } from '@nestjs/axios'
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

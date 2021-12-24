@@ -2,6 +2,7 @@ import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
+import { Task } from 'src/task/task.entity'
 import { Actions } from 'src/type/action'
 import { BaseEntity } from 'src/utils/base.entity'
 import {
@@ -53,6 +54,10 @@ export class User extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   accounts: Account[]
 
+  @OneToMany(() => Task, (task) => task.owner)
+  @Exclude({ toPlainOnly: true })
+  tasks: Task[]
+
   @ManyToMany(() => Role, (r) => r.users, { eager: true })
   @JoinTable()
   roles: Role[]
@@ -69,7 +74,7 @@ export class Role extends BaseEntity {
   @ManyToOne(() => Role, (r) => r.children)
   parent: Role
 
-  @Column({ type: "uuid", array: true, default: null, select: false })
+  @Column({ type: 'uuid', array: true, default: null, select: false })
   childrenIds: string[]
 
   @OneToMany(() => Role, (r) => r.parent)

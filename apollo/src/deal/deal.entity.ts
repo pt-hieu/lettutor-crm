@@ -1,9 +1,10 @@
-import { Type } from 'class-transformer'
+import { Exclude, Type } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { LeadContact, LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { Task } from 'src/task/task.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 export enum DealStage {
   QUALIFICATION = 'Qualification',
@@ -60,4 +61,8 @@ export class Deal extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: true, default: 10 })
   description: string | null
+
+  @OneToMany(() => Task, (task) => task.deal)
+  @Exclude({ toPlainOnly: true })
+  tasks: Task[]
 }
