@@ -30,7 +30,7 @@ export interface LeadUpdateFromData
   ownerId: string
 }
 
-const schema = yup.object().shape({
+export const editLeadSchema = yup.object().shape({
   ownerId: yup.string().required('Lead Owner is required.'),
   email: yup
     .string()
@@ -81,7 +81,7 @@ const EditLead = () => {
     formState: { errors },
   } = useForm<LeadUpdateFromData>({
     mode: 'all',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(editLeadSchema),
     defaultValues: {
       ownerId: lead?.owner?.id,
       fullName: lead?.fullName,

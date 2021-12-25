@@ -2,6 +2,7 @@ import { Paginate, PagingQuery } from '@utils/models/paging'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { API } from 'environment'
 import axios from 'axios'
+import { TaskAddFormData } from 'pages/tasks/add-task'
 
 export const getTasks =
   (
@@ -26,3 +27,8 @@ export const getTask = (id?: string, token?: string) => () =>
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
+
+export const addTask = async (taskInfo: TaskAddFormData) => {
+  const { data } = await axios.post<Task>(API + `/api/task`, taskInfo)
+  return data
+}

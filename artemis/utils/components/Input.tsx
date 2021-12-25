@@ -44,9 +44,10 @@ type NativeProps<T> = T extends undefined
     }
   : {}
 
-type Props<T> = NativeProps<T> & {
+export type Props<T> = NativeProps<T> & {
   editable?: boolean
   wrapperClassname?: string
+  wrapperOnClick?: () => any
 } & (
     | { showError?: true; error: string | undefined }
     | { showError: false; error?: never }
@@ -60,18 +61,19 @@ const variants = {
 function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
   {
     error,
+    wrapperOnClick,
     as,
     showError,
     wrapperClassname,
     editable,
-    props: { name, className, disabled, ...rest },
+    props: { className, disabled, ...rest },
   }: Props<T>,
   _ref: any,
 ) {
   const Component = as || 'input'
 
   return (
-    <div className={wrapperClassname}>
+    <div onClick={wrapperOnClick} className={wrapperClassname}>
       {/* @ts-ignore */}
       <Component
         className={
@@ -88,7 +90,6 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
             : '')
         }
         disabled={disabled ?? editable === false}
-        name={name}
         {...rest}
       />
       <AnimatePresence presenceAffectsLayout>
@@ -98,7 +99,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
             animate="animating"
             exit="init"
             variants={variants}
-            className="text-red-600 overflow-hidden"
+            className="text-red-600 overflow-hidden pl-2"
           >
             {error}
           </motion.div>

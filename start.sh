@@ -7,3 +7,4 @@ cd ~/lettutor-crm/apollo
 docker-compose down
 docker-compose pull apollo
 docker-compose up -d
+yes | docker image prune

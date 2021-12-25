@@ -59,7 +59,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
         </Animate>
       </form>
       <ButtonAdd
-        title="Create Tasks"
+        title="Create Task"
         asLink
         link="/tasks/add-task"
         menuItems={
@@ -67,10 +67,6 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
             <button className={menuItemClass}>
               <span className="fa fa-upload mr-4" />
               Import Tasks
-            </button>
-            <button className={menuItemClass}>
-              <span className="fa fa-book mr-4" />
-              Import Notes
             </button>
           </>
         }

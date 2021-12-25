@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { User } from 'next-auth'
+>>>>>>> 757bd260e5ccf2489cc02f2af4f56b2abf0840f4
 import { Base } from './base'
 import { Contact } from './contact'
 import { Deal } from './deal'
@@ -23,12 +27,12 @@ export enum TaskStatus {
 export interface Task extends Base {
   owner: User
   subject: string
-  dueDate?: Date
-  lead?: Lead
-  contact?: Contact
-  account?: Account
-  deal?: Deal
   status: TaskStatus
   priority: TaskPriority
-  description?: string
+  lead: Lead | null
+  contact: Contact | null
+  account: Account | null
+  deal: Deal | null
+  dueDate: Date | null
+  description: string | null
 }
