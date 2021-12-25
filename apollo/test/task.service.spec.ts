@@ -289,7 +289,7 @@ describe('task service', () => {
     it('should throw not found exception when lead not found', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        dealId: task.dealId,
+        leadId: task.leadId,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -319,7 +319,7 @@ describe('task service', () => {
     it('should throw not found exception when account not found', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        contactId: task.contactId,
+        accountId: task.accountId,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -334,7 +334,7 @@ describe('task service', () => {
     it('should throw not found exception when deal not found', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        contactId: task.contactId,
+        dealId: task.dealId,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
