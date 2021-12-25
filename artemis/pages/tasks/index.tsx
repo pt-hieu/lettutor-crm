@@ -43,7 +43,9 @@ const columns: TableColumnType<Task>[] = [
     dataIndex: 'priority',
     key: 'priority',
     sorter: {
-      compare: (a, b) => a.priority.localeCompare(b.priority),
+      compare: (a, b) =>
+        Object.keys(TaskPriority).indexOf(a.priority) -
+        Object.keys(TaskPriority).indexOf(b.priority),
     },
   },
   {

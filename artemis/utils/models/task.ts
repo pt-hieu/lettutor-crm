@@ -5,11 +5,11 @@ import { Lead } from './lead'
 import { User } from './user'
 
 export enum TaskPriority {
-  HIGH = 'High',
   HIGHEST = 'Highest',
+  HIGH = 'High',
+  NORMAL = 'Normal',
   LOW = 'Low',
   LOWEST = 'Lowest',
-  NORMAL = 'Normal',
 }
 
 export enum TaskStatus {
