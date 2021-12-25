@@ -4,14 +4,14 @@ import { User } from './user'
 
 export enum LeadStatus {
   NONE = 'None',
-  TRIED_CONTACTING = 'Tried Contacting',
-  CONTACT_IN_THE_FUTURE = 'Contact In The Future',
+  ATTEMPTED_TO_CONTACT = 'Attempted To Contact',
+  CONTACT_IN_FUTURE = 'Contact In Future',
   CONTACTED = 'Contacted',
-  NOT_CONTACTED_YET = 'Not Contacted Yet',
-  OFFER_SOMETHING = 'Offer Something',
-  OFFER_LOST = 'Offer Lost',
-  DEFINE_PRECONDITION = 'Define Precondition',
-  NOT_ELIGIBLE = 'Not Eligible',
+  JUNK_LEAD = 'Junk Lead',
+  LOST_LEAD = 'Lost Lead',
+  NOT_CONTACTED = 'Not Contacted',
+  PRE_QUALIFIED = 'Pre Qualified',
+  NOT_QUALIFIED = 'Not Qualified',
 }
 
 export enum LeadSource {

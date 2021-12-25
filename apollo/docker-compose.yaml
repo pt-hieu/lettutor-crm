@@ -8,8 +8,9 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      PGDATA: /data/postgres
     volumes:
-      - /db/var/lib/postgresql:/var/lib/postgresql
+       - postgres:/data/postgres
 
   apollo:
     container_name: apollo
@@ -18,3 +19,6 @@ services:
       - postgres
     ports:
       - '8000:8000'
+
+volumes:
+    postgres:

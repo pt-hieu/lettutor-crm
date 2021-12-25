@@ -25,7 +25,7 @@ export type AccountUpdateFormData = {
   type: AccountType
 }
 
-export const schema = yup.object().shape({
+export const editAccountSchema = yup.object().shape({
   ownerId: yup.string().required('Account Owner is required.'),
   fullName: yup
     .string()
@@ -93,7 +93,7 @@ const EditAccount = () => {
     formState: { errors },
   } = useForm<AccountUpdateFormData>({
     mode: 'all',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(editAccountSchema),
     defaultValues: {
       ownerId: account?.owner.id,
       fullName: account?.fullName,

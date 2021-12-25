@@ -23,12 +23,12 @@ export enum TaskStatus {
 export interface Task extends Base {
   owner: User
   subject: string
-  dueDate?: Date
-  lead?: Lead
-  contact?: Contact
-  account?: Account
-  deal?: Deal
   status: TaskStatus
   priority: TaskPriority
-  description?: string
+  lead: Lead | null
+  contact: Contact | null
+  account: Account | null
+  deal: Deal | null
+  dueDate: Date | null
+  description: string | null
 }

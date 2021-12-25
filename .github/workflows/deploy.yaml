@@ -80,5 +80,5 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@18.167.61.239 '
-            cd ~/lettutor-crm && git pull && ./start.sh
+            cd ~/lettutor-crm && ./start.sh
           '
