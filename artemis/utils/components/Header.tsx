@@ -39,7 +39,9 @@ export default function Header() {
   return (
     <header className="z-[10] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
       <div className="flex">
-        <span className="font-semibold text-xl">CRM System</span>
+        <Link href="/">
+          <a className="font-semibold text-xl !text-blue-600 crm-link">CRM System</a>
+        </Link>
         <span className="ml-12 flex gap-6">
           {data.map(({ link, title }) => (
             <Link href={link} key={link}>
