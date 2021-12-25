@@ -218,7 +218,7 @@ describe('task service', () => {
     })
   })
 
-  describe('edit task', () =>{
+  describe('edit task', () => {
     it('should update task succeed with owner and subject', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
@@ -230,47 +230,47 @@ describe('task service', () => {
       taskRepo.findOne.mockReturnValue({ ...task })
       taskRepo.save.mockReturnValue({ ...task })
 
-      expect(await taskService.update(task.id,dto)).toEqual(task)
+      expect(await taskService.update(task.id, dto)).toEqual(task)
     })
     it('should update task succeed with leadId', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
         subject: task.subject,
         leadId: task.leadId,
-        contactId: task.contactId
+        contactId: task.contactId,
       }
       const result = {
         ...task,
         contactId: null,
         dealId: null,
-        accountId: null
+        accountId: null,
       }
       userRepo.findOne.mockReturnValue({ ...user })
       leadContactRepo.findOne.mockReturnValue({ ...lead })
       taskRepo.findOne.mockReturnValue({ ...task })
       taskRepo.save.mockReturnValue(result)
 
-      expect(await taskService.update(task.id,dto)).toEqual(result)
+      expect(await taskService.update(task.id, dto)).toEqual(result)
     })
 
     it('should update task succeed with contactId', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
         subject: task.subject,
-        contactId: task.contactId
+        contactId: task.contactId,
       }
       const result = {
         ...task,
         leadId: null,
         dealId: null,
-        accountId: null
+        accountId: null,
       }
       userRepo.findOne.mockReturnValue({ ...user })
       leadContactRepo.findOne.mockReturnValue({ ...lead })
       taskRepo.findOne.mockReturnValue({ ...task })
       taskRepo.save.mockReturnValue(result)
 
-      expect(await taskService.update(task.id,dto)).toEqual(result)
+      expect(await taskService.update(task.id, dto)).toEqual(result)
     })
     it('should throw not found exception when task not found', async () => {
       const dto: DTO.Task.UpdateBody = {

@@ -97,7 +97,9 @@ export class TaskService {
 
     await Promise.all([
       dto.contactId
-        ? this.contactService.getContactById({ where: { id: dto.contactId } })
+        ? this.contactService.getContactById({
+            where: { id: dto.contactId, isLead: false },
+          })
         : undefined,
       dto.accountId
         ? this.accountService.getAccountById({ where: { id: dto.accountId } })
