@@ -274,7 +274,7 @@ const CreateTask = () => {
           as={as!}
           props={{
             disabled: name === 'accountDeal' && leadOrContact === 'leadId',
-            type: type,
+            type: type || 'text',
             className: `text-sm p-3 min-h-[44px] ${
               name === 'description' || name === 'address'
                 ? 'w-[600px]'

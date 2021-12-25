@@ -110,7 +110,7 @@ const UpdateContact = () => {
           error={errors[id as keyof ContactUpdateFormData]?.message}
           as={as!}
           props={{
-            type: type,
+            type: type || 'text',
             className: `text-sm p-3 min-h-[44px] ${
               id === 'description' || id === 'address' ? 'w-[600px]' : 'w-full'
             }`,

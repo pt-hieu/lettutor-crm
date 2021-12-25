@@ -122,7 +122,7 @@ const LeadsAdd = () => {
           error={errors[id as keyof LeadAddFormData]?.message}
           as={as!}
           props={{
-            type: type,
+            type: type || 'text',
             className: `text-sm p-3 min-h-[44px] ${
               id === 'description' ? 'w-[600px]' : 'w-full'
             }`,
