@@ -126,6 +126,7 @@ const ButtonAddUser = () => {
               <Input
                 error={errors.name?.message}
                 props={{
+                  id: 'name',
                   type: 'text',
                   className: 'w-full text-sm p-3',
                   ...register('name', requireRule('Name')),
@@ -141,6 +142,7 @@ const ButtonAddUser = () => {
               <Input
                 error={errors.email?.message}
                 props={{
+                  id: 'email',
                   type: 'email',
                   className: 'w-full text-sm p-3',
                   placeholder: 'An invitation link will be sent to this email',
@@ -161,6 +163,7 @@ const ButtonAddUser = () => {
                 error={errors.roleId?.message}
                 as="select"
                 props={{
+                  id: 'userRole',
                   className: 'w-full text-sm p-3',
                   ...register('roleId', requireRule('Role')),
                   children: (

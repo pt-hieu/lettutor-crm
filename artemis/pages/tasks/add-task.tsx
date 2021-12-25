@@ -273,6 +273,7 @@ const CreateTask = () => {
           error={errors[name as keyof TaskAddFormData]?.message}
           as={as!}
           props={{
+            id: name,
             disabled: name === 'accountDeal' && leadOrContact === 'leadId',
             type: type || 'text',
             className: `text-sm p-3 min-h-[44px] ${

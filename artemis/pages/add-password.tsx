@@ -158,6 +158,7 @@ export default function ResetPassword({ isValidToken }: Props) {
             <Input
               error={errors.password?.message}
               props={{
+                id: 'password',
                 type: 'password',
                 autoFocus: true,
                 className: 'w-full',
@@ -173,6 +174,7 @@ export default function ResetPassword({ isValidToken }: Props) {
             <Input
               error={errors['confirmPassword']?.message}
               props={{
+                id: 'confirmPassword',
                 type: 'password',
                 className: 'w-full',
                 ...register('confirmPassword', requireRule('Confirm password')),

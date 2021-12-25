@@ -115,6 +115,7 @@ export default function ChangePassword() {
             <Input
               error={errors.oldPassword?.message}
               props={{
+                id: 'oldPassword',
                 type: 'password',
                 className: 'w-full',
                 ...register('oldPassword', requireRule('Old Password')),
@@ -129,6 +130,7 @@ export default function ChangePassword() {
             <Input
               error={errors.newPassword?.message}
               props={{
+                id: 'newPassword',
                 type: 'password',
                 className: 'w-full',
                 ...register('newPassword', requireRule('New Password')),
@@ -143,6 +145,7 @@ export default function ChangePassword() {
             <Input
               error={errors.confirmPassword?.message}
               props={{
+                id: 'confirmPassword',
                 type: 'password',
                 className: 'w-full',
                 ...register('confirmPassword', requireRule('Confirm Password')),
