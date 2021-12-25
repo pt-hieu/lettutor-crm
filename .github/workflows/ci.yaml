@@ -3,19 +3,58 @@ name: CI
 on:
   pull_request:
     branches: [dev]
-    types: [labeled, synchronize]
+    types: [labeled, synchronize, opened, reopened]
 
 jobs:
+  Label_Checker:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.result.output.should_run }}
+    steps:
+      - name: Check label for Apollo
+        uses: docker://agilepathway/pull-request-label-checker:latest
+        id: apollo
+        with:
+          any_of: backend,both
+          repo_token: ${{ secrets.ACCESS_TOKEN }}
+        continue-on-error: true
+      - name: Check label for Artemis
+        uses: docker://agilepathway/pull-request-label-checker:latest
+        id: artemis
+        with:
+          any_of: frontend,both
+          repo_token: ${{ secrets.ACCESS_TOKEN }}
+        continue-on-error: true
+
+      - name: Output result
+        id: result
+        run: |
+          apollo=${{ steps.apollo.outcome }}
+          artemis=${{ steps.apollo.outcome }}
+
+          if [ $apollo == "success" ]; then
+            if [$artemis == "success" ]; then
+              echo "::set-output name=shoud_run::both"
+            else
+              echo "::set-output name=shoud_run::apollo"
+            fi
+          else
+            if [$artemis == "success" ]; then
+              echo "::set-output name=shoud_run::artemis"
+            else
+              echo "::set-output name=shoud_run::none"
+            fi
+          fi
+
   Apollo:
-    if: ${{ github.event.label.name == 'backend' || github.event.label.name == 'both' }}
+    needs: Label_Checker
+    if: ${{ needs.Label_Checker.outputs.should_run == 'apollo' || needs.Label_Checker.outputs.should_run == 'both' }}
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./apollo
-
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/cache@v2
         with:
           path: "**/node_modules"
@@ -27,13 +66,14 @@ jobs:
 
       - name: Run Unit Test
         run: yarn test
+
   Artemis:
-    if: ${{ github.event.label.name == 'frontend' || github.event.label.name == 'both' }}
+    needs: Label_Checker
+    if: ${{ needs.Label_Checker.outputs.should_run == 'artemis' || needs.Label_Checker.outputs.should_run == 'both' }}
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./artemis
-
     steps:
       - uses: actions/checkout@v2
 
