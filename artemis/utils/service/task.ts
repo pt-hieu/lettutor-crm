@@ -19,3 +19,10 @@ export const getTasks =
         params,
       })
       .then((res) => res.data)
+
+export const getTask = (id?: string, token?: string) => () =>
+  axios
+    .get<Task>(API + `/api/task/${id}`, {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    .then((res) => res.data)
