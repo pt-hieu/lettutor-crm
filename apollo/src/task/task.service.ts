@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { AccountService } from 'src/account/account.service'
 import { DealService } from 'src/deal/deal.service'
@@ -19,13 +19,15 @@ export class TaskService {
     private readonly contactService: ContactService,
     private readonly leadService: LeadService,
     private readonly dealService: DealService,
-  ) { }
+  ) {}
 
   async addTask(dto: DTO.Task.AddTask) {
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
 
     if (dto.leadId) {
-      await this.leadService.getLeadById({ where: { id: dto.leadId } })
+      await this.leadService.getLeadById({
+        where: { id: dto.leadId, isLead: true },
+      })
       dto.accountId = null
       dto.contactId = null
       dto.dealId = null
@@ -39,7 +41,9 @@ export class TaskService {
       }
 
       await Promise.all([
-        this.contactService.getContactById({ where: { id: dto.contactId } }),
+        this.contactService.getContactById({
+          where: { id: dto.contactId, isLead: false },
+        }),
         dto.accountId
           ? this.accountService.getAccountById({ where: { id: dto.accountId } })
           : undefined,
@@ -69,25 +73,22 @@ export class TaskService {
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
 
     if (dto.leadId) {
-      await this.leadService.getLeadById({ where: { id: dto.leadId, isLead: true } })
+      await this.leadService.getLeadById({
+        where: { id: dto.leadId, isLead: true },
+      })
       dto.contactId = null
       dto.accountId = null
       dto.dealId = null
       return this.taskRepo.save({ ...task, ...dto })
     }
 
-    if (!dto.contactId) {
-      dto.accountId = null
-      dto.dealId = null
-      return this.taskRepo.save({ ...task, ...dto })
-    }
-
-    if (dto.accountId)
-      dto.dealId = null
+    if (dto.accountId) dto.dealId = null
 
     await Promise.all([
       dto.contactId
-        ? this.contactService.getContactById({ where: { id: dto.contactId } })
+        ? this.contactService.getContactById({
+            where: { id: dto.contactId, isLead: false },
+          })
         : undefined,
       dto.accountId
         ? this.accountService.getAccountById({ where: { id: dto.accountId } })

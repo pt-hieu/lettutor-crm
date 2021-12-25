@@ -217,4 +217,132 @@ describe('task service', () => {
       )
     })
   })
+
+  describe('edit task', () => {
+    it('should update task succeed with owner and subject', async () => {
+      const dto: DTO.Task.UpdateBody = {
+        ownerId: task.ownerId,
+        subject: task.subject,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      taskRepo.findOne.mockReturnValue({ ...task })
+      taskRepo.save.mockReturnValue({ ...task })
+
+      expect(await taskService.update(task.id, dto)).toEqual(task)
+    })
+    it('should update task succeed with leadId', async () => {
+      const dto: DTO.Task.UpdateBody = {
+        ownerId: task.ownerId,
+        subject: task.subject,
+        leadId: task.leadId,
+        contactId: task.contactId,
+      }
+      const result = {
+        ...task,
+        contactId: null,
+        dealId: null,
+        accountId: null,
+      }
+      userRepo.findOne.mockReturnValue({ ...user })
+      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      taskRepo.findOne.mockReturnValue({ ...task })
+      taskRepo.save.mockReturnValue(result)
+
+      expect(await taskService.update(task.id, dto)).toEqual(result)
+    })
+
+    it('should update task succeed with contactId', async () => {
+      const dto: DTO.Task.UpdateBody = {
+        ownerId: task.ownerId,
+        subject: task.subject,
+        contactId: task.contactId,
+      }
+      const result = {
+        ...task,
+        leadId: null,
+        dealId: null,
+        accountId: null,
+      }
+      userRepo.findOne.mockReturnValue({ ...user })
+      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      taskRepo.findOne.mockReturnValue({ ...task })
+      taskRepo.save.mockReturnValue(result)
+
+      expect(await taskService.update(task.id, dto)).toEqual(result)
+    })
+    it('should throw not found exception when task not found', async () => {
+      const dto: DTO.Task.UpdateBody = {
+        ownerId: task.ownerId,
+        subject: task.subject,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      taskRepo.findOne.mockReturnValue(undefined)
+
+      expect(taskService.update(task.id, dto)).rejects.toThrow(
+        new NotFoundException(`Task not found`),
+      )
+    })
+    it('should throw not found exception when lead not found', async () => {
+      const dto: DTO.Task.UpdateBody = {
+        ownerId: task.ownerId,
+        leadId: task.leadId,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      taskRepo.findOne.mockReturnValue({ ...task })
+      leadContactRepo.findOne.mockReturnValue(undefined)
+
+      expect(taskService.update(task.id, dto)).rejects.toThrow(
+        new NotFoundException(`Lead not found`),
+      )
+    })
+    it('should throw not found exception when contact not found', async () => {
+      const dto: DTO.Task.UpdateBody = {
+        ownerId: task.ownerId,
+        contactId: task.contactId,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      taskRepo.findOne.mockReturnValue({ ...task })
+      leadContactRepo.findOne.mockReturnValue(undefined)
+
+      expect(taskService.update(task.id, dto)).rejects.toThrow(
+        new NotFoundException(`Contact not found`),
+      )
+    })
+    it('should throw not found exception when account not found', async () => {
+      const dto: DTO.Task.UpdateBody = {
+        ownerId: task.ownerId,
+        accountId: task.accountId,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      taskRepo.findOne.mockReturnValue({ ...task })
+      accountRepo.findOne.mockReturnValue(undefined)
+
+      expect(taskService.update(task.id, dto)).rejects.toThrow(
+        new NotFoundException(`Account not found`),
+      )
+    })
+    it('should throw not found exception when deal not found', async () => {
+      const dto: DTO.Task.UpdateBody = {
+        ownerId: task.ownerId,
+        dealId: task.dealId,
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      taskRepo.findOne.mockReturnValue({ ...task })
+      dealRepo.findOne.mockReturnValue(undefined)
+
+      expect(taskService.update(task.id, dto)).rejects.toThrow(
+        new NotFoundException(`Deal not found`),
+      )
+    })
+  })
 })
