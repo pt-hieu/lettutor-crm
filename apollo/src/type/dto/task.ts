@@ -68,3 +68,57 @@ export class AddTask {
   @MaxLength(500)
   description?: string
 }
+
+export class UpdateBody {
+  @ApiProperty()
+  @IsUUID()
+  ownerId: string
+  
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  subject: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  dueDate?: Date
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  contactId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  leadId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  accountId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  dealId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(TaskPriority)
+  priority?: TaskPriority
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(TaskStatus)
+  status?: TaskStatus
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string
+}
