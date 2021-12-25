@@ -121,7 +121,8 @@ const EditLead = () => {
           error={errors[name as keyof LeadUpdateFromData]?.message}
           as={as!}
           props={{
-            type: type,
+            id: name,
+            type: type || 'text',
             className: `text-sm p-3 min-h-[44px] ${
               name === 'description' || name === 'address'
                 ? 'w-[600px]'

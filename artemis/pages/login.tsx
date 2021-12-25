@@ -56,6 +56,7 @@ export default function Login() {
           <Input
             error={errors.email?.message}
             props={{
+              id: 'email',
               type: 'text',
               className: 'w-full',
               ...register('email', {
@@ -75,6 +76,7 @@ export default function Login() {
           <Input
             error={errors.password?.message}
             props={{
+              id: 'password',
               type: 'password',
               autoComplete: 'currentpassword',
               className: 'w-full',
