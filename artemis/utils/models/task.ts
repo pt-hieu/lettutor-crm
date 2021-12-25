@@ -1,4 +1,5 @@
-import { User } from 'next-auth'
+import { User } from './user'
+import { Account } from './account'
 import { Base } from './base'
 import { Contact } from './contact'
 import { Deal } from './deal'
@@ -27,6 +28,7 @@ export interface Task extends Base {
   priority: TaskPriority
   lead: Lead | null
   contact: Contact | null
+  account: Account | null
   deal: Deal | null
   dueDate: Date | null
   description: string | null

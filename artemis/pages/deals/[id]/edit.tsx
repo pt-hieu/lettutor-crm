@@ -132,7 +132,7 @@ const EditDeal = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<DealUpdateFormData>({
-    mode: 'all',
+    mode: 'onChange',
     resolver: yupResolver(schema),
     defaultValues: {
       ownerId: deal?.owner.id,

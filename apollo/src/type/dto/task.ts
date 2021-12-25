@@ -4,16 +4,12 @@ import {
   IsDate,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
 } from 'class-validator'
-import { DealStage } from 'src/deal/deal.entity'
-import { LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { TaskPriority, TaskStatus } from 'src/task/task.entity'
-import { Double } from 'typeorm'
 
 export class AddTask {
   @ApiProperty()
@@ -40,12 +36,12 @@ export class AddTask {
   @IsUUID()
   dealId?: string
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: TaskPriority, enumName: 'Task Priority' })
   @IsOptional()
   @IsEnum(TaskPriority)
   priority?: TaskPriority
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: TaskStatus, enumName: 'Task Status' })
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus
@@ -56,7 +52,7 @@ export class AddTask {
   @MaxLength(100)
   subject: string
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: Date })
   @IsOptional()
   @IsDate()
   @Type(() => Date)

@@ -1,4 +1,12 @@
-import { Body, Controller, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { TaskService } from './task.service'
@@ -14,7 +22,16 @@ export class TaskController {
   addTask(@Body() dto: DTO.Task.AddTask) {
     return this.service.addTask(dto)
   }
-  
+
+  @Get(':id')
+  @ApiOperation({ summary: 'to get one individually task' })
+  getOneTask(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.getTaskById({
+      where: { id },
+      relations: ['owner', 'deal', 'contact', 'account', 'lead'],
+    })
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'to edit a task' })
   updateContact(
