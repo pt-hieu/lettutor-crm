@@ -74,11 +74,12 @@ export class UpdateBody {
   @IsUUID()
   ownerId: string
   
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  subject: string
+  subject?: string
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -106,12 +107,12 @@ export class UpdateBody {
   @IsUUID()
   dealId?: string
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: TaskPriority, enum: TaskPriority})
   @IsOptional()
   @IsEnum(TaskPriority)
   priority?: TaskPriority
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: TaskStatus, enum: TaskStatus})
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus
