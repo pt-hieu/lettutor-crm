@@ -76,12 +76,6 @@ export class TaskService {
       return this.taskRepo.save({ ...task, ...dto })
     }
 
-    if (!dto.contactId) {
-      dto.accountId = null
-      dto.dealId = null
-      return this.taskRepo.save({ ...task, ...dto })
-    }
-
     if (dto.accountId)
       dto.dealId = null
 
