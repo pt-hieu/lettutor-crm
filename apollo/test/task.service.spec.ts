@@ -293,7 +293,6 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
       taskRepo.findOne.mockReturnValue({ ...task })
       leadContactRepo.findOne.mockReturnValue(undefined)
 
@@ -308,7 +307,6 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
       taskRepo.findOne.mockReturnValue({ ...task })
       leadContactRepo.findOne.mockReturnValue(undefined)
 
