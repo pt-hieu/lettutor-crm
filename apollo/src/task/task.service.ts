@@ -6,6 +6,7 @@ import { DealService } from 'src/deal/deal.service'
 import { ContactService } from 'src/lead-contact/contact.service'
 import { LeadService } from 'src/lead-contact/lead.service'
 import { DTO } from 'src/type'
+import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { JwtPayload } from 'src/utils/interface'
 import { Brackets, FindOneOptions, Repository } from 'typeorm'
@@ -21,7 +22,7 @@ export class TaskService {
     private readonly contactService: ContactService,
     private readonly leadService: LeadService,
     private readonly dealService: DealService,
-  ) {}
+  ) { }
 
   async addTask(dto: DTO.Task.AddTask) {
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
@@ -80,7 +81,7 @@ export class TaskService {
         'deal.fullName',
       ])
 
-    if(!payload.roles.find(element => element.name === 'Admin'))
+    if (!payload.roles.some(({actions}) => actions.includes(Actions.IS_ADMIN)))
       q.where('t.ownerId = :ownerId', { ownerId: payload.id })
 
     if (query.priority)

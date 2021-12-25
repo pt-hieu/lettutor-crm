@@ -17,6 +17,7 @@ import { UserService } from 'src/user/user.service'
 import { TaskService } from 'src/task/task.service'
 import { Task } from 'src/task/task.entity'
 import { LeadService } from 'src/lead-contact/lead.service'
+import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 
 describe('task service', () => {
   let taskRepo: MockType<Repository<Deal>>
@@ -217,4 +218,40 @@ describe('task service', () => {
       )
     })
   })
+
+  describe('getMany', () => {
+    it('should return tasks succeed', async () => {
+      const dto: DTO.Task.GetManyQuery = {
+        limit: 10,
+        page: 1,
+        shouldNotPaginate: false,
+      }
+
+      mockQueryBuilder.getMany.mockReturnValue([task])
+
+      expect(
+        ((await taskService.getMany(dto, user)) as Pagination<Task, IPaginationMeta>)
+          .items,
+      ).toEqual([task])
+    })
+  })
+
+  describe('view task detail', () => {
+    it('should view task detail succeed', async () => {
+      taskRepo.findOne.mockReturnValue({ ...task })
+
+      expect(await taskService.getTaskById({ where: { id: task.id } })).toEqual(
+        task,
+      )
+    })
+
+    it('should throw exception when task not found', () => {
+      taskRepo.findOne.mockReturnValue(undefined)
+
+      expect(
+        taskService.getTaskById({ where: { id: task.id } }),
+      ).rejects.toThrow(new NotFoundException(`Task not found`))
+    })
+  })
+
 })

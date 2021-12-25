@@ -9,7 +9,7 @@ import { TaskService } from './task.service'
 @ApiBearerAuth('jwt')
 @Controller('task')
 export class TaskController {
-  constructor(private readonly service: TaskService) {}
+  constructor(private readonly service: TaskService) { }
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all leads' })
