@@ -10,10 +10,9 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
-import { DealStage } from 'src/deal/deal.entity'
-import { LeadSource } from 'src/lead-contact/lead-contact.entity'
 import { TaskPriority, TaskStatus } from 'src/task/task.entity'
 import { Double } from 'typeorm'
+import { Paginate } from './paging'
 
 export class AddTask {
   @ApiProperty()
@@ -67,4 +66,21 @@ export class AddTask {
   @IsString()
   @MaxLength(500)
   description?: string
+}
+
+export class GetManyQuery extends Paginate {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  search?: string
+
+  @ApiPropertyOptional({ type: TaskPriority, enum: TaskPriority, isArray: true })
+  @IsOptional()
+  @IsEnum(TaskPriority, { each: true })
+  priority?: TaskPriority[]
+
+  @ApiPropertyOptional({ type: TaskStatus, enum: TaskStatus, isArray: true })
+  @IsOptional()
+  @IsEnum(TaskStatus, { each: true })
+  status?: TaskStatus[]
 }
