@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [dev]
+    types: [labeled, synchronize]
+
+jobs:
+  Apollo:
+    if: ${{ github.event.label.name == 'backend' || github.event.label.name == 'both' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apollo
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install Dependency
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn install
+
+      - name: Run Unit Test
+        run: yarn test
+  Artemis:
+    if: ${{ github.event.label.name == 'frontend' || github.event.label.name == 'both' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./artemis
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install Dependency
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn install
+
+      - name: Build
+        run: yarn build
