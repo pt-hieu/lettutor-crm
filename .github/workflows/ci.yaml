@@ -34,15 +34,15 @@ jobs:
         run: |
           if [ ${{ env.apollo }} == "success" ]; then
             if [ ${{ env.artemis }} == "success" ]; then
-              echo "::set-output name=shoud_run::both"
+              echo "::set-output name=should_run::both"
             else
-              echo "::set-output name=shoud_run::apollo"
+              echo "::set-output name=should_run::apollo"
             fi
           else
             if [ ${{ env.artemis }} == "success" ]; then
-              echo "::set-output name=shoud_run::artemis"
+              echo "::set-output name=should_run::artemis"
             else
-              echo "::set-output name=shoud_run::none"
+              echo "::set-output name=should_run::none"
             fi
           fi
 
