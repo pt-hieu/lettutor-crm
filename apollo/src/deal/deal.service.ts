@@ -24,7 +24,7 @@ export class DealService {
       .leftJoin('d.owner', 'owner')
       .leftJoin('d.account', 'account')
       .leftJoin('d.contact', 'contact')
-      .addSelect([
+      .addSelect([ 
         'owner.name',
         'owner.email',
         'account.fullName',
