@@ -1,4 +1,4 @@
-import Search from '@components/Accounts/Search'
+import Search from '@components/Tasks/Search'
 import TasksSidebar from '@components/Tasks/Sidebar'
 import TasksViewLayout from '@components/Tasks/TasksViewLayout'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'

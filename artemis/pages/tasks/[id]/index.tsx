@@ -4,13 +4,20 @@ import Layout from '@utils/components/Layout'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Task, TaskStatus } from '@utils/models/task'
-import { getTask } from '@utils/service/task'
+import { closeTask, getTask, updateTask } from '@utils/service/task'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { ReactNode, useMemo } from 'react'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+import { ReactNode, useCallback, useEffect, useMemo } from 'react'
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from 'react-query'
 import { useModal } from '@utils/hooks/useModal'
 import ConfirmCloseModal from '@components/Tasks/ConfirmCloseModal'
+import { notification } from 'antd'
 
 type TaskInfo = {
   label: string
@@ -28,10 +35,29 @@ const TaskDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
 
-  const { data: task } = useQuery<Task>(['task', id])
+  const { data: task } = useQuery<Task>(['task', id], getTask(id))
 
-  const taskInfo = useMemo(
-    (): TaskInfo[] => [
+  const relatives = [
+    {
+      relative: Relatives.LEAD,
+      value: task?.lead?.fullName,
+    },
+    {
+      relative: Relatives.CONTACT,
+      value: task?.contact?.fullName,
+    },
+    {
+      relative: Relatives.ACCOUNT,
+      value: task?.account?.fullName,
+    },
+    {
+      relative: Relatives.DEAL,
+      value: task?.deal?.fullName,
+    },
+  ]
+
+  const createTaskInfo = useCallback((): TaskInfo[] => {
+    const taskInfo = [
       {
         label: 'Owner',
         value: task?.owner.name,
@@ -56,44 +82,46 @@ const TaskDetail = () => {
         label: 'Description',
         value: task?.description,
       },
-    ],
-    [task],
-  )
+    ]
 
-  const relatives = [
-    {
-      relative: Relatives.LEAD,
-      value: task?.lead?.fullName,
-    },
-    {
-      relative: Relatives.CONTACT,
-      value: task?.contact?.fullName,
-    },
-    {
-      relative: Relatives.ACCOUNT,
-      value: task?.account?.name,
-    },
-    {
-      relative: Relatives.DEAL,
-      value: task?.deal?.fullName,
-    },
-  ]
+    relatives.forEach(({ relative, value }) => {
+      if (task && task[relative]) {
+        taskInfo.unshift({
+          label: relative.charAt(0).toUpperCase() + relative.slice(1),
+          value: value,
+        })
+      }
+    })
 
-  relatives.forEach(({ relative, value }) => {
-    if (task && task[relative]) {
-      taskInfo.unshift({
-        label: relative,
-        value: value,
-      })
-    }
-  })
+    return taskInfo
+  }, [task])
+
+  const taskInfo = createTaskInfo()
 
   const isCompleted = task?.status === TaskStatus.COMPLETED
 
   const [visible, openConfirmModal, closeConfirmModal] = useModal()
 
+  const queryClient = useQueryClient()
+
+  const { mutateAsync } = useMutation(
+    ['close-task', id],
+    closeTask(id, task?.owner.id as string),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['task', id])
+        notification.success({
+          message: 'Close task successfully.',
+        })
+      },
+      onError: () => {
+        notification.error({ message: 'Close task unsuccessfully.' })
+      },
+    },
+  )
+
   const confirmCloseTask = () => {
-    console.log('confirm close task')
+    mutateAsync()
   }
 
   return (
@@ -157,7 +185,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    //notFound: investigate(client, ['task', id]).isError,
+    notFound: investigate(client, ['task', id]).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

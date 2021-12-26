@@ -35,3 +35,8 @@ export const addTask = async (taskInfo: TaskFormData) => {
 
 export const updateTask = (id: string) => (data: TaskFormData) =>
   axios.patch(API + '/api/task/' + id, data).then((res) => res.data)
+
+export const closeTask = (id: string, ownerId: string) => () =>
+  axios
+    .patch(API + '/api/task/' + id, { status: TaskStatus.COMPLETED, ownerId })
+    .then((res) => res.data)
