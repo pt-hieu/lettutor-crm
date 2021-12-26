@@ -24,7 +24,7 @@ export class Deal extends BaseEntity {
   @JoinColumn()
   owner: User
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   ownerId: string
 
   @ManyToOne(() => Account, (account) => account.deals)
