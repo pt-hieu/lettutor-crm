@@ -8,7 +8,7 @@ export default function NotFound() {
         <div className="flex flex-col items-center gap-8">
           <img
             className="w-[300px]"
-            src="not_found.svg"
+            src="/not_found.svg"
             alt="not found figure"
           />
           <div className="text-center">
