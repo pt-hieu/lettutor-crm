@@ -29,8 +29,8 @@ jobs:
       - name: Output result
         id: result
         run: |
-          apollo="${{ steps.apollo.outcome }}"
-          artemis="${{ steps.apollo.outcome }}"
+          apollo="$(cat steps.apollo.outcome)"
+          artemis="$(cat steps.apollo.outcome)"
 
           if [ $apollo == "success" ]; then
             if [$artemis == "success" ]; then
