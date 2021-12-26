@@ -28,18 +28,18 @@ jobs:
 
       - name: Output result
         id: result
+        env:
+          apollo: ${{ steps.apollo.outcome }}
+          artemis: ${{ steps.artemis.outcome }}
         run: |
-          echo "${{ steps.apollo.outcome }}" > apollo
-          echo "${{ steps.artemis.outcome }}" > artemis
-
-          if [ $apollo == "success" ]; then
-            if [$artemis == "success" ]; then
+          if [ ${{ env.apollo }} == "success" ]; then
+            if [ ${{ env.artemis }} == "success" ]; then
               echo "::set-output name=shoud_run::both"
             else
               echo "::set-output name=shoud_run::apollo"
             fi
           else
-            if [$artemis == "success" ]; then
+            if [ ${{ env.artemis }} == "success" ]; then
               echo "::set-output name=shoud_run::artemis"
             else
               echo "::set-output name=shoud_run::none"
