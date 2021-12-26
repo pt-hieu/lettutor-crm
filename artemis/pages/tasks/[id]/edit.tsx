@@ -1,10 +1,11 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
+import Loading from '@utils/components/Loading'
 import { TaskAddData } from '@utils/data/add-task-data'
 import { Field } from '@utils/data/update-deal-data'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
+import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { Deal } from '@utils/models/deal'
@@ -15,29 +16,17 @@ import { getAccounts } from '@utils/service/account'
 import { getContacts } from '@utils/service/contact'
 import { getDeals } from '@utils/service/deal'
 import { getLeads } from '@utils/service/lead'
-import { addTask } from '@utils/service/task'
+import { getTask, updateTask } from '@utils/service/task'
 import { getUsers } from '@utils/service/user'
 import { notification, Select } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
-import * as yup from 'yup'
+import { TaskFormData, taskSchema } from '../add-task'
 
 const { Option } = Select
-
-export interface TaskFormData
-  extends Pick<
-    Task,
-    'subject' | 'status' | 'priority' | 'dueDate' | 'description'
-  > {
-  ownerId: string
-  leadId?: string
-  contactId?: string
-  accountId?: string
-  dealId?: string
-}
 
 const SelectKeys = ['leadContact', 'accountDeal'] as const
 
@@ -48,19 +37,6 @@ type SelectValue = {
 type SelectChange = {
   [key in typeof SelectKeys[number]]: (value: string) => void
 }
-
-export const taskSchema = yup.object().shape({
-  ownerId: yup.string().required('Account Owner is required.'),
-  subject: yup
-    .string()
-    .required('Subject is required.')
-    .max(100, 'Subject must be at most 100 characters.'),
-  status: yup.string().required('Status is required.'),
-  priority: yup.string().required('Priority is required.'),
-  description: yup
-    .string()
-    .max(500, 'Description must be at most 500 characters.'),
-})
 
 const LabelSelect = {
   leadContact: [
@@ -86,8 +62,9 @@ const LabelSelect = {
 }
 
 const CreateTask = () => {
-  const [session] = useTypedSession()
-  const { push } = useRouter()
+  const { replace, query, push } = useRouter()
+  const id = query.id as string
+
   const [leadOrContact, setLeadOrContact] = useState(
     LabelSelect.leadContact[0].value,
   )
@@ -104,6 +81,8 @@ const CreateTask = () => {
     leadContact: (value: string) => setLeadOrContact(value),
     accountDeal: (value: string) => setAccountOrDeal(value),
   }
+
+  const { data: task } = useQuery<Task>(['task', id], { enabled: false })
 
   const { data: taskOwners } = useQuery<User[]>(['users'], {
     enabled: false,
@@ -172,37 +151,44 @@ const CreateTask = () => {
     )),
   }
 
-  const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
-    onSuccess: (res) => {
-      notification.success({
-        message: 'Add task successfully.',
-      })
-      push(`/tasks/${res.id}`)
+  const { isLoading, mutateAsync } = useMutation(
+    ['update-task', id],
+    updateTask(id),
+    {
+      onSuccess: () => {
+        notification.success({
+          message: 'Update task successfully.',
+        })
+
+        replace(`/tasks/${id}`)
+      },
+      onError: () => {
+        notification.error({ message: 'Update task unsuccessfully.' })
+      },
     },
-    onError: () => {
-      notification.error({ message: 'Add task unsuccessfully.' })
-    },
-  })
+  )
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<TaskFormData>({
     resolver: yupResolver(taskSchema),
     defaultValues: {
-      ownerId: '',
-      description: '',
-      dueDate: null,
+      accountId: task?.account?.id,
+      contactId: task?.contact?.id,
+      dealId: task?.deal?.id,
+      description: task?.description,
+      dueDate: task?.dueDate,
+      leadId: task?.lead?.id,
+      ownerId: task?.owner.id,
+      priority: task?.priority,
+      status: task?.status,
+      subject: task?.subject,
     },
   })
 
-  useEffect(() => {
-    setValue('ownerId', session?.user.id || '')
-  }, [session?.user.id])
-
-  const handleAddTask = handleSubmit((data) => {
+  const submitTask = handleSubmit((data) => {
     const nullableKeys = ['leadId', 'contactId', 'accountId', 'dealId']
     nullableKeys.forEach((key) => {
       if (
@@ -273,9 +259,8 @@ const CreateTask = () => {
           error={errors[name as keyof TaskFormData]?.message}
           as={as!}
           props={{
-            id: name,
             disabled: name === 'accountDeal' && leadOrContact === 'leadId',
-            type: type || 'text',
+            type,
             className: `text-sm p-3 min-h-[44px] ${
               name === 'description' || name === 'address'
                 ? 'w-[600px]'
@@ -323,7 +308,7 @@ const CreateTask = () => {
   )
 
   return (
-    <Layout requireLogin title="CRM | Add Task">
+    <Layout requireLogin title="CRM | Update Task">
       <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
         <div>
           {/* Lead Infomation Start */}
@@ -344,10 +329,10 @@ const CreateTask = () => {
           </button>
           <button
             className="crm-button"
-            onClick={handleAddTask}
+            onClick={submitTask}
             disabled={isLoading}
           >
-            Submit
+            <Loading on={isLoading}>Save</Loading>
           </button>
         </div>
       </div>
@@ -355,9 +340,13 @@ const CreateTask = () => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  query,
+}) => {
   const client = new QueryClient()
   const token = getSessionToken(req.cookies)
+  const id = query.id as string
 
   if (token) {
     await Promise.all([
@@ -386,10 +375,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         ['deals'],
         getDeals({ shouldNotPaginate: true }, token),
       ),
+      client.prefetchQuery(['task', id], getTask(id, token)),
     ])
   }
 
   return {
+    notFound: investigate(client, ['task', id]).isError,
     props: {
       dehydratedState: dehydrate(client),
     },

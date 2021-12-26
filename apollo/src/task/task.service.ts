@@ -22,13 +22,15 @@ export class TaskService {
     private readonly contactService: ContactService,
     private readonly leadService: LeadService,
     private readonly dealService: DealService,
-  ) { }
+  ) {}
 
   async addTask(dto: DTO.Task.AddTask) {
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
 
     if (dto.leadId) {
-      await this.leadService.getLeadById({ where: { id: dto.leadId } })
+      await this.leadService.getLeadById({
+        where: { id: dto.leadId, isLead: true },
+      })
       dto.accountId = null
       dto.contactId = null
       dto.dealId = null
@@ -42,7 +44,9 @@ export class TaskService {
       }
 
       await Promise.all([
-        this.contactService.getContactById({ where: { id: dto.contactId } }),
+        this.contactService.getContactById({
+          where: { id: dto.contactId, isLead: false },
+        }),
         dto.accountId
           ? this.accountService.getAccountById({ where: { id: dto.accountId } })
           : undefined,
@@ -81,7 +85,9 @@ export class TaskService {
         'deal.fullName',
       ])
 
-    if (!payload.roles.some(({actions}) => actions.includes(Actions.IS_ADMIN)))
+    if (
+      !payload.roles.some(({ actions }) => actions.includes(Actions.IS_ADMIN))
+    )
       q.where('t.ownerId = :ownerId', { ownerId: payload.id })
 
     if (query.priority)
@@ -93,15 +99,48 @@ export class TaskService {
     if (query.search) {
       q = q.andWhere(
         new Brackets((qb) =>
-          qb
-            .andWhere('t.subject ILIKE :subject', {
-              subject: `%${query.search}%`,
-            })
+          qb.andWhere('t.subject ILIKE :subject', {
+            subject: `%${query.search}%`,
+          }),
         ),
       )
     }
 
     if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
+  }
+
+  async update(id: string, dto: DTO.Task.UpdateBody) {
+    const task = await this.getTaskById({ where: { id } })
+
+    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+
+    if (dto.leadId) {
+      await this.leadService.getLeadById({
+        where: { id: dto.leadId, isLead: true },
+      })
+      dto.contactId = null
+      dto.accountId = null
+      dto.dealId = null
+      return this.taskRepo.save({ ...task, ...dto })
+    }
+
+    if (dto.accountId) dto.dealId = null
+
+    await Promise.all([
+      dto.contactId
+        ? this.contactService.getContactById({
+            where: { id: dto.contactId, isLead: false },
+          })
+        : undefined,
+      dto.accountId
+        ? this.accountService.getAccountById({ where: { id: dto.accountId } })
+        : undefined,
+      dto.dealId
+        ? this.dealService.getDealById({ where: { id: dto.dealId } })
+        : undefined,
+    ])
+
+    return this.taskRepo.save({ ...task, ...dto })
   }
 }

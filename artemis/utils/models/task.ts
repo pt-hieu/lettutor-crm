@@ -1,3 +1,4 @@
+import { Account } from './account'
 import { Base } from './base'
 import { Contact } from './contact'
 import { Deal } from './deal'
