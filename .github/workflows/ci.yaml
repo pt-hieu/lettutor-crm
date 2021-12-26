@@ -29,8 +29,8 @@ jobs:
       - name: Output result
         id: result
         env:
-          apollo: ${{ steps.apollo.outcome }}
-          artemis: ${{ steps.artemis.outcome }}
+          apollo: ${{ toJson(steps.apollo.outcome) }}
+          artemis: ${{ toJson(steps.artemis.outcome) }}
         run: |
           if [ ${{ env.apollo }} == "success" ]; then
             if [ ${{ env.artemis }} == "success" ]; then
