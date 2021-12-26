@@ -9,7 +9,7 @@ jobs:
   Label_Checker:
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ steps.result.output.should_run }}
+      should_run: ${{ steps.result.outputs.should_run }}
     steps:
       - name: Check label for Apollo
         uses: docker://agilepathway/pull-request-label-checker:latest
