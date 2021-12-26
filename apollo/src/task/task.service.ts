@@ -1,12 +1,15 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { DealService } from 'src/deal/deal.service'
 import { ContactService } from 'src/lead-contact/contact.service'
 import { LeadService } from 'src/lead-contact/lead.service'
 import { DTO } from 'src/type'
+import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { FindOneOptions, Repository } from 'typeorm'
+import { JwtPayload } from 'src/utils/interface'
+import { Brackets, FindOneOptions, Repository } from 'typeorm'
 import { Task } from './task.entity'
 
 @Injectable()
@@ -65,6 +68,46 @@ export class TaskService {
     }
 
     return task
+  }
+
+  async getMany(query: DTO.Task.GetManyQuery, payload: JwtPayload) {
+    let q = this.taskRepo
+      .createQueryBuilder('t')
+      .leftJoin('t.owner', 'owner')
+      .leftJoin('t.lead', 'lead')
+      .leftJoin('t.account', 'account')
+      .leftJoin('t.deal', 'deal')
+      .addSelect([
+        'owner.name',
+        'owner.email',
+        'lead.fullName',
+        'account.fullName',
+        'deal.fullName',
+      ])
+
+    if (
+      !payload.roles.some(({ actions }) => actions.includes(Actions.IS_ADMIN))
+    )
+      q.where('t.ownerId = :ownerId', { ownerId: payload.id })
+
+    if (query.priority)
+      q.andWhere('t.priority IN (:...priority)', { priority: query.priority })
+
+    if (query.status)
+      q.andWhere('t.status IN (:...status)', { status: query.status })
+
+    if (query.search) {
+      q = q.andWhere(
+        new Brackets((qb) =>
+          qb.andWhere('t.subject ILIKE :subject', {
+            subject: `%${query.search}%`,
+          }),
+        ),
+      )
+    }
+
+    if (query.shouldNotPaginate === true) return q.getMany()
+    return paginate(q, { limit: query.limit, page: query.page })
   }
 
   async update(id: string, dto: DTO.Task.UpdateBody) {

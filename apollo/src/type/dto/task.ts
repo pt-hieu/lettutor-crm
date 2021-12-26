@@ -10,6 +10,7 @@ import {
   MaxLength,
 } from 'class-validator'
 import { TaskPriority, TaskStatus } from 'src/task/task.entity'
+import { Paginate } from './paging'
 
 export class AddTask {
   @ApiProperty()
@@ -65,11 +66,32 @@ export class AddTask {
   description?: string
 }
 
+export class GetManyQuery extends Paginate {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  search?: string
+
+  @ApiPropertyOptional({
+    type: TaskPriority,
+    enum: TaskPriority,
+    isArray: true,
+  })
+  @IsOptional()
+  @IsEnum(TaskPriority, { each: true })
+  priority?: TaskPriority[]
+
+  @ApiPropertyOptional({ type: TaskStatus, enum: TaskStatus, isArray: true })
+  @IsOptional()
+  @IsEnum(TaskStatus, { each: true })
+  status?: TaskStatus[]
+}
+
 export class UpdateBody {
   @ApiProperty()
   @IsUUID()
   ownerId: string
-  
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsNotEmpty()
@@ -103,12 +125,12 @@ export class UpdateBody {
   @IsUUID()
   dealId?: string
 
-  @ApiPropertyOptional({ type: TaskPriority, enum: TaskPriority})
+  @ApiPropertyOptional({ type: TaskPriority, enum: TaskPriority })
   @IsOptional()
   @IsEnum(TaskPriority)
   priority?: TaskPriority
 
-  @ApiPropertyOptional({ type: TaskStatus, enum: TaskStatus})
+  @ApiPropertyOptional({ type: TaskStatus, enum: TaskStatus })
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus

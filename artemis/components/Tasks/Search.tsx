@@ -29,7 +29,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           showError={false}
           props={{
             type: 'text',
-            placeholder: 'Search by name or email',
+            placeholder: 'Search by subject',
             ...register('search'),
           }}
         />
