@@ -12,7 +12,7 @@ import moment from 'moment'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import {
   dehydrate,
   QueryClient,
@@ -60,6 +60,10 @@ const AccountDetail = () => {
     mode: 'onChange',
     resolver: yupResolver(editAccountSchema),
   })
+
+  useEffect(() => {
+    reset(defaultValues)
+  } , [defaultValues])
 
   const accountInfo: AccountInfo[] = [
     {

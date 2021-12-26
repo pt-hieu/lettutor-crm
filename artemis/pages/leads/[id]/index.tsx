@@ -22,7 +22,7 @@ import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
 import { getUsers } from '@utils/service/user'
 import { User } from '@utils/models/user'
 import { notification } from 'antd'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 type LeadInfo = {
   label: string
@@ -173,6 +173,7 @@ const LeadDetail = () => {
     [lead],
   )
 
+
   const {
     register,
     handleSubmit,
@@ -183,6 +184,10 @@ const LeadDetail = () => {
     resolver: yupResolver(editLeadSchema),
     defaultValues,
   })
+
+  useEffect(() => {
+    reset(defaultValues)
+  }, [defaultValues])
 
   const { mutateAsync } = useMutation(['update-lead', id], updateLead, {
     onSuccess() {
