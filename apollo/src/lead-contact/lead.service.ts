@@ -85,7 +85,7 @@ export class LeadService {
     })
 
     const accountDto: DTO.Account.AddAccount = {
-      ownerId: lead.owner.id,
+      ownerId: lead.owner ? lead.owner.id : null,
       fullName: lead.fullName + ' Account',
       address: lead.address,
       description: lead.description,
@@ -102,7 +102,7 @@ export class LeadService {
     let deal: Deal | null = null
     if (shouldConvertToDeal) {
       const dto: DTO.Deal.AddDeal = {
-        ownerId: lead.owner.id,
+        ownerId: lead.owner ? lead.owner.id : null,
         accountId: account.id,
         contactId: contact.id,
         ...dealDto,

@@ -28,7 +28,7 @@ export class Account extends BaseEntity {
   @JoinColumn()
   owner: User
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   ownerId: string
 
   @Column({ type: 'varchar' })
