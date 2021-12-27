@@ -53,7 +53,7 @@ const DealDetail = () => {
     (): DealInfo[] => [
       {
         label: 'Deal Owner',
-        value: deal?.owner.name,
+        value: deal?.owner?.name,
       },
       {
         label: 'Deal Name',

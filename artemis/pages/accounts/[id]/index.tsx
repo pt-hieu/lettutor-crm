@@ -46,7 +46,7 @@ const AccountDetail = () => {
       address: account?.address || '',
       description: account?.description || '',
       fullName: account?.fullName || '',
-      ownerId: account?.owner.id || '',
+      ownerId: account?.owner?.id || '',
       phoneNum: account?.phoneNum || '',
       type: account?.type || AccountType.NONE,
     }),

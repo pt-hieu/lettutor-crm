@@ -135,7 +135,7 @@ const EditDeal = () => {
     mode: 'onChange',
     resolver: yupResolver(schema),
     defaultValues: {
-      ownerId: deal?.owner.id,
+      ownerId: deal?.owner?.id,
       accountId: deal?.account.id,
       contactId: deal?.contact?.id,
       fullName: deal?.fullName,
