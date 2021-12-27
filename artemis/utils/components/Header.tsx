@@ -7,6 +7,8 @@ import { useModal } from '@utils/hooks/useModal'
 import { data } from '@utils/data/header-data'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import SettingMenu from './SettingMenu'
+import useGlobalDate from '@utils/hooks/useGlobalDate'
 
 export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
@@ -18,19 +20,39 @@ export default function Header() {
   const [seed] = useState(Math.random())
   const { pathname } = useRouter()
   const [visible, setVisible] = useState(false)
+  const [settingMenu, setSettingMenu] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
 
   const splitPath = useMemo(() => pathname.split('/'), [pathname])
+
+  const { effect } = useGlobalDate({
+    callback: () => {
+      setVisible(false)
+    },
+  })
+
+  useEffect(() => {
+    if (!visible) return
+    effect()
+  }, [visible])
 
   const toggle = useCallback((e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     setVisible((v) => !v)
   }, [])
 
-  useEffect(() => {
-    const close = () => setVisible(false)
-    document.addEventListener('click', close)
+  const toggleSettingMenu = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    setSettingMenu((v) => !v)
+  }, [])
 
+  useEffect(() => {
+    const close = () => {
+      setVisible(false)
+      setSettingMenu(false)
+    }
+
+    document.addEventListener('click', close)
     return () => {
       document.removeEventListener('click', close)
     }
@@ -40,7 +62,9 @@ export default function Header() {
     <header className="z-[100] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
       <div className="flex">
         <Link href="/">
-          <a className="font-semibold text-xl !text-blue-600 crm-link">CRM System</a>
+          <a className="font-semibold text-xl !text-blue-600 crm-link">
+            CRM System
+          </a>
         </Link>
         <span className="ml-12 flex gap-6">
           {data.map(({ link, title }) => (
@@ -58,14 +82,13 @@ export default function Header() {
       </div>
 
       <div className="flex gap-3 items-center relative z-20">
-        <div>
-          <Link href="/settings">
-            <a className="crm-link">
-              <Tooltip title="Settings">
-                <span className="fa fa-cog" />
-              </Tooltip>
-            </a>
-          </Link>
+        <div className="relative">
+          <Tooltip title="Settings">
+            <button onClick={toggleSettingMenu}>
+              <span className="fa fa-cog" />
+            </button>
+          </Tooltip>
+          <SettingMenu setVisible={setSettingMenu} visible={settingMenu} />
         </div>
         <span>|</span>
         <button onClick={toggle}>

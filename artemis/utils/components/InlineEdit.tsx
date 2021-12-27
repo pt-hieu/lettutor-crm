@@ -1,10 +1,8 @@
 import Input, { Props as InputProps } from './Input'
 import { useEffect, useState } from 'react'
 import Animate from './Animate'
-import { useQuery, useQueryClient } from 'react-query'
-import moment from 'moment'
 import { UseFormReset } from 'react-hook-form'
-import { GlobalState } from '@utils/GlobalStateKey'
+import useGlobalDate from '@utils/hooks/useGlobalDate'
 
 type Props<T> = {
   onEditComplete: (e: any) => void
@@ -17,27 +15,18 @@ export default function InlineEdit<
   T extends 'select' | 'input' | 'textarea' | undefined,
 >({ onEditComplete: submit, onEditCancel: cancel, ...inputProps }: Props<T>) {
   const [enabled, setEnabled] = useState(false)
-  const client = useQueryClient()
-
-  const [time, setTime] = useState<Date>(new Date())
-  const { data: globalTime } = useQuery<Date>(GlobalState.InlineEdit, {
-    enabled: false,
-  })
-
-  useEffect(() => {
-    if (moment(time).isBefore(globalTime)) {
+  const { effect } = useGlobalDate({
+    callback: () => {
       setEnabled(false)
       cancel()
-    }
-  }, [globalTime])
+    },
+  })
 
   useEffect(() => {
     if (!enabled) return
     document.getElementById(inputProps.props.id || '')?.focus()
 
-    const now = new Date()
-    setTime(now)
-    client.setQueryData(GlobalState.InlineEdit, now)
+    effect()
   }, [enabled])
 
   const [left, setLeft] = useState<string>()
