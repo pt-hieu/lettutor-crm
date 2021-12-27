@@ -38,18 +38,18 @@ export default function SettingMenu({ visible, setVisible }: Props) {
         className="min-w-[500px] min-h-[150px] border rounded-md shadow-md bg-white absolute top-[150%] transform translate-x-[-95%] p-4 text-gray-500"
       >
         <Link href="/settings">
-          <a className="crm-link font-medium text-[17px] block border-b pb-2 mb-2">
+          <a className="crm-link font-semibold text-[17px] block border-b pb-2 mb-2">
             Settings
           </a>
         </Link>
         <div className="grid grid-cols-2 gap-3">
           {SettingData.map(({ title, items }) => (
             <div key={title}>
-              <div className="text-black">{title}</div>
+              <div className="text-black font-medium">{title}</div>
               <div className="flex flex-col mt-2">
                 {items.map((item) => (
                   <Link href={item.link} key={item.link}>
-                    <a className="crm-link text-gray-500">{item.title}</a>
+                    <a className="crm-link text-gray-700">{item.title}</a>
                   </Link>
                 ))}
               </div>
