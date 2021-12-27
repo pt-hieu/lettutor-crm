@@ -31,7 +31,7 @@ export const getDeal = (id?: string, token?: string) => () =>
 
 export const updateDeal = async (params: {
   id: string
-  dealInfo: DealUpdateFormData
+  dealInfo: Partial<DealUpdateFormData>
 }) => {
   const { id, dealInfo } = params
   const { data } = await axios.patch<Deal>(API + `/api/deal/${id}`, dealInfo)

@@ -128,8 +128,17 @@ export default function DealsView() {
     isArray: true,
   })
 
+  const key = [
+    'deals',
+    page || 1,
+    limit || 10,
+    search || '',
+    source || [],
+    stage || [],
+  ]
+
   const { data: deals, isLoading } = useQuery(
-    ['deals', page || 1, limit || 10, search || '', source || [], stage || []],
+    key,
     getDeals({ limit, page, search, source, stage }),
   )
 
@@ -141,7 +150,7 @@ export default function DealsView() {
   useEffect(() => {
     if (kanbanMode) return
     setKanbanMode(ViewMode.TABULAR)
-  } , [])
+  }, [])
 
   return (
     <DealsViewLayout
@@ -186,7 +195,9 @@ export default function DealsView() {
               end: { opacity: 0 },
             }}
           >
-            {kanbanMode === ViewMode.KANBAN && <KanbanView data={deals} />}{' '}
+            {kanbanMode === ViewMode.KANBAN && (
+              <KanbanView queryKey={key} data={deals} />
+            )}
             {(kanbanMode === ViewMode.TABULAR || kanbanMode === undefined) && (
               <Table
                 showSorterTooltip={false}
