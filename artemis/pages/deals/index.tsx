@@ -11,7 +11,6 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
-import { useEffect } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -103,9 +102,9 @@ const columns: TableColumnType<Deal>[] = [
     dataIndex: 'owner',
     key: 'owner',
     sorter: {
-      compare: (a, b) => a.owner.name.localeCompare(b.owner.name),
+      compare: (a, b) => a.owner?.name.localeCompare(b.owner?.name || '') || 1,
     },
-    render: (_, { owner }) => owner.name,
+    render: (_, { owner }) => owner?.name,
   },
 ]
 

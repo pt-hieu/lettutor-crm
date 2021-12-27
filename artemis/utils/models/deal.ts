@@ -18,7 +18,7 @@ export enum DealStage {
 }
 
 export interface Deal extends Base {
-  owner: User
+  owner: User | null
   ownerId: string
   account: Account
   contact: Contact

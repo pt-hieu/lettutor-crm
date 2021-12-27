@@ -21,7 +21,7 @@ export enum AccountType {
 }
 
 export interface Account extends Base {
-  owner: User
+  owner: User | null
   fullName: string
   type: AccountType
   address: string | null

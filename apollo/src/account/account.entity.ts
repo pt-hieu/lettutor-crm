@@ -25,10 +25,10 @@ export enum AccountType {
 export class Account extends BaseEntity {
   @ManyToOne(() => User, (u) => u.accounts)
   @JoinColumn()
-  owner: User
+  owner: User | null
 
   @Column({ type: 'uuid', nullable: true })
-  ownerId: string
+  ownerId: string | null
 
   @Column({ type: 'varchar' })
   fullName: string
