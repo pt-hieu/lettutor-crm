@@ -4,10 +4,10 @@ import Layout from '@utils/components/Layout'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Task, TaskStatus } from '@utils/models/task'
-import { closeTask, getTask, updateTask } from '@utils/service/task'
+import { closeTask, getTask } from '@utils/service/task'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { ReactNode, useCallback, useEffect, useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 import {
   dehydrate,
   QueryClient,
@@ -15,9 +15,8 @@ import {
   useQuery,
   useQueryClient,
 } from 'react-query'
-import { useModal } from '@utils/hooks/useModal'
-import ConfirmCloseModal from '@components/Tasks/ConfirmCloseModal'
-import { notification } from 'antd'
+import { notification, Tooltip } from 'antd'
+import Confirm from '@utils/components/Confirm'
 
 type TaskInfo = {
   label: string
@@ -56,7 +55,7 @@ const TaskDetail = () => {
     },
   ]
 
-  const createTaskInfo = useCallback((): TaskInfo[] => {
+  const taskInfo = useMemo((): TaskInfo[] => {
     const taskInfo = [
       {
         label: 'Owner',
@@ -96,14 +95,9 @@ const TaskDetail = () => {
     return taskInfo
   }, [task])
 
-  const taskInfo = createTaskInfo()
-
   const isCompleted = task?.status === TaskStatus.COMPLETED
 
-  const [visible, openConfirmModal, closeConfirmModal] = useModal()
-
   const queryClient = useQueryClient()
-
   const { mutateAsync } = useMutation(
     ['close-task', id],
     closeTask(id, task?.owner.id as string),
@@ -126,11 +120,6 @@ const TaskDetail = () => {
 
   return (
     <Layout title={`CRM | Task | ${task?.subject}`} requireLogin>
-      <ConfirmCloseModal
-        visible={visible}
-        onConfirmCloseTask={confirmCloseTask}
-        onCloseModal={closeConfirmModal}
-      />
       <div className="crm-container">
         <TaskDetailNavbar subject={task?.subject || ''} id={task?.id || ''} />
 
@@ -157,11 +146,19 @@ const TaskDetail = () => {
               </div>
               <div>
                 {isCompleted ? (
-                  <span className="text-lg text-green-500">Completed</span>
+                  <Tooltip title="Completed">
+                    <span className="crm-button bg-green-600 hover:bg-green-500">
+                      <span className="fa fa-check" />
+                    </span>
+                  </Tooltip>
                 ) : (
-                  <button onClick={openConfirmModal} className="crm-button">
-                    Close Task
-                  </button>
+                  <Confirm
+                    message="Are you sure you want to mark this task as completed?"
+                    title="Warning closing task"
+                    onYes={confirmCloseTask}
+                  >
+                    <button className="crm-button">Close Task</button>
+                  </Confirm>
                 )}
               </div>
             </div>
