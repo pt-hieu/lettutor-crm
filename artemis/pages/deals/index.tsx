@@ -1,6 +1,8 @@
+import KanbanView from '@components/Deals/KanbanView'
 import DealsSearch from '@components/Deals/Search'
 import DealsSidebar from '@components/Deals/Sidebar'
 import DealsViewLayout from '@components/Deals/ViewLayout'
+import Animate from '@utils/components/Animate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
@@ -11,6 +13,7 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
+import { useEffect } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -108,6 +111,11 @@ const columns: TableColumnType<Deal>[] = [
   },
 ]
 
+export enum ViewMode {
+  KANBAN = 'kanban',
+  TABULAR = 'tabular',
+}
+
 export default function DealsView() {
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
@@ -120,12 +128,20 @@ export default function DealsView() {
     isArray: true,
   })
 
-  const { data: leads, isLoading } = useQuery(
+  const { data: deals, isLoading } = useQuery(
     ['deals', page || 1, limit || 10, search || '', source || [], stage || []],
     getDeals({ limit, page, search, source, stage }),
   )
 
-  const [start, end, total] = usePaginateItem(leads)
+  const [start, end, total] = usePaginateItem(deals)
+  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
+    subscribe: true,
+  })
+
+  useEffect(() => {
+    if (kanbanMode) return
+    setKanbanMode(ViewMode.TABULAR)
+  } , [])
 
   return (
     <DealsViewLayout
@@ -156,27 +172,45 @@ export default function DealsView() {
           )}
         </AnimatePresence>
         <div className="w-full">
-          <Table
-            showSorterTooltip={false}
-            columns={columns}
-            loading={isLoading}
-            dataSource={leads?.items}
-            rowKey={(u) => u.id}
-            rowSelection={{
-              type: 'checkbox',
+          <Animate
+            shouldAnimateOnExit
+            on={kanbanMode}
+            presenceProps={{
+              exitBeforeEnter: true,
+              presenceAffectsLayout: true,
             }}
-            bordered
-            pagination={{
-              current: page,
-              pageSize: limit,
-              total: leads?.meta.totalItems,
-              defaultPageSize: 10,
-              onChange: (page, limit) => {
-                setPage(page)
-                setLimit(limit || 10)
-              },
+            transition={{ duration: 0.2 }}
+            animation={{
+              start: { opacity: 0 },
+              animate: { opacity: 1 },
+              end: { opacity: 0 },
             }}
-          />
+          >
+            {kanbanMode === ViewMode.KANBAN && <KanbanView data={deals} />}{' '}
+            {(kanbanMode === ViewMode.TABULAR || kanbanMode === undefined) && (
+              <Table
+                showSorterTooltip={false}
+                columns={columns}
+                loading={isLoading}
+                dataSource={deals?.items}
+                rowKey={(u) => u.id}
+                rowSelection={{
+                  type: 'checkbox',
+                }}
+                bordered
+                pagination={{
+                  current: page,
+                  pageSize: limit,
+                  total: deals?.meta.totalItems,
+                  defaultPageSize: 10,
+                  onChange: (page, limit) => {
+                    setPage(page)
+                    setLimit(limit || 10)
+                  },
+                }}
+              />
+            )}
+          </Animate>
         </div>
       </div>
     </DealsViewLayout>

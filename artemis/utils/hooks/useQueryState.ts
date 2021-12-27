@@ -2,9 +2,11 @@ import { useRouter } from 'next/router'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { stringifyUrl } from 'query-string'
 
+export type UseQueryStateOptions = { isArray?: boolean; subscribe?: boolean }
+
 export const useQueryState = <Type>(
   name: string,
-  option?: { isArray: boolean },
+  option?: UseQueryStateOptions,
 ): [Type | undefined, Dispatch<SetStateAction<Type | undefined>>] => {
   const { query, pathname, asPath, replace } = useRouter()
 
@@ -51,6 +53,19 @@ export const useQueryState = <Type>(
 
     replace(newPathname, newAsPath, { shallow: true })
   }, [state])
+
+  useEffect(() => {
+    if (!option?.subscribe) return
+    setState(() => {
+      if (option?.isArray) {
+        return (query[name] as string | undefined)?.split(',') as unknown as
+          | Type
+          | undefined
+      }
+
+      return query[name] as unknown as Type | undefined
+    })
+  }, [query[name]])
 
   return [state, setState]
 }
