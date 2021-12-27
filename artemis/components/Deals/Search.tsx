@@ -75,7 +75,13 @@ export default function DealsSearch({
                 setKanbanMode(v ? ViewMode.KANBAN : ViewMode.TABULAR)
               }
             />
-              <span className="fa fa-columns text-[18px] text-blue-600" />
+            <span
+              className={`fa fa-columns crm-transition text-[18px] ${
+                kanbanMode === ViewMode.KANBAN
+                  ? 'text-blue-600'
+                  : 'text-gray-400'
+              }`}
+            />
           </div>
         </Tooltip>
 

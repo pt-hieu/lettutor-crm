@@ -26,11 +26,13 @@ const stageToColorMappings: Partial<Record<DealStage, string>> = {
   [DealStage.CLOSED_WON]: 'bg-green-500 text-white !border-b-green-300',
 }
 
-const stageNameToColorMappings: Partial<Record<DealStage, string>> = {
-  [DealStage.CLOSED_LOST]: 'group-hover:text-white',
-  [DealStage.CLOSED_WON]: 'group-hover:text-white',
-  [DealStage.CLOSED_LOST_TO_COMPETITION]: 'group-hover:text-white',
-}
+const stageNameToColorMappings: Partial<Record<DealStage | 'default', string>> =
+  {
+    [DealStage.CLOSED_LOST]: 'group-hover:text-white',
+    [DealStage.CLOSED_WON]: 'group-hover:text-white',
+    [DealStage.CLOSED_LOST_TO_COMPETITION]: 'group-hover:text-white',
+    ['default']: 'group-hover:text-blue-600',
+  }
 
 export default function KanbanView({ queryKey, data: deals }: Props) {
   const dealByStage = useMemo(
@@ -110,9 +112,10 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
 
   const handleDragEnd: OnDragEndResponder = useCallback((res) => {
     if (!res.destination) return
+    if (res.destination.droppableId === res.source.droppableId) return
 
     // HLC-79, HLC-80: here
-    
+
     mutateAsync({
       id: res.draggableId,
       dealInfo: { stage: res.destination.droppableId },
@@ -134,7 +137,10 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                   className={`p-4 border border-b-[3px] border-b-blue-600 ${stageToColorMappings[stage]} rounded-md group-hover:shadow-md crm-transition select-none`}
                 >
                   <div
-                    className={`font-medium text-[15px] group-hover:text-blue-600 ${stageNameToColorMappings[stage]} crm-transition`}
+                    className={`font-medium text-[15px] ${
+                      stageNameToColorMappings[stage] ||
+                      stageNameToColorMappings['default']
+                    } crm-transition`}
                   >
                     {stage}
                   </div>
