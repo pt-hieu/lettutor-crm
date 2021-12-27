@@ -44,8 +44,8 @@ const columns: TableColumnType<Task>[] = [
     key: 'priority',
     sorter: {
       compare: (a, b) =>
-        Object.keys(TaskPriority).indexOf(a.priority) -
-        Object.keys(TaskPriority).indexOf(b.priority),
+        Object.values(TaskPriority).indexOf(a.priority) -
+        Object.values(TaskPriority).indexOf(b.priority),
     },
   },
   {
