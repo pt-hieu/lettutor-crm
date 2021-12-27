@@ -1,16 +1,16 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
   ParseUUIDPipe,
-  Post,
   Patch,
+  Post,
   Query,
-  BadRequestException,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { ClassTransformer, plainToClass } from 'class-transformer'
+import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 import { DTO } from 'src/type'
 import { LeadService } from './lead.service'
@@ -38,7 +38,7 @@ export class LeadController {
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getLeadById({
       where: { id, isLead: true },
-      relations: ['owner'],
+      relations: ['owner', 'tasksOfLead'],
     })
   }
 

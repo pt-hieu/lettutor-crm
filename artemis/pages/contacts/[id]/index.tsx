@@ -1,16 +1,19 @@
 import ContactDetailNavbar from '@components/Contacts/ContactDetailNavbar'
-import ContactDetailSidebar from '@components/Contacts/ContactDetailSidebar'
+import ContactDetailSidebar, {
+  ContactDetailSections,
+} from '@components/Contacts/ContactDetailSidebar'
+import DealInfo from '@utils/components/DealInfo'
 import Layout from '@utils/components/Layout'
+import TaskList from '@utils/components/TaskList'
 import { getSessionToken } from '@utils/libs/getToken'
+import { investigate } from '@utils/libs/investigate'
 import { Contact } from '@utils/models/contact'
+import { TaskStatus } from '@utils/models/task'
 import { getContact } from '@utils/service/contact'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { ReactNode, useMemo } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
-import Link from 'next/link'
-import moment from 'moment'
-import { investigate } from '@utils/libs/investigate'
 
 type ContactInfo = {
   label: string
@@ -47,6 +50,21 @@ const ContactDetail = () => {
     [contact],
   )
 
+  const openTasks = useMemo(
+    () =>
+      contact?.tasksOfContact?.filter(
+        (task) => task.status !== TaskStatus.COMPLETED,
+      ),
+    [contact],
+  )
+  const closedTasks = useMemo(
+    () =>
+      contact?.tasksOfContact?.filter(
+        (task) => task.status === TaskStatus.COMPLETED,
+      ),
+    [contact],
+  )
+
   return (
     <Layout title={`CRM | Contact | ${contact?.fullName}`} requireLogin>
       <div className="crm-container">
@@ -74,28 +92,49 @@ const ContactDetail = () => {
             </div>
             {/* FakeData */}
             <div className="pt-4">
-              <div className="font-semibold mb-4 text-[17px]">Deals</div>
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={ContactDetailSections.Deals}
+              >
+                {ContactDetailSections.Deals}
+              </div>
               {contact?.deals?.map(
                 ({ id, fullName, amount, stage, closingDate }) => (
-                  <div key={id}>
-                    <p className="font-semibold">
-                      <Link href={`/deals/${id}`}>
-                        <a className=" text-gray-700 hover:text-gray-600">
-                          {fullName}
-                        </a>
-                      </Link>
-                      <span className="bg-red-400 px-2 ml-4 text-white rounded-sm">
-                        $ {amount}
-                      </span>
-                    </p>
-                    <p>
-                      <span>{stage}</span>
-                      <span className="ml-4">
-                        {moment(closingDate).format('DD/MM/YYYY')}
-                      </span>
-                    </p>
-                  </div>
+                  <DealInfo
+                    key={id}
+                    id={id}
+                    fullName={fullName}
+                    amount={amount}
+                    stage={stage}
+                    closingDate={closingDate}
+                  />
                 ),
+              )}
+            </div>
+            <div className="pt-4">
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={ContactDetailSections.OpenActivities}
+              >
+                {ContactDetailSections.OpenActivities}
+              </div>
+              {openTasks && openTasks.length > 0 ? (
+                <TaskList tasks={openTasks} />
+              ) : (
+                <p className="text-gray-500 font-medium">No records found</p>
+              )}
+            </div>
+            <div className="pt-4">
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={ContactDetailSections.ClosedActivities}
+              >
+                {ContactDetailSections.ClosedActivities}
+              </div>
+              {closedTasks && closedTasks.length > 0 ? (
+                <TaskList tasks={closedTasks} />
+              ) : (
+                <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
           </div>

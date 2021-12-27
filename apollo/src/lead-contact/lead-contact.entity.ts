@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Task } from 'src/task/task.entity'
@@ -72,10 +71,8 @@ export class LeadContact extends BaseEntity {
   socialAccount: string | null
 
   @OneToMany(() => Task, (task) => task.lead)
-  @Exclude({ toPlainOnly: true })
   tasksOfLead: Task[]
 
-  @OneToMany(() => Task, (task) => task.lead)
-  @Exclude({ toPlainOnly: true })
+  @OneToMany(() => Task, (task) => task.contact)
   tasksOfContact: Task[]
 }

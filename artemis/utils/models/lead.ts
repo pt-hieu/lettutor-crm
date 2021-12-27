@@ -1,5 +1,6 @@
 import { Account } from './account'
 import { Base } from './base'
+import { Task } from './task'
 import { User } from './user'
 
 export enum LeadStatus {
@@ -33,4 +34,5 @@ export interface Lead extends Base {
   description: string | null
   phoneNum: string | null
   socialAccount: string | null
+  tasksOfLead: Task[]
 }

@@ -1,6 +1,7 @@
 import { Base } from './base'
 import { Deal } from './deal'
 import { Lead } from './lead'
+import { Task } from './task'
 import { User } from './user'
 
 export enum AccountType {
@@ -28,4 +29,5 @@ export interface Account extends Base {
   phoneNum: string | null
   contacts: Lead[]
   deals: Deal[]
+  tasks: Task[]
 }
