@@ -36,7 +36,7 @@ export class DealController {
   getDealById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getDealById({
       where: { id },
-      relations: ['owner', 'account', 'contact'],
+      relations: ['owner', 'account', 'contact', 'tasks'],
     })
   }
 

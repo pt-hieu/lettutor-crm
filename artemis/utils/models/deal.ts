@@ -2,6 +2,7 @@ import { Account } from './account'
 import { Base } from './base'
 import { Contact } from './contact'
 import { LeadSource } from './lead'
+import { Task } from './task'
 import { User } from './user'
 
 export enum DealStage {
@@ -28,4 +29,5 @@ export interface Deal extends Base {
   source: LeadSource
   probability: number
   description: string | null
+  tasks: Task[]
 }

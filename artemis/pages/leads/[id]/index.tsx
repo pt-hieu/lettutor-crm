@@ -10,7 +10,9 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { GetServerSideProps } from 'next'
 import { getLead, updateLead } from '@utils/service/lead'
 import { useRouter } from 'next/router'
-import LeadDetailSidebar from 'components/Leads/LeadDetailSidebar'
+import LeadDetailSidebar, {
+  LeadDetailSections,
+} from 'components/Leads/LeadDetailSidebar'
 import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
@@ -23,6 +25,8 @@ import { getUsers } from '@utils/service/user'
 import { User } from '@utils/models/user'
 import { notification } from 'antd'
 import { useCallback, useEffect, useMemo } from 'react'
+import { TaskStatus } from '@utils/models/task'
+import TaskList from '@utils/components/TaskList'
 
 type LeadInfo = {
   label: string
@@ -173,7 +177,6 @@ const LeadDetail = () => {
     [lead],
   )
 
-
   const {
     register,
     handleSubmit,
@@ -206,6 +209,17 @@ const LeadDetail = () => {
     [id],
   )
 
+  const openTasks = useMemo(
+    () =>
+      lead?.tasksOfLead?.filter((task) => task.status !== TaskStatus.COMPLETED),
+    [lead],
+  )
+  const closedTasks = useMemo(
+    () =>
+      lead?.tasksOfLead?.filter((task) => task.status === TaskStatus.COMPLETED),
+    [lead],
+  )
+
   return (
     <Layout title={`CRM | Lead | ${lead?.fullName}`} requireLogin>
       <div className="crm-container">
@@ -214,22 +228,55 @@ const LeadDetail = () => {
         <div className="grid grid-cols-[250px,1fr]">
           <LeadDetailSidebar />
 
-          <div>
-            <div className="font-semibold mb-4 text-[17px]">Overview</div>
-            <form onSubmit={submit} className="flex flex-col gap-2">
-              {fields(register, errors, users || []).map(({ label, props }) => (
-                <div key={label} className="grid grid-cols-[250px,350px] gap-4">
-                  <span className="inline-block text-right font-medium pt-[8px]">
-                    {label}
-                  </span>
-                  <InlineEdit
-                    onEditCancel={() => reset(defaultValues)}
-                    onEditComplete={submit}
-                    {...props}
-                  />
-                </div>
-              ))}
-            </form>
+          <div className="flex flex-col divide-y gap-4">
+            <div>
+              <div className="font-semibold mb-4 text-[17px]">Overview</div>
+              <form onSubmit={submit} className="flex flex-col gap-2">
+                {fields(register, errors, users || []).map(
+                  ({ label, props }) => (
+                    <div
+                      key={label}
+                      className="grid grid-cols-[250px,350px] gap-4"
+                    >
+                      <span className="inline-block text-right font-medium pt-[8px]">
+                        {label}
+                      </span>
+                      <InlineEdit
+                        onEditCancel={() => reset(defaultValues)}
+                        onEditComplete={submit}
+                        {...props}
+                      />
+                    </div>
+                  ),
+                )}
+              </form>
+            </div>
+            <div className="pt-4">
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={LeadDetailSections.OpenActivities}
+              >
+                {LeadDetailSections.OpenActivities}
+              </div>
+              {openTasks && openTasks.length > 0 ? (
+                <TaskList tasks={openTasks} />
+              ) : (
+                <p className="text-gray-500 font-medium">No records found</p>
+              )}
+            </div>
+            <div className="pt-4">
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={LeadDetailSections.ClosedActivities}
+              >
+                {LeadDetailSections.ClosedActivities}
+              </div>
+              {closedTasks && closedTasks.length > 0 ? (
+                <TaskList tasks={closedTasks} />
+              ) : (
+                <p className="text-gray-500 font-medium">No records found</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
