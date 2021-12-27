@@ -11,7 +11,7 @@ const ContactDetailNavbar = ({ fullName, id }: Props) => {
     router.push(`/contacts/${id}/edit`)
   }
   return (
-    <div className="mb-4 border-b pb-4 sticky top-[76px] bg-white z-10">
+    <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-10 transform translate-y-[-16px]">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <div className="bg-gray-300 w-10 h-10 rounded-full mr-3" />
