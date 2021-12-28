@@ -25,4 +25,4 @@ import { User } from 'src/user/user.entity'
   providers: [MailService],
   exports: [MailService],
 })
-export class MailModule { }
+export class MailModule {}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   EventSubscriber,
   EntitySubscriberInterface,
@@ -17,6 +18,7 @@ export class BaseSubscriber implements EntitySubscriberInterface<BaseEntity> {
     connection.subscribers.push(this)
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   listenTo(): string | Function {
     return BaseEntity
   }
@@ -27,7 +29,9 @@ export class BaseSubscriber implements EntitySubscriberInterface<BaseEntity> {
   }
 
   beforeUpdate(event: UpdateEvent<BaseEntity>): void | Promise<any> {
-    event.entity.updatedById = this.payloadService.data?.id || null
-    event.entity.updatedAt = new Date()
+    if (event.entity) {
+      event.entity.updatedById = this.payloadService.data?.id || null
+      event.entity.updatedAt = new Date()
+    }
   }
 }

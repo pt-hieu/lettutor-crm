@@ -29,14 +29,17 @@ export const ConvertToDealSchema: ValidationSchema = {
     ],
     closingDate: [
       {
-        type: "isDate"
-      }
+        type: 'isDate',
+      },
     ],
-    stage: [{
-      type: "isOptional"
-    }, {
-      type: "isEnum",
-      constraints: [DealStage]
-    }]
+    stage: [
+      {
+        type: 'isOptional',
+      },
+      {
+        type: 'isEnum',
+        constraints: [DealStage],
+      },
+    ],
   },
 }

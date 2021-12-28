@@ -19,14 +19,8 @@ import { MailService } from 'src/mail/mail.service'
 describe('contact service', () => {
   let leadContactRepo: MockType<Repository<LeadContact>>
   let contactService: ContactService
-  let accountService: AccountService
   let accountRepo: MockType<Repository<Account>>
-  let dealService: DealService
-  let dealRepo: MockType<Repository<Deal>>
-  let userService: UserService
   let userRepo: MockType<Repository<User>>
-  let roleRepo: MockType<Repository<Role>>
-  let mailService: MailService
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -66,15 +60,9 @@ describe('contact service', () => {
     }).compile()
 
     leadContactRepo = ref.get(getRepositoryToken(LeadContact))
-    roleRepo = ref.get(getRepositoryToken(Role))
     accountRepo = ref.get(getRepositoryToken(Account))
-    dealRepo = ref.get(getRepositoryToken(Deal))
     userRepo = ref.get(getRepositoryToken(User))
     contactService = ref.get(ContactService)
-    mailService = ref.get(MailService)
-    accountService = ref.get(AccountService)
-    dealService = ref.get(DealService)
-    userService = ref.get(UserService)
   })
 
   describe('get many contacts', () => {

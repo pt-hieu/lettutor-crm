@@ -1,7 +1,13 @@
 import { DTO } from 'src/type'
 import { Public } from 'src/utils/decorators/public.decorator'
 import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiExtraModels, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiExtraModels,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger'
 import { UserService } from './user.service'
 import { Payload } from 'src/utils/decorators/payload.decorator'
 import { JwtPayload } from 'src/utils/interface'
@@ -11,7 +17,7 @@ import { JwtPayload } from 'src/utils/interface'
 @Controller('user')
 @ApiExtraModels(DTO.Paging.Paginate)
 export class UserController {
-  constructor(private readonly service: UserService) { }
+  constructor(private readonly service: UserService) {}
 
   @Public()
   @Post('reset-password')

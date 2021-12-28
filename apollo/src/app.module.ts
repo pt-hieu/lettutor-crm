@@ -15,8 +15,8 @@ import { DealModule } from './deal/deal.module'
 import { WebhookModule } from './webhook/webhook.module'
 import { HttpModule } from '@nestjs/axios'
 import { BaseSubscriber } from './base.subscriber'
-import { TaskModule } from './task/task.module';
 import { GlobalModule } from './global/global.module'
+import { TaskModule } from './task/task.module'
 
 @Module({
   imports: [

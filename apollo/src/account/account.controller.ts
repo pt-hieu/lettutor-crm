@@ -30,7 +30,7 @@ export class AccountController {
   getAccountById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getAccountById({
       where: { id },
-      relations: ['owner', 'deals', 'tasks'],
+      relations: ['owner', 'deals', 'tasks', 'tasks.owner'],
     })
   }
 

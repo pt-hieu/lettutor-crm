@@ -15,10 +15,7 @@ import { MailService } from 'src/mail/mail.service'
 describe('account service', () => {
   let accountService: AccountService
   let accountRepo: MockType<Repository<Account>>
-  let userService: UserService
   let userRepo: MockType<Repository<User>>
-  let mailService: MailService
-  let roleRepo: MockType<Repository<Role>>
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -50,9 +47,6 @@ describe('account service', () => {
     accountRepo = ref.get(getRepositoryToken(Account))
     accountService = ref.get(AccountService)
     userRepo = ref.get(getRepositoryToken(User))
-    userService = ref.get(UserService)
-    mailService = ref.get(MailService)
-    roleRepo = ref.get(getRepositoryToken(Role))
   })
 
   describe('get many accounts', () => {
@@ -174,7 +168,7 @@ describe('account service', () => {
       accountRepo.findOne.mockReturnValue(undefined)
 
       expect(accountService.updateAccount(dto, account.id)).rejects.toThrow(
-        new NotFoundException(`Account not found`)
+        new NotFoundException(`Account not found`),
       )
     })
 
@@ -188,7 +182,7 @@ describe('account service', () => {
       userRepo.findOne.mockReturnValue(undefined)
 
       expect(accountService.updateAccount(dto, account.id)).rejects.toThrow(
-        new NotFoundException(`User does not exist`)
+        new NotFoundException(`User does not exist`),
       )
     })
   })

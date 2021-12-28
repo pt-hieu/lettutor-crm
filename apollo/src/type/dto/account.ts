@@ -9,6 +9,7 @@ import {
   MaxLength,
 } from 'class-validator'
 import { AccountType } from 'src/account/account.entity'
+import { Task } from 'src/task/task.entity'
 import { Paginate } from './paging'
 
 export class AddAccount {
@@ -43,6 +44,9 @@ export class AddAccount {
   @IsOptional()
   @IsMobilePhone()
   phoneNum?: string
+
+  @IsOptional()
+  tasks?: Task[]
 }
 
 export class GetManyQuery extends Paginate {

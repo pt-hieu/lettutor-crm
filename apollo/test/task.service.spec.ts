@@ -6,7 +6,7 @@ import { account, contact, deal, lead, task, user } from './data'
 import { Deal } from 'src/deal/deal.entity'
 import { DealService } from 'src/deal/deal.service'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { NotFoundException } from '@nestjs/common'
 import { MailService } from 'src/mail/mail.service'
 import { Account } from 'src/account/account.entity'
 import { AccountService } from 'src/account/account.service'
@@ -23,16 +23,9 @@ describe('task service', () => {
   let taskRepo: MockType<Repository<Deal>>
   let taskService: TaskService
   let dealRepo: MockType<Repository<Deal>>
-  let dealService: DealService
   let accountRepo: MockType<Repository<Account>>
-  let accountService: AccountService
   let leadContactRepo: MockType<Repository<LeadContact>>
-  let contactService: ContactService
-  let leadService: LeadService
   let userRepo: MockType<Repository<User>>
-  let userService: UserService
-  let roleRepo: MockType<Repository<Role>>
-  let mailService: MailService
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -80,16 +73,9 @@ describe('task service', () => {
     taskRepo = ref.get(getRepositoryToken(Task))
     taskService = ref.get(TaskService)
     dealRepo = ref.get(getRepositoryToken(Deal))
-    dealService = ref.get(DealService)
     leadContactRepo = ref.get(getRepositoryToken(LeadContact))
-    roleRepo = ref.get(getRepositoryToken(Role))
     accountRepo = ref.get(getRepositoryToken(Account))
     userRepo = ref.get(getRepositoryToken(User))
-    contactService = ref.get(ContactService)
-    leadService = ref.get(LeadService)
-    mailService = ref.get(MailService)
-    accountService = ref.get(AccountService)
-    userService = ref.get(UserService)
   })
 
   describe('add task', () => {

@@ -11,5 +11,6 @@ export class PayloadService {
     this._data = value
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 }
