@@ -1,3 +1,3 @@
 export enum GlobalState {
-  InlineEdit = 'crm-inline-edit-unpredictable-key'
+  DATE = 'date-3123alfnl93812y3'
 }

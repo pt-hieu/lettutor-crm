@@ -20,6 +20,6 @@ export const usePaginateItem = <T>(response: Paginate<T> | undefined) => {
     [currentPage, itemsPerPage, totalItems],
   )
 
-  if (!response) return [0, 0, 0] as const
+  if (!response || !totalItems) return [0, 0, 0] as const
   return [startIndex, endIndex, totalItems] as const
 }

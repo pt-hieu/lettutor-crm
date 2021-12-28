@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer'
 import { Deal } from 'src/deal/deal.entity'
 import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { Task } from 'src/task/task.entity'
@@ -26,10 +25,10 @@ export enum AccountType {
 export class Account extends BaseEntity {
   @ManyToOne(() => User, (u) => u.accounts)
   @JoinColumn()
-  owner: User
+  owner: User | null
 
   @Column({ type: 'uuid', nullable: true })
-  ownerId: string
+  ownerId: string | null
 
   @Column({ type: 'varchar' })
   fullName: string

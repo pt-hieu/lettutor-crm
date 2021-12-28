@@ -21,10 +21,10 @@ export enum DealStage {
 export class Deal extends BaseEntity {
   @ManyToOne(() => User, (u) => u.deals)
   @JoinColumn()
-  owner: User
+  owner: User | null
 
   @Column({ type: 'uuid', nullable: true })
-  ownerId: string
+  ownerId: string | null
 
   @ManyToOne(() => Account, (account) => account.deals)
   @JoinColumn()

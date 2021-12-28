@@ -95,7 +95,7 @@ const EditAccount = () => {
     mode: 'all',
     resolver: yupResolver(editAccountSchema),
     defaultValues: {
-      ownerId: account?.owner.id,
+      ownerId: account?.owner?.id,
       fullName: account?.fullName,
       phoneNum: account?.phoneNum,
       address: account?.address,

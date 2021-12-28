@@ -1,0 +1,27 @@
+name: Slack Integration
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created, edited]
+  pull_request:
+    types: [opened, reopened, edited, closed, review_requested]
+  pull_request_review:
+    types: [submitted]
+  pull_request_review_comment:
+    types: [created, edited]
+
+jobs:
+  Notify_Slack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify_Slack_Action
+        uses: Laurenfrost/mention-to-slack@latest
+        with:
+          configuration-path: .github/slack-config.yaml
+          repo-token: ${{ secrets.ACCESS_TOKEN }}
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          icon-url: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          bot-name: bot_sieu_cap_vippro
+          run-id: ${{ github.run_id }}
+          debug-flag: false

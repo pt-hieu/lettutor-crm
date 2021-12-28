@@ -24,12 +24,16 @@ export class DealService {
       .leftJoin('d.owner', 'owner')
       .leftJoin('d.account', 'account')
       .leftJoin('d.contact', 'contact')
-      .addSelect([
+      .leftJoin('d.tasks', 'tasks')
+      .addSelect([ 
         'owner.name',
         'owner.email',
         'account.fullName',
         'account.description',
         'contact.fullName',
+        'tasks.subject',
+        'tasks.dueDate',
+        'tasks.id',
       ])
 
     if (query.source)

@@ -1,4 +1,4 @@
-import { Modal } from 'antd'
+import { Modal, Divider } from 'antd'
 import React, {
   useState,
   Children,
@@ -94,9 +94,8 @@ const Confirm = ({
         }
       >
         <div onClick={stopPropagation}>
-          <h4 className="font-medium text-2xl">{title || 'Warning'}</h4>
-
-          <div className="my-3">{message}</div>
+          <h4 className="font-medium text-xl">{title || 'Warning'}</h4>
+          <div className='mt-2' >{message}</div>
         </div>
       </Modal>
     </>

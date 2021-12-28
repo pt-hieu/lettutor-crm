@@ -1,26 +1,23 @@
-type Data = {
-  label: string
-  link?: string
+import DetailPageSidebar, {
+  SidebarStructure,
+} from '@utils/components/DetailPageSidebar'
+
+export enum LeadDetailSections {
+  OpenActivities = 'Open Activities',
+  ClosedActivities = 'Closed Activities',
 }
 
-const SideBarItem: Data[] = [
-  { label: 'Open Activities' },
-  { label: 'Closed Activities' },
+const SideBarItems: SidebarStructure = [
+  {
+    title: 'Related List',
+    options: Object.values(LeadDetailSections).map((item) => ({
+      label: item,
+    })),
+  },
 ]
 
 const LeadDetailSidebar = () => {
-  return (
-    <div>
-      <div className="px-2 font-semibold text-[17px] mb-3">Related Lists</div>
-      <ul className="flex flex-col gap-2">
-        {SideBarItem.map(({ label }) => (
-          <li className="p-2 text-sm rounded-md hover:bg-gray-100" key={label}>
-            {label}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
+  return <DetailPageSidebar data={SideBarItems} />
 }
 
 export default LeadDetailSidebar

@@ -1,18 +1,25 @@
 import AccountDetailNavbar from '@components/Accounts/AccountDetailNavbar'
-import AccountDetailSidebar from '@components/Accounts/AccountDetailSidebar'
-import Layout from '@utils/components/Layout'
+import AccountDetailSidebar, {
+  AccountDetailSections,
+} from '@components/Accounts/AccountDetailSidebar'
 import { yupResolver } from '@hookform/resolvers/yup'
+import DealInfo from '@utils/components/DealInfo'
+import InlineEdit from '@utils/components/InlineEdit'
+import { Props } from '@utils/components/Input'
+import Layout from '@utils/components/Layout'
+import TaskList from '@utils/components/TaskList'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account, AccountType } from '@utils/models/account'
+import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccount, updateAccount } from '@utils/service/account'
 import { getUsers } from '@utils/service/user'
-import moment from 'moment'
+import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
+import { useForm } from 'react-hook-form'
 import {
   dehydrate,
   QueryClient,
@@ -20,10 +27,6 @@ import {
   useQuery,
   useQueryClient,
 } from 'react-query'
-import { Props } from '@utils/components/Input'
-import { useForm } from 'react-hook-form'
-import InlineEdit from '@utils/components/InlineEdit'
-import { notification } from 'antd'
 import { AccountUpdateFormData, editAccountSchema } from './edit'
 
 type AccountInfo = {
@@ -43,7 +46,7 @@ const AccountDetail = () => {
       address: account?.address || '',
       description: account?.description || '',
       fullName: account?.fullName || '',
-      ownerId: account?.owner.id || '',
+      ownerId: account?.owner?.id || '',
       phoneNum: account?.phoneNum || '',
       type: account?.type || AccountType.NONE,
     }),
@@ -60,6 +63,10 @@ const AccountDetail = () => {
     mode: 'onChange',
     resolver: yupResolver(editAccountSchema),
   })
+
+  useEffect(() => {
+    reset(defaultValues)
+  }, [defaultValues])
 
   const accountInfo: AccountInfo[] = [
     {
@@ -159,6 +166,16 @@ const AccountDetail = () => {
     reset(defaultValues)
   }, [defaultValues])
 
+  const openTasks = useMemo(
+    () =>
+      account?.tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
+    [account],
+  )
+  const closedTasks = useMemo(
+    () =>
+      account?.tasks?.filter((task) => task.status === TaskStatus.COMPLETED),
+    [account],
+  )
   return (
     <Layout title={`CRM | Account | ${account?.fullName}`} requireLogin>
       <div className="crm-container">
@@ -189,28 +206,49 @@ const AccountDetail = () => {
               </form>
             </div>
             <div className="pt-4">
-              <div className="font-semibold mb-4 text-[17px]">Deals</div>
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={AccountDetailSections.Deals}
+              >
+                {AccountDetailSections.Deals}
+              </div>
               {account?.deals?.map(
                 ({ id, fullName, amount, stage, closingDate }) => (
-                  <div key={id}>
-                    <p className="font-semibold">
-                      <Link href={`/deals/${id}`}>
-                        <a className=" text-gray-700 hover:text-gray-600">
-                          {fullName}
-                        </a>
-                      </Link>
-                      <span className="bg-red-400 px-2 ml-4 text-white rounded-sm">
-                        $ {amount}
-                      </span>
-                    </p>
-                    <p>
-                      <span>{stage}</span>
-                      <span className="ml-4">
-                        {moment(closingDate).format('DD/MM/YYYY')}
-                      </span>
-                    </p>
-                  </div>
+                  <DealInfo
+                    key={id}
+                    id={id}
+                    fullName={fullName}
+                    amount={amount}
+                    stage={stage}
+                    closingDate={closingDate}
+                  />
                 ),
+              )}
+            </div>
+            <div className="pt-4">
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={AccountDetailSections.OpenActivities}
+              >
+                {AccountDetailSections.OpenActivities}
+              </div>
+              {openTasks && openTasks.length > 0 ? (
+                <TaskList tasks={openTasks} />
+              ) : (
+                <p className="text-gray-500 font-medium">No records found</p>
+              )}
+            </div>
+            <div className="pt-4">
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={AccountDetailSections.ClosedActivities}
+              >
+                {AccountDetailSections.ClosedActivities}
+              </div>
+              {closedTasks && closedTasks.length > 0 ? (
+                <TaskList tasks={closedTasks} />
+              ) : (
+                <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
           </div>

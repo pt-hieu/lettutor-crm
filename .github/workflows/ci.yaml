@@ -9,7 +9,7 @@ jobs:
   Label_Checker:
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ steps.result.output.should_run }}
+      should_run: ${{ steps.result.outputs.should_run }}
     steps:
       - name: Check label for Apollo
         uses: docker://agilepathway/pull-request-label-checker:latest
@@ -28,21 +28,21 @@ jobs:
 
       - name: Output result
         id: result
+        env:
+          apollo: ${{ toJson(steps.apollo.outcome) }}
+          artemis: ${{ toJson(steps.artemis.outcome) }}
         run: |
-          apollo=${{ steps.apollo.outcome }}
-          artemis=${{ steps.apollo.outcome }}
-
-          if [ $apollo == "success" ]; then
-            if [$artemis == "success" ]; then
-              echo "::set-output name=shoud_run::both"
+          if [ ${{ env.apollo }} == "success" ]; then
+            if [ ${{ env.artemis }} == "success" ]; then
+              echo "::set-output name=should_run::both"
             else
-              echo "::set-output name=shoud_run::apollo"
+              echo "::set-output name=should_run::apollo"
             fi
           else
-            if [$artemis == "success" ]; then
-              echo "::set-output name=shoud_run::artemis"
+            if [ ${{ env.artemis }} == "success" ]; then
+              echo "::set-output name=should_run::artemis"
             else
-              echo "::set-output name=shoud_run::none"
+              echo "::set-output name=should_run::none"
             fi
           fi
 
@@ -66,6 +66,9 @@ jobs:
 
       - name: Run Unit Test
         run: yarn test
+
+      - name: Run Lint
+        run: yarn lint
 
   Artemis:
     needs: Label_Checker
