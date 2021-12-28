@@ -53,6 +53,5 @@ export class Account extends BaseEntity {
   deals: Deal[]
 
   @OneToMany(() => Task, (task) => task.account)
-  @Exclude({ toPlainOnly: true })
   tasks: Task[]
 }

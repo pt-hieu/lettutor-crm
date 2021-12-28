@@ -20,7 +20,7 @@ module.exports = {
       'error',
       {
         endOfLine: 'auto',
-        bracketSpacing: [2, 'always'],
+        bracketSpacing: true,
         singleQuote: true,
         trailingComma: 'all',
         semi: false,

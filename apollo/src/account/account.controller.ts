@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { AccountService } from './account.service'
@@ -7,7 +16,7 @@ import { AccountService } from './account.service'
 @ApiBearerAuth('jwt')
 @Controller('account')
 export class AccountController {
-  constructor(private readonly service: AccountService) { }
+  constructor(private readonly service: AccountService) {}
 
   @Get()
   @ApiOperation({ summary: 'view and search all accounts' })
@@ -21,7 +30,7 @@ export class AccountController {
   getAccountById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getAccountById({
       where: { id },
-      relations: ['owner', 'deals'],
+      relations: ['owner', 'deals', 'tasks', 'tasks.owner'],
     })
   }
 

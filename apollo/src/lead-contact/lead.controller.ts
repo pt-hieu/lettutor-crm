@@ -10,7 +10,7 @@ import {
   BadRequestException,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { ClassTransformer, plainToClass } from 'class-transformer'
+import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 import { DTO } from 'src/type'
 import { LeadService } from './lead.service'
@@ -38,7 +38,7 @@ export class LeadController {
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getLeadById({
       where: { id, isLead: true },
-      relations: ['owner'],
+      relations: ['owner', 'tasksOfLead', 'tasksOfLead.owner'],
     })
   }
 
@@ -54,8 +54,12 @@ export class LeadController {
   @Post(':id/convert')
   @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
   @ApiBody({ required: false, type: DTO.Deal.ConvertToDeal })
-  async convert(@Param('id', ParseUUIDPipe) id: string, @Body() body: object) {
-    let shouldConvertToDeal = Object.keys(body).length !== 0
+  async convert(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: object,
+    @Query('ownerId', ParseUUIDPipe) ownerId?: string,
+  ) {
+    const shouldConvertToDeal = Object.keys(body).length !== 0
     let dto: DTO.Deal.ConvertToDeal
 
     if (shouldConvertToDeal) {
@@ -70,6 +74,6 @@ export class LeadController {
         )
     }
 
-    return this.service.convert(id, dto, shouldConvertToDeal)
+    return this.service.convert(id, dto, shouldConvertToDeal, ownerId)
   }
 }

@@ -27,7 +27,9 @@ export class BaseSubscriber implements EntitySubscriberInterface<BaseEntity> {
   }
 
   beforeUpdate(event: UpdateEvent<BaseEntity>): void | Promise<any> {
-    event.entity.updatedBy = this.payloadService.data?.id || null
-    event.entity.updatedAt = new Date()
+    if (event.entity) {
+      event.entity.updatedBy = this.payloadService.data?.id || null
+      event.entity.updatedAt = new Date()
+    }
   }
 }

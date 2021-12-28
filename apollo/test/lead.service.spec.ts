@@ -193,11 +193,9 @@ describe('lead service', () => {
       accountRepo.save.mockReturnValue({ ...account })
       leadContactRepo.save.mockReturnValue({ ...contact })
 
-      expect(await leadService.convert(lead.id, dto, false)).toEqual([
-        account,
-        contact,
-        null,
-      ])
+      expect(await leadService.convert(lead.id, dto, false, undefined)).toEqual(
+        [account, contact, null],
+      )
     })
 
     it('should convert lead to deal succeed', async () => {
@@ -215,7 +213,7 @@ describe('lead service', () => {
       accountRepo.findOne.mockReturnValue({ ...account })
       dealRepo.save.mockReturnValue({ ...deal })
 
-      expect(await leadService.convert(lead.id, dto, true)).toEqual([
+      expect(await leadService.convert(lead.id, dto, true, undefined)).toEqual([
         account,
         contact,
         deal,
@@ -235,9 +233,9 @@ describe('lead service', () => {
       leadContactRepo.save.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
-      expect(leadService.convert(lead.id, dto, true)).rejects.toThrow(
-        new NotFoundException(`Lead not found`),
-      )
+      expect(
+        leadService.convert(lead.id, dto, true, undefined),
+      ).rejects.toThrow(new NotFoundException(`Lead not found`))
     })
 
     it('should throw not found exception when try to convert a contact', async () => {
@@ -253,9 +251,9 @@ describe('lead service', () => {
       leadContactRepo.save.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
-      expect(leadService.convert(contact.id, dto, true)).rejects.toThrow(
-        new NotFoundException(`Lead not found`),
-      )
+      expect(
+        leadService.convert(contact.id, dto, true, undefined),
+      ).rejects.toThrow(new NotFoundException(`Lead not found`))
     })
   })
 })
