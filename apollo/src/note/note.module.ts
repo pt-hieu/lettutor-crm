@@ -16,4 +16,4 @@ import { NoteService } from './note.service'
   providers: [NoteService],
   exports: [NoteService],
 })
-export class NoteModule { }
+export class NoteModule {}
