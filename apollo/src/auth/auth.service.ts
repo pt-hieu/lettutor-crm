@@ -16,7 +16,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Role) private roleRepo: Repository<Role>,
-  ) { }
+  ) {}
 
   async signup(dto: DTO.Auth.SignUp) {
     if (await this.checkExistence(dto.email))
@@ -53,7 +53,7 @@ export class AuthService {
       email: user.email,
       id: user.id,
       name: user.name,
-      roles: user.roles
+      roles: user.roles,
     }
 
     if (process.env.NODE_ENV !== 'production') {

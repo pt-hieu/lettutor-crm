@@ -78,11 +78,20 @@ export class LeadService {
     id: string,
     dealDto: DTO.Deal.ConvertToDeal,
     shouldConvertToDeal: boolean,
+    ownerId: string,
   ) {
     const lead = await this.getLeadById({
       where: { id, isLead: true },
-      relations: ['owner'],
+      relations: ['owner', 'tasksOfLead', 'tasksOfLead.owner'],
     })
+
+    if (ownerId) {
+      const newOwner = await this.userService.getOneUserById({
+        where: { id: ownerId },
+      })
+      lead.owner = newOwner
+      await this.leadContactRepo.save(lead)
+    }
 
     const accountDto: DTO.Account.AddAccount = {
       ownerId: lead.owner ? lead.owner.id : null,
@@ -90,11 +99,14 @@ export class LeadService {
       address: lead.address,
       description: lead.description,
       phoneNum: lead.phoneNum,
+      tasks: lead.tasksOfLead,
     }
 
     const account = await this.accountService.addAccount(accountDto)
+
     const contact = await this.leadContactRepo.save({
       ...lead,
+      tasksOfContact: lead.tasksOfLead,
       isLead: false, //make this lead a contact
       accountId: account.id,
     })
@@ -105,6 +117,7 @@ export class LeadService {
         ownerId: lead.owner ? lead.owner.id : null,
         accountId: account.id,
         contactId: contact.id,
+        tasks: lead.tasksOfLead,
         ...dealDto,
       }
 

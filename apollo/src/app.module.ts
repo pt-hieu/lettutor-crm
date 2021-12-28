@@ -16,7 +16,7 @@ import { WebhookModule } from './webhook/webhook.module'
 import { HttpModule } from '@nestjs/axios'
 import { PayloadService } from './payload.service'
 import { BaseSubscriber } from './base.subscriber'
-import { TaskModule } from './task/task.module';
+import { TaskModule } from './task/task.module'
 
 @Module({
   imports: [
@@ -42,7 +42,7 @@ import { TaskModule } from './task/task.module';
     DealModule,
     WebhookModule,
     HttpModule,
-    TaskModule
+    TaskModule,
   ],
   providers: [
     JwtStrategy,

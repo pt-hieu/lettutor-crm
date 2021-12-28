@@ -10,7 +10,7 @@ export class PayloadService {
   public set data(value: JwtPayload | undefined) {
     this._data = value
   }
- 
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 }

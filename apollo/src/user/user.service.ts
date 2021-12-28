@@ -147,12 +147,11 @@ export class UserService {
   }
 
   async addUser(dto: DTO.User.AddUser, fromUser: string) {
-    let [targetUser, role] = await Promise.all([
-      this.userRepo.findOne({
-        where: { email: dto.email },
-      }),
-      this.roleRepo.findOne(dto.roleId),
-    ])
+    let targetUser = await this.userRepo.findOne({
+      where: { email: dto.email },
+    })
+
+    const role = await this.roleRepo.findOne(dto.roleId)
 
     if (!role) {
       throw new BadRequestException('Role does not exist')

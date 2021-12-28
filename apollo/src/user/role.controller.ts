@@ -17,7 +17,7 @@ import { UserService } from './user.service'
 @ApiTags('role')
 @ApiBearerAuth('jwt')
 export class RoleController {
-  constructor(private service: UserService) { }
+  constructor(private service: UserService) {}
 
   @Get()
   @ApiQuery({ type: DTO.Role.GetManyRole })

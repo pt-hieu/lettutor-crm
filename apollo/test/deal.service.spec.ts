@@ -20,13 +20,8 @@ describe('deal service', () => {
   let dealRepo: MockType<Repository<Deal>>
   let dealService: DealService
   let accountRepo: MockType<Repository<Account>>
-  let accountService: AccountService
   let leadContactRepo: MockType<Repository<LeadContact>>
-  let contactService: ContactService
   let userRepo: MockType<Repository<User>>
-  let userService: UserService
-  let roleRepo: MockType<Repository<Role>>
-  let mailService: MailService
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -68,13 +63,8 @@ describe('deal service', () => {
     dealRepo = ref.get(getRepositoryToken(Deal))
     dealService = ref.get(DealService)
     leadContactRepo = ref.get(getRepositoryToken(LeadContact))
-    roleRepo = ref.get(getRepositoryToken(Role))
     accountRepo = ref.get(getRepositoryToken(Account))
     userRepo = ref.get(getRepositoryToken(User))
-    contactService = ref.get(ContactService)
-    mailService = ref.get(MailService)
-    accountService = ref.get(AccountService)
-    userService = ref.get(UserService)
   })
 
   describe('getMany', () => {
