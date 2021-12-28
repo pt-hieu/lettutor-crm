@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
@@ -12,14 +13,19 @@ export class AccountService {
     @InjectRepository(Account)
     private accountRepo: Repository<Account>,
     private readonly userService: UserService,
+    private readonly utilService: UtilService,
   ) {}
 
-  async getAccountById(option: FindOneOptions<Account>) {
+  async getAccountById(option: FindOneOptions<Account>, trace?: boolean) {
     const account = await this.accountRepo.findOne(option)
 
     if (!account) {
       Logger.error(JSON.stringify(option, null, 2))
       throw new NotFoundException(`Account not found`)
+    }
+
+    if (trace) {
+      await this.utilService.loadTraceInfo(account)
     }
 
     return account

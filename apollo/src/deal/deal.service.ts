@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
+import { UtilService } from 'src/global/util.service'
 import { ContactService } from 'src/lead-contact/contact.service'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
@@ -16,6 +17,7 @@ export class DealService {
     private readonly accountService: AccountService,
     private readonly userService: UserService,
     private readonly contactService: ContactService,
+    private readonly utilService: UtilService,
   ) {}
 
   async getMany(query: DTO.Deal.GetManyQuery) {
@@ -52,12 +54,16 @@ export class DealService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async getDealById(option: FindOneOptions<Deal>) {
+  async getDealById(option: FindOneOptions<Deal>, trace?: boolean) {
     const deal = await this.dealRepo.findOne(option)
 
     if (!deal) {
       Logger.error(JSON.stringify(option, null, 2))
       throw new NotFoundException(`Deal not found`)
+    }
+
+    if (trace) {
+      await this.utilService.loadTraceInfo(deal)
     }
 
     return deal

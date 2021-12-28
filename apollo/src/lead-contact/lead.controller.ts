@@ -36,10 +36,13 @@ export class LeadController {
   @Get(':id')
   @ApiOperation({ summary: 'to get lead information by Id' })
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.getLeadById({
-      where: { id, isLead: true },
-      relations: ['owner', 'tasksOfLead', 'tasksOfLead.owner'],
-    })
+    return this.service.getLeadById(
+      {
+        where: { id, isLead: true },
+        relations: ['owner', 'tasksOfLead', 'tasksOfLead.owner'],
+      },
+      true,
+    )
   }
 
   @Patch(':id')

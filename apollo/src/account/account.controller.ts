@@ -28,10 +28,13 @@ export class AccountController {
   @Get(':id')
   @ApiOperation({ summary: 'to get account information by Id' })
   getAccountById(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.getAccountById({
-      where: { id },
-      relations: ['owner', 'deals', 'tasks', 'tasks.owner'],
-    })
+    return this.service.getAccountById(
+      {
+        where: { id },
+        relations: ['owner', 'deals', 'tasks', 'tasks.owner'],
+      },
+      true,
+    )
   }
 
   @Post()

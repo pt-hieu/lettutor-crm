@@ -8,6 +8,7 @@ import { AccountService } from 'src/account/account.service'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
 import { UserService } from 'src/user/user.service'
+import { UtilService } from 'src/global/util.service'
 
 @Injectable()
 export class LeadService {
@@ -17,6 +18,7 @@ export class LeadService {
     private readonly accountService: AccountService,
     private readonly dealService: DealService,
     private readonly userService: UserService,
+    private readonly utilService: UtilService,
   ) {}
 
   async getMany(query: DTO.Lead.GetManyQuery) {
@@ -42,12 +44,16 @@ export class LeadService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async getLeadById(option: FindOneOptions<LeadContact>) {
+  async getLeadById(option: FindOneOptions<LeadContact>, trace?: boolean) {
     const lead = await this.leadContactRepo.findOne(option)
 
     if (!lead) {
       Logger.error(JSON.stringify(option, null, 2))
       throw new NotFoundException(`Lead not found`)
+    }
+
+    if (trace) {
+      await this.utilService.loadTraceInfo(lead)
     }
 
     return lead

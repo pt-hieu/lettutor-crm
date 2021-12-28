@@ -179,10 +179,7 @@ const AccountDetail = () => {
   return (
     <Layout title={`CRM | Account | ${account?.fullName}`} requireLogin>
       <div className="crm-container">
-        <AccountDetailNavbar
-          fullName={account?.fullName || ''}
-          id={account?.id || ''}
-        />
+        <AccountDetailNavbar data={account} />
 
         <div className="grid grid-cols-[250px,1fr]">
           <AccountDetailSidebar />

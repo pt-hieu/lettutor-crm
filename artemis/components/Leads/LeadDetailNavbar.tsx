@@ -1,3 +1,4 @@
+import TraceInfo from '@utils/components/TraceInfo'
 import { useModal } from '@utils/hooks/useModal'
 import { Lead } from '@utils/models/lead'
 import { useRouter } from 'next/router'
@@ -21,9 +22,10 @@ const LeadDetailNavbar = ({ lead }: Props) => {
       <ConvertModal visible={convert} close={closeConvert} />
 
       <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <div className="bg-gray-300 w-10 h-10 rounded-full mr-3" />
+        <div className="flex items-center gap-3">
+          <div className="bg-gray-300 w-10 h-10 rounded-full" />
           <span className="font-semibold">{fullName}</span>
+          <TraceInfo entity={lead} />
         </div>
 
         <div className="grid grid-cols-3 gap-3">
