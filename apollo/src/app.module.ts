@@ -14,9 +14,9 @@ import { AccountModule } from './account/account.module'
 import { DealModule } from './deal/deal.module'
 import { WebhookModule } from './webhook/webhook.module'
 import { HttpModule } from '@nestjs/axios'
-import { PayloadService } from './payload.service'
 import { BaseSubscriber } from './base.subscriber'
 import { TaskModule } from './task/task.module';
+import { GlobalModule } from './global/global.module'
 
 @Module({
   imports: [
@@ -42,11 +42,11 @@ import { TaskModule } from './task/task.module';
     DealModule,
     WebhookModule,
     HttpModule,
-    TaskModule
+    TaskModule,
+    GlobalModule
   ],
   providers: [
     JwtStrategy,
-    PayloadService,
     BaseSubscriber,
     {
       provide: APP_GUARD,

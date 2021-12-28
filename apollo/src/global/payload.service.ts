@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { JwtPayload } from './utils/interface'
+import { JwtPayload } from '../utils/interface'
 
 @Injectable()
 export class PayloadService {
@@ -10,7 +10,6 @@ export class PayloadService {
   public set data(value: JwtPayload | undefined) {
     this._data = value
   }
- 
 
   constructor() {}
 }

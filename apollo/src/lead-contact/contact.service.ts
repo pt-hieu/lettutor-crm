@@ -6,6 +6,7 @@ import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { UserService } from 'src/user/user.service'
+import { UtilService } from 'src/global/util.service'
 
 @Injectable()
 export class ContactService {
@@ -14,6 +15,7 @@ export class ContactService {
     private leadContactRepo: Repository<LeadContact>,
     private readonly accountService: AccountService,
     private readonly userService: UserService,
+    private readonly utilService: UtilService,
   ) {}
 
   async getMany(query: DTO.Contact.GetManyQuery) {
@@ -50,12 +52,16 @@ export class ContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async getContactById(option: FindOneOptions<LeadContact>) {
+  async getContactById(option: FindOneOptions<LeadContact>, trace?: boolean) {
     const found = await this.leadContactRepo.findOne(option)
 
     if (!found) {
       Logger.error(JSON.stringify(option, null, 2))
       throw new NotFoundException(`Contact not found`)
+    }
+
+    if (trace) {
+      await this.utilService.loadTraceInfo(found)
     }
 
     return found

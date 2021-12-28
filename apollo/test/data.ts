@@ -21,6 +21,8 @@ export const role: Role = {
   updatedAt: null,
   createdBy: null,
   updatedBy: null,
+  createdById: null,
+  updatedById: null,
 }
 
 export const user: User = {
@@ -40,6 +42,8 @@ export const user: User = {
   createdBy: null,
   updatedBy: null,
   tasks: [],
+  createdById: null,
+  updatedById: null,
 }
 
 export const lead: LeadContact = {
@@ -64,6 +68,8 @@ export const lead: LeadContact = {
   updatedBy: null,
   tasksOfContact: [],
   tasksOfLead: [],
+  createdById: null,
+  updatedById: null,
 }
 
 export const account: Account = {
@@ -82,6 +88,8 @@ export const account: Account = {
   updatedAt: null,
   createdBy: null,
   updatedBy: null,
+  createdById: null,
+  updatedById: null,
 }
 
 export const contact: LeadContact = {
@@ -89,6 +97,8 @@ export const contact: LeadContact = {
   account: account,
   accountId: account.id,
   isLead: false,
+  createdById: null,
+  updatedById: null,
 }
 
 export const deal: Deal = {
@@ -111,6 +121,8 @@ export const deal: Deal = {
   updatedAt: null,
   createdBy: null,
   updatedBy: null,
+  createdById: null,
+  updatedById: null,
 }
 
 export const task: Task = {
@@ -132,7 +144,8 @@ export const task: Task = {
   description: null,
   createdAt: null,
   updatedAt: null,
-
   createdBy: null,
   updatedBy: null,
+  createdById: null,
+  updatedById: null
 }

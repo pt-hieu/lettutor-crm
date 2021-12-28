@@ -68,10 +68,7 @@ const ContactDetail = () => {
   return (
     <Layout title={`CRM | Contact | ${contact?.fullName}`} requireLogin>
       <div className="crm-container">
-        <ContactDetailNavbar
-          fullName={contact?.fullName || ''}
-          id={contact?.id || ''}
-        />
+        <ContactDetailNavbar data={contact} />
 
         <div className="grid grid-cols-[250px,1fr]">
           <ContactDetailSidebar />
