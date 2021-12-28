@@ -46,12 +46,20 @@ export class AddDeal {
   @Type(() => Date)
   closingDate: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: LeadSource,
+    enum: LeadSource,
+    enumName: 'LeadSource',
+  })
   @IsOptional()
   @IsEnum(LeadSource)
   source?: LeadSource
@@ -88,7 +96,11 @@ export class ConvertToDeal {
   @Type(() => Date)
   closingDate: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
@@ -144,12 +156,20 @@ export class UpdateDeal {
   @Type(() => Date)
   closingDate?: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: LeadSource,
+    enum: LeadSource,
+    enumName: 'LeadSource',
+  })
   @IsOptional()
   @IsEnum(LeadSource)
   source?: LeadSource
