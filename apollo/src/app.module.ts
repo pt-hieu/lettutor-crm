@@ -43,7 +43,7 @@ import { TaskModule } from './task/task.module'
     WebhookModule,
     HttpModule,
     TaskModule,
-    GlobalModule
+    GlobalModule,
   ],
   providers: [
     JwtStrategy,

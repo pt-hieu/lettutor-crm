@@ -147,5 +147,5 @@ export const task: Task = {
   createdBy: null,
   updatedBy: null,
   createdById: null,
-  updatedById: null
+  updatedById: null,
 }
