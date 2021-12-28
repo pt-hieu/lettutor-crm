@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator'
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator'
 import { Actions } from '../action'
 import { Paginate } from './paging'
 
@@ -49,4 +56,4 @@ export class UpdateRole {
   childrenIds?: string[]
 }
 
-export class GetManyRole extends Paginate { }
+export class GetManyRole extends Paginate {}

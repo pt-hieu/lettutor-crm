@@ -16,7 +16,6 @@ describe('user service', () => {
   let usersRepo: MockType<Repository<User>>
   let roleRepo: MockType<Repository<Role>>
   let userService: UserService
-  let mailService: MailService
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -42,7 +41,6 @@ describe('user service', () => {
 
     usersRepo = ref.get(getRepositoryToken(User))
     roleRepo = ref.get(getRepositoryToken(Role))
-    mailService = ref.get(MailService)
     userService = ref.get(UserService)
   })
 

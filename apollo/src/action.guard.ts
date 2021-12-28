@@ -6,7 +6,7 @@ import { JwtPayload } from './utils/interface'
 
 @Injectable()
 export class ActionGuard implements CanActivate {
-  constructor(private reflector: Reflector) { }
+  constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredAction = this.reflector.getAllAndOverride<Actions>(KEY, [

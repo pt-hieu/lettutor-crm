@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Public } from 'src/utils/decorators/public.decorator'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { WebhookService } from './webhook.service'
 
 @ApiTags('webhook')

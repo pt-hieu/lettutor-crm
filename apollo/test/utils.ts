@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/ban-types */
 import { Repository, SelectQueryBuilder, Connection } from 'typeorm'
 
 // @ts-ignore
@@ -7,7 +10,7 @@ export const mockConnection: MockType<Connection> = {
   select: jest.fn().mockReturnThis(),
   from: jest.fn().mockReturnThis(),
   setParameters: jest.fn().mockReturnThis(),
-  getRawOne: jest.fn().mockReturnValue(1)
+  getRawOne: jest.fn().mockReturnValue(1),
 }
 
 // @ts-ignore
@@ -30,7 +33,7 @@ export const mockQueryBuilder: MockType<SelectQueryBuilder<any>> = {
   offset: jest.fn().mockReturnThis(),
   getMany: jest.fn(),
   // @ts-ignore
-  connection: mockConnection
+  connection: mockConnection,
 }
 
 // @ts-ignore
@@ -60,8 +63,3 @@ export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(
 export type MockType<T> = {
   [P in keyof T]: jest.Mock<{}>
 }
-
-
-
-
-

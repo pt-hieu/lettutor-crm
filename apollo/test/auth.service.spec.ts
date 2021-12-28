@@ -11,9 +11,8 @@ import { Response } from 'express'
 
 describe('auth service', () => {
   let usersRepo: MockType<Repository<User>>
-  let roleRepo: MockType<Repository<Role>>
   let authService: AuthService
-  let res = {} as Response
+  const res = {} as Response
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
       providers: [
@@ -30,7 +29,6 @@ describe('auth service', () => {
     }).compile()
     res.set = jest.fn().mockReturnValue(true)
     usersRepo = ref.get(getRepositoryToken(User))
-    roleRepo = ref.get(getRepositoryToken(Role))
     authService = ref.get(AuthService)
   })
 
@@ -47,7 +45,7 @@ describe('auth service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
-        roles: [role]
+        roles: [role],
       })
     })
 

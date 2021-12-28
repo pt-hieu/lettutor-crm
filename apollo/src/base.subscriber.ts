@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   EventSubscriber,
   EntitySubscriberInterface,
@@ -17,6 +18,7 @@ export class BaseSubscriber implements EntitySubscriberInterface<BaseEntity> {
     connection.subscribers.push(this)
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   listenTo(): string | Function {
     return BaseEntity
   }
