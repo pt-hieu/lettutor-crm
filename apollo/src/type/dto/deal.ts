@@ -184,4 +184,10 @@ export class UpdateDeal {
   @IsString()
   @MaxLength(500)
   description?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reasonForLoss?: string
 }

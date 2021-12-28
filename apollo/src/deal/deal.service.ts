@@ -4,6 +4,7 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { UtilService } from 'src/global/util.service'
 import { ContactService } from 'src/lead-contact/contact.service'
+import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
@@ -13,9 +14,10 @@ import { Deal } from './deal.entity'
 export class DealService {
   constructor(
     @InjectRepository(Deal)
-    private dealRepo: Repository<Deal>,
+    private dealRepo: Repository<Deal>, 
     private readonly accountService: AccountService,
     private readonly userService: UserService,
+    private readonly noteService: NoteService,
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
   ) {}
@@ -87,6 +89,15 @@ export class DealService {
 
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
+
+    if (dto.reasonForLoss) {
+      let note: DTO.Note.AddNote
+      note.ownerId = dto.ownerId
+      note.dealId = id
+      note.title = dto.stage
+      note.content = dto.reasonForLoss
+      this.noteService.addNote(note)
+     }
 
     return this.dealRepo.save({
       ...deal,
