@@ -17,6 +17,7 @@ import { HttpModule } from '@nestjs/axios'
 import { BaseSubscriber } from './base.subscriber'
 import { GlobalModule } from './global/global.module'
 import { TaskModule } from './task/task.module'
+import { NoteModule } from './note/note.module'
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { TaskModule } from './task/task.module'
     WebhookModule,
     HttpModule,
     TaskModule,
+    NoteModule,
     GlobalModule,
   ],
   providers: [
@@ -58,4 +60,4 @@ import { TaskModule } from './task/task.module'
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
