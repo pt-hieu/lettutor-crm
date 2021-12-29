@@ -5,8 +5,17 @@ export default function RequireLogin() {
 
   if (typeof window !== undefined && loading) {
     return (
-      <div className="min-h-screen bg-gray-50 grid place-content-center">
-        Loading
+      <div className="min-h-screen grid place-content-center w-full">
+        <div className="animate-pulse">
+          <img
+            className="w-[30%] mx-auto "
+            src="/artemis_logo.png"
+            alt="artemis logo"
+          />
+          <div className="text-center font-semibold mt-2 text-blue-600">
+            The CRM
+          </div>
+        </div>
       </div>
     )
   }
