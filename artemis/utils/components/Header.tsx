@@ -63,7 +63,7 @@ export default function Header() {
       <div className="flex">
         <Link href="/">
           <a className="font-semibold text-xl !text-blue-600 crm-link">
-            CRM System
+            Artemis CRM
           </a>
         </Link>
         <span className="ml-12 flex gap-6">

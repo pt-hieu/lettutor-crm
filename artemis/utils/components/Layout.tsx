@@ -20,7 +20,7 @@ function Layout({ children, title, requireLogin, header }: Props) {
   return (
     <>
       <Head>
-        <title>{title || 'CRM System'}</title>
+        <title>{title || 'Artemis CRM'}</title>
       </Head>
 
       {requireLogin && <RequireLogin />}
