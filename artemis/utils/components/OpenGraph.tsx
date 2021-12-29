@@ -32,6 +32,7 @@ export default function OpenGraph() {
       <meta property="og:locale" content={data?.locale} />
       <meta property="og:type" content={data?.type} />
       <meta property="og:url" content={data?.url} />
+      <meta property="og:description" content={data?.description} />
     </Head>
   )
 }
