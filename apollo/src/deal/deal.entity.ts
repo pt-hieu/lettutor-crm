@@ -1,5 +1,6 @@
 import { Account } from 'src/account/account.entity'
-import { LeadContact, LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { Contact } from 'src/contact/contact.entity'
+import { LeadSource } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
@@ -33,9 +34,9 @@ export class Deal extends BaseEntity {
   @Column({ type: 'uuid' })
   accountId: string
 
-  @ManyToOne(() => LeadContact)
+  @ManyToOne(() => Contact)
   @JoinColumn()
-  contact: LeadContact
+  contact: Contact
 
   @Column({ type: 'uuid', nullable: true, default: null })
   contactId: string | null

@@ -36,7 +36,7 @@ export class ContactController {
   getContactById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getContactById(
       {
-        where: { id, isLead: false },
+        where: { id },
         relations: [
           'owner',
           'account',

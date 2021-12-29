@@ -6,7 +6,8 @@ import { Task } from './task.entity'
 import { AccountModule } from 'src/account/account.module'
 import { UserModule } from 'src/user/user.module'
 import { DealModule } from 'src/deal/deal.module'
-import { LeadContactModule } from 'src/lead-contact/lead-contact.module'
+import { LeadModule } from 'src/lead/lead.module'
+import { ContactModule } from 'src/contact/contact.module'
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { LeadContactModule } from 'src/lead-contact/lead-contact.module'
     AccountModule,
     UserModule,
     DealModule,
-    LeadContactModule,
+    LeadModule,
+    ContactModule,
   ],
   providers: [TaskService],
   controllers: [TaskController],

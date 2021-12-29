@@ -10,21 +10,24 @@ import { NotFoundException } from '@nestjs/common'
 import { MailService } from 'src/mail/mail.service'
 import { Account } from 'src/account/account.entity'
 import { AccountService } from 'src/account/account.service'
-import { LeadContact } from 'src/lead-contact/lead-contact.entity'
-import { ContactService } from 'src/lead-contact/contact.service'
 import { Role, User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 import { TaskService } from 'src/task/task.service'
 import { Task } from 'src/task/task.entity'
-import { LeadService } from 'src/lead-contact/lead.service'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
+import { ContactService } from 'src/contact/contact.service'
+import { LeadService } from 'src/lead/lead.service'
+import { Lead } from 'src/lead/lead.entity'
+import { Contact } from 'src/contact/contact.entity'
+import { UtilService } from 'src/global/util.service'
 
 describe('task service', () => {
   let taskRepo: MockType<Repository<Deal>>
   let taskService: TaskService
   let dealRepo: MockType<Repository<Deal>>
   let accountRepo: MockType<Repository<Account>>
-  let leadContactRepo: MockType<Repository<LeadContact>>
+  let leadRepo: MockType<Repository<Lead>>
+  let contactRepo: MockType<Repository<Contact>>
   let userRepo: MockType<Repository<User>>
 
   beforeEach(async () => {
@@ -36,6 +39,7 @@ describe('task service', () => {
         ContactService,
         UserService,
         LeadService,
+        UtilService,
         {
           provide: MailService,
           useValue: {
@@ -64,7 +68,11 @@ describe('task service', () => {
           useFactory: repositoryMockFactory,
         },
         {
-          provide: getRepositoryToken(LeadContact),
+          provide: getRepositoryToken(Lead),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Contact),
           useFactory: repositoryMockFactory,
         },
       ],
@@ -73,7 +81,8 @@ describe('task service', () => {
     taskRepo = ref.get(getRepositoryToken(Task))
     taskService = ref.get(TaskService)
     dealRepo = ref.get(getRepositoryToken(Deal))
-    leadContactRepo = ref.get(getRepositoryToken(LeadContact))
+    leadRepo = ref.get(getRepositoryToken(Lead))
+    contactRepo = ref.get(getRepositoryToken(Contact))
     accountRepo = ref.get(getRepositoryToken(Account))
     userRepo = ref.get(getRepositoryToken(User))
   })
@@ -87,7 +96,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      leadRepo.findOne.mockReturnValue({ ...lead })
       taskRepo.save.mockReturnValue({ ...task })
 
       expect(await taskService.addTask(dto)).toEqual(task)
@@ -102,7 +111,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue({ ...account })
       taskRepo.save.mockReturnValue({ ...task })
 
@@ -118,7 +127,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       dealRepo.findOne.mockReturnValue({ ...deal })
       taskRepo.save.mockReturnValue({ ...task })
 
@@ -146,7 +155,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      leadRepo.findOne.mockReturnValue(undefined)
 
       expect(taskService.addTask(dto)).rejects.toThrow(
         new NotFoundException(`Lead not found`),
@@ -162,7 +171,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      contactRepo.findOne.mockReturnValue(undefined)
       accountRepo.findOne.mockReturnValue({ ...account })
 
       expect(taskService.addTask(dto)).rejects.toThrow(
@@ -179,7 +188,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue(undefined)
 
       expect(taskService.addTask(dto)).rejects.toThrow(
@@ -196,7 +205,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       dealRepo.findOne.mockReturnValue(undefined)
 
       expect(taskService.addTask(dto)).rejects.toThrow(
@@ -252,7 +261,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      leadRepo.findOne.mockReturnValue({ ...lead })
       taskRepo.findOne.mockReturnValue({ ...task })
       taskRepo.save.mockReturnValue({ ...task })
 
@@ -272,7 +281,7 @@ describe('task service', () => {
         accountId: null,
       }
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      leadRepo.findOne.mockReturnValue({ ...lead })
       taskRepo.findOne.mockReturnValue({ ...task })
       taskRepo.save.mockReturnValue(result)
 
@@ -291,8 +300,9 @@ describe('task service', () => {
         dealId: null,
         accountId: null,
       }
+
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       taskRepo.findOne.mockReturnValue({ ...task })
       taskRepo.save.mockReturnValue(result)
 
@@ -305,7 +315,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       taskRepo.findOne.mockReturnValue(undefined)
 
       expect(taskService.update(task.id, dto)).rejects.toThrow(
@@ -320,7 +330,7 @@ describe('task service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       taskRepo.findOne.mockReturnValue({ ...task })
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      leadRepo.findOne.mockReturnValue(undefined)
 
       expect(taskService.update(task.id, dto)).rejects.toThrow(
         new NotFoundException(`Lead not found`),
@@ -334,7 +344,7 @@ describe('task service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       taskRepo.findOne.mockReturnValue({ ...task })
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      contactRepo.findOne.mockReturnValue(undefined)
 
       expect(taskService.update(task.id, dto)).rejects.toThrow(
         new NotFoundException(`Contact not found`),
@@ -347,7 +357,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       taskRepo.findOne.mockReturnValue({ ...task })
       accountRepo.findOne.mockReturnValue(undefined)
 
@@ -362,7 +372,7 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       taskRepo.findOne.mockReturnValue({ ...task })
       dealRepo.findOne.mockReturnValue(undefined)
 

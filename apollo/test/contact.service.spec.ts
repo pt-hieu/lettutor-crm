@@ -4,20 +4,21 @@ import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { account, contact, user } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
-import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { Account } from 'src/account/account.entity'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
-import { ContactService } from 'src/lead-contact/contact.service'
 import { NotFoundException } from '@nestjs/common'
 import { UserService } from 'src/user/user.service'
 import { Role, User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
+import { Contact } from 'src/contact/contact.entity'
+import { ContactService } from 'src/contact/contact.service'
+import { UtilService } from 'src/global/util.service'
 
 describe('contact service', () => {
-  let leadContactRepo: MockType<Repository<LeadContact>>
+  let contactRepo: MockType<Repository<Contact>>
   let contactService: ContactService
   let accountRepo: MockType<Repository<Account>>
   let userRepo: MockType<Repository<User>>
@@ -29,6 +30,7 @@ describe('contact service', () => {
         AccountService,
         DealService,
         UserService,
+        UtilService,
         {
           provide: MailService,
           useValue: {
@@ -49,7 +51,7 @@ describe('contact service', () => {
           useFactory: repositoryMockFactory,
         },
         {
-          provide: getRepositoryToken(LeadContact),
+          provide: getRepositoryToken(Contact),
           useFactory: repositoryMockFactory,
         },
         {
@@ -59,7 +61,7 @@ describe('contact service', () => {
       ],
     }).compile()
 
-    leadContactRepo = ref.get(getRepositoryToken(LeadContact))
+    contactRepo = ref.get(getRepositoryToken(Contact))
     accountRepo = ref.get(getRepositoryToken(Account))
     userRepo = ref.get(getRepositoryToken(User))
     contactService = ref.get(ContactService)
@@ -78,7 +80,7 @@ describe('contact service', () => {
       expect(
         (
           (await contactService.getMany(dto)) as Pagination<
-            LeadContact,
+            Contact,
             IPaginationMeta
           >
         ).items,
@@ -88,7 +90,7 @@ describe('contact service', () => {
 
   describe('view contact detail', () => {
     it('should view contact detail success', async () => {
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
 
       expect(
         await contactService.getContactById({ where: { id: contact.id } }),
@@ -96,7 +98,7 @@ describe('contact service', () => {
     })
 
     it('should throw not found exception when contact not found', async () => {
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      contactRepo.findOne.mockReturnValue(undefined)
 
       expect(
         contactService.getContactById({ where: { id: contact.id } }),
@@ -110,8 +112,8 @@ describe('contact service', () => {
         email: 'update@mail.com',
       }
 
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
-      leadContactRepo.save.mockReturnValue({ ...contact, ...dto })
+      contactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.save.mockReturnValue({ ...contact, ...dto })
 
       accountRepo.findOne.mockReturnValue({ ...account })
       userRepo.findOne.mockReturnValue({ ...user })
@@ -127,7 +129,7 @@ describe('contact service', () => {
         email: 'update@mail.com',
       }
 
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      contactRepo.findOne.mockReturnValue(undefined)
 
       expect(contactService.update(contact.id, dto)).rejects.toThrow(
         new NotFoundException(`Contact not found`),
@@ -140,8 +142,8 @@ describe('contact service', () => {
         email: 'update@mail.com',
       }
 
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
-      leadContactRepo.save.mockReturnValue({ ...contact, ...dto })
+      contactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.save.mockReturnValue({ ...contact, ...dto })
       accountRepo.findOne.mockReturnValue({ ...account })
       userRepo.findOne.mockReturnValue({ ...user })
 
@@ -157,7 +159,7 @@ describe('contact service', () => {
         email: 'update@mail.com',
       }
 
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue(undefined)
 
       expect(contactService.update(contact.id, dto)).rejects.toThrow(
@@ -178,7 +180,7 @@ describe('contact service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       accountRepo.findOne.mockReturnValue({ ...account })
-      leadContactRepo.save.mockReturnValue({ ...contact })
+      contactRepo.save.mockReturnValue({ ...contact })
 
       expect(await contactService.addContact(dto)).toEqual(contact)
     })
@@ -192,7 +194,7 @@ describe('contact service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.save.mockReturnValue({ ...contact })
+      contactRepo.save.mockReturnValue({ ...contact })
 
       expect(await contactService.addContact(dto)).toEqual(contact)
     })
@@ -208,7 +210,7 @@ describe('contact service', () => {
 
       userRepo.findOne.mockReturnValue(undefined)
       accountRepo.findOne.mockReturnValue({ ...account })
-      leadContactRepo.save.mockReturnValue({ ...contact })
+      contactRepo.save.mockReturnValue({ ...contact })
 
       expect(contactService.addContact(dto)).rejects.toThrow(
         new NotFoundException('User does not exist'),
@@ -226,7 +228,7 @@ describe('contact service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       accountRepo.findOne.mockReturnValue(undefined)
-      leadContactRepo.save.mockReturnValue({ ...contact })
+      contactRepo.save.mockReturnValue({ ...contact })
 
       expect(contactService.addContact(dto)).rejects.toThrow(
         new NotFoundException('Account not found'),

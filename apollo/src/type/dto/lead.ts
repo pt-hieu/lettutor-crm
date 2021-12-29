@@ -9,7 +9,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
-import { LeadStatus, LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Paginate } from './paging'
 
 export class AddLead {
