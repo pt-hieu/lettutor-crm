@@ -19,7 +19,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/.env ./
 
-ENV FE_URL http://18.167.61.239:3000
+ENV FE_URL http://artemis.web-crm.software
 ENV DB_HOST postgres
 
 EXPOSE 8000
