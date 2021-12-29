@@ -15,7 +15,6 @@ import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { validate } from 'pages/leads/add-lead'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
 import * as yup from 'yup'
@@ -90,11 +89,14 @@ const UpdateContact = () => {
       address: contact?.address,
       description: contact?.description,
       phoneNum: contact?.phoneNum,
-      accountId: contact?.account?.id,
+      accountId: contact?.account?.id || 'None',
     },
   })
 
   const editContact = handleSubmit((data) => {
+    if (data.accountId === 'None') {
+      data.accountId = null
+    }
     mutateAsync({ id, contactInfo: data })
   })
 
@@ -140,6 +142,9 @@ const UpdateContact = () => {
                   </>
                 ) : name === 'accountId' ? (
                   <>
+                    <option key="none" value="None">
+                      None
+                    </option>
                     {accounts?.map(({ id, fullName }) => (
                       <option key={id} value={id}>
                         {fullName}
