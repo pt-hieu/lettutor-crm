@@ -27,8 +27,8 @@ function Layout({ children, title, requireLogin, header, footer, og }: Props) {
   useEffect(() => {
     if (!og) return
 
-    const data = client.getQueryData<OG>(GlobalState.OPEN_GRAPH)
-    client.setQueryData(GlobalState.OPEN_GRAPH, data)
+    const data = client.getQueryData<OG>(GlobalState.OPEN_GRAPH) || {}
+    client.setQueryData(GlobalState.OPEN_GRAPH, { ...data, ...og })
   }, [])
 
   return (
