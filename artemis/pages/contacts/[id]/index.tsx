@@ -170,9 +170,7 @@ const ContactDetail = () => {
 
   const client = useQueryClient()
   const { data: users } = useQuery<User[]>('users', { enabled: false })
-  const { data: contact } = useQuery<Contact>(['contact', id], {
-    enabled: false,
-  })
+  const { data: contact } = useQuery<Contact>(['contact', id], getContact(id))
   const { data: accounts } = useQuery<Account[]>(['accounts'], {
     enabled: false,
   })
