@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json ./yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-ARG api=http://apollo.web-crm.software
+ARG api=http://artemis.web-crm.software/v1
 ENV NEXT_PUBLIC_API $api
 
 COPY ./ ./

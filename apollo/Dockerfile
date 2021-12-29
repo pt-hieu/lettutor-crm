@@ -21,6 +21,7 @@ COPY --from=builder /app/.env ./
 
 ENV FE_URL http://artemis.web-crm.software
 ENV DB_HOST postgres
+ENV APOLLO_GLOBAL_PREFIX v1/api
 
 EXPOSE 8000
 LABEL project="crm"
