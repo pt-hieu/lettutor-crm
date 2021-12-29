@@ -1,4 +1,5 @@
 import { notification } from 'antd'
+import Layout from '@utils/components/Layout'
 import { signIn } from 'next-auth/client'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
@@ -47,60 +48,78 @@ export default function Login() {
   )
 
   return (
-    <div className="min-h-screen grid w-full place-content-center">
-      <form onSubmit={login} className="min-w-[350px]">
-        <div className="mb-4">
-          <label htmlFor="email" className="crm-label">
-            Email
-          </label>
-          <Input
-            error={errors.email?.message}
-            props={{
-              id: 'email',
-              type: 'text',
-              className: 'w-full',
-              ...register('email', {
-                required: {
-                  value: true,
-                  message: 'Email is required',
-                },
-              }),
-            }}
+    <Layout footer={false} header={false} title="Login to Artemis">
+      <div className="min-h-screen grid w-full place-content-center">
+        <div className="flex items-center">
+          <img
+            src="/illus/login_bg.svg"
+            className="w-[50%] md:hidden"
+            alt="login_background"
           />
-        </div>
 
-        <div className="mb-4">
-          <label htmlFor="password" className="crm-label">
-            Password
-          </label>
-          <Input
-            error={errors.password?.message}
-            props={{
-              id: 'password',
-              type: 'password',
-              autoComplete: 'currentpassword',
-              className: 'w-full',
-              ...register('password', {
-                required: {
-                  value: true,
-                  message: 'Password is required',
-                },
-              }),
-            }}
-          />
-        </div>
+          <form
+            onSubmit={login}
+            className="min-w-[350px] border border-blue-600 rounded-md px-8 py-16 shadow-md shadow-blue-600/30 mx-auto"
+          >
+            <div className="mb-16 text-center font-semibold ">
+              <div className="text-blue-600 text-3xl">Welcome to Artemis</div>
+              <div className="text-gray-700">The CRM</div>
+            </div>
 
-        <div className="mt-2">
-          <button disabled={isLoggingIn} className="crm-button w-full">
-            <Loading on={isLoggingIn}>Login</Loading>
-          </button>
-          <Link href="/reset-password">
-            <a className="mt-2 inline-block w-full text-right">
-              Forgot password
-            </a>
-          </Link>
+            <div className="mb-4">
+              <label htmlFor="email" className="crm-label">
+                Email
+              </label>
+              <Input
+                error={errors.email?.message}
+                props={{
+                  id: 'email',
+                  type: 'text',
+                  className: 'w-full',
+                  ...register('email', {
+                    required: {
+                      value: true,
+                      message: 'Email is required',
+                    },
+                  }),
+                }}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="password" className="crm-label">
+                Password
+              </label>
+              <Input
+                error={errors.password?.message}
+                props={{
+                  id: 'password',
+                  type: 'password',
+                  autoComplete: 'currentpassword',
+                  className: 'w-full',
+                  ...register('password', {
+                    required: {
+                      value: true,
+                      message: 'Password is required',
+                    },
+                  }),
+                }}
+              />
+            </div>
+
+            <div className="mt-2">
+              <button disabled={isLoggingIn} className="crm-button w-full">
+                <Loading on={isLoggingIn}>Login</Loading>
+              </button>
+              <Link href="/reset-password">
+                <a className="mt-2 inline-block w-full text-right">
+                  Forgot password
+                </a>
+              </Link>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
+      </div>
+    </Layout>
   )
 }
