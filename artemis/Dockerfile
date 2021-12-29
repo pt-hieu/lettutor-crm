@@ -33,6 +33,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 ENV JWT_SECRET asdasbzxcihqqwheacapsdnlkn
 ENV NEXTAUTH_URL https://artemis.web-crm.software
+ENV NEXT_PUBLIC_ARTEMIS_URL https://artemis.web-crm.software
 ENV NEXT_PUBLIC_API $api
 
 CMD ["yarn", "start"]
