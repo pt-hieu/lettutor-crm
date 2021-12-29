@@ -1,32 +1,14 @@
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
-export enum LeadStatus {
-  NONE = 'None',
-  ATTEMPTED_TO_CONTACT = 'Attempted To Contact',
-  CONTACT_IN_FUTURE = 'Contact In Future',
-  CONTACTED = 'Contacted',
-  JUNK_LEAD = 'Junk Lead',
-  LOST_LEAD = 'Lost Lead',
-  NOT_CONTACTED = 'Not Contacted',
-  PRE_QUALIFIED = 'Pre Qualified',
-  NOT_QUALIFIED = 'Not Qualified',
-}
-
-export enum LeadSource {
-  NONE = 'None',
-  FACEBOOK = 'Facebook',
-  LET_TUTOR = 'Let Tutor',
-  GOOGLE = 'Google',
-}
-
-@Entity({ name: 'lead_contact' })
-export class LeadContact extends BaseEntity {
-  @ManyToOne(() => User, (user) => user.leadContacts)
+@Entity({ name: 'contact' })
+export class Contact extends BaseEntity {
+  @ManyToOne(() => User, (user) => user.contacts)
   @JoinColumn()
   owner: User | null
 
@@ -42,9 +24,6 @@ export class LeadContact extends BaseEntity {
 
   @OneToMany(() => Deal, (deal) => deal.contact)
   deals: Deal[]
-
-  @Column({ default: true })
-  isLead: boolean
 
   @Column({ type: 'varchar' })
   fullName: string
@@ -70,9 +49,6 @@ export class LeadContact extends BaseEntity {
   @Column({ type: 'varchar', nullable: true, default: null })
   socialAccount: string | null
 
-  @OneToMany(() => Task, (task) => task.lead)
-  tasksOfLead: Task[]
-
   @OneToMany(() => Task, (task) => task.contact)
-  tasksOfContact: Task[]
+  tasks: Task[]
 }

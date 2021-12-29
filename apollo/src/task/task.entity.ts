@@ -1,6 +1,7 @@
 import { Account } from 'src/account/account.entity'
+import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
-import { LeadContact } from 'src/lead-contact/lead-contact.entity'
+import { Lead } from 'src/lead/lead.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
@@ -30,13 +31,13 @@ export class Task extends BaseEntity {
   @Column({ type: 'uuid' })
   ownerId: string
 
-  @ManyToOne(() => LeadContact, (lead) => lead.tasksOfLead)
+  @ManyToOne(() => Lead, (lead) => lead.tasks)
   @JoinColumn()
-  lead: LeadContact
+  lead: Lead
 
-  @ManyToOne(() => LeadContact, (contact) => contact.tasksOfContact)
+  @ManyToOne(() => Contact, (contact) => contact.tasks)
   @JoinColumn()
-  contact: LeadContact
+  contact: Contact
 
   @Column({ type: 'uuid', nullable: true, default: null })
   contactId: string | null

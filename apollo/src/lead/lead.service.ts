@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { FindOneOptions, Repository } from 'typeorm'
-import { LeadContact } from './lead-contact.entity'
+import { Lead } from './lead.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { DealService } from 'src/deal/deal.service'
@@ -13,8 +13,8 @@ import { UtilService } from 'src/global/util.service'
 @Injectable()
 export class LeadService {
   constructor(
-    @InjectRepository(LeadContact)
-    private leadContactRepo: Repository<LeadContact>,
+    @InjectRepository(Lead)
+    private leadRepo: Repository<Lead>,
     private readonly accountService: AccountService,
     private readonly dealService: DealService,
     private readonly userService: UserService,
@@ -22,11 +22,10 @@ export class LeadService {
   ) {}
 
   async getMany(query: DTO.Lead.GetManyQuery) {
-    let q = this.leadContactRepo
+    let q = this.leadRepo
       .createQueryBuilder('lc')
       .leftJoin('lc.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
-      .where('lc.isLead = :isLead', { isLead: true })
 
     if (query.status)
       q.andWhere('lc.status IN (:...status)', { status: query.status })
@@ -44,8 +43,8 @@ export class LeadService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async getLeadById(option: FindOneOptions<LeadContact>, trace?: boolean) {
-    const lead = await this.leadContactRepo.findOne(option)
+  async getLeadById(option: FindOneOptions<Lead>, trace?: boolean) {
+    const lead = await this.leadRepo.findOne(option)
 
     if (!lead) {
       Logger.error(JSON.stringify(option, null, 2))
@@ -64,17 +63,17 @@ export class LeadService {
       await this.userService.getOneUserById({ where: { id: dto.ownerId } })
     }
 
-    return this.leadContactRepo.save(dto)
+    return this.leadRepo.save(dto)
   }
 
   async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
-    const lead = await this.getLeadById({ where: { id, isLead: true } })
+    const lead = await this.getLeadById({ where: { id } })
 
     if (dto.ownerId) {
       await this.userService.getOneUserById({ where: { id: dto.ownerId } })
     }
 
-    return this.leadContactRepo.save({
+    return this.leadRepo.save({
       ...lead,
       ...dto,
     })
@@ -87,7 +86,7 @@ export class LeadService {
     ownerId: string,
   ) {
     const lead = await this.getLeadById({
-      where: { id, isLead: true },
+      where: { id },
       relations: ['owner', 'tasksOfLead', 'tasksOfLead.owner'],
     })
 
@@ -96,7 +95,7 @@ export class LeadService {
         where: { id: ownerId },
       })
       lead.owner = newOwner
-      await this.leadContactRepo.save(lead)
+      await this.leadRepo.save(lead)
     }
 
     const accountDto: DTO.Account.AddAccount = {
@@ -105,15 +104,14 @@ export class LeadService {
       address: lead.address,
       description: lead.description,
       phoneNum: lead.phoneNum,
-      tasks: lead.tasksOfLead,
+      tasks: lead.tasks,
     }
 
     const account = await this.accountService.addAccount(accountDto)
 
-    const contact = await this.leadContactRepo.save({
+    const contact = await this.leadRepo.save({
       ...lead,
-      tasksOfContact: lead.tasksOfLead,
-      isLead: false, //make this lead a contact
+      tasksOfContact: lead.tasks,
       accountId: account.id,
     })
 
@@ -123,7 +121,7 @@ export class LeadService {
         ownerId: lead.owner ? lead.owner.id : null,
         accountId: account.id,
         contactId: contact.id,
-        tasks: lead.tasksOfLead,
+        tasks: lead.tasks,
         ...dealDto,
       }
 

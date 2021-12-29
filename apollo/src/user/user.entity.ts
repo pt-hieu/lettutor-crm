@@ -1,7 +1,8 @@
 import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
+import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
-import { LeadContact } from 'src/lead-contact/lead-contact.entity'
+import { Lead } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
 import { Actions } from 'src/type/action'
 import { BaseEntity } from 'src/utils/base.entity'
@@ -42,9 +43,13 @@ export class User extends BaseEntity {
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
   status: UserStatus
 
-  @OneToMany(() => LeadContact, (leadContact) => leadContact.owner)
+  @OneToMany(() => Lead, (lead) => lead.owner)
   @Exclude({ toPlainOnly: true })
-  leadContacts: LeadContact[]
+  leads: Lead[]
+
+  @OneToMany(() => Contact, (contact) => contact.owner)
+  @Exclude({ toPlainOnly: true })
+  contacts: Contact[]
 
   @OneToMany(() => Deal, (deal) => deal.owner)
   @Exclude({ toPlainOnly: true })

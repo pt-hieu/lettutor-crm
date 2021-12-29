@@ -1,5 +1,5 @@
+import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
-import { LeadContact } from 'src/lead-contact/lead-contact.entity'
 import { Task } from 'src/task/task.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
@@ -45,8 +45,8 @@ export class Account extends BaseEntity {
   @Column({ type: 'varchar', nullable: true, default: null })
   phoneNum: string | null
 
-  @OneToMany(() => LeadContact, (leadContact) => leadContact.account)
-  contacts: LeadContact[]
+  @OneToMany(() => Contact, (contact) => contact.account)
+  contacts: Contact[]
 
   @OneToMany(() => Deal, (deal) => deal.account)
   deals: Deal[]
