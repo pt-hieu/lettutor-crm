@@ -11,6 +11,7 @@ import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 import { UserService } from 'src/user/user.service'
 import { Role, User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
+import { UtilService } from 'src/global/util.service'
 
 describe('account service', () => {
   let accountService: AccountService
@@ -22,6 +23,7 @@ describe('account service', () => {
       providers: [
         AccountService,
         UserService,
+        UtilService,
         {
           provide: MailService,
           useValue: {

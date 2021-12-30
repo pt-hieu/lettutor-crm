@@ -20,7 +20,7 @@ async function bootstrap() {
     }),
   )
   app.useGlobalInterceptors(new TransformInterceptor())
-  app.setGlobalPrefix('api')
+  app.setGlobalPrefix(process.env.APOLLO_GLOBAL_PREFIX || 'api')
   app.use(cookieParser())
   app.enableCors({
     credentials: true,
@@ -32,6 +32,7 @@ async function bootstrap() {
   if (process.env.NODE_ENV !== 'production') {
     app.use(morgan('dev'))
     const config = new DocumentBuilder()
+      .setTitle('Apollo')
       .addBearerAuth(
         {
           type: 'http',

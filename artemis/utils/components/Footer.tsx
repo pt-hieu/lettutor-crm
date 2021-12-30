@@ -2,7 +2,7 @@ export default function Footer() {
   return (
     <footer className="h-[80px] text-center flex justify-between items-center px-[60px]">
       <div>
-        <span className="font-medium mr-2">CRM System</span>
+        <span className="font-medium mr-2">Artemis CRM</span>
         <span>&copy; 2021 All Rights Reserved</span>
       </div>
       <div className="flex gap-2">

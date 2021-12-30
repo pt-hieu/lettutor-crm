@@ -4,7 +4,6 @@ import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
 import { ContactAddFormData } from 'pages/contacts/add-contact'
-import { ContactUpdateFormData } from 'pages/contacts/[id]/edit'
 
 export const getContacts =
   (
@@ -31,7 +30,7 @@ export const getContact = (id?: string, token?: string) => () =>
 
 export const updateContact = async (params: {
   id: string
-  contactInfo: ContactUpdateFormData
+  contactInfo: ContactAddFormData
 }) => {
   const { id, contactInfo } = params
   const { data } = await axios.patch<Contact>(
@@ -43,9 +42,6 @@ export const updateContact = async (params: {
 }
 
 export const addContact = async (contactInfo: ContactAddFormData) => {
-  if (contactInfo.accountId === '') {
-    delete contactInfo.accountId
-  } //avoid bad request: accountId is not UUID
   const { data } = await axios.post<Contact>(API + `/api/contact`, contactInfo)
   return data
 }

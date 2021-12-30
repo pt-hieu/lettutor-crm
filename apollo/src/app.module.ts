@@ -9,7 +9,6 @@ import { JwtModule } from '@nestjs/jwt'
 import { JwtStrategy } from './jwt.strategy'
 import { ActionGuard } from './action.guard'
 import { MailModule } from './mail/mail.module'
-import { LeadContactModule } from './lead-contact/lead-contact.module'
 import { AccountModule } from './account/account.module'
 import { DealModule } from './deal/deal.module'
 import { WebhookModule } from './webhook/webhook.module'
@@ -18,6 +17,8 @@ import { BaseSubscriber } from './base.subscriber'
 import { GlobalModule } from './global/global.module'
 import { TaskModule } from './task/task.module'
 import { NoteModule } from './note/note.module'
+import { LeadModule } from './lead/lead.module'
+import { ContactModule } from './contact/contact.module'
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { NoteModule } from './note/note.module'
     AuthModule,
     PassportModule,
     JwtModule.register({ secret: process.env.JWT_SECRET }),
-    LeadContactModule,
+    LeadModule,
+    ContactModule,
     AccountModule,
     DealModule,
     WebhookModule,

@@ -11,16 +11,17 @@ import { NotFoundException } from '@nestjs/common'
 import { MailService } from 'src/mail/mail.service'
 import { Account } from 'src/account/account.entity'
 import { AccountService } from 'src/account/account.service'
-import { LeadContact } from 'src/lead-contact/lead-contact.entity'
-import { ContactService } from 'src/lead-contact/contact.service'
 import { Role, User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
+import { ContactService } from 'src/contact/contact.service'
+import { Contact } from 'src/contact/contact.entity'
+import { UtilService } from 'src/global/util.service'
 
 describe('deal service', () => {
   let dealRepo: MockType<Repository<Deal>>
   let dealService: DealService
   let accountRepo: MockType<Repository<Account>>
-  let leadContactRepo: MockType<Repository<LeadContact>>
+  let contactRepo: MockType<Repository<Contact>>
   let userRepo: MockType<Repository<User>>
 
   beforeEach(async () => {
@@ -30,6 +31,7 @@ describe('deal service', () => {
         AccountService,
         ContactService,
         UserService,
+        UtilService,
         {
           provide: MailService,
           useValue: {
@@ -54,7 +56,7 @@ describe('deal service', () => {
           useFactory: repositoryMockFactory,
         },
         {
-          provide: getRepositoryToken(LeadContact),
+          provide: getRepositoryToken(Contact),
           useFactory: repositoryMockFactory,
         },
       ],
@@ -62,7 +64,7 @@ describe('deal service', () => {
 
     dealRepo = ref.get(getRepositoryToken(Deal))
     dealService = ref.get(DealService)
-    leadContactRepo = ref.get(getRepositoryToken(LeadContact))
+    contactRepo = ref.get(getRepositoryToken(Contact))
     accountRepo = ref.get(getRepositoryToken(Account))
     userRepo = ref.get(getRepositoryToken(User))
   })
@@ -141,7 +143,7 @@ describe('deal service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       accountRepo.findOne.mockReturnValue({ ...account })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(await dealService.addDeal(dto)).toEqual(deal)
@@ -173,7 +175,7 @@ describe('deal service', () => {
 
       userRepo.findOne.mockReturnValue(undefined)
       accountRepo.findOne.mockReturnValue({ ...account })
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(dealService.addDeal(dto)).rejects.toThrow(
@@ -192,7 +194,7 @@ describe('deal service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       accountRepo.findOne.mockReturnValue(undefined)
-      leadContactRepo.findOne.mockReturnValue({ ...contact })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(dealService.addDeal(dto)).rejects.toThrow(
@@ -211,7 +213,7 @@ describe('deal service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       accountRepo.findOne.mockReturnValue({ ...account })
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      contactRepo.findOne.mockReturnValue(undefined)
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(dealService.addDeal(dto)).rejects.toThrow(

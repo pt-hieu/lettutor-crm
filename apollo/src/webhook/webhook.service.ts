@@ -2,12 +2,8 @@ import { HttpService } from '@nestjs/axios'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { lastValueFrom, map } from 'rxjs'
-import {
-  LeadContact,
-  LeadSource,
-  LeadStatus,
-} from 'src/lead-contact/lead-contact.entity'
-import { LeadService } from 'src/lead-contact/lead.service'
+import { Lead, LeadSource, LeadStatus } from 'src/lead/lead.entity'
+import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
 import { Repository } from 'typeorm'
 
@@ -16,8 +12,8 @@ const ApiVersion = process.env.FACEBOOK_API_VERSION || 'v12.0'
 @Injectable()
 export class WebhookService {
   constructor(
-    @InjectRepository(LeadContact)
-    private leadContactRepo: Repository<LeadContact>,
+    @InjectRepository(Lead)
+    private leadRepo: Repository<Lead>,
     private leadService: LeadService,
     private httpService: HttpService,
   ) {}

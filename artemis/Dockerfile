@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json ./yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-ARG api=http://18.167.61.239:8000
+ARG api=https://artemis.web-crm.software/v1
 ENV NEXT_PUBLIC_API $api
 
 COPY ./ ./
@@ -32,7 +32,8 @@ LABEL project="crm"
 ENV NEXT_TELEMETRY_DISABLED 1
 
 ENV JWT_SECRET asdasbzxcihqqwheacapsdnlkn
-ENV NEXTAUTH_URL http://18.167.61.239:3000
+ENV NEXTAUTH_URL https://artemis.web-crm.software
+ENV NEXT_PUBLIC_ARTEMIS_URL https://artemis.web-crm.software
 ENV NEXT_PUBLIC_API $api
 
 CMD ["yarn", "start"]

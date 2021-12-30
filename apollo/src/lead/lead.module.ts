@@ -2,22 +2,20 @@ import { forwardRef, Module } from '@nestjs/common'
 import { LeadService } from './lead.service'
 import { LeadController } from './lead.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { LeadContact } from './lead-contact.entity'
+import { Lead } from './lead.entity'
 import { AccountModule } from 'src/account/account.module'
-import { ContactController } from './contact.controller'
-import { ContactService } from './contact.service'
 import { DealModule } from 'src/deal/deal.module'
 import { UserModule } from 'src/user/user.module'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LeadContact]),
+    TypeOrmModule.forFeature([Lead]),
     AccountModule,
     UserModule,
     forwardRef(() => DealModule),
   ],
-  providers: [LeadService, ContactService],
-  controllers: [LeadController, ContactController],
-  exports: [LeadService, ContactService],
+  providers: [LeadService],
+  controllers: [LeadController],
+  exports: [LeadService],
 })
-export class LeadContactModule {}
+export class LeadModule {}

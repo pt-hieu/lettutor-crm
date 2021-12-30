@@ -11,7 +11,7 @@ import {
   MaxLength,
 } from 'class-validator'
 import { DealStage } from 'src/deal/deal.entity'
-import { LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { LeadSource } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
 import { Double } from 'typeorm'
 import { Paginate } from './paging'

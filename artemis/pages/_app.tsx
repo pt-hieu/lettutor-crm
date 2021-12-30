@@ -8,6 +8,7 @@ import { Hydrate } from 'react-query/hydration'
 import { useState } from 'react'
 import axios from 'axios'
 import { notification } from 'antd'
+import OpenGraph from '@utils/components/OpenGraph'
 
 axios.defaults.withCredentials = true
 
@@ -29,6 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <QueryClientProvider client={client}>
         <Hydrate state={pageProps?.dehydratedState}>
           <Component {...pageProps} />
+          <OpenGraph />
         </Hydrate>
       </QueryClientProvider>
     </NextAuthProvider>

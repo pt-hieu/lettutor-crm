@@ -9,7 +9,6 @@ export type UseGlobalDateProps = {
 }
 
 export default function useGlobalDate({ callback, key }: UseGlobalDateProps) {
-  const memoizedCb = useMemo(() => callback, [])
   const memoizedKey = useMemo(() => key, [])
 
   const client = useQueryClient()
@@ -21,7 +20,7 @@ export default function useGlobalDate({ callback, key }: UseGlobalDateProps) {
 
   useEffect(() => {
     if (moment(time).isBefore(globalTime)) {
-      memoizedCb()
+      callback()
     }
   }, [globalTime])
 
