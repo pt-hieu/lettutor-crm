@@ -1,7 +1,9 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
-import { Field } from '@utils/data/add-lead-data'
+import { phoneRegExp } from '@utils/data/regex'
 import { ContactUpdateData } from '@utils/data/update-contact-data'
+import { Field } from '@utils/data/update-lead-data'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
@@ -13,24 +15,32 @@ import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { validate } from 'pages/leads/add-lead'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
+import * as yup from 'yup'
+import { ContactAddFormData } from '../add-contact'
 
-export interface ContactUpdateFormData
-  extends Pick<
-    Contact,
-    | 'fullName'
-    | 'email'
-    | 'status'
-    | 'source'
-    | 'description'
-    | 'phoneNum'
-    | 'address'
-  > {
-  ownerId: string
-  accountId: string
-}
+export const editContactSchema = yup.object().shape({
+  ownerId: yup.string().required('Contact Owner is required.'),
+  email: yup
+    .string()
+    .email('Please enter a valid email address.')
+    .max(100, 'Email must be at most 100 characters.')
+    .required('Email is required.'),
+  phoneNum: yup
+    .string()
+    .required('Phone is required.')
+    .matches(phoneRegExp, 'Phone is invalid.'),
+  fullName: yup
+    .string()
+    .required('Full Name is required.')
+    .max(100, 'Full Name must be at most 100 characters.'),
+  source: yup.string().required('Lead Source is required.'),
+  description: yup
+    .string()
+    .max(500, 'Description must be at most 500 characters.'),
+  address: yup.string().max(100, 'Address must be at most 250 characters.'),
+})
 
 const UpdateContact = () => {
   const { push, query } = useRouter()
@@ -68,56 +78,61 @@ const UpdateContact = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ContactUpdateFormData>({
+  } = useForm<ContactAddFormData>({
     mode: 'all',
+    resolver: yupResolver(editContactSchema),
     defaultValues: {
       ownerId: contact?.owner?.id,
       fullName: contact?.fullName,
       email: contact?.email,
-      status: contact?.status,
       source: contact?.source,
       address: contact?.address,
       description: contact?.description,
       phoneNum: contact?.phoneNum,
-      accountId: contact?.account?.id,
+      accountId: contact?.account?.id || 'None',
     },
   })
 
   const editContact = handleSubmit((data) => {
+    if (data.accountId === 'None') {
+      data.accountId = null
+    }
     mutateAsync({ id, contactInfo: data })
   })
 
   const renderField = ({
-    id,
+    label,
     name,
     as,
     selectSource,
     type,
-    validation,
+    required,
   }: Field) => (
-    <div key={id} className="grid grid-cols-3 mb-6 gap-6">
+    <div key={name} className="grid grid-cols-3 mb-6 gap-6">
       <label
-        htmlFor={id}
+        htmlFor={name}
         className={`mt-[10px] crm-label text-right ${
-          validation?.required ? '' : "after:content-['']"
+          required ? '' : "after:content-['']"
         }`}
       >
-        {name}
+        {label}
       </label>
       <div className="col-span-2">
         {/* @ts-ignore */}
         <Input
-          error={errors[id as keyof ContactUpdateFormData]?.message}
+          error={errors[name as keyof ContactAddFormData]?.message}
           as={as!}
           props={{
-            id: id,
+            id: name,
             type: type || 'text',
             className: `text-sm p-3 min-h-[44px] ${
-              id === 'description' || id === 'address' ? 'w-[600px]' : 'w-full'
+              name === 'description' || name === 'address'
+                ? 'w-[600px]'
+                : 'w-full'
             }`,
             children:
               as === 'select' ? (
-                id === 'ownerId' ? (
+                name === 'ownerId' ? (
                   <>
                     {contactOwners?.map(({ id, name }) => (
                       <option key={id} value={id}>
@@ -125,8 +140,11 @@ const UpdateContact = () => {
                       </option>
                     ))}
                   </>
-                ) : id === 'accountId' ? (
+                ) : name === 'accountId' ? (
                   <>
+                    <option key="none" value="None">
+                      None
+                    </option>
                     {accounts?.map(({ id, fullName }) => (
                       <option key={id} value={id}>
                         {fullName}
@@ -143,19 +161,7 @@ const UpdateContact = () => {
                   </>
                 )
               ) : undefined,
-            ...register(
-              id as keyof ContactUpdateFormData,
-              validation
-                ? validate({
-                    id,
-                    name,
-                    as,
-                    selectSource,
-                    validation,
-                    type,
-                  })
-                : undefined,
-            ),
+            ...register(name as keyof ContactAddFormData),
           }}
         />
       </div>
