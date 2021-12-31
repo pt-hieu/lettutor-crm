@@ -21,6 +21,7 @@ import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
 import { TaskService } from 'src/task/task.service'
 import { Task } from 'src/task/task.entity'
+import { PayloadService } from 'src/global/payload.service'
 
 describe('lead service', () => {
   let leadService: LeadService
@@ -40,6 +41,7 @@ describe('lead service', () => {
         ContactService,
         UtilService,
         TaskService,
+        PayloadService,
         {
           provide: MailService,
           useValue: {

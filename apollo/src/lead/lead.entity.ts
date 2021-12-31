@@ -1,8 +1,7 @@
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Task } from 'src/task/task.entity'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 export enum LeadStatus {
@@ -24,15 +23,8 @@ export enum LeadSource {
   GOOGLE = 'Google',
 }
 
-@Entity({ name: 'lead' })
-export class Lead extends BaseEntity {
-  @ManyToOne(() => User, (user) => user.leads)
-  @JoinColumn()
-  owner: User | null
-
-  @Column({ type: 'uuid', nullable: true, select: false })
-  ownerId: string | null
-
+@Entity({ name: 'lead_contact' })
+export class Lead extends Ownerful {
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
   accountId: string | null
 

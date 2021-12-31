@@ -3,9 +3,8 @@ import { Note } from 'src/note/note.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { LeadSource } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
+import { Ownerful } from 'src/utils/owner.entity'
 
 export enum DealStage {
   QUALIFICATION = 'Qualification',
@@ -20,14 +19,7 @@ export enum DealStage {
 }
 
 @Entity({ name: 'deal' })
-export class Deal extends BaseEntity {
-  @ManyToOne(() => User, (u) => u.deals)
-  @JoinColumn()
-  owner: User | null
-
-  @Column({ type: 'uuid', nullable: true })
-  ownerId: string | null
-
+export class Deal extends Ownerful {
   @ManyToOne(() => Account, (account) => account.deals)
   @JoinColumn()
   account: Account

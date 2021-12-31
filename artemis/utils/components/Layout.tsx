@@ -7,11 +7,15 @@ import Footer from './Footer'
 import { OG } from './OpenGraph'
 import { useQueryClient } from 'react-query'
 import { GlobalState } from '@utils/GlobalStateKey'
+import BugReporter from './BugReporter'
+import PoseidonAuth from './PoseidonAuth'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })
 
 type Props = {
   title?: string
+  description?: string
+  keywords?: string
   children: ReactNode
   footer?: boolean
   og?: Partial<OG>
@@ -20,7 +24,16 @@ type Props = {
   | { requireLogin?: false; header: false }
 )
 
-function Layout({ children, title, requireLogin, header, footer, og }: Props) {
+function Layout({
+  children,
+  title,
+  requireLogin,
+  header,
+  footer,
+  og,
+  description,
+  keywords,
+}: Props) {
   const [session] = useSession()
   const client = useQueryClient()
 
@@ -35,7 +48,25 @@ function Layout({ children, title, requireLogin, header, footer, og }: Props) {
     <>
       <Head>
         <title>{title || 'Artemis CRM'}</title>
+        <meta
+          name="description"
+          content={description || 'Artemis CRM &copy; 2021'}
+        />
+        <meta
+          name="keywords"
+          content={
+            keywords ||
+            'customer, crm, customer relation management, web application, sales, marketing'
+          }
+        />
       </Head>
+
+      {process.env.NODE_ENV === 'production' && (
+        <>
+          <BugReporter />
+          <PoseidonAuth />
+        </>
+      )}
 
       {requireLogin && <RequireLogin />}
       {(session || !requireLogin) && (

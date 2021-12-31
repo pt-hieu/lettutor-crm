@@ -1,9 +1,8 @@
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Task } from 'src/task/task.entity'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
+import { Ownerful } from 'src/utils/owner.entity'
+import { Column, Entity, OneToMany } from 'typeorm'
 
 export enum AccountType {
   NONE = 'None',
@@ -22,14 +21,7 @@ export enum AccountType {
 }
 
 @Entity({ name: 'account' })
-export class Account extends BaseEntity {
-  @ManyToOne(() => User, (u) => u.accounts)
-  @JoinColumn()
-  owner: User | null
-
-  @Column({ type: 'uuid', nullable: true })
-  ownerId: string | null
-
+export class Account extends Ownerful {
   @Column({ type: 'varchar' })
   fullName: string
 
