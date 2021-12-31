@@ -38,7 +38,7 @@ export class LeadController {
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getLeadById(
       {
-        where: { id, isLead: true },
+        where: { id },
         relations: ['owner', 'tasksOfLead', 'tasksOfLead.owner'],
       },
       true,

@@ -4,8 +4,6 @@ import { getRepositoryToken } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { account, contact, deal, lead, user } from './data'
 import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
-import { LeadContact } from 'src/lead-contact/lead-contact.entity'
-import { LeadService } from 'src/lead-contact/lead.service'
 import { NotFoundException } from '@nestjs/common'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
@@ -15,11 +13,17 @@ import { Deal } from 'src/deal/deal.entity'
 import { UserService } from 'src/user/user.service'
 import { Role, User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
-import { ContactService } from 'src/lead-contact/contact.service'
+import { LeadService } from 'src/lead/lead.service'
+import { Lead } from 'src/lead/lead.entity'
+import { ContactService } from 'src/contact/contact.service'
+import { Contact } from 'src/contact/contact.entity'
+import { UtilService } from 'src/global/util.service'
+import { NoteService } from 'src/note/note.service'
 
 describe('lead service', () => {
   let leadService: LeadService
-  let leadContactRepo: MockType<Repository<LeadContact>>
+  let leadRepo: MockType<Repository<Lead>>
+  let contactRepo: MockType<Repository<Contact>>
   let accountRepo: MockType<Repository<Account>>
   let dealRepo: MockType<Repository<Deal>>
   let userRepo: MockType<Repository<User>>
@@ -32,11 +36,18 @@ describe('lead service', () => {
         DealService,
         UserService,
         ContactService,
+        UtilService,
         {
           provide: MailService,
           useValue: {
             sendResetPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
             sendAddPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+          },
+        },
+        {
+          provide: NoteService,
+          useValue: {
+            addNote: jest.fn(),
           },
         },
         {
@@ -52,17 +63,22 @@ describe('lead service', () => {
           useFactory: repositoryMockFactory,
         },
         {
-          provide: getRepositoryToken(LeadContact),
+          provide: getRepositoryToken(Lead),
           useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Deal),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: getRepositoryToken(Contact),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile()
 
-    leadContactRepo = ref.get(getRepositoryToken(LeadContact))
+    leadRepo = ref.get(getRepositoryToken(Lead))
+    contactRepo = ref.get(getRepositoryToken(Contact))
     userRepo = ref.get(getRepositoryToken(User))
     accountRepo = ref.get(getRepositoryToken(Account))
     dealRepo = ref.get(getRepositoryToken(Deal))
@@ -80,7 +96,7 @@ describe('lead service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.save.mockReturnValue({ ...lead })
+      leadRepo.save.mockReturnValue({ ...lead })
 
       expect(await leadService.addLead(dto)).toEqual(lead)
     })
@@ -95,7 +111,7 @@ describe('lead service', () => {
       }
 
       userRepo.findOne.mockReturnValue(undefined)
-      leadContactRepo.save.mockReturnValue({ ...lead })
+      leadRepo.save.mockReturnValue({ ...lead })
 
       expect(leadService.addLead(dto)).rejects.toThrow(
         new NotFoundException('User does not exist'),
@@ -105,7 +121,7 @@ describe('lead service', () => {
 
   describe('view lead detail', () => {
     it('should view lead detail succeed', async () => {
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      leadRepo.findOne.mockReturnValue({ ...lead })
 
       expect(await leadService.getLeadById({ where: { id: lead.id } })).toEqual(
         lead,
@@ -113,7 +129,7 @@ describe('lead service', () => {
     })
 
     it('should throw exception when lead not found', () => {
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      leadRepo.findOne.mockReturnValue(undefined)
 
       expect(
         leadService.getLeadById({ where: { id: lead.id } }),
@@ -132,12 +148,8 @@ describe('lead service', () => {
       mockQueryBuilder.getMany.mockReturnValue([lead])
 
       expect(
-        (
-          (await leadService.getMany(dto)) as Pagination<
-            LeadContact,
-            IPaginationMeta
-          >
-        ).items,
+        ((await leadService.getMany(dto)) as Pagination<Lead, IPaginationMeta>)
+          .items,
       ).toEqual([lead])
     })
   })
@@ -147,8 +159,8 @@ describe('lead service', () => {
       const dto: DTO.Lead.UpdateLead = {
         email: 'update@mail.com',
       }
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
-      leadContactRepo.save.mockReturnValue({ ...lead, ...dto })
+      leadRepo.findOne.mockReturnValue({ ...lead })
+      leadRepo.save.mockReturnValue({ ...lead, ...dto })
 
       expect(await leadService.updateLead(dto, lead.id)).toEqual({
         ...lead,
@@ -161,7 +173,7 @@ describe('lead service', () => {
         email: 'update@mail.com',
       }
 
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      leadRepo.findOne.mockReturnValue(undefined)
 
       expect(leadService.updateLead(dto, lead.id)).rejects.toThrow(
         new NotFoundException(`Lead not found`),
@@ -179,9 +191,9 @@ describe('lead service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      leadRepo.findOne.mockReturnValue({ ...lead })
       accountRepo.save.mockReturnValue({ ...account })
-      leadContactRepo.save.mockReturnValue({ ...contact })
+      leadRepo.save.mockReturnValue({ ...contact })
 
       expect(await leadService.convert(lead.id, dto, false, undefined)).toEqual(
         [account, contact, null],
@@ -197,10 +209,11 @@ describe('lead service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadContactRepo.findOne.mockReturnValue({ ...lead })
+      leadRepo.findOne.mockReturnValue({ ...lead })
       accountRepo.save.mockReturnValue({ ...account })
-      leadContactRepo.save.mockReturnValue({ ...contact })
+      leadRepo.save.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue({ ...account })
+      contactRepo.findOne.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(await leadService.convert(lead.id, dto, true, undefined)).toEqual([
@@ -218,9 +231,9 @@ describe('lead service', () => {
         stage: deal.stage,
       }
 
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      leadRepo.findOne.mockReturnValue(undefined)
       accountRepo.save.mockReturnValue({ ...account })
-      leadContactRepo.save.mockReturnValue({ ...contact })
+      contactRepo.save.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(
@@ -236,9 +249,9 @@ describe('lead service', () => {
         stage: deal.stage,
       }
 
-      leadContactRepo.findOne.mockReturnValue(undefined)
+      leadRepo.findOne.mockReturnValue(undefined)
       accountRepo.save.mockReturnValue({ ...account })
-      leadContactRepo.save.mockReturnValue({ ...contact })
+      contactRepo.save.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
 
       expect(

@@ -1,7 +1,8 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
-import { Field } from '@utils/data/add-lead-data'
 import { ContactUpdateData } from '@utils/data/update-contact-data'
+import { Field } from '@utils/data/update-lead-data'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Account } from '@utils/models/account'
@@ -14,10 +15,10 @@ import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { validate } from 'pages/leads/add-lead'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
+import { editContactSchema } from './[id]/edit'
 
 export interface ContactAddFormData
   extends Pick<
@@ -25,7 +26,7 @@ export interface ContactAddFormData
     'fullName' | 'email' | 'source' | 'description' | 'phoneNum' | 'address'
   > {
   ownerId: string
-  accountId?: string
+  accountId: string | null
 }
 
 const CreateContact = () => {
@@ -58,6 +59,7 @@ const CreateContact = () => {
     setValue,
     formState: { errors },
   } = useForm<ContactAddFormData>({
+    resolver: yupResolver(editContactSchema),
     defaultValues: {
       ownerId: '',
       fullName: '',
@@ -75,40 +77,45 @@ const CreateContact = () => {
   }, [session?.user.id])
 
   const handleAddContact = handleSubmit((data) => {
+    if (data.accountId === 'None') {
+      data.accountId = null
+    }
     mutateAsync(data)
   })
 
   const renderField = ({
-    id,
+    label,
     name,
     as,
     selectSource,
     type,
-    validation,
+    required,
   }: Field) => (
-    <div key={id} className="grid grid-cols-3 mb-6 gap-6">
+    <div key={name} className="grid grid-cols-3 mb-6 gap-6">
       <label
-        htmlFor={id}
+        htmlFor={name}
         className={`mt-[10px] crm-label text-right ${
-          validation?.required ? '' : "after:content-['']"
+          required ? '' : "after:content-['']"
         }`}
       >
-        {name}
+        {label}
       </label>
       <div className="col-span-2">
         {/* @ts-ignore */}
         <Input
-          error={errors[id as keyof ContactAddFormData]?.message}
+          error={errors[name as keyof ContactAddFormData]?.message}
           as={as!}
           props={{
-            id: id,
+            id: name,
             type: type || 'text',
             className: `text-sm p-3 min-h-[44px] ${
-              id === 'description' || id === 'address' ? 'w-[600px]' : 'w-full'
+              name === 'description' || name === 'address'
+                ? 'w-[600px]'
+                : 'w-full'
             }`,
             children:
               as === 'select' ? (
-                id === 'ownerId' ? (
+                name === 'ownerId' ? (
                   <>
                     {contactOwners?.map(({ id, name }) => (
                       <option key={id} value={id}>
@@ -116,8 +123,11 @@ const CreateContact = () => {
                       </option>
                     ))}
                   </>
-                ) : id === 'accountId' ? (
+                ) : name === 'accountId' ? (
                   <>
+                    <option key="none" value={'None'}>
+                      None
+                    </option>
                     {accounts?.map(({ id, fullName }) => (
                       <option key={id} value={id}>
                         {fullName}
@@ -134,19 +144,7 @@ const CreateContact = () => {
                   </>
                 )
               ) : undefined,
-            ...register(
-              id as keyof ContactAddFormData,
-              validation
-                ? validate({
-                    id,
-                    name,
-                    as,
-                    selectSource,
-                    validation,
-                    type,
-                  })
-                : undefined,
-            ),
+            ...register(name as keyof ContactAddFormData),
           }}
         />
       </div>

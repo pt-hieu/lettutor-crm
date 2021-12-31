@@ -9,7 +9,7 @@ import {
   MaxLength,
   IsMobilePhone,
 } from 'class-validator'
-import { LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { LeadSource } from 'src/lead/lead.entity'
 import { Paginate } from './paging'
 
 export class GetManyQuery extends Paginate {

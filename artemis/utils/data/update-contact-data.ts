@@ -1,6 +1,5 @@
-import { LeadSource, LeadStatus } from '@utils/models/lead'
-import { emailReg } from 'pages/reset-password'
-import { SectionTemplate } from './add-lead-data'
+import { LeadSource } from '@utils/models/lead'
+import { SectionTemplate } from './update-lead-data'
 
 type UpdateContactTemplate = SectionTemplate[]
 export const ContactUpdateData: UpdateContactTemplate = [
@@ -8,57 +7,40 @@ export const ContactUpdateData: UpdateContactTemplate = [
     title: 'Contact Information',
     items: [
       {
-        name: 'Contact Owner',
-        id: 'ownerId',
+        label: 'Contact Owner',
+        name: 'ownerId',
         as: 'select',
-        validation: {
-          required: true,
-        },
+        required: true,
       },
       {
-        name: 'Full Name',
-        id: 'fullName',
-        validation: {
-          required: true,
-        },
+        label: 'Full Name',
+        name: 'fullName',
+        required: true,
       },
 
       {
-        name: 'Phone',
-        id: 'phoneNum',
-        validation: {
-          required: true,
-          regExp: {
-            value: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
-            message: 'Please enter a valid phone number',
-          },
-        },
+        label: 'Phone',
+        name: 'phoneNum',
+        required: true,
       },
       {
-        name: 'Email',
-        id: 'email',
+        label: 'Email',
+        name: 'email',
         type: 'email',
-        validation: {
-          required: true,
-          regExp: {
-            value: emailReg,
-            message: 'Please enter a valid email address',
-          },
-        },
+        required: true,
       },
       {
-        name: 'Lead Source',
-        id: 'source',
+        label: 'Lead Source',
+        name: 'source',
         as: 'select',
-        validation: {
-          required: true,
-        },
+        required: true,
         selectSource: Object.values(LeadSource),
       },
       {
-        name: 'Account',
-        id: 'accountId',
+        label: 'Account',
+        name: 'accountId',
         as: 'select',
+        required: false,
       },
     ],
   },
@@ -66,9 +48,10 @@ export const ContactUpdateData: UpdateContactTemplate = [
     title: 'Address Information',
     items: [
       {
-        name: 'Address',
-        id: 'address',
+        label: 'Address',
+        name: 'address',
         as: 'textarea',
+        required: false,
       },
     ],
   },
@@ -76,9 +59,10 @@ export const ContactUpdateData: UpdateContactTemplate = [
     title: 'Description Information',
     items: [
       {
-        name: 'Description',
-        id: 'description',
+        label: 'Description',
+        name: 'description',
         as: 'textarea',
+        required: false,
       },
     ],
   },

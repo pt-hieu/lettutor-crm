@@ -1,13 +1,10 @@
 import { Account, AccountType } from 'src/account/account.entity'
 import { Deal, DealStage } from 'src/deal/deal.entity'
-import {
-  LeadContact,
-  LeadSource,
-  LeadStatus,
-} from 'src/lead-contact/lead-contact.entity'
+import { Lead, LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Actions } from 'src/type/action'
 import { Role, User, UserStatus } from 'src/user/user.entity'
 import { Task, TaskPriority, TaskStatus } from 'src/task/task.entity'
+import { Contact } from 'src/contact/contact.entity'
 
 export const role: Role = {
   actions: [Actions.IS_ADMIN],
@@ -35,7 +32,8 @@ export const user: User = {
   tokenExpiration: null,
   createdAt: null,
   updatedAt: null,
-  leadContacts: [],
+  leads: [],
+  contacts: [],
   roles: [role],
   accounts: [],
   deals: [],
@@ -46,13 +44,12 @@ export const user: User = {
   updatedById: null,
 }
 
-export const lead: LeadContact = {
+export const lead: Lead = {
   id: '1234',
   owner: user,
   ownerId: user.id,
   account: null,
   accountId: null,
-  isLead: true,
   fullName: 'lead',
   email: 'lead@mail.com',
   status: LeadStatus.NONE,
@@ -66,8 +63,7 @@ export const lead: LeadContact = {
   deals: [],
   createdBy: null,
   updatedBy: null,
-  tasksOfContact: [],
-  tasksOfLead: [],
+  tasks: [],
   createdById: null,
   updatedById: null,
 }
@@ -92,11 +88,10 @@ export const account: Account = {
   updatedById: null,
 }
 
-export const contact: LeadContact = {
+export const contact: Contact = {
   ...lead,
   account: account,
   accountId: account.id,
-  isLead: false,
   createdById: null,
   updatedById: null,
 }
@@ -123,6 +118,7 @@ export const deal: Deal = {
   updatedBy: null,
   createdById: null,
   updatedById: null,
+  notes: [],
 }
 
 export const task: Task = {

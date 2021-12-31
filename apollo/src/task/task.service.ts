@@ -2,9 +2,9 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
+import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
-import { ContactService } from 'src/lead-contact/contact.service'
-import { LeadService } from 'src/lead-contact/lead.service'
+import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
@@ -29,7 +29,7 @@ export class TaskService {
 
     if (dto.leadId) {
       await this.leadService.getLeadById({
-        where: { id: dto.leadId, isLead: true },
+        where: { id: dto.leadId },
       })
       dto.accountId = null
       dto.contactId = null
@@ -45,7 +45,7 @@ export class TaskService {
 
       await Promise.all([
         this.contactService.getContactById({
-          where: { id: dto.contactId, isLead: false },
+          where: { id: dto.contactId },
         }),
         dto.accountId
           ? this.accountService.getAccountById({ where: { id: dto.accountId } })
@@ -117,7 +117,7 @@ export class TaskService {
 
     if (dto.leadId) {
       await this.leadService.getLeadById({
-        where: { id: dto.leadId, isLead: true },
+        where: { id: dto.leadId },
       })
       dto.contactId = null
       dto.accountId = null
@@ -130,7 +130,7 @@ export class TaskService {
     await Promise.all([
       dto.contactId
         ? this.contactService.getContactById({
-            where: { id: dto.contactId, isLead: false },
+            where: { id: dto.contactId },
           })
         : undefined,
       dto.accountId

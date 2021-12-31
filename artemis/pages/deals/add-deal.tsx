@@ -19,7 +19,7 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
-import { DealUpdateFormData, schema } from './[id]/edit'
+import { DealUpdateFormData, EditDealSchema } from './[id]/edit'
 
 const AddDeal = () => {
   const [session] = useTypedSession()
@@ -92,7 +92,7 @@ const AddDeal = () => {
     formState: { errors },
   } = useForm<DealUpdateFormData>({
     mode: 'all',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(EditDealSchema),
     defaultValues: {
       ownerId: '',
       stage: DealStage.QUALIFICATION,

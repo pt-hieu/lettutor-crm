@@ -11,7 +11,7 @@ import {
   MaxLength,
 } from 'class-validator'
 import { DealStage } from 'src/deal/deal.entity'
-import { LeadSource } from 'src/lead-contact/lead-contact.entity'
+import { LeadSource } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
 import { Double } from 'typeorm'
 import { Paginate } from './paging'
@@ -46,12 +46,20 @@ export class AddDeal {
   @Type(() => Date)
   closingDate: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: LeadSource,
+    enum: LeadSource,
+    enumName: 'LeadSource',
+  })
   @IsOptional()
   @IsEnum(LeadSource)
   source?: LeadSource
@@ -88,7 +96,11 @@ export class ConvertToDeal {
   @Type(() => Date)
   closingDate: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
@@ -144,12 +156,20 @@ export class UpdateDeal {
   @Type(() => Date)
   closingDate?: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: LeadSource,
+    enum: LeadSource,
+    enumName: 'LeadSource',
+  })
   @IsOptional()
   @IsEnum(LeadSource)
   source?: LeadSource
@@ -164,4 +184,10 @@ export class UpdateDeal {
   @IsString()
   @MaxLength(500)
   description?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reasonForLoss?: string
 }

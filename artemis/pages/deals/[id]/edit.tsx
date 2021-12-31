@@ -33,7 +33,7 @@ export type DealUpdateFormData = {
   description: string | null
 }
 
-export const schema = yup.object().shape({
+export const EditDealSchema = yup.object().shape({
   ownerId: yup.string().required('Deal Owner is required.'),
   fullName: yup
     .string()
@@ -133,7 +133,7 @@ const EditDeal = () => {
     formState: { errors },
   } = useForm<DealUpdateFormData>({
     mode: 'onChange',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(EditDealSchema),
     defaultValues: {
       ownerId: deal?.owner?.id,
       accountId: deal?.account.id,

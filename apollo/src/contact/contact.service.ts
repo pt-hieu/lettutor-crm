@@ -2,24 +2,24 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { Brackets, FindOneOptions, Repository } from 'typeorm'
-import { LeadContact } from './lead-contact.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { UserService } from 'src/user/user.service'
 import { UtilService } from 'src/global/util.service'
+import { Contact } from './contact.entity'
 
 @Injectable()
 export class ContactService {
   constructor(
-    @InjectRepository(LeadContact)
-    private leadContactRepo: Repository<LeadContact>,
+    @InjectRepository(Contact)
+    private contactRepo: Repository<Contact>,
     private readonly accountService: AccountService,
     private readonly userService: UserService,
     private readonly utilService: UtilService,
   ) {}
 
   async getMany(query: DTO.Contact.GetManyQuery) {
-    let q = this.leadContactRepo
+    let q = this.contactRepo
       .createQueryBuilder('lc')
       .leftJoin('lc.owner', 'owner')
       .leftJoin('lc.account', 'account')
@@ -29,7 +29,6 @@ export class ContactService {
         'account.fullName',
         'account.description',
       ])
-      .where('lc.isLead = :isLead', { isLead: false })
 
     if (query.source)
       q.andWhere('lc.source IN (:...source)', { source: query.source })
@@ -52,8 +51,8 @@ export class ContactService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async getContactById(option: FindOneOptions<LeadContact>, trace?: boolean) {
-    const found = await this.leadContactRepo.findOne(option)
+  async getContactById(option: FindOneOptions<Contact>, trace?: boolean) {
+    const found = await this.contactRepo.findOne(option)
 
     if (!found) {
       Logger.error(JSON.stringify(option, null, 2))
@@ -77,11 +76,11 @@ export class ContactService {
         : undefined,
     ])
 
-    return this.leadContactRepo.save({ ...dto, isLead: false })
+    return this.contactRepo.save({ ...dto })
   }
 
   async update(id: string, dto: DTO.Contact.UpdateBody) {
-    const contact = await this.getContactById({ where: { id, isLead: false } })
+    const contact = await this.getContactById({ where: { id } })
 
     await Promise.all([
       dto.accountId
@@ -92,7 +91,7 @@ export class ContactService {
         : undefined,
     ])
 
-    return this.leadContactRepo.save({
+    return this.contactRepo.save({
       ...contact,
       ...dto,
     })
