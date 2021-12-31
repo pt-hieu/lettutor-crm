@@ -7,4 +7,4 @@ export const POSEIDON_PASSWORD = process.env.NEXT_PUBLIC_POSEIDON_PASSWORD
 
 export const ARTEMIS_URL = process.env.NEXT_PUBLIC_ARTEMIS_URL
 
-console.log({ env: process.env })
+console.log({ POSEIDON_API, ARTEMIS_URL })
