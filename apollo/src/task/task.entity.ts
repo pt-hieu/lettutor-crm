@@ -2,8 +2,7 @@ import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Lead } from 'src/lead/lead.entity'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 export enum TaskPriority {
@@ -23,14 +22,7 @@ export enum TaskStatus {
 }
 
 @Entity({ name: 'task' })
-export class Task extends BaseEntity {
-  @ManyToOne(() => User, (u) => u.tasks)
-  @JoinColumn()
-  owner: User
-
-  @Column({ type: 'uuid' })
-  ownerId: string
-
+export class Task extends Ownerful {
   @ManyToOne(() => Lead, (lead) => lead.tasks)
   @JoinColumn()
   lead: Lead

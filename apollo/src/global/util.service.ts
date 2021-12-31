@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common'
+import { Ownerful } from 'src/utils/owner.entity'
 import { UserService } from '../user/user.service'
 import { BaseEntity } from '../utils/base.entity'
+import { PayloadService } from './payload.service'
 
 @Injectable()
 export class UtilService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly payloadService: PayloadService,
+  ) {}
 
   public async loadTraceInfo(entity: BaseEntity) {
     const [createdBy, updatedBy] = await Promise.allSettled([
@@ -24,5 +29,9 @@ export class UtilService {
       updatedBy?.status === 'rejected' ? null : updatedBy?.value
     entity.createdBy =
       createdBy?.status === 'rejected' ? null : createdBy?.value
+  }
+
+  public checkOwnership(entity: Ownerful) {
+    return entity.ownerId === this.payloadService.data.id
   }
 }

@@ -2,19 +2,11 @@ import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 @Entity({ name: 'contact' })
-export class Contact extends BaseEntity {
-  @ManyToOne(() => User, (user) => user.contacts)
-  @JoinColumn()
-  owner: User | null
-
-  @Column({ type: 'uuid', nullable: true, select: false })
-  ownerId: string | null
-
+export class Contact extends Ownerful {
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
   accountId: string | null
 
