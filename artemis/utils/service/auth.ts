@@ -15,6 +15,9 @@ export const logInToPoseidon = () =>
       },
       {
         withCredentials: false,
+        headers: {
+          'x-forward-to': 'cms',
+        },
       },
     )
     .then((res) => res.data)

@@ -11,6 +11,7 @@ export const createBug = (token: string) => (data: BugSubmitPayload) =>
         withCredentials: false,
         headers: {
           authorization: 'Bearer ' + token,
+          'x-forward-to': 'cms',
         },
       },
     )
