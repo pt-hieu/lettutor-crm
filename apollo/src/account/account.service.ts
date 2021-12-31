@@ -24,6 +24,28 @@ export class AccountService {
       throw new NotFoundException(`Account not found`)
     }
 
+    let tasksToDisplay = []
+
+    account.tasks
+      ? (tasksToDisplay = tasksToDisplay.concat(account.tasks))
+      : undefined
+
+    account.deals
+      ? account.deals.forEach((deal) => {
+          tasksToDisplay = tasksToDisplay.concat(deal.tasks)
+        })
+      : undefined
+
+    account.contacts
+      ? account.contacts.forEach((contact) => {
+          tasksToDisplay = tasksToDisplay.concat(contact.tasks)
+        })
+      : undefined
+
+    account['tasksToDisplay'] = [
+      ...new Map(tasksToDisplay.map((o) => [o.id, o])).values(),
+    ]
+
     if (trace) {
       await this.utilService.loadTraceInfo(account)
     }

@@ -154,8 +154,7 @@ export class LeadService {
     }
 
     await this.taskService.updateAllTasks(tasks)
-
-    await this.leadRepo.softDelete(lead)
+    await this.leadRepo.softDelete({ id: lead.id })
 
     return [account, contact, deal] as const
   }

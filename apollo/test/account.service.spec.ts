@@ -93,6 +93,7 @@ describe('account service', () => {
 
   describe('view account detail', () => {
     it('should view account detail success', async () => {
+      account['tasksToDisplay'] = []
       accountRepo.findOne.mockReturnValue({ ...account })
 
       expect(

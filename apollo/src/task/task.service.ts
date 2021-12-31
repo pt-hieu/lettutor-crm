@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
@@ -20,6 +26,7 @@ export class TaskService {
     private readonly accountService: AccountService,
     private readonly userService: UserService,
     private readonly contactService: ContactService,
+    @Inject(forwardRef(() => LeadService))
     private readonly leadService: LeadService,
     private readonly dealService: DealService,
   ) {}

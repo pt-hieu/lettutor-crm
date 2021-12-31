@@ -29,7 +29,6 @@ describe('lead service', () => {
   let accountRepo: MockType<Repository<Account>>
   let dealRepo: MockType<Repository<Deal>>
   let userRepo: MockType<Repository<User>>
-  let taskRepo: MockType<Repository<Task>>
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -90,7 +89,6 @@ describe('lead service', () => {
     userRepo = ref.get(getRepositoryToken(User))
     accountRepo = ref.get(getRepositoryToken(Account))
     dealRepo = ref.get(getRepositoryToken(Deal))
-    taskRepo = ref.get(getRepositoryToken(Task))
     leadService = ref.get(LeadService)
   })
 
@@ -202,7 +200,10 @@ describe('lead service', () => {
       userRepo.findOne.mockReturnValue({ ...user })
       leadRepo.findOne.mockReturnValue({ ...lead })
       accountRepo.save.mockReturnValue({ ...account })
+      accountRepo.findOne.mockReturnValue({ ...account })
+      contactRepo.save.mockReturnValue({ ...contact })
       leadRepo.save.mockReturnValue({ ...contact })
+      leadRepo.softDelete.mockReturnValue({ ...lead })
 
       expect(await leadService.convert(lead.id, dto, false, undefined)).toEqual(
         [account, contact, null],
@@ -222,8 +223,10 @@ describe('lead service', () => {
       accountRepo.save.mockReturnValue({ ...account })
       leadRepo.save.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue({ ...account })
+      contactRepo.save.mockReturnValue({ ...contact })
       contactRepo.findOne.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
+      leadRepo.softDelete.mockReturnValue({ ...lead })
 
       expect(await leadService.convert(lead.id, dto, true, undefined)).toEqual([
         account,
