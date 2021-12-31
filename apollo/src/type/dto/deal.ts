@@ -46,12 +46,20 @@ export class AddDeal {
   @Type(() => Date)
   closingDate: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: LeadSource,
+    enum: LeadSource,
+    enumName: 'LeadSource',
+  })
   @IsOptional()
   @IsEnum(LeadSource)
   source?: LeadSource
@@ -88,7 +96,11 @@ export class ConvertToDeal {
   @Type(() => Date)
   closingDate: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
@@ -144,12 +156,20 @@ export class UpdateDeal {
   @Type(() => Date)
   closingDate?: Date
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: DealStage,
+    enum: DealStage,
+    enumName: 'DealStage',
+  })
   @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    type: LeadSource,
+    enum: LeadSource,
+    enumName: 'LeadSource',
+  })
   @IsOptional()
   @IsEnum(LeadSource)
   source?: LeadSource
@@ -164,4 +184,10 @@ export class UpdateDeal {
   @IsString()
   @MaxLength(500)
   description?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reasonForLoss?: string
 }

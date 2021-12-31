@@ -118,6 +118,7 @@ export const deal: Deal = {
   updatedBy: null,
   createdById: null,
   updatedById: null,
+  notes: [],
 }
 
 export const task: Task = {

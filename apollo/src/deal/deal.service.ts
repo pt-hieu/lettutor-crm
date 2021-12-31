@@ -1,9 +1,16 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
-import { ContactService } from 'src/contact/contact.service'
 import { UtilService } from 'src/global/util.service'
+import { ContactService } from 'src/contact/contact.service'
+import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
@@ -16,6 +23,8 @@ export class DealService {
     private dealRepo: Repository<Deal>,
     private readonly accountService: AccountService,
     private readonly userService: UserService,
+    @Inject(forwardRef(() => NoteService))
+    private readonly noteService: NoteService,
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
   ) {}
@@ -87,6 +96,15 @@ export class DealService {
 
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
+
+    if (dto.reasonForLoss) {
+      let note: DTO.Note.AddNote
+      note.ownerId = dto.ownerId
+      note.dealId = id
+      note.title = dto.stage
+      note.content = dto.reasonForLoss
+      this.noteService.addNote(note)
+    }
 
     return this.dealRepo.save({
       ...deal,

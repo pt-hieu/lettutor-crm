@@ -1,4 +1,5 @@
 import { Account } from 'src/account/account.entity'
+import { Note } from 'src/note/note.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { LeadSource } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
@@ -64,4 +65,7 @@ export class Deal extends BaseEntity {
 
   @OneToMany(() => Task, (task) => task.deal)
   tasks: Task[]
+
+  @OneToMany(() => Note, (note) => note.deal)
+  notes: Note[]
 }

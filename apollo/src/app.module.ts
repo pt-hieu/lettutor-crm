@@ -16,6 +16,7 @@ import { HttpModule } from '@nestjs/axios'
 import { BaseSubscriber } from './base.subscriber'
 import { GlobalModule } from './global/global.module'
 import { TaskModule } from './task/task.module'
+import { NoteModule } from './note/note.module'
 import { LeadModule } from './lead/lead.module'
 import { ContactModule } from './contact/contact.module'
 
@@ -45,6 +46,7 @@ import { ContactModule } from './contact/contact.module'
     WebhookModule,
     HttpModule,
     TaskModule,
+    NoteModule,
     GlobalModule,
   ],
   providers: [
