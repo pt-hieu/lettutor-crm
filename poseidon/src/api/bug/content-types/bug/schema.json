@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bugs",
+  "info": {
+    "singularName": "bug",
+    "pluralName": "bugs",
+    "displayName": "Bug",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "subject": {
+      "type": "string",
+      "required": false,
+      "maxLength": 100
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "maxLength": 300
+    },
+    "email": {
+      "type": "email",
+      "required": false
+    }
+  }
+}
