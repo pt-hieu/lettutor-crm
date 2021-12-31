@@ -168,12 +168,16 @@ const AccountDetail = () => {
 
   const openTasks = useMemo(
     () =>
-      account?.tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
+      account?.tasksToDisplay?.filter(
+        (task) => task.status !== TaskStatus.COMPLETED,
+      ),
     [account],
   )
   const closedTasks = useMemo(
     () =>
-      account?.tasks?.filter((task) => task.status === TaskStatus.COMPLETED),
+      account?.tasksToDisplay?.filter(
+        (task) => task.status === TaskStatus.COMPLETED,
+      ),
     [account],
   )
   return (

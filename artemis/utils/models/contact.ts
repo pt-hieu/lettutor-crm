@@ -4,5 +4,5 @@ import { Task } from './task'
 
 export interface Contact extends Lead {
   deals: Deal[]
-  tasksOfContact: Task[]
+  tasks: Task[]
 }

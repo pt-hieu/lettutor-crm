@@ -234,6 +234,9 @@ const TaskDetail = () => {
 
   const submit = useCallback(
     handleSubmit((data) => {
+      if (!data.dueDate) {
+        data.dueDate = null
+      }
       handleUpdateTask(data)
     }),
     [id],
