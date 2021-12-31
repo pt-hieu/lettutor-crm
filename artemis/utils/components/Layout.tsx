@@ -7,6 +7,8 @@ import Footer from './Footer'
 import { OG } from './OpenGraph'
 import { useQueryClient } from 'react-query'
 import { GlobalState } from '@utils/GlobalStateKey'
+import BugReporter from './BugReporter'
+import PoseidonAuth from './PoseidonAuth'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })
 
@@ -46,7 +48,10 @@ function Layout({
     <>
       <Head>
         <title>{title || 'Artemis CRM'}</title>
-        <meta name="description" content={description || "Artemis CRM &copy; 2021"} />
+        <meta
+          name="description"
+          content={description || 'Artemis CRM &copy; 2021'}
+        />
         <meta
           name="keywords"
           content={
@@ -55,6 +60,13 @@ function Layout({
           }
         />
       </Head>
+
+      {process.env.NODE_ENV === 'production' && (
+        <>
+          <BugReporter />
+          <PoseidonAuth />
+        </>
+      )}
 
       {requireLogin && <RequireLogin />}
       {(session || !requireLogin) && (
