@@ -17,13 +17,10 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-ARG domain=https://artemis.web-crm.software
-ARG api=https://artemis.web-crm.software/v1
-
-ENV NEXTAUTH_URL=$domain
-ENV NEXT_PUBLIC_API=$api
-ENV NEXT_PUBLIC_ARTEMIS_URL=$domain
-ENV NEXT_PUBLIC_POSEIDON_API=$domain
+ENV NEXTAUTH_URL=https://artemis.web-crm.software
+ENV NEXT_PUBLIC_API=https://artemis.web-crm.software/v1
+ENV NEXT_PUBLIC_ARTEMIS_URL=https://artemis.web-crm.software
+ENV NEXT_PUBLIC_POSEIDON_API=https://artemis.web-crm.software
 
 ENV NEXT_PUBLIC_POSEIDON_IDENTIFIER=artemis@mail.com
 ENV NEXT_PUBLIC_POSEIDON_PASSWORD=Admin@123
