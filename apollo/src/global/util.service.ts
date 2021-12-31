@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Actions } from 'src/type/action'
 import { Ownerful } from 'src/utils/owner.entity'
 import { UserService } from '../user/user.service'
 import { BaseEntity } from '../utils/base.entity'
@@ -33,5 +34,17 @@ export class UtilService {
 
   public checkOwnership(entity: Ownerful) {
     return entity.ownerId === this.payloadService.data.id
+  }
+
+  public checkRoleAction(requiredActions: Actions[]) {
+    requiredActions.forEach((requiredAction) => {
+      const value = this.payloadService.data.roles.some(
+        ({ actions }) =>
+          actions.includes(Actions.IS_ADMIN) ||
+          actions.includes(requiredAction),
+      )
+      if (!value) return false
+    })
+    return true
   }
 }
