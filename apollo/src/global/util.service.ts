@@ -37,14 +37,16 @@ export class UtilService {
   }
 
   public checkRoleAction(requiredActions: Actions[]) {
+    let value = true
     requiredActions.forEach((requiredAction) => {
-      const value = this.payloadService.data.roles.some(
-        ({ actions }) =>
-          actions.includes(Actions.IS_ADMIN) ||
-          actions.includes(requiredAction),
-      )
-      if (!value) return false
+      value =
+        value &&
+        this.payloadService.data.roles.some(
+          ({ actions }) =>
+            actions.includes(Actions.IS_ADMIN) ||
+            actions.includes(requiredAction),
+        )
     })
-    return true
+    return value
   }
 }
