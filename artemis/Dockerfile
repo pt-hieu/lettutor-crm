@@ -15,15 +15,6 @@ FROM node:alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
-
-ENV NEXTAUTH_URL=https://artemis.web-crm.software
-ENV NEXT_PUBLIC_API=https://artemis.web-crm.software/v1
-ENV NEXT_PUBLIC_ARTEMIS_URL=https://artemis.web-crm.software
-ENV NEXT_PUBLIC_POSEIDON_API=https://artemis.web-crm.software
-
-ENV NEXT_PUBLIC_POSEIDON_IDENTIFIER=artemis@mail.com
-ENV NEXT_PUBLIC_POSEIDON_PASSWORD=Admin@123
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
