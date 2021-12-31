@@ -2,7 +2,7 @@ import { DTO } from 'src/type'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockType, repositoryMockFactory, mockQueryBuilder } from './utils'
 import { Repository } from 'typeorm'
-import { account, contact, deal, lead, task, user } from './data'
+import { account, contact, deal, task, user } from './data'
 import { Deal } from 'src/deal/deal.entity'
 import { DealService } from 'src/deal/deal.service'
 import { getRepositoryToken } from '@nestjs/typeorm'
@@ -21,13 +21,13 @@ import { Lead } from 'src/lead/lead.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
+import { PayloadService } from 'src/global/payload.service'
 
 describe('task service', () => {
   let taskRepo: MockType<Repository<Deal>>
   let taskService: TaskService
   let dealRepo: MockType<Repository<Deal>>
   let accountRepo: MockType<Repository<Account>>
-  let leadRepo: MockType<Repository<Lead>>
   let contactRepo: MockType<Repository<Contact>>
   let userRepo: MockType<Repository<User>>
 
@@ -39,8 +39,8 @@ describe('task service', () => {
         AccountService,
         ContactService,
         UserService,
-        LeadService,
         UtilService,
+        PayloadService,
         {
           provide: MailService,
           useValue: {
@@ -52,6 +52,12 @@ describe('task service', () => {
           provide: NoteService,
           useValue: {
             addNote: jest.fn(),
+          },
+        },
+        {
+          provide: LeadService,
+          useValue: {
+            getLeadById: jest.fn(),
           },
         },
         {
@@ -88,7 +94,6 @@ describe('task service', () => {
     taskRepo = ref.get(getRepositoryToken(Task))
     taskService = ref.get(TaskService)
     dealRepo = ref.get(getRepositoryToken(Deal))
-    leadRepo = ref.get(getRepositoryToken(Lead))
     contactRepo = ref.get(getRepositoryToken(Contact))
     accountRepo = ref.get(getRepositoryToken(Account))
     userRepo = ref.get(getRepositoryToken(User))
@@ -103,7 +108,6 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadRepo.findOne.mockReturnValue({ ...lead })
       taskRepo.save.mockReturnValue({ ...task })
 
       expect(await taskService.addTask(dto)).toEqual(task)
@@ -154,20 +158,20 @@ describe('task service', () => {
       )
     })
 
-    it('should throw not found exception when lead not found', async () => {
-      const dto: DTO.Task.AddTask = {
-        ownerId: task.ownerId,
-        leadId: task.leadId,
-        subject: task.subject,
-      }
+    // it('should throw not found exception when lead not found', async () => {
+    //   const dto: DTO.Task.AddTask = {
+    //     ownerId: task.ownerId,
+    //     leadId: task.leadId,
+    //     subject: task.subject,
+    //   }
 
-      userRepo.findOne.mockReturnValue({ ...user })
-      leadRepo.findOne.mockReturnValue(undefined)
+    //   userRepo.findOne.mockReturnValue({ ...user })
+    //   leadRepo.findOne.mockReturnValue(undefined)
 
-      expect(taskService.addTask(dto)).rejects.toThrow(
-        new NotFoundException(`Lead not found`),
-      )
-    })
+    //   expect(taskService.addTask(dto)).rejects.toThrow(
+    //     new NotFoundException(`Lead not found`),
+    //   )
+    // })
 
     it('should throw not found exception when contact not found', async () => {
       const dto: DTO.Task.AddTask = {
@@ -268,7 +272,6 @@ describe('task service', () => {
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
-      leadRepo.findOne.mockReturnValue({ ...lead })
       taskRepo.findOne.mockReturnValue({ ...task })
       taskRepo.save.mockReturnValue({ ...task })
 
@@ -288,7 +291,6 @@ describe('task service', () => {
         accountId: null,
       }
       userRepo.findOne.mockReturnValue({ ...user })
-      leadRepo.findOne.mockReturnValue({ ...lead })
       taskRepo.findOne.mockReturnValue({ ...task })
       taskRepo.save.mockReturnValue(result)
 
@@ -329,20 +331,20 @@ describe('task service', () => {
         new NotFoundException(`Task not found`),
       )
     })
-    it('should throw not found exception when lead not found', async () => {
-      const dto: DTO.Task.UpdateBody = {
-        ownerId: task.ownerId,
-        leadId: task.leadId,
-      }
+    // it('should throw not found exception when lead not found', async () => {
+    //   const dto: DTO.Task.UpdateBody = {
+    //     ownerId: task.ownerId,
+    //     leadId: task.leadId,
+    //   }
 
-      userRepo.findOne.mockReturnValue({ ...user })
-      taskRepo.findOne.mockReturnValue({ ...task })
-      leadRepo.findOne.mockReturnValue(undefined)
+    //   userRepo.findOne.mockReturnValue({ ...user })
+    //   taskRepo.findOne.mockReturnValue({ ...task })
+    //   leadRepo.findOne.mockReturnValue(undefined)
 
-      expect(taskService.update(task.id, dto)).rejects.toThrow(
-        new NotFoundException(`Lead not found`),
-      )
-    })
+    //   expect(taskService.update(task.id, dto)).rejects.toThrow(
+    //     new NotFoundException(`Lead not found`),
+    //   )
+    // })
     it('should throw not found exception when contact not found', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,

@@ -12,6 +12,7 @@ import { UserService } from 'src/user/user.service'
 import { Role, User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
 import { UtilService } from 'src/global/util.service'
+import { PayloadService } from 'src/global/payload.service'
 
 describe('account service', () => {
   let accountService: AccountService
@@ -24,6 +25,7 @@ describe('account service', () => {
         AccountService,
         UserService,
         UtilService,
+        PayloadService,
         {
           provide: MailService,
           useValue: {
@@ -93,6 +95,7 @@ describe('account service', () => {
 
   describe('view account detail', () => {
     it('should view account detail success', async () => {
+      account['tasksToDisplay'] = []
       accountRepo.findOne.mockReturnValue({ ...account })
 
       expect(

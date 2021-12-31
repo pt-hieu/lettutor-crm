@@ -17,6 +17,7 @@ import { Contact } from 'src/contact/contact.entity'
 import { ContactService } from 'src/contact/contact.service'
 import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
+import { PayloadService } from 'src/global/payload.service'
 
 describe('contact service', () => {
   let contactRepo: MockType<Repository<Contact>>
@@ -32,6 +33,7 @@ describe('contact service', () => {
         DealService,
         UserService,
         UtilService,
+        PayloadService,
         {
           provide: MailService,
           useValue: {

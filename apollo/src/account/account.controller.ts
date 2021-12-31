@@ -31,7 +31,17 @@ export class AccountController {
     return this.service.getAccountById(
       {
         where: { id },
-        relations: ['owner', 'deals', 'tasks', 'tasks.owner'],
+        relations: [
+          'owner',
+          'deals',
+          'tasks',
+          'tasks.owner',
+          'deals.tasks',
+          'deals.tasks.owner',
+          'contacts',
+          'contacts.tasks',
+          'contacts.tasks.owner',
+        ],
       },
       true,
     )

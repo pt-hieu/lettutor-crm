@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
@@ -20,6 +26,7 @@ export class TaskService {
     private readonly accountService: AccountService,
     private readonly userService: UserService,
     private readonly contactService: ContactService,
+    @Inject(forwardRef(() => LeadService))
     private readonly leadService: LeadService,
     private readonly dealService: DealService,
   ) {}
@@ -125,7 +132,14 @@ export class TaskService {
       return this.taskRepo.save({ ...task, ...dto })
     }
 
-    if (dto.accountId) dto.dealId = null
+    if (dto.contactId) {
+      dto.leadId = null
+      dto.accountId
+        ? (dto.dealId = null)
+        : dto.dealId
+        ? (dto.accountId = null)
+        : undefined
+    }
 
     await Promise.all([
       dto.contactId
@@ -142,5 +156,9 @@ export class TaskService {
     ])
 
     return this.taskRepo.save({ ...task, ...dto })
+  }
+
+  async updateAllTasks(tasks: Task[]) {
+    await this.taskRepo.save(tasks)
   }
 }

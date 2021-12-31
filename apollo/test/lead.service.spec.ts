@@ -19,6 +19,9 @@ import { ContactService } from 'src/contact/contact.service'
 import { Contact } from 'src/contact/contact.entity'
 import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
+import { TaskService } from 'src/task/task.service'
+import { Task } from 'src/task/task.entity'
+import { PayloadService } from 'src/global/payload.service'
 
 describe('lead service', () => {
   let leadService: LeadService
@@ -37,6 +40,8 @@ describe('lead service', () => {
         UserService,
         ContactService,
         UtilService,
+        TaskService,
+        PayloadService,
         {
           provide: MailService,
           useValue: {
@@ -72,6 +77,10 @@ describe('lead service', () => {
         },
         {
           provide: getRepositoryToken(Contact),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Task),
           useFactory: repositoryMockFactory,
         },
       ],
@@ -193,7 +202,10 @@ describe('lead service', () => {
       userRepo.findOne.mockReturnValue({ ...user })
       leadRepo.findOne.mockReturnValue({ ...lead })
       accountRepo.save.mockReturnValue({ ...account })
+      accountRepo.findOne.mockReturnValue({ ...account })
+      contactRepo.save.mockReturnValue({ ...contact })
       leadRepo.save.mockReturnValue({ ...contact })
+      leadRepo.softDelete.mockReturnValue({ ...lead })
 
       expect(await leadService.convert(lead.id, dto, false, undefined)).toEqual(
         [account, contact, null],
@@ -213,8 +225,10 @@ describe('lead service', () => {
       accountRepo.save.mockReturnValue({ ...account })
       leadRepo.save.mockReturnValue({ ...contact })
       accountRepo.findOne.mockReturnValue({ ...account })
+      contactRepo.save.mockReturnValue({ ...contact })
       contactRepo.findOne.mockReturnValue({ ...contact })
       dealRepo.save.mockReturnValue({ ...deal })
+      leadRepo.softDelete.mockReturnValue({ ...lead })
 
       expect(await leadService.convert(lead.id, dto, true, undefined)).toEqual([
         account,

@@ -12,7 +12,6 @@ import {
 } from 'class-validator'
 import { DealStage } from 'src/deal/deal.entity'
 import { LeadSource } from 'src/lead/lead.entity'
-import { Task } from 'src/task/task.entity'
 import { Double } from 'typeorm'
 import { Paginate } from './paging'
 
@@ -74,9 +73,6 @@ export class AddDeal {
   @IsString()
   @MaxLength(500)
   description?: string
-
-  @IsOptional()
-  tasks?: Task[]
 }
 
 export class ConvertToDeal {

@@ -57,6 +57,7 @@ export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(
     getManyAndCount: jest.fn(),
     groupBy: jest.fn(),
     leftJoin: jest.fn(),
+    softDelete: jest.fn(),
   }),
 )
 
