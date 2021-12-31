@@ -1,11 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import {
-  IsOptional,
-  IsString,
-  IsUUID,
-  MaxLength,
-} from 'class-validator'
+import { IsOptional, IsString, IsUUID, MaxLength } from 'class-validator'
 
 export class AddNote {
   @ApiProperty()

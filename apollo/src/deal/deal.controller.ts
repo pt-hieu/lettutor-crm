@@ -37,7 +37,14 @@ export class DealController {
     return this.service.getDealById(
       {
         where: { id },
-        relations: ['owner', 'account', 'contact', 'tasks', 'tasks.owner', 'notes'],
+        relations: [
+          'owner',
+          'account',
+          'contact',
+          'tasks',
+          'tasks.owner',
+          'notes',
+        ],
       },
       true,
     )

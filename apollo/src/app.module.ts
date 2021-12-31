@@ -62,4 +62,4 @@ import { ContactModule } from './contact/contact.module'
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

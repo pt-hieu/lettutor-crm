@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DealService } from 'src/deal/deal.service'
 import { DTO } from 'src/type'
@@ -14,7 +14,7 @@ export class NoteService {
     @Inject(forwardRef(() => DealService))
     private readonly dealService: DealService,
     private readonly userService: UserService,
-  ) { }
+  ) {}
 
   async addNote(dto: DTO.Note.AddNote) {
     await Promise.all([

@@ -1,8 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-} from '@nestjs/common'
+import { Body, Controller, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { NoteService } from './note.service'
@@ -11,7 +7,7 @@ import { NoteService } from './note.service'
 @ApiBearerAuth('jwt')
 @Controller('note')
 export class NoteController {
-  constructor(private readonly service: NoteService) { }
+  constructor(private readonly service: NoteService) {}
 
   @Post()
   @ApiOperation({ summary: 'to add new note manually' })
