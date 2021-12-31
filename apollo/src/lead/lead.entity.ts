@@ -24,7 +24,7 @@ export enum LeadSource {
   GOOGLE = 'Google',
 }
 
-@Entity({ name: 'lead_contact' })
+@Entity({ name: 'lead' })
 export class Lead extends BaseEntity {
   @ManyToOne(() => User, (user) => user.leads)
   @JoinColumn()

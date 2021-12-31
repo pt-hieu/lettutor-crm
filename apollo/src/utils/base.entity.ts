@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Column,
+  DeleteDateColumn,
 } from 'typeorm'
 
 export abstract class BaseEntity {
@@ -28,4 +29,7 @@ export abstract class BaseEntity {
   updatedById: string | null
 
   updatedBy: User | null
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  public deletedAt: Date
 }

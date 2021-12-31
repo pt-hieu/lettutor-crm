@@ -19,6 +19,8 @@ import { ContactService } from 'src/contact/contact.service'
 import { Contact } from 'src/contact/contact.entity'
 import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
+import { TaskService } from 'src/task/task.service'
+import { Task } from 'src/task/task.entity'
 
 describe('lead service', () => {
   let leadService: LeadService
@@ -27,6 +29,7 @@ describe('lead service', () => {
   let accountRepo: MockType<Repository<Account>>
   let dealRepo: MockType<Repository<Deal>>
   let userRepo: MockType<Repository<User>>
+  let taskRepo: MockType<Repository<Task>>
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
@@ -37,6 +40,7 @@ describe('lead service', () => {
         UserService,
         ContactService,
         UtilService,
+        TaskService,
         {
           provide: MailService,
           useValue: {
@@ -74,6 +78,10 @@ describe('lead service', () => {
           provide: getRepositoryToken(Contact),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: getRepositoryToken(Task),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile()
 
@@ -82,6 +90,7 @@ describe('lead service', () => {
     userRepo = ref.get(getRepositoryToken(User))
     accountRepo = ref.get(getRepositoryToken(Account))
     dealRepo = ref.get(getRepositoryToken(Deal))
+    taskRepo = ref.get(getRepositoryToken(Task))
     leadService = ref.get(LeadService)
   })
 

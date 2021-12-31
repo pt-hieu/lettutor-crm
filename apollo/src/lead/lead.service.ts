@@ -9,6 +9,10 @@ import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
 import { UserService } from 'src/user/user.service'
 import { UtilService } from 'src/global/util.service'
+import { ContactService } from 'src/contact/contact.service'
+import { User } from 'src/user/user.entity'
+import { Task } from 'src/task/task.entity'
+import { TaskService } from 'src/task/task.service'
 
 @Injectable()
 export class LeadService {
@@ -18,6 +22,8 @@ export class LeadService {
     private readonly accountService: AccountService,
     private readonly dealService: DealService,
     private readonly userService: UserService,
+    private readonly contactService: ContactService,
+    private readonly taskService: TaskService,
     private readonly utilService: UtilService,
   ) {}
 
@@ -87,46 +93,69 @@ export class LeadService {
   ) {
     const lead = await this.getLeadById({
       where: { id },
-      relations: ['owner', 'tasksOfLead', 'tasksOfLead.owner'],
+      relations: ['owner', 'tasks', 'tasks.owner'],
     })
 
+    let newOwner: User
     if (ownerId) {
-      const newOwner = await this.userService.getOneUserById({
+      newOwner = await this.userService.getOneUserById({
         where: { id: ownerId },
       })
-      lead.owner = newOwner
-      await this.leadRepo.save(lead)
     }
 
     const accountDto: DTO.Account.AddAccount = {
-      ownerId: lead.owner ? lead.owner.id : null,
+      ownerId: newOwner ? newOwner.id : lead.owner ? lead.owner.id : null,
       fullName: lead.fullName + ' Account',
       address: lead.address,
       description: lead.description,
       phoneNum: lead.phoneNum,
-      tasks: lead.tasks,
     }
 
     const account = await this.accountService.addAccount(accountDto)
 
-    const contact = await this.leadRepo.save({
-      ...lead,
-      tasksOfContact: lead.tasks,
+    const contactDto: DTO.Contact.AddContact = {
+      ownerId: newOwner ? newOwner.id : lead.owner ? lead.owner.id : null,
       accountId: account.id,
-    })
+      fullName: lead.fullName,
+      email: lead.email,
+      source: lead.source,
+      address: lead.address,
+      description: lead.description,
+      phoneNum: lead.phoneNum,
+      socialAccount: lead.socialAccount,
+    }
 
+    const contact = await this.contactService.addContact(contactDto)
+
+    const tasks: Task[] = lead.tasks
     let deal: Deal | null = null
     if (shouldConvertToDeal) {
       const dto: DTO.Deal.AddDeal = {
         ownerId: lead.owner ? lead.owner.id : null,
         accountId: account.id,
         contactId: contact.id,
-        tasks: lead.tasks,
         ...dealDto,
       }
 
       deal = await this.dealService.addDeal(dto)
+      // update tasks of lead with deal and contact
+      tasks.forEach((task) => {
+        task.leadId = null
+        task.dealId = deal.id
+        task.contactId = contact.id
+      })
+    } else {
+      // update tasks of lead with account and contact
+      tasks.forEach((task) => {
+        task.leadId = null
+        task.accountId = account.id
+        task.contactId = contact.id
+      })
     }
+
+    await this.taskService.updateAllTasks(tasks)
+
+    await this.leadRepo.softDelete(lead)
 
     return [account, contact, deal] as const
   }

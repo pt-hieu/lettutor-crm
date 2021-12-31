@@ -125,7 +125,14 @@ export class TaskService {
       return this.taskRepo.save({ ...task, ...dto })
     }
 
-    if (dto.accountId) dto.dealId = null
+    if (dto.contactId) {
+      dto.leadId = null
+      dto.accountId
+        ? (dto.dealId = null)
+        : dto.dealId
+        ? (dto.accountId = null)
+        : undefined
+    }
 
     await Promise.all([
       dto.contactId
@@ -142,5 +149,9 @@ export class TaskService {
     ])
 
     return this.taskRepo.save({ ...task, ...dto })
+  }
+
+  async updateAllTasks(tasks: Task[]) {
+    await this.taskRepo.save(tasks)
   }
 }
