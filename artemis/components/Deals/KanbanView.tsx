@@ -2,7 +2,7 @@ import { Deal, DealStage } from '@utils/models/deal'
 import { Paginate } from '@utils/models/paging'
 import { notification, Tooltip } from 'antd'
 import moment from 'moment'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import Link from 'next/link'
 import {
   Draggable,
@@ -13,6 +13,9 @@ import {
 import { Task } from '@utils/models/task'
 import { useMutation, useQueryClient } from 'react-query'
 import { updateDeal } from '@utils/service/deal'
+import { useModal } from '@utils/hooks/useModal'
+import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
+import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
 
 type Props = {
   data: Paginate<Deal> | undefined
@@ -82,6 +85,14 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
     return moment().isBefore(nearestTask?.dueDate) ? nearestTask : undefined
   }, [])
 
+  const [visibleConfirmClosedWon, openConfirmCloseWon, closeConfirmCloseWon] =
+    useModal()
+  const [
+    visibleConfirmClosedLost,
+    openConfirmCloseLost,
+    closeConfirmCloseLost,
+  ] = useModal()
+
   const client = useQueryClient()
 
   const { mutateAsync, isLoading } = useMutation(
@@ -110,20 +121,73 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
     },
   )
 
+  const [dealId, setDealId] = useState<string | undefined>()
+  const [closeStage, setCloseStage] =
+    useState<
+      DealStage.CLOSED_LOST | DealStage.CLOSED_LOST_TO_COMPETITION | undefined
+    >()
+
+  const finishDeal = (newDeal: Deal) => {
+    const id = newDeal.id
+    const amount = newDeal.amount
+    const closingDate = newDeal.closingDate
+    const stage = newDeal.stage
+
+    mutateAsync({
+      id: id,
+      dealInfo: { amount, closingDate, stage },
+    })
+  }
+
   const handleDragEnd: OnDragEndResponder = useCallback((res) => {
     if (!res.destination) return
     if (res.destination.droppableId === res.source.droppableId) return
 
-    // HLC-79, HLC-80: here
+    const dealId = res.draggableId
+
+    if (res.destination.droppableId === DealStage.CLOSED_WON) {
+      setDealId(dealId)
+      openConfirmCloseWon()
+      return
+    }
+
+    if (
+      res.destination.droppableId === DealStage.CLOSED_LOST ||
+      res.destination.droppableId === DealStage.CLOSED_LOST_TO_COMPETITION
+    ) {
+      setDealId(dealId)
+      setCloseStage(res.destination.droppableId)
+      openConfirmCloseLost()
+      return
+    }
 
     mutateAsync({
-      id: res.draggableId,
+      id: dealId,
       dealInfo: { stage: res.destination.droppableId },
     })
   }, [])
 
+  const chosenDeal = deals?.items.find((deal) => deal.id === dealId)
+
   return (
     <div className="w-full overflow-x-auto flex gap-3 min-h-[calc(100vh-204px)] crm-scrollbar pb-4">
+      {chosenDeal && (
+        <ConfirmClosedWon
+          deal={chosenDeal}
+          visible={visibleConfirmClosedWon}
+          onCloseModal={closeConfirmCloseWon}
+          onUpdateDeal={finishDeal}
+        />
+      )}
+      {chosenDeal && closeStage && (
+        <ConfirmClosedLost
+          deal={chosenDeal}
+          stage={closeStage}
+          visible={visibleConfirmClosedLost}
+          onCloseModal={closeConfirmCloseLost}
+          onUpdateDeal={finishDeal}
+        />
+      )}
       <DragDropContext onDragEnd={handleDragEnd}>
         {Object.values(DealStage).map((stage) => (
           <Droppable isDropDisabled={isLoading} key={stage} droppableId={stage}>
