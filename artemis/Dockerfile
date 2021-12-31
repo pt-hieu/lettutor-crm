@@ -15,6 +15,18 @@ FROM node:alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+ARG domain=https://artemis.web-crm.software
+ARG api=https://artemis.web-crm.software/v1
+
+ENV NEXTAUTH_URL=${domain}
+ENV NEXT_PUBLIC_API=${api}
+ENV NEXT_PUBLIC_ARTEMIS_URL=${domain}
+ENV NEXT_PUBLIC_POSEIDON_API=${domain}
+
+ENV NEXT_PUBLIC_POSEIDON_IDENTIFIER=artemis@mail.com
+ENV NEXT_PUBLIC_POSEIDON_PASSWORD=Admin@123
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
@@ -30,18 +42,5 @@ USER nextjs
 EXPOSE 3000
 
 LABEL project="crm"
-
-ENV NEXT_TELEMETRY_DISABLED 1
-
-ARG domain=https://artemis.web-crm.software
-ARG api=https://artemis.web-crm.software/v1
-
-ENV NEXTAUTH_URL=${domain}
-ENV NEXT_PUBLIC_API=${api}
-ENV NEXT_PUBLIC_ARTEMIS_URL=${domain}
-ENV NEXT_PUBLIC_POSEIDON_API=${domain}
-
-ENV NEXT_PUBLIC_POSEIDON_IDENTIFIER=artemis@mail.com
-ENV NEXT_PUBLIC_POSEIDON_PASSWORD=Admin@123
 
 CMD ["yarn", "start"]
