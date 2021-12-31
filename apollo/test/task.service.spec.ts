@@ -20,6 +20,7 @@ import { LeadService } from 'src/lead/lead.service'
 import { Lead } from 'src/lead/lead.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { UtilService } from 'src/global/util.service'
+import { NoteService } from 'src/note/note.service'
 
 describe('task service', () => {
   let taskRepo: MockType<Repository<Deal>>
@@ -45,6 +46,12 @@ describe('task service', () => {
           useValue: {
             sendResetPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
             sendAddPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+          },
+        },
+        {
+          provide: NoteService,
+          useValue: {
+            addNote: jest.fn(),
           },
         },
         {

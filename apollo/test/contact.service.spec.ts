@@ -16,6 +16,7 @@ import { MailService } from 'src/mail/mail.service'
 import { Contact } from 'src/contact/contact.entity'
 import { ContactService } from 'src/contact/contact.service'
 import { UtilService } from 'src/global/util.service'
+import { NoteService } from 'src/note/note.service'
 
 describe('contact service', () => {
   let contactRepo: MockType<Repository<Contact>>
@@ -36,6 +37,12 @@ describe('contact service', () => {
           useValue: {
             sendResetPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
             sendAddPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+          },
+        },
+        {
+          provide: NoteService,
+          useValue: {
+            addNote: jest.fn(),
           },
         },
         {

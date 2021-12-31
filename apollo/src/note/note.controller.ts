@@ -15,7 +15,7 @@ export class NoteController {
 
   @Post()
   @ApiOperation({ summary: 'to add new note manually' })
-  addDeal(@Body() dto: DTO.Note.AddNote) {
+  addNote(@Body() dto: DTO.Note.AddNote) {
     return this.service.addNote(dto)
   }
 }

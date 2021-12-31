@@ -67,5 +67,5 @@ export class Deal extends BaseEntity {
   tasks: Task[]
 
   @OneToMany(() => Note, (note) => note.deal)
-  notes: Task[]
+  notes: Note[]
 }
