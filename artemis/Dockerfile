@@ -8,6 +8,8 @@ RUN yarn install --frozen-lockfile
 
 COPY ./ ./
 
+ENV NEXTAUTH_URL https://artemis.web-crm.software
+
 RUN npm install -g typescript
 RUN yarn build && yarn --production --ignore-scripts --prefer-offline
 
