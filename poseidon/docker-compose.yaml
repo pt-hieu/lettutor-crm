@@ -4,7 +4,10 @@ services:
     container_name: postgres-poseidon
     image: postgres:alpine
     ports:
-      - "5433:5432"
+      - "5433:5433"
+    expose:
+      - 5433
+    command: -p 5433
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
