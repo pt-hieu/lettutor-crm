@@ -15,9 +15,6 @@ COPY config/ config/
 
 RUN yarn build
 
-ENV DATABASE_HOST=postgres-poseidon
-ENV DATABASE_PORT=5433
-
 EXPOSE 1337
 
 CMD ["yarn", "start"]

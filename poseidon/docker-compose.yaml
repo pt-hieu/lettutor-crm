@@ -1,10 +1,10 @@
 version: "3.9"
 services:
   postgres-poseidon:
-    container_name: postgres
+    container_name: postgres-poseidon
     image: postgres:alpine
     ports:
-      - "5433:5433"
+      - "5433:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -13,11 +13,14 @@ services:
     volumes:
       - postgres-poseidon:/data/postgres
 
-  apollo:
+  poseidon:
     container_name: poseidon
     image: ghcr.io/pt-hieu/lettutor-crm:poseidon
     depends_on:
       - postgres-poseidon
+    environment:
+      - DATABASE_HOST=postgres-poseidon
+      - DATABASE_PORT=5433
     ports:
       - "1337:1337"
 
