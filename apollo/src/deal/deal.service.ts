@@ -47,6 +47,16 @@ export class DealService {
         'tasks.id',
       ])
 
+    if (query.isCurrentMonth) {
+      const d = new Date()
+      const beginDate = new Date(d.getFullYear(), d.getMonth(), 2)
+      const endDate = new Date(d.getFullYear(), d.getMonth() + 1, 2)
+      q.andWhere('d.closingDate BETWEEN :begin AND :end', {
+        begin: beginDate.toISOString(),
+        end: endDate.toISOString(),
+      })
+    }
+
     if (query.source)
       q.andWhere('d.source IN (:...source)', { source: query.source })
 
@@ -97,8 +107,12 @@ export class DealService {
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
 
-    if ((dto.stage == DealStage.CLOSED_LOST || DealStage.CLOSED_LOST_TO_COMPETITION) &&  dto.reasonForLoss) {
-      let note: DTO.Note.AddNote = new DTO.Note.AddNote()
+    if (
+      (dto.stage === DealStage.CLOSED_LOST ||
+        dto.stage === DealStage.CLOSED_LOST_TO_COMPETITION) &&
+      dto.reasonForLoss
+    ) {
+      const note: DTO.Note.AddNote = new DTO.Note.AddNote()
       note.ownerId = dto.ownerId
       note.dealId = id
       note.title = dto.stage
