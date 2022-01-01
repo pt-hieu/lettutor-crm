@@ -12,7 +12,7 @@ import { dehydrate, QueryClient, useQuery } from 'react-query'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { getTasks } from '@utils/service/task'
 
-const columns: TableColumnType<Task>[] = [
+export const taskColumns: TableColumnType<Task>[] = [
   {
     title: 'Subject',
     dataIndex: 'subject',
@@ -132,7 +132,7 @@ export default function TasksView() {
         <div className="w-full">
           <Table
             showSorterTooltip={false}
-            columns={columns}
+            columns={taskColumns}
             loading={isLoading}
             dataSource={tasks?.items}
             rowKey={(u) => u.id}
