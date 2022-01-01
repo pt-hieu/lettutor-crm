@@ -25,7 +25,6 @@ export class DealController {
   ) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_DEALS)
   @ApiOperation({ summary: 'view, search and filter all deal' })
   @ApiQuery({ type: DTO.Deal.GetManyQuery })
   index(@Query() query: DTO.Deal.GetManyQuery) {
@@ -40,8 +39,10 @@ export class DealController {
   }
 
   @Get(':id')
-  @DefineAction(Actions.VIEW_ALL_DEAL_DETAILS)
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS)
+  @DefineAction(
+    Actions.VIEW_ALL_DEAL_DETAILS,
+    Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS,
+  )
   @ApiOperation({ summary: 'to get deal information by Id' })
   getDealById(@Param('id', ParseUUIDPipe) id: string) {
     const relations = ['owner', 'account', 'contact']

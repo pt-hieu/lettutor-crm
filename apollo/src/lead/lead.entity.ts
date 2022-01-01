@@ -23,7 +23,7 @@ export enum LeadSource {
   GOOGLE = 'Google',
 }
 
-@Entity({ name: 'lead_contact' })
+@Entity({ name: 'lead' })
 export class Lead extends Ownerful {
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
   accountId: string | null

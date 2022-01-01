@@ -25,7 +25,6 @@ export class AccountController {
   ) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_ACCOUNTS)
   @ApiOperation({ summary: 'view and search all accounts' })
   @ApiQuery({ type: DTO.Account.GetManyQuery })
   index(@Query() query: DTO.Account.GetManyQuery) {
@@ -33,8 +32,10 @@ export class AccountController {
   }
 
   @Get(':id')
-  @DefineAction(Actions.VIEW_ALL_ACCOUNT_DETAILS)
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS)
+  @DefineAction(
+    Actions.VIEW_ALL_ACCOUNT_DETAILS,
+    Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
+  )
   @ApiOperation({ summary: 'to get account information by Id' })
   getAccountById(@Param('id', ParseUUIDPipe) id: string) {
     const relations = ['owner']
