@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { FindOneOptions, Repository } from 'typeorm'
@@ -13,6 +18,8 @@ import { ContactService } from 'src/contact/contact.service'
 import { User } from 'src/user/user.entity'
 import { Task } from 'src/task/task.entity'
 import { TaskService } from 'src/task/task.service'
+import { PayloadService } from 'src/global/payload.service'
+import { Actions } from 'src/type/action'
 
 @Injectable()
 export class LeadService {
@@ -25,6 +32,7 @@ export class LeadService {
     private readonly contactService: ContactService,
     private readonly taskService: TaskService,
     private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
   ) {}
 
   async getMany(query: DTO.Lead.GetManyQuery) {
@@ -32,6 +40,10 @@ export class LeadService {
       .createQueryBuilder('lc')
       .leftJoin('lc.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
+
+    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_LEADS])) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
 
     if (query.status)
       q.andWhere('lc.status IN (:...status)', { status: query.status })
@@ -57,6 +69,10 @@ export class LeadService {
       throw new NotFoundException(`Lead not found`)
     }
 
+    if (!this.utilService.checkOwnership(lead)) {
+      throw new ForbiddenException()
+    }
+
     if (trace) {
       await this.utilService.loadTraceInfo(lead)
     }
@@ -74,6 +90,10 @@ export class LeadService {
 
   async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
     const lead = await this.getLeadById({ where: { id } })
+
+    if (!this.utilService.checkOwnership(lead)) {
+      throw new ForbiddenException()
+    }
 
     if (dto.ownerId) {
       await this.userService.getOneUserById({ where: { id: dto.ownerId } })
@@ -95,6 +115,10 @@ export class LeadService {
       where: { id },
       relations: ['owner', 'tasks', 'tasks.owner'],
     })
+
+    if (!this.utilService.checkOwnership(lead)) {
+      throw new ForbiddenException()
+    }
 
     let newOwner: User
     if (ownerId) {

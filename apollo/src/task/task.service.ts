@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -11,12 +12,14 @@ import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
 import { LeadService } from 'src/lead/lead.service'
+import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { JwtPayload } from 'src/utils/interface'
 import { Brackets, FindOneOptions, Repository } from 'typeorm'
 import { Task } from './task.entity'
+import { PayloadService } from 'src/global/payload.service'
 
 @Injectable()
 export class TaskService {
@@ -29,6 +32,8 @@ export class TaskService {
     @Inject(forwardRef(() => LeadService))
     private readonly leadService: LeadService,
     private readonly dealService: DealService,
+    private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
   ) {}
 
   async addTask(dto: DTO.Task.AddTask) {
@@ -74,6 +79,10 @@ export class TaskService {
       throw new NotFoundException(`Task not found`)
     }
 
+    if (!this.utilService.checkOwnership(task)) {
+      throw new ForbiddenException()
+    }
+
     return task
   }
 
@@ -92,10 +101,11 @@ export class TaskService {
         'deal.fullName',
       ])
 
-    if (
-      !payload.roles.some(({ actions }) => actions.includes(Actions.IS_ADMIN))
-    )
-      q.where('t.ownerId = :ownerId', { ownerId: payload.id })
+    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_ACCOUNTS])) {
+      q.andWhere('owner.id = :ownerId', {
+        ownerId: this.payloadService.data.id,
+      })
+    }
 
     if (query.priority)
       q.andWhere('t.priority IN (:...priority)', { priority: query.priority })
@@ -119,6 +129,10 @@ export class TaskService {
 
   async update(id: string, dto: DTO.Task.UpdateBody) {
     const task = await this.getTaskById({ where: { id } })
+
+    if (!this.utilService.checkOwnership(task)) {
+      throw new ForbiddenException()
+    }
 
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
 
