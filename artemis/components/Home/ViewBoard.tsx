@@ -1,9 +1,10 @@
+import Loading from '@utils/components/Loading'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { Deal } from '@utils/models/deal'
 import { Lead } from '@utils/models/lead'
 import { Paginate } from '@utils/models/paging'
 import { Task } from '@utils/models/task'
-import { Empty, Pagination, Spin, Table, TableColumnType } from 'antd'
+import { Empty, Pagination, Table, TableColumnType } from 'antd'
 import { useEffect, useState } from 'react'
 
 const LIMIT_ITEMS = 10
@@ -41,7 +42,7 @@ export function ViewBoard<T extends Task | Lead | Deal>({
     if (isFirstLoading) {
       return (
         <div className="flex h-full flex-col justify-center">
-          <Spin size="large" />
+          <Loading />
         </div>
       )
     }
@@ -55,7 +56,7 @@ export function ViewBoard<T extends Task | Lead | Deal>({
     }
 
     return (
-      <div className="flex-1">
+      <div className="pt-4 flex-1">
         <Table
           showSorterTooltip={false}
           columns={columns}
@@ -64,15 +65,16 @@ export function ViewBoard<T extends Task | Lead | Deal>({
           dataSource={data?.items}
           rowKey={(u) => u.id}
           pagination={false}
-          scroll={{ x: tableWidth || 1000, y: 224 }}
+          scroll={{ x: tableWidth || 1000 }}
         />
       </div>
     )
   }
 
   return (
-    <div className="border shadow-md rounded-md flex flex-col p-4 h-[400px]">
-      <div className="pb-2 font-semibold text-lg border-b-2">{title}</div>
+    <div className="border rounded-md flex flex-col p-4 h-[400px]">
+      <div className="font-semibold text-lg">{title}</div>
+
       <ContentByStatus />
 
       {!isNoData && !isFirstLoading && (
