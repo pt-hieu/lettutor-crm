@@ -120,8 +120,7 @@ export class GetManyQuery extends Paginate {
 }
 
 export class UpdateDeal {
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @IsUUID()
   ownerId?: string
 
@@ -152,12 +151,11 @@ export class UpdateDeal {
   @Type(() => Date)
   closingDate?: Date
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     type: DealStage,
     enum: DealStage,
     enumName: 'DealStage',
   })
-  @IsOptional()
   @IsEnum(DealStage)
   stage?: DealStage
 
