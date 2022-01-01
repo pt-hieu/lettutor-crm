@@ -74,7 +74,7 @@ export const ViewBoard = ({
     <div className="border shadow-md rounded-md flex flex-col p-4 h-[400px]">
       <div className="pb-2 font-semibold text-lg border-b-2">{title}</div>
       <ContentByStatus />
-      {!isNoData && (
+      {!isNoData && !isFirstLoading && (
         <div className="flex place-self-end pt-4">
           <Pagination
             size="small"
