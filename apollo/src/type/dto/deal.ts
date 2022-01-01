@@ -120,7 +120,8 @@ export class GetManyQuery extends Paginate {
 }
 
 export class UpdateDeal {
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsUUID()
   ownerId?: string
 
