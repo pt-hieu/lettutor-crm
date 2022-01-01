@@ -10,7 +10,7 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
-import { Deal, DealStage } from '@utils/models/deal'
+import { Deal, DealStage, LossStages } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
@@ -22,8 +22,9 @@ import { notification } from 'antd'
 import DealDetailNavbar from 'components/Deals/DealDetailNavbar'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
+import { useModal } from '@utils/hooks/useModal'
 import {
   dehydrate,
   QueryClient,
@@ -32,6 +33,8 @@ import {
   useQueryClient,
 } from 'react-query'
 import { DealUpdateFormData, EditDealSchema } from './edit'
+import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
+import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -273,6 +276,8 @@ const DealDetail = () => {
     reset(defaultValues)
   }, [defaultValues])
 
+  const [closeStage, setCloseStage] = useState<LossStages | undefined>()
+
   const { mutateAsync } = useMutation(['update-deal', id], updateDeal, {
     onSuccess() {
       notification.success({ message: 'Update deal successfully' })
@@ -283,11 +288,53 @@ const DealDetail = () => {
     },
   })
 
+  const [visibleConfirmClosedWon, openConfirmCloseWon, closeConfirmCloseWon] =
+    useModal()
+  const [
+    visibleConfirmClosedLost,
+    openConfirmCloseLost,
+    closeConfirmCloseLost,
+  ] = useModal()
+
+  const finishDeal = (newDeal: Deal) => {
+    const id = newDeal.id
+    const amount = newDeal.amount
+    const closingDate = newDeal.closingDate
+    const stage = newDeal.stage
+
+    mutateAsync({
+      id: id,
+      dealInfo: { amount, closingDate, stage },
+    })
+  }
+
   const submit = useCallback(
     handleSubmit((data) => {
       if (data.contactId === 'None') {
         data.contactId = null
       }
+
+      const isMarkDealAsClosedWon =
+        deal?.stage !== DealStage.CLOSED_WON &&
+        data.stage === DealStage.CLOSED_WON
+
+      const isMarkDealAsClosedLoss =
+        (deal?.stage !== DealStage.CLOSED_LOST &&
+          data.stage === DealStage.CLOSED_LOST) ||
+        (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
+          data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
+
+      if (isMarkDealAsClosedWon) {
+        openConfirmCloseWon()
+        return
+      }
+
+      if (isMarkDealAsClosedLoss) {
+        setCloseStage(data.stage as LossStages)
+        openConfirmCloseLost()
+        return
+      }
+
       mutateAsync({ dealInfo: data, id })
     }),
     [id],
@@ -304,6 +351,23 @@ const DealDetail = () => {
 
   return (
     <Layout title={`CRM | Deal | ${deal?.fullName}`} requireLogin>
+      {deal && (
+        <ConfirmClosedWon
+          deal={deal}
+          visible={visibleConfirmClosedWon}
+          onCloseModal={closeConfirmCloseWon}
+          onUpdateDeal={finishDeal}
+        />
+      )}
+      {deal && closeStage && (
+        <ConfirmClosedLost
+          deal={deal}
+          stage={closeStage}
+          visible={visibleConfirmClosedLost}
+          onCloseModal={closeConfirmCloseLost}
+          onUpdateDeal={finishDeal}
+        />
+      )}
       <div className="crm-container">
         <DealDetailNavbar deal={deal!} />
 

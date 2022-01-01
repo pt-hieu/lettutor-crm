@@ -17,6 +17,10 @@ export enum DealStage {
   CLOSED_LOST_TO_COMPETITION = 'Closed-Lost To Competition',
 }
 
+export type LossStages =
+  | DealStage.CLOSED_LOST
+  | DealStage.CLOSED_LOST_TO_COMPETITION
+
 export interface Deal extends Base {
   owner: User | null
   ownerId: string
