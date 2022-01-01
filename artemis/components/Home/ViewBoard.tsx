@@ -1,5 +1,8 @@
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
+import { Deal } from '@utils/models/deal'
+import { Lead } from '@utils/models/lead'
 import { Paginate } from '@utils/models/paging'
+import { Task } from '@utils/models/task'
 import { Empty, Pagination, Spin, Table, TableColumnType } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -14,8 +17,7 @@ type ViewProps<T> = {
   tableWidth?: number
   onChangePage: (page: number) => void
 }
-
-export const ViewBoard = ({
+export function ViewBoard<T extends Task | Lead | Deal>({
   data,
   title,
   columns,
@@ -23,7 +25,7 @@ export const ViewBoard = ({
   onChangePage,
   isLoading,
   tableWidth,
-}: ViewProps<any>) => {
+}: ViewProps<T>) {
   const [start, end, total] = usePaginateItem(data)
   const [isFirstLoading, setIsFirstLoading] = useState(true)
 
@@ -53,20 +55,18 @@ export const ViewBoard = ({
     }
 
     return (
-      <>
-        <div className="flex-1">
-          <Table
-            showSorterTooltip={false}
-            columns={columns}
-            bordered
-            loading={isLoading}
-            dataSource={data?.items}
-            rowKey={(u) => u.id}
-            pagination={false}
-            scroll={{ x: tableWidth || 1000, y: 224 }}
-          />
-        </div>
-      </>
+      <div className="flex-1">
+        <Table
+          showSorterTooltip={false}
+          columns={columns}
+          bordered
+          loading={isLoading}
+          dataSource={data?.items}
+          rowKey={(u) => u.id}
+          pagination={false}
+          scroll={{ x: tableWidth || 1000, y: 224 }}
+        />
+      </div>
     )
   }
 
@@ -74,6 +74,7 @@ export const ViewBoard = ({
     <div className="border shadow-md rounded-md flex flex-col p-4 h-[400px]">
       <div className="pb-2 font-semibold text-lg border-b-2">{title}</div>
       <ContentByStatus />
+
       {!isNoData && !isFirstLoading && (
         <div className="flex place-self-end pt-4">
           <Pagination

@@ -37,6 +37,7 @@ export class LeadService {
       const d = new Date()
       const beginDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
       const endDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
+
       q.andWhere('l.createdAt BETWEEN :begin AND :end', {
         begin: beginDate.toISOString(),
         end: endDate.toISOString(),

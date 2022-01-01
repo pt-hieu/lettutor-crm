@@ -92,12 +92,6 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(
-      client,
-      ['leads', page],
-      ['tasks', page],
-      ['deals', page],
-    ).isError,
     props: {
       dehydratedState: dehydrate(client),
     },
