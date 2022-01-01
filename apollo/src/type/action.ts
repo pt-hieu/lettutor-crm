@@ -12,7 +12,7 @@ export enum Actions {
   VIEW_ALL_LEAD_DETAILS = 'Can view any lead details',
   VIEW_AND_EDIT_ALL_LEAD_DETAILS = 'Can view and edit any lead details',
   CREATE_NEW_LEAD = 'Can create new lead',
-  CONVERT_LEAD = 'Can convert any leads',
+  VIEW_AND_CONVERT_LEAD_DETAILS = 'Can convert any leads',
   VIEW_ALL_CONTACTS = 'Can view all contacts',
   VIEW_ALL_CONTACT_DETAILS = 'Can view any contact details',
   VIEW_AND_EDIT_ALL_CONTACT_DETAILS = 'Can view and edit any contact details',
