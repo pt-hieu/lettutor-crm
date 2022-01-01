@@ -242,12 +242,8 @@ describe('task service', () => {
       mockQueryBuilder.getMany.mockReturnValue([task])
 
       expect(
-        (
-          (await taskService.getMany(dto, user)) as Pagination<
-            Task,
-            IPaginationMeta
-          >
-        ).items,
+        ((await taskService.getMany(dto)) as Pagination<Task, IPaginationMeta>)
+          .items,
       ).toEqual([task])
     })
   })
