@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import {
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsMobilePhone,
@@ -77,6 +79,12 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   @IsEnum(LeadSource, { each: true })
   source?: LeadSource[]
+
+  @ApiPropertyOptional({ type: Boolean })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  isToday
 }
 
 export class UpdateLead {

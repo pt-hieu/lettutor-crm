@@ -48,7 +48,7 @@ export class DealService {
       ])
     
     if (query.isCurrentMonth) {
-      const d = new Date(2022,1,15);
+      const d = new Date();
       const beginDate = new Date(d.getFullYear(), d.getMonth(), 2)
       const endDate = new Date(d.getFullYear(), d.getMonth() + 1, 2)
       q.andWhere('d.closingDate BETWEEN :begin AND :end', { begin: beginDate.toISOString(), end: endDate.toISOString() })
