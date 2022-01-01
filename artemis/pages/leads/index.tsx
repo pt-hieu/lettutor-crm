@@ -41,7 +41,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 }
 
-const columns: TableColumnType<Lead>[] = [
+export const leadColumns: TableColumnType<Lead>[] = [
   {
     title: 'Lead Name',
     dataIndex: 'fullName',
@@ -146,7 +146,7 @@ export default function LeadsViews() {
         <div className="w-full">
           <Table
             showSorterTooltip={false}
-            columns={columns}
+            columns={leadColumns}
             loading={isLoading}
             dataSource={leads?.items}
             rowKey={(u) => u.id}

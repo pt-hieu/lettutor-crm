@@ -13,6 +13,7 @@ export const getLeads =
       search?: string
       status?: LeadStatus[]
       source?: LeadSource[]
+      isToday?: Boolean
     } & PagingQuery,
     token?: string,
   ) =>

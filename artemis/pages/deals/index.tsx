@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 }
 
-const columns: TableColumnType<Deal>[] = [
+export const dealColumns: TableColumnType<Deal>[] = [
   {
     title: 'Deal Name',
     dataIndex: 'fullName',
@@ -201,7 +201,7 @@ export default function DealsView() {
             {(kanbanMode === ViewMode.TABULAR || kanbanMode === undefined) && (
               <Table
                 showSorterTooltip={false}
-                columns={columns}
+                columns={dealColumns}
                 loading={isLoading}
                 dataSource={deals?.items}
                 rowKey={(u) => u.id}
