@@ -97,7 +97,7 @@ export class TaskService {
     )
       q.where('t.ownerId = :ownerId', { ownerId: payload.id })
 
-    if (!!query.isOpen)
+    if (query.isOpen)
       q.andWhere('t.status != :completed', { completed: TaskStatus.COMPLETED })
 
     if (query.priority)

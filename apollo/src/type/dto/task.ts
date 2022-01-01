@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -87,8 +88,9 @@ export class GetManyQuery extends Paginate {
   status?: TaskStatus[]
 
   @ApiPropertyOptional()
-  @IsString()
   @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   isOpen?: boolean
 }
 
