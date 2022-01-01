@@ -11,6 +11,7 @@ export const getDeals =
       search?: string
       source?: LeadSource[]
       stage?: DealStage[]
+      isCurrentMonth?: Boolean
     } & PagingQuery,
     token?: string,
   ) =>

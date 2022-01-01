@@ -13,16 +13,17 @@ export const getLeads =
       search?: string
       status?: LeadStatus[]
       source?: LeadSource[]
+      isToday?: Boolean
     } & PagingQuery,
     token?: string,
   ) =>
-    () =>
-      axios
-        .get<Paginate<Lead>>(API + '/api/lead', {
-          headers: { authorization: 'Bearer ' + token },
-          params,
-        })
-        .then((res) => res.data)
+  () =>
+    axios
+      .get<Paginate<Lead>>(API + '/api/lead', {
+        headers: { authorization: 'Bearer ' + token },
+        params,
+      })
+      .then((res) => res.data)
 
 export const getLead = (id?: string, token?: string) => () =>
   axios
@@ -47,8 +48,14 @@ export const updateLead = async (params: {
 }
 
 export const convertLead =
-  (id: string) =>
-    (data?: Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'> | undefined) =>
-      axios
-        .post<[Account, Lead, Deal]>(API + '/api/lead/' + id + '/convert', data)
-        .then((res) => res.data)
+  (id: string, ownerId?: string) =>
+  (
+    data?:
+      | Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
+      | undefined,
+  ) =>
+    axios
+      .post<[Account, Lead, Deal]>(API + '/api/lead/' + id + '/convert', data, {
+        params: { ownerId },
+      })
+      .then((res) => res.data)

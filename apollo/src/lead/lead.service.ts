@@ -37,24 +37,35 @@ export class LeadService {
 
   async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadRepo
-      .createQueryBuilder('lc')
-      .leftJoin('lc.owner', 'owner')
+      .createQueryBuilder('l')
+      .leftJoin('l.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
 
     if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_LEADS])) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
     }
 
+    if (query.isToday) {
+      const d = new Date()
+      const beginDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+      const endDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
+
+      q.andWhere('l.createdAt BETWEEN :begin AND :end', {
+        begin: beginDate.toISOString(),
+        end: endDate.toISOString(),
+      })
+    }
+
     if (query.status)
-      q.andWhere('lc.status IN (:...status)', { status: query.status })
+      q.andWhere('l.status IN (:...status)', { status: query.status })
 
     if (query.source)
-      q.andWhere('lc.source IN (:...source)', { source: query.source })
+      q.andWhere('l.source IN (:...source)', { source: query.source })
 
     if (query.search) {
       q = q
-        .andWhere('lc.fullName ILIKE :search', { search: `%${query.search}%` })
-        .orWhere('lc.email ILIKE :search', { search: `%${query.search}%` })
+        .andWhere('l.fullName ILIKE :search', { search: `%${query.search}%` })
+        .orWhere('l.email ILIKE :search', { search: `%${query.search}%` })
     }
 
     if (query.shouldNotPaginate === true) return q.getMany()

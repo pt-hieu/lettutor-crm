@@ -10,6 +10,7 @@ export const getTasks =
       search?: string
       status?: TaskStatus[]
       priority?: TaskPriority[]
+      isOpen?: Boolean
     } & PagingQuery,
     token?: string,
   ) =>

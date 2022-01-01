@@ -17,8 +17,8 @@ import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { Brackets, FindOneOptions, Repository } from 'typeorm'
-import { Task } from './task.entity'
 import { PayloadService } from 'src/global/payload.service'
+import { Task, TaskStatus } from './task.entity'
 
 @Injectable()
 export class TaskService {
@@ -106,10 +106,13 @@ export class TaskService {
       })
     }
 
+    if (query.isOpen)
+      q.andWhere('t.status != :completed', { completed: TaskStatus.COMPLETED })
+
     if (query.priority)
       q.andWhere('t.priority IN (:...priority)', { priority: query.priority })
 
-    if (query.status)
+    if (!query.isOpen && query.status)
       q.andWhere('t.status IN (:...status)', { status: query.status })
 
     if (query.search) {
@@ -174,4 +177,6 @@ export class TaskService {
   async updateAllTasks(tasks: Task[]) {
     await this.taskRepo.save(tasks)
   }
+
+  async
 }

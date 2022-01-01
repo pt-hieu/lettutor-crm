@@ -15,7 +15,7 @@ import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
-import { Deal } from './deal.entity'
+import { Deal, DealStage } from './deal.entity'
 import { Actions } from 'src/type/action'
 import { PayloadService } from 'src/global/payload.service'
 
@@ -53,6 +53,16 @@ export class DealService {
 
     if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_DEALS])) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
+
+    if (query.isCurrentMonth) {
+      const d = new Date()
+      const beginDate = new Date(d.getFullYear(), d.getMonth(), 2)
+      const endDate = new Date(d.getFullYear(), d.getMonth() + 1, 2)
+      q.andWhere('d.closingDate BETWEEN :begin AND :end', {
+        begin: beginDate.toISOString(),
+        end: endDate.toISOString(),
+      })
     }
 
     if (query.source)
@@ -114,17 +124,23 @@ export class DealService {
     }
 
     if (dto.reasonForLoss) {
-      let note: DTO.Note.AddNote
-      note.ownerId = dto.ownerId
-      note.dealId = id
-      note.title = dto.stage
-      note.content = dto.reasonForLoss
-      this.noteService.addNote(note)
-    }
+      if (
+        (dto.stage === DealStage.CLOSED_LOST ||
+          dto.stage === DealStage.CLOSED_LOST_TO_COMPETITION) &&
+        dto.reasonForLoss
+      ) {
+        const note: DTO.Note.AddNote = new DTO.Note.AddNote()
+        note.ownerId = dto.ownerId
+        note.dealId = id
+        note.title = dto.stage
+        note.content = dto.reasonForLoss
+        this.noteService.addNote(note)
+      }
 
-    return this.dealRepo.save({
-      ...deal,
-      ...dto,
-    })
+      return this.dealRepo.save({
+        ...deal,
+        ...dto,
+      })
+    }
   }
 }
