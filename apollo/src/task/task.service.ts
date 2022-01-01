@@ -16,7 +16,6 @@ import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { JwtPayload } from 'src/utils/interface'
 import { Brackets, FindOneOptions, Repository } from 'typeorm'
 import { Task } from './task.entity'
 import { PayloadService } from 'src/global/payload.service'
@@ -86,7 +85,7 @@ export class TaskService {
     return task
   }
 
-  async getMany(query: DTO.Task.GetManyQuery, payload: JwtPayload) {
+  async getMany(query: DTO.Task.GetManyQuery) {
     let q = this.taskRepo
       .createQueryBuilder('t')
       .leftJoin('t.owner', 'owner')

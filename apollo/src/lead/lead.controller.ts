@@ -29,7 +29,6 @@ export class LeadController {
   ) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_LEADS)
   @ApiOperation({ summary: 'view, search and filter all leads' })
   index(@Query() query: DTO.Lead.GetManyQuery) {
     return this.service.getMany(query)
@@ -43,8 +42,10 @@ export class LeadController {
   }
 
   @Get(':id')
-  @DefineAction(Actions.VIEW_ALL_LEAD_DETAILS)
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)
+  @DefineAction(
+    Actions.VIEW_ALL_LEAD_DETAILS,
+    Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS,
+  )
   @ApiOperation({ summary: 'to get lead information by Id' })
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
     const relations = ['owner']

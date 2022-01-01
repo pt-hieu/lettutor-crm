@@ -43,7 +43,6 @@ export class UserController {
   }
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_USERS)
   @ApiOperation({ summary: 'to get all users in the system' })
   @ApiQuery({ type: DTO.User.UserGetManyQuery })
   async index(@Query() query: DTO.User.UserGetManyQuery) {

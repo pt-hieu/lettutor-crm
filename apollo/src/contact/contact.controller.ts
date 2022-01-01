@@ -25,7 +25,6 @@ export class ContactController {
   ) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_CONTACTS)
   @ApiOperation({ summary: 'view, search and filter all contacts' })
   @ApiQuery({ type: DTO.Contact.GetManyQuery })
   index(@Query() query: DTO.Contact.GetManyQuery) {
@@ -40,11 +39,17 @@ export class ContactController {
   }
 
   @Get(':id')
-  @DefineAction(Actions.VIEW_ALL_CONTACT_DETAILS)
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS)
+  @DefineAction(
+    Actions.VIEW_ALL_CONTACT_DETAILS,
+    Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS,
+  )
   @ApiOperation({ summary: 'to get contact information by Id' })
   getContactById(@Param('id', ParseUUIDPipe) id: string) {
-    const relations = ['owner', 'account', 'deals']
+    const relations = ['owner', 'account']
+
+    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_DEALS])) {
+      relations.push('deals')
+    }
 
     if (this.utilService.checkRoleAction([Actions.VIEW_ALL_TASKS])) {
       relations.push('tasks', 'tasks.owner')

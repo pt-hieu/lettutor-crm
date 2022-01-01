@@ -10,11 +10,8 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
-import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
-import { Payload } from 'src/utils/decorators/payload.decorator'
-import { JwtPayload } from 'src/utils/interface'
 import { TaskService } from './task.service'
 
 @ApiTags('task')
@@ -24,10 +21,9 @@ export class TaskController {
   constructor(private readonly service: TaskService) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_TASKS)
   @ApiOperation({ summary: 'view, search and filter all tasks' })
-  index(@Query() query: DTO.Task.GetManyQuery, @Payload() payload: JwtPayload) {
-    return this.service.getMany(query, payload)
+  index(@Query() query: DTO.Task.GetManyQuery) {
+    return this.service.getMany(query)
   }
 
   @Post()
@@ -38,8 +34,10 @@ export class TaskController {
   }
 
   @Get(':id')
-  @DefineAction(Actions.VIEW_ALL_TASK_DETAILS)
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
+  @DefineAction(
+    Actions.VIEW_ALL_TASK_DETAILS,
+    Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS,
+  )
   @ApiOperation({ summary: 'to get task information by Id' })
   getTaskById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getTaskById({
