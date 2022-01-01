@@ -210,13 +210,11 @@ const LeadDetail = () => {
   )
 
   const openTasks = useMemo(
-    () =>
-      lead?.tasksOfLead?.filter((task) => task.status !== TaskStatus.COMPLETED),
+    () => lead?.tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
     [lead],
   )
   const closedTasks = useMemo(
-    () =>
-      lead?.tasksOfLead?.filter((task) => task.status === TaskStatus.COMPLETED),
+    () => lead?.tasks?.filter((task) => task.status === TaskStatus.COMPLETED),
     [lead],
   )
 

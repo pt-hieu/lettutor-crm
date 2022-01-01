@@ -39,7 +39,7 @@ export class LeadController {
     return this.service.getLeadById(
       {
         where: { id },
-        relations: ['owner', 'tasksOfLead', 'tasksOfLead.owner'],
+        relations: ['owner', 'tasks', 'tasks.owner'],
       },
       true,
     )
