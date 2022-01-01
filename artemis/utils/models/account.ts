@@ -30,4 +30,5 @@ export interface Account extends Base {
   contacts: Lead[]
   deals: Deal[]
   tasks: Task[]
+  tasksToDisplay: Task[]
 }

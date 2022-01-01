@@ -226,16 +226,12 @@ const ContactDetail = () => {
 
   const openTasks = useMemo(
     () =>
-      contact?.tasksOfContact?.filter(
-        (task) => task.status !== TaskStatus.COMPLETED,
-      ),
+      contact?.tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
     [contact],
   )
   const closedTasks = useMemo(
     () =>
-      contact?.tasksOfContact?.filter(
-        (task) => task.status === TaskStatus.COMPLETED,
-      ),
+      contact?.tasks?.filter((task) => task.status === TaskStatus.COMPLETED),
     [contact],
   )
 

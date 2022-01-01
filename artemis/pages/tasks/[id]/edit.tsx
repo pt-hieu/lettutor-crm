@@ -201,6 +201,9 @@ const CreateTask = () => {
         key !== 'leadId' && delete data[key as keyof typeof data]
       }
     })
+    if (!data.dueDate) {
+      data.dueDate = null
+    }
     mutateAsync(data)
   })
 
