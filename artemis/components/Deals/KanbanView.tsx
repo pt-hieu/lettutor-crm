@@ -1,4 +1,4 @@
-import { Deal, DealStage } from '@utils/models/deal'
+import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
 import { Paginate } from '@utils/models/paging'
 import { notification, Tooltip } from 'antd'
 import moment from 'moment'
@@ -127,15 +127,10 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
       DealStage.CLOSED_LOST | DealStage.CLOSED_LOST_TO_COMPETITION | undefined
     >()
 
-  const finishDeal = (newDeal: Deal) => {
-    const id = newDeal.id
-    const amount = newDeal.amount
-    const closingDate = newDeal.closingDate
-    const stage = newDeal.stage
-
+  const finishDeal = (dealId: string, updateDealDto: UpdateDealDto) => {
     mutateAsync({
-      id: id,
-      dealInfo: { amount, closingDate, stage },
+      id: dealId,
+      dealInfo: updateDealDto,
     })
   }
 

@@ -14,7 +14,7 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { DealUpdateData, Field } from '@utils/data/update-deal-data'
 import { getDeal, updateDeal } from '@utils/service/deal'
-import { Deal, DealStage, LossStages } from '@utils/models/deal'
+import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
 import { getContacts } from '@utils/service/contact'
 import { getAccounts } from '@utils/service/account'
 import { Contact } from '@utils/models/contact'
@@ -158,15 +158,12 @@ const EditDeal = () => {
     closeConfirmCloseLost,
   ] = useModal()
 
-  const finishDeal = (newDeal: Deal) => {
-    const id = newDeal.id
-    const amount = newDeal.amount
-    const closingDate = newDeal.closingDate
-    const stage = newDeal.stage
+  const [updatedData, setUpdatedData] = useState<UpdateDealDto | undefined>()
 
+  const finishDeal = (dealId: string, updateDealDto: UpdateDealDto) => {
     mutateAsync({
-      id: id,
-      dealInfo: { amount, closingDate, stage },
+      id: dealId,
+      dealInfo: { ...updatedData, ...updateDealDto },
     })
   }
 
@@ -182,6 +179,7 @@ const EditDeal = () => {
         data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
 
     if (isMarkDealAsClosedLoss) {
+      setUpdatedData(data)
       setCloseStage(data.stage as LossStages)
       openConfirmCloseLost()
       return

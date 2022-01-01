@@ -3,13 +3,13 @@ import Input from '@utils/components/Input'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
-import { Deal, DealStage } from '@utils/models/deal'
+import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
 
 type Props = {
   deal: Deal
   visible: boolean
   onCloseModal: () => void
-  onUpdateDeal: (newDeal: Deal) => void
+  onUpdateDeal: (id: string, updateDealDto: UpdateDealDto) => void
 }
 
 type ConfirmClosedWonData = {
@@ -50,8 +50,7 @@ const ConfirmClosedWon = ({
   const closeDealAsClosedWon = handleSubmit(
     ({ amount, closingDate }: ConfirmClosedWonData) => {
       const stage = DealStage.CLOSED_WON
-      console.log('closingDate: ', closingDate)
-      updateDeal({ ...deal, amount, stage, closingDate })
+      updateDeal(deal.id, { amount, stage, closingDate })
       reset()
       closeModal()
     },

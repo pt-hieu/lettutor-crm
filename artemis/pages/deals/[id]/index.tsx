@@ -10,7 +10,7 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
-import { Deal, DealStage, LossStages } from '@utils/models/deal'
+import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
@@ -296,15 +296,10 @@ const DealDetail = () => {
     closeConfirmCloseLost,
   ] = useModal()
 
-  const finishDeal = (newDeal: Deal) => {
-    const id = newDeal.id
-    const amount = newDeal.amount
-    const closingDate = newDeal.closingDate
-    const stage = newDeal.stage
-
+  const finishDeal = (dealId: string, updateDealDto: UpdateDealDto) => {
     mutateAsync({
-      id: id,
-      dealInfo: { amount, closingDate, stage },
+      id: dealId,
+      dealInfo: updateDealDto,
     })
   }
 

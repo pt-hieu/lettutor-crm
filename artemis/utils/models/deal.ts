@@ -35,3 +35,17 @@ export interface Deal extends Base {
   description: string | null
   tasks: Task[]
 }
+
+export type UpdateDealDto = {
+  ownerId?: string
+  accountId?: string
+  contactId?: string | null
+  fullName?: string
+  amount?: number | null
+  closingDate?: Date
+  stage?: string
+  source?: LeadSource
+  probability?: number | null
+  description?: string | null
+  reasonForLoss?: string | null
+}

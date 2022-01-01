@@ -1,20 +1,17 @@
-import { Modal, notification } from 'antd'
+import { Modal } from 'antd'
 import Input from '@utils/components/Input'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
-import { Deal, DealStage } from '@utils/models/deal'
-import { useMutation, useQuery } from 'react-query'
-import { addNote } from '@utils/service/note'
-import { AddNoteDto } from '@utils/models/note'
-import { getSelf } from '@utils/service/user'
+import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 
 type Props = {
   deal: Deal
   stage: DealStage.CLOSED_LOST | DealStage.CLOSED_LOST_TO_COMPETITION
   visible: boolean
   onCloseModal: () => void
-  onUpdateDeal: (newDeal: Deal) => void
+  onUpdateDeal: (id: string, updateDealDto: UpdateDealDto) => void
 }
 
 type ConfirmClosedLossData = {
@@ -57,36 +54,18 @@ const ConfirmCloseLost = ({
     reset()
   }
 
-  const { data } = useQuery('self-info', getSelf())
+  const [session] = useTypedSession()
+  const ownerId = session?.user.id
 
-  const { mutateAsync } = useMutation('add-note', addNote, {
-    onSuccess: () => {
-      notification.success({
-        message: 'Add reason for loss successfully.',
-      })
-    },
-    onError: () => {
-      notification.error({ message: 'Add reason for loss unsuccessfully.' })
-    },
-  })
-
-  const addReasonForLossNote = (reason: string) => {
-    const note: AddNoteDto = {
-      ownerId: data?.id as string,
-      dealId: deal.id,
-      title: stage,
-      content: reason,
-    }
-
-    mutateAsync(note)
-  }
-
-  const closeDealAsClosedWon = handleSubmit(
+  const closeDealAsCloseLoss = handleSubmit(
     ({ amount, closingDate, reason }: ConfirmClosedLossData) => {
-      updateDeal({ ...deal, amount, stage, closingDate })
-      if (reason) {
-        addReasonForLossNote(reason)
-      }
+      updateDeal(deal.id, {
+        ownerId,
+        stage,
+        amount,
+        closingDate,
+        reasonForLoss: reason,
+      })
       reset()
       closeModal()
     },
@@ -100,7 +79,7 @@ const ConfirmCloseLost = ({
       centered
       footer={
         <div className="flex w-full gap-2 justify-end">
-          <button onClick={closeDealAsClosedWon} className="crm-button">
+          <button onClick={closeDealAsCloseLoss} className="crm-button">
             Save
           </button>
           <button onClick={closeModal} className="crm-button-outline">
