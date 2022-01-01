@@ -136,11 +136,11 @@ export class DealService {
         note.content = dto.reasonForLoss
         this.noteService.addNote(note)
       }
-
-      return this.dealRepo.save({
-        ...deal,
-        ...dto,
-      })
     }
+
+    return this.dealRepo.save({
+      ...deal,
+      ...dto,
+    })
   }
 }
