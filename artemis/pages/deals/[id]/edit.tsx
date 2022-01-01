@@ -1,4 +1,5 @@
 import Input from '@utils/components/Input'
+import { useModal } from '@utils/hooks/useModal'
 import { getSessionToken } from '@utils/libs/getToken'
 import { LeadSource } from '@utils/models/lead'
 import { getUsers } from '@utils/service/user'
@@ -13,12 +14,14 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { DealUpdateData, Field } from '@utils/data/update-deal-data'
 import { getDeal, updateDeal } from '@utils/service/deal'
-import { Deal, DealStage } from '@utils/models/deal'
+import { Deal, DealStage, LossStages } from '@utils/models/deal'
 import { getContacts } from '@utils/service/contact'
 import { getAccounts } from '@utils/service/account'
 import { Contact } from '@utils/models/contact'
 import { Account } from '@utils/models/account'
 import { investigate } from '@utils/libs/investigate'
+import { useState } from 'react'
+import ConfirmReasonForLoss from '@components/Deals/ConfirmReasonForLoss'
 
 export type DealUpdateFormData = {
   ownerId: string
@@ -148,9 +151,40 @@ const EditDeal = () => {
     },
   })
 
+  const [closeStage, setCloseStage] = useState<LossStages | undefined>()
+  const [
+    visibleConfirmClosedLost,
+    openConfirmCloseLost,
+    closeConfirmCloseLost,
+  ] = useModal()
+
+  const finishDeal = (newDeal: Deal) => {
+    const id = newDeal.id
+    const amount = newDeal.amount
+    const closingDate = newDeal.closingDate
+    const stage = newDeal.stage
+
+    mutateAsync({
+      id: id,
+      dealInfo: { amount, closingDate, stage },
+    })
+  }
+
   const editDeal = handleSubmit((data) => {
     if (data.contactId === 'None') {
       data.contactId = null
+    }
+
+    const isMarkDealAsClosedLoss =
+      (deal?.stage !== DealStage.CLOSED_LOST &&
+        data.stage === DealStage.CLOSED_LOST) ||
+      (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
+        data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
+
+    if (isMarkDealAsClosedLoss) {
+      setCloseStage(data.stage as LossStages)
+      openConfirmCloseLost()
+      return
     }
 
     mutateAsync({ id, dealInfo: data })
@@ -215,6 +249,15 @@ const EditDeal = () => {
 
   return (
     <Layout requireLogin title="CRM | Edit lead">
+      {deal && closeStage && (
+        <ConfirmReasonForLoss
+          deal={deal}
+          stage={closeStage}
+          visible={visibleConfirmClosedLost}
+          onCloseModal={closeConfirmCloseLost}
+          onUpdateDeal={finishDeal}
+        />
+      )}
       <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
         <div>
           {DealUpdateData.map(({ title, items }) => (
