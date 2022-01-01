@@ -25,7 +25,6 @@ export class ContactController {
   ) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_CONTACTS)
   @ApiOperation({ summary: 'view, search and filter all contacts' })
   @ApiQuery({ type: DTO.Contact.GetManyQuery })
   index(@Query() query: DTO.Contact.GetManyQuery) {

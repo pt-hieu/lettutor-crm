@@ -24,7 +24,6 @@ export class TaskController {
   constructor(private readonly service: TaskService) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_TASKS)
   @ApiOperation({ summary: 'view, search and filter all tasks' })
   index(@Query() query: DTO.Task.GetManyQuery, @Payload() payload: JwtPayload) {
     return this.service.getMany(query, payload)
