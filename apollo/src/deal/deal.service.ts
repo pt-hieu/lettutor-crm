@@ -27,7 +27,7 @@ export class DealService {
     private readonly noteService: NoteService,
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
-  ) { }
+  ) {}
 
   async getMany(query: DTO.Deal.GetManyQuery) {
     let q = this.dealRepo
@@ -48,10 +48,13 @@ export class DealService {
       ])
 
     if (query.isCurrentMonth) {
-      const d = new Date();
+      const d = new Date()
       const beginDate = new Date(d.getFullYear(), d.getMonth(), 2)
       const endDate = new Date(d.getFullYear(), d.getMonth() + 1, 2)
-      q.andWhere('d.closingDate BETWEEN :begin AND :end', { begin: beginDate.toISOString(), end: endDate.toISOString() })
+      q.andWhere('d.closingDate BETWEEN :begin AND :end', {
+        begin: beginDate.toISOString(),
+        end: endDate.toISOString(),
+      })
     }
 
     if (query.source)
@@ -104,8 +107,12 @@ export class DealService {
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
 
-    if ((dto.stage == DealStage.CLOSED_LOST || DealStage.CLOSED_LOST_TO_COMPETITION) && dto.reasonForLoss) {
-      let note: DTO.Note.AddNote = new DTO.Note.AddNote()
+    if (
+      (dto.stage === DealStage.CLOSED_LOST ||
+        dto.stage === DealStage.CLOSED_LOST_TO_COMPETITION) &&
+      dto.reasonForLoss
+    ) {
+      const note: DTO.Note.AddNote = new DTO.Note.AddNote()
       note.ownerId = dto.ownerId
       note.dealId = id
       note.title = dto.stage
