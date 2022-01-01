@@ -14,7 +14,7 @@ import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
-import { Deal } from './deal.entity'
+import { Deal, DealStage } from './deal.entity'
 
 @Injectable()
 export class DealService {
@@ -97,8 +97,8 @@ export class DealService {
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
 
-    if (dto.reasonForLoss) {
-      let note: DTO.Note.AddNote
+    if ((dto.stage == DealStage.CLOSED_LOST || DealStage.CLOSED_LOST_TO_COMPETITION) &&  dto.reasonForLoss) {
+      let note: DTO.Note.AddNote = new DTO.Note.AddNote()
       note.ownerId = dto.ownerId
       note.dealId = id
       note.title = dto.stage

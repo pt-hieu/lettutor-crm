@@ -18,7 +18,7 @@ export const changePassword = async (data: {
 
 export const getSelf = (token?: string) => () =>
   axios
-    .get<Pick<User, 'name' | 'email' | 'status' | 'roles'>>(
+    .get<Pick<User, 'name' | 'email' | 'status' | 'roles' | 'id'>>(
       API + '/api/user/self',
       {
         headers: { authorization: 'Bearer ' + token },

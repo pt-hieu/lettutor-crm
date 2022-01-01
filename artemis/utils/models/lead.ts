@@ -34,5 +34,5 @@ export interface Lead extends Base {
   description: string | null
   phoneNum: string | null
   socialAccount: string | null
-  tasksOfLead: Task[]
+  tasks: Task[]
 }
