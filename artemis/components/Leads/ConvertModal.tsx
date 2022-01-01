@@ -19,6 +19,9 @@ import { useMutation, useQuery } from 'react-query'
 import { Deal, DealStage } from '@utils/models/deal'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useInput } from '@utils/hooks/useInput'
+import { getUsers } from '@utils/service/user'
+import { User } from '@utils/models/user'
 
 interface Props {
   visible: boolean
@@ -66,6 +69,16 @@ export default function ConvertModal({ close, visible }: Props) {
   const mutation = useRef<ResizeObserver | undefined>(undefined)
   const [height, setHeight] = useState<number | string>(400)
 
+  const { data: users } = useQuery(
+    'users',
+    getUsers({ shouldNotPaginate: true }),
+    {
+      enabled: visible,
+    },
+  )
+  const [ownerId, changeOwnerId] = useInput(lead?.owner?.id)
+  const [error, setError] = useState<'Owner is required.'>()
+
   useEffect(() => {
     if (mutation.current) {
       mutation.current.disconnect()
@@ -104,7 +117,7 @@ export default function ConvertModal({ close, visible }: Props) {
 
   const { data, mutateAsync, isLoading } = useMutation(
     ['convert', id],
-    convertLead(id),
+    convertLead(id, ownerId),
     {
       onSuccess() {
         setState(State.SUCCEED)
@@ -117,9 +130,16 @@ export default function ConvertModal({ close, visible }: Props) {
 
   const convert = useCallback(
     handleSubmit((data) => {
+      if (!ownerId) {
+        setError('Owner is required.')
+        return
+      } else {
+        setError(undefined)
+      }
+
       mutateAsync(convertToDeal ? data : undefined)
     }),
-    [convertToDeal],
+    [convertToDeal, ownerId],
   )
 
   const closeOnState = useCallback(() => {
@@ -247,9 +267,25 @@ export default function ConvertModal({ close, visible }: Props) {
             </Animate>
           </div>
 
-          <div>
-            Owner of the new records:{' '}
-            <span className="font-medium">{owner?.name}</span>
+          <div className="flex gap-2 items-center">
+            <span>Owner of the new records:</span>
+            <Input
+              error={error}
+              as="select"
+              props={{
+                value: ownerId,
+                onChange: changeOwnerId,
+                children: (
+                  <>
+                    {(users as unknown as User[]).map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.name}
+                      </option>
+                    ))}
+                  </>
+                ),
+              }}
+            />
           </div>
         </div>
       ),
