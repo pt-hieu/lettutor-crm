@@ -85,6 +85,11 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   @IsEnum(TaskStatus, { each: true })
   status?: TaskStatus[]
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  isOpen?: boolean
 }
 
 export class UpdateBody {
