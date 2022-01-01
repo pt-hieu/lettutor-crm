@@ -46,7 +46,7 @@ export class DealService {
         'tasks.dueDate',
         'tasks.id',
       ])
-    
+
     if (query.isCurrentMonth) {
       const d = new Date();
       const beginDate = new Date(d.getFullYear(), d.getMonth(), 2)

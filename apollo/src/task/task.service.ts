@@ -29,7 +29,7 @@ export class TaskService {
     @Inject(forwardRef(() => LeadService))
     private readonly leadService: LeadService,
     private readonly dealService: DealService,
-  ) {}
+  ) { }
 
   async addTask(dto: DTO.Task.AddTask) {
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
@@ -140,15 +140,15 @@ export class TaskService {
       dto.accountId
         ? (dto.dealId = null)
         : dto.dealId
-        ? (dto.accountId = null)
-        : undefined
+          ? (dto.accountId = null)
+          : undefined
     }
 
     await Promise.all([
       dto.contactId
         ? this.contactService.getContactById({
-            where: { id: dto.contactId },
-          })
+          where: { id: dto.contactId },
+        })
         : undefined,
       dto.accountId
         ? this.accountService.getAccountById({ where: { id: dto.accountId } })
@@ -165,5 +165,5 @@ export class TaskService {
     await this.taskRepo.save(tasks)
   }
 
-  async 
+  async
 }

@@ -25,7 +25,7 @@ export class LeadService {
     private readonly contactService: ContactService,
     private readonly taskService: TaskService,
     private readonly utilService: UtilService,
-  ) {}
+  ) { }
 
   async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadRepo
@@ -36,11 +36,11 @@ export class LeadService {
     if (query.isToday) {
       const d = new Date();
       const beginDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-      const endDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1)
+      const endDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
       q.andWhere('l.createdAt BETWEEN :begin AND :end', { begin: beginDate.toISOString(), end: endDate.toISOString() })
     }
-     
-    
+
+
     if (query.status)
       q.andWhere('l.status IN (:...status)', { status: query.status })
 

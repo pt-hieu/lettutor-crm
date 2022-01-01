@@ -84,7 +84,7 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   @IsBoolean()
   @Transform(({ value }) => value === 'true')
-  isToday
+  isToday?: boolean
 }
 
 export class UpdateLead {
