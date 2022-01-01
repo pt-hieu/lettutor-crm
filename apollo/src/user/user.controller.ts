@@ -11,6 +11,8 @@ import {
 import { UserService } from './user.service'
 import { Payload } from 'src/utils/decorators/payload.decorator'
 import { JwtPayload } from 'src/utils/interface'
+import { DefineAction } from 'src/action.decorator'
+import { Actions } from 'src/type/action'
 
 @ApiTags('user')
 @ApiBearerAuth('jwt')
@@ -41,6 +43,7 @@ export class UserController {
   }
 
   @Get()
+  @DefineAction(Actions.VIEW_ALL_USERS)
   @ApiOperation({ summary: 'to get all users in the system' })
   @ApiQuery({ type: DTO.User.UserGetManyQuery })
   async index(@Query() query: DTO.User.UserGetManyQuery) {
@@ -48,6 +51,7 @@ export class UserController {
   }
 
   @Post()
+  @DefineAction(Actions.CREATE_NEW_USER)
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
   addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
     return this.service.addUser(dto, payload.name)

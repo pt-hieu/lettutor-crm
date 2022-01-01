@@ -25,7 +25,7 @@ export class AccountController {
   ) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_ACCOUNTS, Actions.IS_ADMIN)
+  @DefineAction(Actions.VIEW_ALL_ACCOUNTS)
   @ApiOperation({ summary: 'view and search all accounts' })
   @ApiQuery({ type: DTO.Account.GetManyQuery })
   index(@Query() query: DTO.Account.GetManyQuery) {
@@ -33,7 +33,8 @@ export class AccountController {
   }
 
   @Get(':id')
-  @DefineAction(Actions.VIEW_ALL_ACCOUNT_DETAILS, Actions.IS_ADMIN)
+  @DefineAction(Actions.VIEW_ALL_ACCOUNT_DETAILS)
+  @DefineAction(Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS)
   @ApiOperation({ summary: 'to get account information by Id' })
   getAccountById(@Param('id', ParseUUIDPipe) id: string) {
     const relations = ['owner']
@@ -66,14 +67,14 @@ export class AccountController {
   }
 
   @Post()
-  @DefineAction(Actions.CREATE_NEW_ACCOUNT, Actions.IS_ADMIN)
+  @DefineAction(Actions.CREATE_NEW_ACCOUNT)
   @ApiOperation({ summary: 'to add a new account manually' })
   addAccount(@Body() dto: DTO.Account.AddAccount) {
     return this.service.addAccount(dto)
   }
 
   @Patch(':id')
-  @DefineAction(Actions.EDIT_ALL_ACCOUNTS, Actions.IS_ADMIN)
+  @DefineAction(Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS)
   @ApiOperation({ summary: 'to edit a account' })
   updateAccount(
     @Param('id', ParseUUIDPipe) id: string,

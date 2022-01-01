@@ -33,7 +33,6 @@ describe('deal service', () => {
         AccountService,
         ContactService,
         UserService,
-        UtilService,
         PayloadService,
         {
           provide: MailService,
@@ -46,6 +45,13 @@ describe('deal service', () => {
           provide: NoteService,
           useValue: {
             addNote: jest.fn(),
+          },
+        },
+        {
+          provide: UtilService,
+          useValue: {
+            checkOwnership: jest.fn().mockReturnValue(true),
+            checkRoleAction: jest.fn().mockReturnValue(true),
           },
         },
         {

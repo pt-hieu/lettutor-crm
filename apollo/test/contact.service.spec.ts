@@ -32,13 +32,19 @@ describe('contact service', () => {
         AccountService,
         DealService,
         UserService,
-        UtilService,
         PayloadService,
         {
           provide: MailService,
           useValue: {
             sendResetPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
             sendAddPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+          },
+        },
+        {
+          provide: UtilService,
+          useValue: {
+            checkOwnership: jest.fn().mockReturnValue(true),
+            checkRoleAction: jest.fn().mockReturnValue(true),
           },
         },
         {

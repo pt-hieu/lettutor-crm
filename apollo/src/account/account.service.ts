@@ -32,11 +32,8 @@ export class AccountService {
       throw new NotFoundException(`Account not found`)
     }
 
-    if (
-      !this.utilService.checkOwnership(account) &&
-      !this.utilService.checkRoleAction([Actions.VIEW_ALL_ACCOUNT_DETAILS])
-    ) {
-      throw new ForbiddenException(`You don't have permission to do this`)
+    if (!this.utilService.checkOwnership(account)) {
+      throw new ForbiddenException()
     }
 
     let tasksToDisplay = []
@@ -105,11 +102,8 @@ export class AccountService {
   async updateAccount(dto: DTO.Account.UpdateAccount, id: string) {
     const account = await this.getAccountById({ where: { id } })
 
-    if (
-      !this.utilService.checkOwnership(account) &&
-      !this.utilService.checkRoleAction([Actions.EDIT_ALL_ACCOUNTS])
-    ) {
-      throw new ForbiddenException(`You don't have permission to do this`)
+    if (!this.utilService.checkOwnership(account)) {
+      throw new ForbiddenException()
     }
 
     if (dto.ownerId) {

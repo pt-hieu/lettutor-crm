@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  DefaultValuePipe,
   Get,
   Param,
   ParseUUIDPipe,
@@ -60,7 +61,8 @@ export class LeadController {
   async convert(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: object,
-    @Query('ownerId', ParseUUIDPipe) ownerId?: string,
+    @Query('ownerId', new DefaultValuePipe(undefined), ParseUUIDPipe)
+    ownerId?: string,
   ) {
     const shouldConvertToDeal = Object.keys(body).length !== 0
     let dto: DTO.Deal.ConvertToDeal

@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -15,6 +16,8 @@ import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
 import { Deal } from './deal.entity'
+import { Actions } from 'src/type/action'
+import { PayloadService } from 'src/global/payload.service'
 
 @Injectable()
 export class DealService {
@@ -27,6 +30,7 @@ export class DealService {
     private readonly noteService: NoteService,
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
   ) {}
 
   async getMany(query: DTO.Deal.GetManyQuery) {
@@ -46,6 +50,10 @@ export class DealService {
         'tasks.dueDate',
         'tasks.id',
       ])
+
+    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_DEALS])) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
 
     if (query.source)
       q.andWhere('d.source IN (:...source)', { source: query.source })
@@ -69,6 +77,10 @@ export class DealService {
     if (!deal) {
       Logger.error(JSON.stringify(option, null, 2))
       throw new NotFoundException(`Deal not found`)
+    }
+
+    if (!this.utilService.checkOwnership(deal)) {
+      throw new ForbiddenException()
     }
 
     if (trace) {
@@ -96,6 +108,10 @@ export class DealService {
 
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
+
+    if (!this.utilService.checkOwnership(deal)) {
+      throw new ForbiddenException()
+    }
 
     if (dto.reasonForLoss) {
       let note: DTO.Note.AddNote
