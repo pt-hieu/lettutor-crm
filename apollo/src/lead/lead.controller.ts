@@ -13,40 +13,57 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
+import { DefineAction } from 'src/action.decorator'
+import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
+import { Actions } from 'src/type/action'
 import { LeadService } from './lead.service'
 
 @ApiTags('lead')
 @ApiBearerAuth('jwt')
 @Controller('lead')
 export class LeadController {
-  constructor(private readonly service: LeadService) {}
+  constructor(
+    private readonly service: LeadService,
+    private readonly utilService: UtilService,
+  ) {}
 
   @Get()
+  @DefineAction(Actions.VIEW_ALL_LEADS)
   @ApiOperation({ summary: 'view, search and filter all leads' })
   index(@Query() query: DTO.Lead.GetManyQuery) {
     return this.service.getMany(query)
   }
 
   @Post()
+  @DefineAction(Actions.CREATE_NEW_LEAD)
   @ApiOperation({ summary: 'to add new lead manually' })
   addLead(@Body() dto: DTO.Lead.AddLead) {
     return this.service.addLead(dto)
   }
 
   @Get(':id')
+  @DefineAction(Actions.VIEW_ALL_LEAD_DETAILS)
+  @DefineAction(Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)
   @ApiOperation({ summary: 'to get lead information by Id' })
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
+    const relations = ['owner']
+
+    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_TASKS])) {
+      relations.push('tasks', 'tasks.owner')
+    }
+
     return this.service.getLeadById(
       {
         where: { id },
-        relations: ['owner', 'tasks', 'tasks.owner'],
+        relations,
       },
       true,
     )
   }
 
   @Patch(':id')
+  @DefineAction(Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)
   @ApiOperation({ summary: 'to update lead manually' })
   updateLead(
     @Param('id', ParseUUIDPipe) id: string,
@@ -56,6 +73,7 @@ export class LeadController {
   }
 
   @Post(':id/convert')
+  @DefineAction(Actions.CONVERT_LEAD)
   @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
   @ApiBody({ required: false, type: DTO.Deal.ConvertToDeal })
   async convert(
