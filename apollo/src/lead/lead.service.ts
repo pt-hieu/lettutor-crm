@@ -80,7 +80,10 @@ export class LeadService {
       throw new NotFoundException(`Lead not found`)
     }
 
-    if (!this.utilService.checkOwnership(lead)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(lead)
+    ) {
       throw new ForbiddenException()
     }
 
@@ -102,7 +105,10 @@ export class LeadService {
   async updateLead(dto: DTO.Lead.UpdateLead, id: string) {
     const lead = await this.getLeadById({ where: { id } })
 
-    if (!this.utilService.checkOwnership(lead)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(lead)
+    ) {
       throw new ForbiddenException()
     }
 
@@ -126,10 +132,6 @@ export class LeadService {
       where: { id },
       relations: ['owner', 'tasks', 'tasks.owner'],
     })
-
-    if (!this.utilService.checkOwnership(lead)) {
-      throw new ForbiddenException()
-    }
 
     let newOwner: User
     if (ownerId) {

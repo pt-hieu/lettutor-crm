@@ -89,7 +89,10 @@ export class DealService {
       throw new NotFoundException(`Deal not found`)
     }
 
-    if (!this.utilService.checkOwnership(deal)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(deal)
+    ) {
       throw new ForbiddenException()
     }
 
@@ -119,7 +122,10 @@ export class DealService {
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
 
-    if (!this.utilService.checkOwnership(deal)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(deal)
+    ) {
       throw new ForbiddenException()
     }
 
