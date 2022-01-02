@@ -65,7 +65,7 @@ export function ViewBoard<T extends Task | Lead | Deal>({
           dataSource={data?.items}
           rowKey={(u) => u.id}
           pagination={false}
-          scroll={{ x: tableWidth || 1000 }}
+          scroll={{ x: tableWidth || 1000, y: 224 }}
         />
       </div>
     )
