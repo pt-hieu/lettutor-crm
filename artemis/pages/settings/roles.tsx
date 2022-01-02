@@ -190,12 +190,12 @@ export default function SettingRoles() {
         <DragDropContext onDragEnd={dndUpdate}>
           <div className="w-full grid grid-cols-[1fr,30px,1fr] gap-4 h-[calc(100vh-60px-102px)] mt-8 text-gray-700">
             <ActionPanel
-              disabled={isLoading || isDeleting || auth[Actions.EDIT_ROLE]}
+              disabled={isLoading || isDeleting || !auth[Actions.EDIT_ROLE]}
               role={selectedRole}
             />
             <div className=""></div>
             <AvailableActionPanel
-              disabled={isLoading || isDeleting || auth[Actions.EDIT_ROLE]}
+              disabled={isLoading || isDeleting || !auth[Actions.EDIT_ROLE]}
               data={selectedRole}
             />
           </div>

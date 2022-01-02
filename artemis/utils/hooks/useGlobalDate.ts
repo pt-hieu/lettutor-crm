@@ -9,9 +9,8 @@ export type UseGlobalDateProps = {
 }
 
 export default function useGlobalDate({ callback, key }: UseGlobalDateProps) {
-  const memoizedKey = useMemo(() => key, [])
-
   const client = useQueryClient()
+  const memoizedKey = useMemo(() => key, [])
 
   const [time, setTime] = useState(() => new Date())
   const { data: globalTime } = useQuery<Date>(memoizedKey || GlobalState.DATE, {

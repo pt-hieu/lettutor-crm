@@ -13,6 +13,8 @@ import { MailService } from 'src/mail/mail.service'
 import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { stringify } from 'querystring'
 
 const PWD_TOKEN_EXPIRATION = 5 //in days
 
@@ -22,6 +24,7 @@ export class UserService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Role) private roleRepo: Repository<Role>,
     private mailService: MailService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   getManyRole(dto: DTO.Role.GetManyRole) {
@@ -55,6 +58,8 @@ export class UserService {
     )
       throw new BadRequestException('Name has been taken')
 
+    this.eventEmitter.emit('auth.invalidate', id)
+
     return this.roleRepo.save({
       ...role,
       ...dto,
@@ -62,7 +67,7 @@ export class UserService {
   }
 
   async removeRole(id: string) {
-    const role = await this.roleRepo.findOne(id)
+    const role = await this.roleRepo.findOne({ where: { id } })
     if (!role) throw new BadRequestException('Role does not exist')
 
     return this.roleRepo.remove(role)

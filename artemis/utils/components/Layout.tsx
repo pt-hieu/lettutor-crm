@@ -2,7 +2,6 @@ import { ReactNode, useEffect } from 'react'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import Header from './Header'
-import { useSession } from 'next-auth/client'
 import Footer from './Footer'
 import { OG } from './OpenGraph'
 import { useQueryClient } from 'react-query'
@@ -11,6 +10,10 @@ import BugReporter from './BugReporter'
 import PoseidonAuth from './PoseidonAuth'
 import { Actions } from '@utils/models/role'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { API } from 'environment'
+import { useSubscription } from '@utils/hooks/useSubscription'
+import { signOut } from 'next-auth/client'
+import { OpCode } from '@utils/models/subscription'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })
 
@@ -54,6 +57,34 @@ function Layout({
 
     client.setQueryData(GlobalState.AUTHORIZATION, auth)
   }, [session])
+
+  useEffect(() => {
+    if (!session) return
+
+    const eventSource = new EventSource(API + '/api/subscribe', {
+      withCredentials: true,
+    })
+
+    if (!eventSource) return
+    eventSource.onmessage = ({ data }: MessageEvent) => {
+      client.setQueryData(GlobalState.SUBSCRIPTION, JSON.parse(data))
+    }
+
+    return () => {
+      eventSource.close()
+    }
+  }, [session])
+
+  const data = useSubscription()
+
+  useEffect(() => {
+    if (!session || !data) return
+    if (data.opcode !== OpCode.INVALIDATE_SESSION) return
+
+    if (session.user.roles.some((role) => role.id === data.payload)) {
+      signOut()
+    }
+  }, [data])
 
   useEffect(() => {
     if (!og) return

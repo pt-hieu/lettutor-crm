@@ -69,7 +69,6 @@ export class AuthService {
 
   async checkExistence(email: string) {
     const user = await this.userRepo.findOne({ email })
-
     return !!user
   }
 }

@@ -1,5 +1,4 @@
 import { Paginate, PagingQuery } from '@utils/models/paging'
-import { Role } from '@utils/models/role'
 import { User, UserStatus } from '@utils/models/user'
 import axios from 'axios'
 import { API } from 'environment'

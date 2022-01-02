@@ -19,6 +19,7 @@ import { TaskModule } from './task/task.module'
 import { NoteModule } from './note/note.module'
 import { LeadModule } from './lead/lead.module'
 import { ContactModule } from './contact/contact.module'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ContactModule } from './contact/contact.module'
       autoLoadEntities: true,
       logging: false,
     }),
+    EventEmitterModule.forRoot(),
     UserModule,
     MailModule,
     AuthModule,
