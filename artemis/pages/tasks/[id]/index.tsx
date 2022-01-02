@@ -21,8 +21,6 @@ import { Props } from '@utils/components/Input'
 import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
 import { TaskFormData, taskSchema } from '../add-task'
 import { User } from '@utils/models/user'
-import { Account } from '@utils/models/account'
-import { Contact } from '@utils/models/contact'
 import { yupResolver } from '@hookform/resolvers/yup'
 import InlineEdit from '@utils/components/InlineEdit'
 import { getUsers } from '@utils/service/user'
@@ -214,6 +212,7 @@ const TaskDetail = () => {
     }),
     [task],
   )
+
   const {
     register,
     handleSubmit,
@@ -313,13 +312,17 @@ const TaskDetail = () => {
                     </span>
                   </Tooltip>
                 ) : (
-                  <Confirm
-                    message="Are you sure you want to mark this task as completed?"
-                    title="Warning closing task"
-                    onYes={confirmCloseTask}
-                  >
-                    <button className="crm-button">Close Task</button>
-                  </Confirm>
+                  <>
+                    {auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS] && (
+                      <Confirm
+                        message="Are you sure you want to mark this task as completed?"
+                        title="Warning closing task"
+                        onYes={confirmCloseTask}
+                      >
+                        <button className="crm-button">Close Task</button>
+                      </Confirm>
+                    )}
+                  </>
                 )}
               </div>
             </div>
