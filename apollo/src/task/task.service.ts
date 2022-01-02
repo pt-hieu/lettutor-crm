@@ -100,7 +100,7 @@ export class TaskService {
         'deal.fullName',
       ])
 
-    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_ACCOUNTS])) {
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
       q.andWhere('owner.id = :ownerId', {
         ownerId: this.payloadService.data.id,
       })

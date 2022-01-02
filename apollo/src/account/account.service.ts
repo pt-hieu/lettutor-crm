@@ -83,7 +83,7 @@ export class AccountService {
       .leftJoin('acc.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
 
-    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_ACCOUNTS])) {
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
     }
 

@@ -41,7 +41,7 @@ export class LeadService {
       .leftJoin('l.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
 
-    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_LEADS])) {
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_LEADS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
     }
 

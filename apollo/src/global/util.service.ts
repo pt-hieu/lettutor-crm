@@ -36,17 +36,13 @@ export class UtilService {
     return entity.ownerId === this.payloadService.data.id
   }
 
-  public checkRoleAction(requiredActions: Actions[]) {
-    let value = true
-    requiredActions.forEach((requiredAction) => {
-      value =
-        value &&
-        this.payloadService.data.roles.some(
-          ({ actions }) =>
-            actions.includes(Actions.IS_ADMIN) ||
-            actions.includes(requiredAction),
-        )
-    })
-    return value
+  public checkRoleAction(...requiredActions: Actions[]) {
+    return !!requiredActions.filter((action) =>
+      this.payloadService.data.roles.some(
+        (role) =>
+          role.actions.includes(action) ||
+          role.actions.includes(Actions.IS_ADMIN),
+      ),
+    ).length
   }
 }

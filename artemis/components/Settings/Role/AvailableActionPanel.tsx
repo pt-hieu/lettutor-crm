@@ -44,7 +44,7 @@ export default function AvailableActionPanel({ data, disabled }: Props) {
             <span className="font-medium text-[17px]">Available Actions</span>
           </div>
 
-          <div className="mt-4 w-full flex flex-col gap-2">
+          <div className="mt-4 w-full h-[calc(100vh-60px-145px)] pr-2 crm-scrollbar  flex flex-col gap-2 overflow-auto">
             {availableActions.map((action, index) => (
               <Draggable
                 draggableId={action}

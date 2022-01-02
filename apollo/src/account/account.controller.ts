@@ -40,21 +40,21 @@ export class AccountController {
   getAccountById(@Param('id', ParseUUIDPipe) id: string) {
     const relations = ['owner']
 
-    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_CONTACTS])) {
+    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_CONTACTS)) {
       relations.push('contacts')
-      if (this.utilService.checkRoleAction([Actions.VIEW_ALL_TASKS])) {
+      if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
         relations.push('contacts.tasks', 'contacts.tasks.owner')
       }
     }
 
-    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_DEALS])) {
+    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_DEALS)) {
       relations.push('deals')
-      if (this.utilService.checkRoleAction([Actions.VIEW_ALL_TASKS])) {
+      if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
         relations.push('deals.tasks', 'deals.tasks.owner')
       }
     }
 
-    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_TASKS])) {
+    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
       relations.push('tasks', 'tasks.owner')
     }
 

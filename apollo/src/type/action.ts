@@ -1,5 +1,4 @@
 export enum Actions {
-  // ====================== ADMIN ====
   IS_ADMIN = 'Can do anything',
   VIEW_ALL_USERS = 'Can view all users',
   VIEW_ALL_USER_DETAILS = 'Can view any user details',

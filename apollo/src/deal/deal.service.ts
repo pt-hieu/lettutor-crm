@@ -51,7 +51,7 @@ export class DealService {
         'tasks.id',
       ])
 
-    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_DEALS])) {
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_DEALS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
     }
 

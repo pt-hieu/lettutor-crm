@@ -20,16 +20,11 @@ export class ActionGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest() as { user: JwtPayload }
 
-    let value = false
-    requiredActions.forEach((requiredAction) => {
-      value =
-        value ||
-        user.roles.some(
-          ({ actions }) =>
-            actions.includes(Actions.IS_ADMIN) ||
-            actions.includes(requiredAction),
-        )
-    })
-    return value
+    return !!requiredActions.filter((action) =>
+      user.roles.some(
+        ({ actions }) =>
+          actions.includes(action) || actions.includes(Actions.IS_ADMIN),
+      ),
+    ).length
   }
 }

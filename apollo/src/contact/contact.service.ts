@@ -38,7 +38,7 @@ export class ContactService {
         'account.description',
       ])
 
-    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_CONTACTS])) {
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_CONTACTS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
     }
 

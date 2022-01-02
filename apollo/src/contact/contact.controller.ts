@@ -47,11 +47,11 @@ export class ContactController {
   getContactById(@Param('id', ParseUUIDPipe) id: string) {
     const relations = ['owner', 'account']
 
-    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_DEALS])) {
+    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_DEALS)) {
       relations.push('deals')
     }
 
-    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_TASKS])) {
+    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
       relations.push('tasks', 'tasks.owner')
     }
 

@@ -47,11 +47,11 @@ export class DealController {
   getDealById(@Param('id', ParseUUIDPipe) id: string) {
     const relations = ['owner', 'account', 'contact']
 
-    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_TASKS])) {
+    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
       relations.push('tasks', 'tasks.owner')
     }
 
-    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_NOTES])) {
+    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_NOTES)) {
       relations.push('notes')
     }
 

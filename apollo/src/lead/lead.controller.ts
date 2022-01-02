@@ -49,7 +49,7 @@ export class LeadController {
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
     const relations = ['owner']
 
-    if (this.utilService.checkRoleAction([Actions.VIEW_ALL_TASKS])) {
+    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
       relations.push('tasks', 'tasks.owner')
     }
 
