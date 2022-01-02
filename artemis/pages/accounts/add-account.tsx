@@ -31,10 +31,7 @@ const phoneRegExp = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/
 
 const schema = yup.object().shape({
   ownerId: yup.string().required('Account Owner is required.'),
-  phoneNum: yup
-    .string()
-    .required('Phone is required.')
-    .matches(phoneRegExp, 'Phone is invalid.'),
+  phoneNum: yup.string().optional().matches(phoneRegExp, 'Phone is invalid.'),
   fullName: yup
     .string()
     .required('Full Name is required.')

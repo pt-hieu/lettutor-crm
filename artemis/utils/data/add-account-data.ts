@@ -20,7 +20,7 @@ export const AccountAddData: AddAccountTemplate = [
       {
         label: 'Phone',
         name: 'phoneNum',
-        required: true,
+        required: false,
       },
       {
         label: 'Account Type',
