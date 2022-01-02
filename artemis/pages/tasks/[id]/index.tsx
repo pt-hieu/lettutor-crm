@@ -26,6 +26,9 @@ import { Contact } from '@utils/models/contact'
 import { yupResolver } from '@hookform/resolvers/yup'
 import InlineEdit from '@utils/components/InlineEdit'
 import { getUsers } from '@utils/service/user'
+import { checkActionError } from '@utils/libs/checkActions'
+import { Actions } from '@utils/models/role'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 
 enum Relatives {
   LEAD = 'lead',
@@ -43,10 +46,12 @@ const fields = ({
   register,
   errors,
   users,
+  disabled,
 }: {
   register: UseFormRegister<TaskFormData>
   errors: FieldErrors<TaskFormData>
   users: User[]
+  disabled?: boolean
 }): Array<TaskInfo> => [
   {
     label: 'Task Owner',
@@ -54,6 +59,7 @@ const fields = ({
       as: 'select',
       error: errors.ownerId?.message,
       props: {
+        disabled,
         children: (
           <>
             {users.map((user) => (
@@ -73,6 +79,7 @@ const fields = ({
     props: {
       error: errors.subject?.message,
       props: {
+        disabled,
         type: 'text',
         id: 'subject',
         ...register('subject'),
@@ -84,6 +91,7 @@ const fields = ({
     props: {
       error: errors.dueDate?.message,
       props: {
+        disabled,
         type: 'date',
         id: 'due-date',
         ...register('dueDate'),
@@ -96,6 +104,7 @@ const fields = ({
       error: errors.status?.message,
       as: 'select',
       props: {
+        disabled,
         id: 'status',
         children: (
           <>
@@ -116,6 +125,7 @@ const fields = ({
       error: errors.priority?.message,
       as: 'select',
       props: {
+        disabled,
         id: 'priority',
         children: (
           <>
@@ -135,6 +145,7 @@ const fields = ({
     props: {
       error: errors.description?.message,
       props: {
+        disabled,
         type: 'text',
         id: 'desc',
         ...register('description'),
@@ -232,6 +243,8 @@ const TaskDetail = () => {
     },
   )
 
+  const auth = useAuthorization()
+
   const submit = useCallback(
     handleSubmit((data) => {
       if (!data.dueDate) {
@@ -274,6 +287,7 @@ const TaskDetail = () => {
                     register,
                     errors,
                     users: users || [],
+                    disabled: !auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS],
                   }).map(({ label, props }) => (
                     <div
                       key={label}
@@ -335,7 +349,13 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(client, ['task', id], 'users').isError,
+    notFound:
+      investigate(client, ['task', id], 'users').isError ||
+      (await checkActionError(
+        req,
+        Actions.VIEW_ALL_TASK_DETAILS,
+        Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS,
+      )),
     props: {
       dehydratedState: dehydrate(client),
     },

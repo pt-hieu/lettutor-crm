@@ -40,7 +40,7 @@ function Layout({
   const client = useQueryClient()
 
   useEffect(() => {
-    const autho = Object.values(Actions).reduce(
+    const auth = Object.values(Actions).reduce(
       (sum, curr) => ({
         ...sum,
         [curr]: session?.user.roles.some(
@@ -52,8 +52,8 @@ function Layout({
       {},
     )
 
-    client.setQueryData(GlobalState.AUTHORIZATION, autho)
-  }, [])
+    client.setQueryData(GlobalState.AUTHORIZATION, auth)
+  }, [session])
 
   useEffect(() => {
     if (!og) return

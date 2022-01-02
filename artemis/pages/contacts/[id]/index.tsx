@@ -266,7 +266,7 @@ const ContactDetail = () => {
                   errors,
                   users || [],
                   accounts || [],
-                  auth[Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS],
+                  !auth[Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS],
                 ).map(({ label, props }) => (
                   <div
                     key={label}

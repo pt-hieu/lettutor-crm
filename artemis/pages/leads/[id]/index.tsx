@@ -246,7 +246,7 @@ const LeadDetail = () => {
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
-                {fields(auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS])(
+                {fields(!auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS])(
                   register,
                   errors,
                   users || [],

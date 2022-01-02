@@ -4,12 +4,14 @@ import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
 import { TaskAddData } from '@utils/data/add-task-data'
 import { Field } from '@utils/data/update-deal-data'
+import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { Deal } from '@utils/models/deal'
 import { Lead } from '@utils/models/lead'
+import { Actions } from '@utils/models/role'
 import { Task } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccounts } from '@utils/service/account'
@@ -383,7 +385,9 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(client, ['task', id]).isError,
+    notFound:
+      investigate(client, ['task', id]).isError ||
+      (await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)),
     props: {
       dehydratedState: dehydrate(client),
     },

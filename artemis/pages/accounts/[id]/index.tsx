@@ -72,7 +72,7 @@ const AccountDetail = () => {
   }, [defaultValues])
 
   const auth = useAuthorization()
-  const disabled = auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS]
+  const disabled = !auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS]
 
   const accountInfo: AccountInfo[] = [
     {
