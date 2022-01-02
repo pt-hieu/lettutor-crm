@@ -32,7 +32,10 @@ export class AccountService {
       throw new NotFoundException(`Account not found`)
     }
 
-    if (!this.utilService.checkOwnership(account)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(account)
+    ) {
       throw new ForbiddenException()
     }
 
@@ -102,7 +105,10 @@ export class AccountService {
   async updateAccount(dto: DTO.Account.UpdateAccount, id: string) {
     const account = await this.getAccountById({ where: { id } })
 
-    if (!this.utilService.checkOwnership(account)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(account)
+    ) {
       throw new ForbiddenException()
     }
 
