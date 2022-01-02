@@ -78,7 +78,10 @@ export class TaskService {
       throw new NotFoundException(`Task not found`)
     }
 
-    if (!this.utilService.checkOwnership(task)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(task)
+    ) {
       throw new ForbiddenException()
     }
 
@@ -132,7 +135,10 @@ export class TaskService {
   async update(id: string, dto: DTO.Task.UpdateBody) {
     const task = await this.getTaskById({ where: { id } })
 
-    if (!this.utilService.checkOwnership(task)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(task)
+    ) {
       throw new ForbiddenException()
     }
 

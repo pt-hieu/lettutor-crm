@@ -66,7 +66,10 @@ export class ContactService {
   async getContactById(option: FindOneOptions<Contact>, trace?: boolean) {
     const found = await this.contactRepo.findOne(option)
 
-    if (!this.utilService.checkOwnership(found)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(found)
+    ) {
       throw new ForbiddenException()
     }
 
@@ -98,7 +101,10 @@ export class ContactService {
   async update(id: string, dto: DTO.Contact.UpdateBody) {
     const contact = await this.getContactById({ where: { id } })
 
-    if (!this.utilService.checkOwnership(contact)) {
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(contact)
+    ) {
       throw new ForbiddenException()
     }
 
