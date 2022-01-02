@@ -9,9 +9,9 @@ import {
   Post,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
-import { Payload } from 'src/utils/decorators/payload.decorator'
-import { JwtPayload } from 'src/utils/interface'
+import { Actions } from 'src/type/action'
 import { TaskService } from './task.service'
 
 @ApiTags('task')
@@ -21,19 +21,24 @@ export class TaskController {
   constructor(private readonly service: TaskService) {}
 
   @Get()
-  @ApiOperation({ summary: 'view, search and filter all leads' })
-  index(@Query() query: DTO.Task.GetManyQuery, @Payload() payload: JwtPayload) {
-    return this.service.getMany(query, payload)
+  @ApiOperation({ summary: 'view, search and filter all tasks' })
+  index(@Query() query: DTO.Task.GetManyQuery) {
+    return this.service.getMany(query)
   }
 
   @Post()
+  @DefineAction(Actions.CREATE_NEW_TASK)
   @ApiOperation({ summary: 'to add new task' })
   addTask(@Body() dto: DTO.Task.AddTask) {
     return this.service.addTask(dto)
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'to get lead information by Id' })
+  @DefineAction(
+    Actions.VIEW_ALL_TASK_DETAILS,
+    Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS,
+  )
+  @ApiOperation({ summary: 'to get task information by Id' })
   getTaskById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getTaskById({
       where: { id },
@@ -41,15 +46,8 @@ export class TaskController {
     })
   }
 
-  //@ApiOperation({ summary: 'to get one individually task' })
-  //getOneTask(@Param('id', ParseUUIDPipe) id: string) {
-  //return this.service.getTaskById({
-  //where: { id },
-  //relations: ['owner', 'deal', 'contact', 'account', 'lead'],
-  //})
-  //}
-
   @Patch(':id')
+  @DefineAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
   @ApiOperation({ summary: 'to edit a task' })
   updateContact(
     @Param('id', ParseUUIDPipe) id: string,

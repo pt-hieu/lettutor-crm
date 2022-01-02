@@ -1,8 +1,15 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
+import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
 import { Account } from './account.entity'
@@ -14,6 +21,7 @@ export class AccountService {
     private accountRepo: Repository<Account>,
     private readonly userService: UserService,
     private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
   ) {}
 
   async getAccountById(option: FindOneOptions<Account>, trace?: boolean) {
@@ -24,6 +32,10 @@ export class AccountService {
       throw new NotFoundException(`Account not found`)
     }
 
+    if (!this.utilService.checkOwnership(account)) {
+      throw new ForbiddenException()
+    }
+
     let tasksToDisplay = []
 
     account.tasks
@@ -32,13 +44,17 @@ export class AccountService {
 
     account.deals
       ? account.deals.forEach((deal) => {
-          tasksToDisplay = tasksToDisplay.concat(deal.tasks)
+          deal.tasks
+            ? (tasksToDisplay = tasksToDisplay.concat(deal.tasks))
+            : undefined
         })
       : undefined
 
     account.contacts
       ? account.contacts.forEach((contact) => {
-          tasksToDisplay = tasksToDisplay.concat(contact.tasks)
+          contact.tasks
+            ? (tasksToDisplay = tasksToDisplay.concat(contact.tasks))
+            : undefined
         })
       : undefined
 
@@ -67,6 +83,10 @@ export class AccountService {
       .leftJoin('acc.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
 
+    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_ACCOUNTS])) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
+
     if (query.type) q.andWhere('acc.type IN (:...type)', { type: query.type })
 
     if (query.search) {
@@ -81,6 +101,10 @@ export class AccountService {
 
   async updateAccount(dto: DTO.Account.UpdateAccount, id: string) {
     const account = await this.getAccountById({ where: { id } })
+
+    if (!this.utilService.checkOwnership(account)) {
+      throw new ForbiddenException()
+    }
 
     if (dto.ownerId) {
       await this.userService.getOneUserById({ where: { id: dto.ownerId } })

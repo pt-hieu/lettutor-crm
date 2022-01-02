@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
 import { Brackets, FindOneOptions, Repository } from 'typeorm'
@@ -7,6 +12,8 @@ import { AccountService } from 'src/account/account.service'
 import { UserService } from 'src/user/user.service'
 import { UtilService } from 'src/global/util.service'
 import { Contact } from './contact.entity'
+import { PayloadService } from 'src/global/payload.service'
+import { Actions } from 'src/type/action'
 
 @Injectable()
 export class ContactService {
@@ -16,6 +23,7 @@ export class ContactService {
     private readonly accountService: AccountService,
     private readonly userService: UserService,
     private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
   ) {}
 
   async getMany(query: DTO.Contact.GetManyQuery) {
@@ -29,6 +37,10 @@ export class ContactService {
         'account.fullName',
         'account.description',
       ])
+
+    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_CONTACTS])) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
 
     if (query.source)
       q.andWhere('lc.source IN (:...source)', { source: query.source })
@@ -53,6 +65,10 @@ export class ContactService {
 
   async getContactById(option: FindOneOptions<Contact>, trace?: boolean) {
     const found = await this.contactRepo.findOne(option)
+
+    if (!this.utilService.checkOwnership(found)) {
+      throw new ForbiddenException()
+    }
 
     if (!found) {
       Logger.error(JSON.stringify(option, null, 2))
@@ -81,6 +97,10 @@ export class ContactService {
 
   async update(id: string, dto: DTO.Contact.UpdateBody) {
     const contact = await this.getContactById({ where: { id } })
+
+    if (!this.utilService.checkOwnership(contact)) {
+      throw new ForbiddenException()
+    }
 
     await Promise.all([
       dto.accountId

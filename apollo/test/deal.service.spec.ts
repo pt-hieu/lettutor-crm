@@ -33,7 +33,6 @@ describe('deal service', () => {
         AccountService,
         ContactService,
         UserService,
-        UtilService,
         PayloadService,
         {
           provide: MailService,
@@ -46,6 +45,13 @@ describe('deal service', () => {
           provide: NoteService,
           useValue: {
             addNote: jest.fn(),
+          },
+        },
+        {
+          provide: UtilService,
+          useValue: {
+            checkOwnership: jest.fn().mockReturnValue(true),
+            checkRoleAction: jest.fn().mockReturnValue(true),
           },
         },
         {
@@ -97,9 +103,8 @@ describe('deal service', () => {
 
   describe('update deal', () => {
     it('should update deal succeed', async () => {
-      const dto: DTO.Lead.UpdateLead = {
-        email: 'update@mail.com',
-      }
+      const dto: DTO.Deal.UpdateDeal = {}
+
       dealRepo.findOne.mockReturnValue({ ...deal })
       dealRepo.save.mockReturnValue({ ...deal, ...dto })
 
@@ -110,9 +115,7 @@ describe('deal service', () => {
     })
 
     it('should throw not found exception when deal not found', async () => {
-      const dto: DTO.Lead.UpdateLead = {
-        email: 'update@mail.com',
-      }
+      const dto: DTO.Deal.UpdateDeal = {}
 
       dealRepo.findOne.mockReturnValue(undefined)
 

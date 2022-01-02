@@ -39,8 +39,14 @@ describe('task service', () => {
         AccountService,
         ContactService,
         UserService,
-        UtilService,
         PayloadService,
+        {
+          provide: UtilService,
+          useValue: {
+            checkOwnership: jest.fn().mockReturnValue(true),
+            checkRoleAction: jest.fn().mockReturnValue(true),
+          },
+        },
         {
           provide: MailService,
           useValue: {
@@ -236,12 +242,8 @@ describe('task service', () => {
       mockQueryBuilder.getMany.mockReturnValue([task])
 
       expect(
-        (
-          (await taskService.getMany(dto, user)) as Pagination<
-            Task,
-            IPaginationMeta
-          >
-        ).items,
+        ((await taskService.getMany(dto)) as Pagination<Task, IPaginationMeta>)
+          .items,
       ).toEqual([task])
     })
   })

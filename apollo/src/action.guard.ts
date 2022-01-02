@@ -9,20 +9,27 @@ export class ActionGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredAction = this.reflector.getAllAndOverride<Actions>(KEY, [
+    const requiredActions = this.reflector.getAllAndOverride<Actions[]>(KEY, [
       context.getHandler(),
       context.getClass(),
     ])
 
-    if (!requiredAction) {
+    if (!requiredActions) {
       return true
     }
 
     const { user } = context.switchToHttp().getRequest() as { user: JwtPayload }
 
-    return user.roles.some(
-      ({ actions }) =>
-        actions.includes(Actions.IS_ADMIN) || actions.includes(requiredAction),
-    )
+    let value = false
+    requiredActions.forEach((requiredAction) => {
+      value =
+        value ||
+        user.roles.some(
+          ({ actions }) =>
+            actions.includes(Actions.IS_ADMIN) ||
+            actions.includes(requiredAction),
+        )
+    })
+    return value
   }
 }

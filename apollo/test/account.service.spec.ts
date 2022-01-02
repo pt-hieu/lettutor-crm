@@ -24,8 +24,14 @@ describe('account service', () => {
       providers: [
         AccountService,
         UserService,
-        UtilService,
         PayloadService,
+        {
+          provide: UtilService,
+          useValue: {
+            checkOwnership: jest.fn().mockReturnValue(true),
+            checkRoleAction: jest.fn().mockReturnValue(true),
+          },
+        },
         {
           provide: MailService,
           useValue: {

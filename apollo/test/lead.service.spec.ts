@@ -39,7 +39,6 @@ describe('lead service', () => {
         DealService,
         UserService,
         ContactService,
-        UtilService,
         TaskService,
         PayloadService,
         {
@@ -47,6 +46,13 @@ describe('lead service', () => {
           useValue: {
             sendResetPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
             sendAddPwdMail: jest.fn().mockReturnValue(Promise.resolve(true)),
+          },
+        },
+        {
+          provide: UtilService,
+          useValue: {
+            checkOwnership: jest.fn().mockReturnValue(true),
+            checkRoleAction: jest.fn().mockReturnValue(true),
           },
         },
         {

@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -15,6 +16,8 @@ import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
 import { Deal, DealStage } from './deal.entity'
+import { Actions } from 'src/type/action'
+import { PayloadService } from 'src/global/payload.service'
 
 @Injectable()
 export class DealService {
@@ -27,6 +30,7 @@ export class DealService {
     private readonly noteService: NoteService,
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
   ) {}
 
   async getMany(query: DTO.Deal.GetManyQuery) {
@@ -46,6 +50,10 @@ export class DealService {
         'tasks.dueDate',
         'tasks.id',
       ])
+
+    if (!this.utilService.checkRoleAction([Actions.VIEW_ALL_DEALS])) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
 
     if (query.isCurrentMonth) {
       const d = new Date()
@@ -81,6 +89,10 @@ export class DealService {
       throw new NotFoundException(`Deal not found`)
     }
 
+    if (!this.utilService.checkOwnership(deal)) {
+      throw new ForbiddenException()
+    }
+
     if (trace) {
       await this.utilService.loadTraceInfo(deal)
     }
@@ -107,17 +119,23 @@ export class DealService {
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
 
-    if (
-      (dto.stage === DealStage.CLOSED_LOST ||
-        dto.stage === DealStage.CLOSED_LOST_TO_COMPETITION) &&
-      dto.reasonForLoss
-    ) {
-      const note: DTO.Note.AddNote = new DTO.Note.AddNote()
-      note.ownerId = dto.ownerId
-      note.dealId = id
-      note.title = dto.stage
-      note.content = dto.reasonForLoss
-      this.noteService.addNote(note)
+    if (!this.utilService.checkOwnership(deal)) {
+      throw new ForbiddenException()
+    }
+
+    if (dto.reasonForLoss) {
+      if (
+        (dto.stage === DealStage.CLOSED_LOST ||
+          dto.stage === DealStage.CLOSED_LOST_TO_COMPETITION) &&
+        dto.reasonForLoss
+      ) {
+        const note: DTO.Note.AddNote = new DTO.Note.AddNote()
+        note.ownerId = dto.ownerId
+        note.dealId = id
+        note.title = dto.stage
+        note.content = dto.reasonForLoss
+        this.noteService.addNote(note)
+      }
     }
 
     return this.dealRepo.save({
