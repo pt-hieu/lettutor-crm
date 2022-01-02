@@ -35,6 +35,9 @@ import {
 import { DealUpdateFormData, EditDealSchema } from './edit'
 import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
 import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
+import { checkActionError } from '@utils/libs/checkActions'
+import { Actions } from '@utils/models/role'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -63,182 +66,197 @@ type DealInfo = {
   props: Omit<Props<'input' | 'textarea' | 'select' | undefined>, 'editable'>
 }
 
-const fields = ({
-  register,
-  errors,
-  users,
-  accounts,
-  contacts,
-}: {
-  register: UseFormRegister<DealUpdateFormData>
-  errors: FieldErrors<DealUpdateFormData>
-  users: User[]
-  accounts: Account[]
-  contacts: Contact[]
-}): Array<DealInfo> => [
-  {
-    label: 'Deal Owner',
-    props: {
-      as: 'select',
-      error: errors.ownerId?.message,
-      props: {
-        children: (
-          <>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </>
-        ),
-        id: 'deal-owner',
-        ...register('ownerId'),
+const fields =
+  (disabled?: boolean) =>
+  ({
+    register,
+    errors,
+    users,
+    accounts,
+    contacts,
+  }: {
+    register: UseFormRegister<DealUpdateFormData>
+    errors: FieldErrors<DealUpdateFormData>
+    users: User[]
+    accounts: Account[]
+    contacts: Contact[]
+  }): Array<DealInfo> =>
+    [
+      {
+        label: 'Deal Owner',
+        props: {
+          as: 'select',
+          error: errors.ownerId?.message,
+          props: {
+            disabled,
+            children: (
+              <>
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name}
+                  </option>
+                ))}
+              </>
+            ),
+            id: 'deal-owner',
+            ...register('ownerId'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Deal Name',
-    props: {
-      error: errors.fullName?.message,
-      props: {
-        type: 'text',
-        id: 'full-name',
-        ...register('fullName'),
+      {
+        label: 'Deal Name',
+        props: {
+          error: errors.fullName?.message,
+          props: {
+            disabled,
+            type: 'text',
+            id: 'full-name',
+            ...register('fullName'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Account Name',
-    props: {
-      as: 'select',
-      error: errors.accountId?.message,
-      props: {
-        children: (
-          <>
-            {accounts.map(({ id, fullName }) => (
-              <option key={id} value={id}>
-                {fullName}
-              </option>
-            ))}
-          </>
-        ),
-        id: 'account',
-        ...register('accountId'),
+      {
+        label: 'Account Name',
+        props: {
+          as: 'select',
+          error: errors.accountId?.message,
+          props: {
+            disabled,
+            children: (
+              <>
+                {accounts.map(({ id, fullName }) => (
+                  <option key={id} value={id}>
+                    {fullName}
+                  </option>
+                ))}
+              </>
+            ),
+            id: 'account',
+            ...register('accountId'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Closing Date',
-    props: {
-      error: errors.closingDate?.message,
-      props: {
-        type: 'date',
-        id: 'closing-date',
-        ...register('closingDate'),
+      {
+        label: 'Closing Date',
+        props: {
+          error: errors.closingDate?.message,
+          props: {
+            type: 'date',
+            disabled,
+            id: 'closing-date',
+            ...register('closingDate'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Amount',
-    props: {
-      error: errors.amount?.message,
-      props: {
-        type: 'text',
-        id: 'amount',
-        ...register('amount'),
+      {
+        label: 'Amount',
+        props: {
+          error: errors.amount?.message,
+          props: {
+            type: 'text',
+            disabled,
+            id: 'amount',
+            ...register('amount'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Stage',
-    props: {
-      error: errors.stage?.message,
-      as: 'select',
-      props: {
-        id: 'stage',
-        children: (
-          <>
-            {Object.values(DealStage).map((stage) => (
-              <option key={stage} value={stage}>
-                {stage}
-              </option>
-            ))}
-          </>
-        ),
-        ...register('stage'),
+      {
+        label: 'Stage',
+        props: {
+          error: errors.stage?.message,
+          as: 'select',
+          props: {
+            id: 'stage',
+            disabled,
+            children: (
+              <>
+                {Object.values(DealStage).map((stage) => (
+                  <option key={stage} value={stage}>
+                    {stage}
+                  </option>
+                ))}
+              </>
+            ),
+            ...register('stage'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Lead Source',
-    props: {
-      error: errors.source?.message,
-      as: 'select',
-      props: {
-        id: 'source',
-        children: (
-          <>
-            {Object.values(LeadSource).map((source) => (
-              <option key={source} value={source}>
-                {source}
-              </option>
-            ))}
-          </>
-        ),
-        ...register('source'),
+      {
+        label: 'Lead Source',
+        props: {
+          error: errors.source?.message,
+          as: 'select',
+          props: {
+            id: 'source',
+            disabled,
+            children: (
+              <>
+                {Object.values(LeadSource).map((source) => (
+                  <option key={source} value={source}>
+                    {source}
+                  </option>
+                ))}
+              </>
+            ),
+            ...register('source'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Contact Name',
-    props: {
-      as: 'select',
-      error: errors.contactId?.message,
-      props: {
-        children: (
-          <>
-            <option key="none" value="None">
-              None
-            </option>
-            {contacts.map(({ id, fullName }) => (
-              <option key={id} value={id}>
-                {fullName}
-              </option>
-            ))}
-          </>
-        ),
-        id: 'contact',
-        ...register('contactId'),
+      {
+        label: 'Contact Name',
+        props: {
+          as: 'select',
+          error: errors.contactId?.message,
+          props: {
+            disabled,
+            children: (
+              <>
+                <option key="none" value="None">
+                  None
+                </option>
+                {contacts.map(({ id, fullName }) => (
+                  <option key={id} value={id}>
+                    {fullName}
+                  </option>
+                ))}
+              </>
+            ),
+            id: 'contact',
+            ...register('contactId'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Probability (%)',
-    props: {
-      error: errors.probability?.message,
-      props: {
-        type: 'text',
-        id: 'probability',
-        ...register('probability'),
+      {
+        label: 'Probability (%)',
+        props: {
+          error: errors.probability?.message,
+          props: {
+            disabled,
+            type: 'text',
+            id: 'probability',
+            ...register('probability'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Description',
-    props: {
-      error: errors.description?.message,
-      props: {
-        type: 'text',
-        id: 'desc',
-        ...register('description'),
+      {
+        label: 'Description',
+        props: {
+          error: errors.description?.message,
+          props: {
+            disabled,
+            type: 'text',
+            id: 'desc',
+            ...register('description'),
+          },
+        },
       },
-    },
-  },
-]
+    ]
 
 const DealDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
+
+  const auth = useAuthorization()
 
   const client = useQueryClient()
   const { data: users } = useQuery<User[]>('users', { enabled: false })
@@ -372,7 +390,7 @@ const DealDetail = () => {
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
-                {fields({
+                {fields(auth[Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS])({
                   register,
                   errors,
                   users: users || [],
@@ -455,8 +473,13 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(client, ['deal', id], 'users', 'accounts', 'contacts')
-      .isError,
+    notFound:
+      investigate(client, ['deal', id]).isError ||
+      (await checkActionError(
+        req,
+        Actions.VIEW_ALL_DEAL_DETAILS,
+        Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS,
+      )),
     props: {
       dehydratedState: dehydrate(client),
     },

@@ -6,7 +6,11 @@ import Input from '@utils/components/Input'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Actions, Role } from '@utils/models/role'
-import { deleteRole as deleteRoleService, getRoles, updateRole } from '@utils/service/role'
+import {
+  deleteRole as deleteRoleService,
+  getRoles,
+  updateRole,
+} from '@utils/service/role'
 import { GetServerSideProps } from 'next'
 import { useEffect, useMemo, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
@@ -21,6 +25,7 @@ import {
 import { DragDropContext, OnDragEndResponder } from 'react-beautiful-dnd'
 import { notification } from 'antd'
 import CreateRoleModal from '@components/Settings/Role/CreateRoleModal'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const client = new QueryClient()
@@ -67,6 +72,8 @@ export default function SettingRoles() {
 
   const [createRole, openCreateRole, closeCreateRole] = useModal()
 
+  const auth = useAuthorization()
+
   const selectedRole = useMemo(
     () => roles?.find((role) => role.name === selectedRoleName),
     [selectedRoleName, roles],
@@ -102,7 +109,7 @@ export default function SettingRoles() {
 
   const deleteRole = useCallback(() => {
     deleteMutateAsync()
-  } , [])
+  }, [])
 
   const dndUpdate: OnDragEndResponder = useCallback(
     (res) => {
@@ -152,7 +159,7 @@ export default function SettingRoles() {
           </form>
 
           <div className="flex gap-2">
-            {selectedRole && (
+            {auth[Actions.DELETE_ROLE] && selectedRole && (
               <Confirm
                 asInform={(selectedRole?.usersCount || 0) > 0}
                 message={
@@ -162,24 +169,35 @@ export default function SettingRoles() {
                 }
                 onYes={deleteRole}
               >
-                <button disabled={isLoading || isDeleting} className="crm-button-danger">
+                <button
+                  disabled={isLoading || isDeleting}
+                  className="crm-button-danger"
+                >
                   Delete
                 </button>
               </Confirm>
             )}
-            <button onClick={openCreateRole} className="crm-button">
-              <span className="fa fa-plus mr-2" />
-              Add New Role
-            </button>
+            {auth[Actions.CREATE_NEW_ROLE] && (
+              <button onClick={openCreateRole} className="crm-button">
+                <span className="fa fa-plus mr-2" />
+                Add New Role
+              </button>
+            )}
             <CreateRoleModal visible={createRole} close={closeCreateRole} />
           </div>
         </div>
 
         <DragDropContext onDragEnd={dndUpdate}>
           <div className="w-full grid grid-cols-[1fr,30px,1fr] gap-4 h-[calc(100vh-60px-102px)] mt-8 text-gray-700">
-            <ActionPanel disabled={isLoading || isDeleting} role={selectedRole} />
+            <ActionPanel
+              disabled={isLoading || isDeleting || auth[Actions.EDIT_ROLE]}
+              role={selectedRole}
+            />
             <div className=""></div>
-            <AvailableActionPanel disabled={isLoading || isDeleting} data={selectedRole} />
+            <AvailableActionPanel
+              disabled={isLoading || isDeleting || auth[Actions.EDIT_ROLE]}
+              data={selectedRole}
+            />
           </div>
         </DragDropContext>
       </>

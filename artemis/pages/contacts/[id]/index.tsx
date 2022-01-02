@@ -8,11 +8,14 @@ import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { LeadSource } from '@utils/models/lead'
+import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccounts } from '@utils/service/account'
@@ -43,6 +46,7 @@ const fields = (
   errors: FieldErrors<ContactAddFormData>,
   users: User[],
   accounts: Account[],
+  disabled?: boolean,
 ): Array<ContactInfo> => [
   {
     label: 'Contact Owner',
@@ -50,6 +54,7 @@ const fields = (
       as: 'select',
       error: errors.ownerId?.message,
       props: {
+        disabled,
         children: (
           <>
             {users.map((user) => (
@@ -69,6 +74,7 @@ const fields = (
     props: {
       error: errors.fullName?.message,
       props: {
+        disabled,
         type: 'text',
         id: 'full-name',
         ...register('fullName'),
@@ -80,6 +86,7 @@ const fields = (
     props: {
       error: errors.email?.message,
       props: {
+        disabled,
         type: 'email',
         id: 'email',
         ...register('email'),
@@ -91,6 +98,7 @@ const fields = (
     props: {
       error: errors.phoneNum?.message,
       props: {
+        disabled,
         type: 'text',
         id: 'phone',
         ...register('phoneNum'),
@@ -103,6 +111,7 @@ const fields = (
       error: errors.source?.message,
       as: 'select',
       props: {
+        disabled,
         id: 'source',
         children: (
           <>
@@ -123,6 +132,7 @@ const fields = (
       as: 'select',
       error: errors.accountId?.message,
       props: {
+        disabled,
         children: (
           <>
             <option key="none" value={'None'}>
@@ -145,6 +155,7 @@ const fields = (
     props: {
       error: errors.address?.message,
       props: {
+        disabled,
         type: 'text',
         id: 'address',
         ...register('address'),
@@ -156,6 +167,7 @@ const fields = (
     props: {
       error: errors.description?.message,
       props: {
+        disabled,
         type: 'text',
         id: 'desc',
         ...register('description'),
@@ -224,6 +236,8 @@ const ContactDetail = () => {
     [id],
   )
 
+  const auth = useAuthorization()
+
   const openTasks = useMemo(
     () =>
       contact?.tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
@@ -247,23 +261,27 @@ const ContactDetail = () => {
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
-                {fields(register, errors, users || [], accounts || []).map(
-                  ({ label, props }) => (
-                    <div
-                      key={label}
-                      className="grid grid-cols-[250px,350px] gap-4"
-                    >
-                      <span className="inline-block text-right font-medium pt-[8px]">
-                        {label}
-                      </span>
-                      <InlineEdit
-                        onEditCancel={() => reset(defaultValues)}
-                        onEditComplete={submit}
-                        {...props}
-                      />
-                    </div>
-                  ),
-                )}
+                {fields(
+                  register,
+                  errors,
+                  users || [],
+                  accounts || [],
+                  auth[Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS],
+                ).map(({ label, props }) => (
+                  <div
+                    key={label}
+                    className="grid grid-cols-[250px,350px] gap-4"
+                  >
+                    <span className="inline-block text-right font-medium pt-[8px]">
+                      {label}
+                    </span>
+                    <InlineEdit
+                      onEditCancel={() => reset(defaultValues)}
+                      onEditComplete={submit}
+                      {...props}
+                    />
+                  </div>
+                ))}
               </form>
             </div>
             <div className="pt-4">
@@ -342,7 +360,13 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(client, ['contact', id], 'users', 'accounts').isError,
+    notFound:
+      investigate(client, ['contact', id]).isError ||
+      (await checkActionError(
+        req,
+        Actions.VIEW_ALL_CONTACT_DETAILS,
+        Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
+      )),
     props: {
       dehydratedState: dehydrate(client),
     },

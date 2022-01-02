@@ -1,6 +1,8 @@
 import TraceInfo from '@utils/components/TraceInfo'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useModal } from '@utils/hooks/useModal'
 import { Lead } from '@utils/models/lead'
+import { Actions } from '@utils/models/role'
 import { useRouter } from 'next/router'
 import ConvertModal from './ConvertModal'
 
@@ -12,6 +14,8 @@ const LeadDetailNavbar = ({ lead }: Props) => {
   const { fullName, id } = lead || {}
   const router = useRouter()
   const [convert, openConvert, closeConvert] = useModal()
+
+  const auth = useAuthorization()
 
   const navigateToEditPage = () => {
     router.push(`/leads/${id}/edit`)
@@ -30,12 +34,21 @@ const LeadDetailNavbar = ({ lead }: Props) => {
 
         <div className="grid grid-cols-3 gap-3">
           <button className="crm-button">Send Email</button>
-          <button onClick={openConvert} className="crm-button-secondary">
-            Convert
-          </button>
-          <button className="crm-button-secondary" onClick={navigateToEditPage}>
-            Edit
-          </button>
+
+          {auth[Actions.VIEW_AND_CONVERT_LEAD_DETAILS] && (
+            <button onClick={openConvert} className="crm-button-secondary">
+              Convert
+            </button>
+          )}
+
+          {auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS] && (
+            <button
+              className="crm-button-secondary"
+              onClick={navigateToEditPage}
+            >
+              Edit
+            </button>
+          )}
         </div>
       </div>
     </div>

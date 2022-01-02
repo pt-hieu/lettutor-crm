@@ -8,9 +8,12 @@ import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account, AccountType } from '@utils/models/account'
+import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccount, updateAccount } from '@utils/service/account'
@@ -68,6 +71,9 @@ const AccountDetail = () => {
     reset(defaultValues)
   }, [defaultValues])
 
+  const auth = useAuthorization()
+  const disabled = auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS]
+
   const accountInfo: AccountInfo[] = [
     {
       label: 'Account Owner',
@@ -75,6 +81,7 @@ const AccountDetail = () => {
         as: 'select',
         error: errors.ownerId?.message,
         props: {
+          disabled,
           children: (
             <>
               {users?.map(({ id, name }) => (
@@ -95,6 +102,7 @@ const AccountDetail = () => {
         as: 'select',
         error: errors.type?.message,
         props: {
+          disabled,
           children: (
             <>
               {Object.values(AccountType).map((type) => (
@@ -114,6 +122,7 @@ const AccountDetail = () => {
       props: {
         error: errors.phoneNum?.message,
         props: {
+          disabled,
           type: 'text',
           ...register('phoneNum'),
           id: 'phoneNum',
@@ -125,6 +134,7 @@ const AccountDetail = () => {
       props: {
         error: errors.address?.message,
         props: {
+          disabled,
           ...register('address'),
           type: 'text',
           id: 'address',
@@ -136,6 +146,7 @@ const AccountDetail = () => {
       props: {
         error: errors.description?.message,
         props: {
+          disabled,
           ...register('description'),
           type: 'text',
           id: 'desc',
@@ -278,7 +289,13 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(client, ['account', id]).isError,
+    notFound:
+      investigate(client, ['account', id]).isError ||
+      (await checkActionError(
+        req,
+        Actions.VIEW_ALL_ACCOUNT_DETAILS,
+        Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
+      )),
     props: {
       dehydratedState: dehydrate(client),
     },

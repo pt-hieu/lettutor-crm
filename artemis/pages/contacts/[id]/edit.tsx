@@ -4,10 +4,12 @@ import Layout from '@utils/components/Layout'
 import { phoneRegExp } from '@utils/data/regex'
 import { ContactUpdateData } from '@utils/data/update-contact-data'
 import { Field } from '@utils/data/update-lead-data'
+import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
+import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
 import { getAccounts } from '@utils/service/account'
 import { getContact, updateContact } from '@utils/service/contact'
@@ -232,8 +234,9 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(client, ['users'], ['accounts'], ['contact', id])
-      .isError,
+    notFound:
+      investigate(client, ['contact', id]).isError ||
+      (await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS)),
     props: {
       dehydratedState: dehydrate(client),
     },

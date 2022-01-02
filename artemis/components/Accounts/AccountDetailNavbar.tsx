@@ -1,5 +1,7 @@
 import TraceInfo from '@utils/components/TraceInfo'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Account } from '@utils/models/account'
+import { Actions } from '@utils/models/role'
 import { useRouter } from 'next/router'
 
 type Props = {
@@ -13,6 +15,9 @@ const AccountDetailNavbar = ({ data }: Props) => {
   const navigateToEditPage = () => {
     router.push(`/accounts/${id}/edit`)
   }
+
+  const auth = useAuthorization()
+
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-10 transform translate-y-[-16px]">
       <div className="flex justify-between items-center">
@@ -23,9 +28,14 @@ const AccountDetailNavbar = ({ data }: Props) => {
         </div>
 
         <div className="flex flex-row gap-3">
-          <button className="crm-button-secondary" onClick={navigateToEditPage}>
-            Edit
-          </button>
+          {auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] && (
+            <button
+              className="crm-button-secondary"
+              onClick={navigateToEditPage}
+            >
+              Edit
+            </button>
+          )}
         </div>
       </div>
     </div>

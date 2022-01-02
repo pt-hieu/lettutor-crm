@@ -9,6 +9,8 @@ import { useQueryClient } from 'react-query'
 import { GlobalState } from '@utils/GlobalStateKey'
 import BugReporter from './BugReporter'
 import PoseidonAuth from './PoseidonAuth'
+import { Actions } from '@utils/models/role'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })
 
@@ -34,8 +36,24 @@ function Layout({
   description,
   keywords,
 }: Props) {
-  const [session] = useSession()
+  const [session] = useTypedSession()
   const client = useQueryClient()
+
+  useEffect(() => {
+    const autho = Object.values(Actions).reduce(
+      (sum, curr) => ({
+        ...sum,
+        [curr]: session?.user.roles.some(
+          (role) =>
+            role.actions.includes(curr) ||
+            role.actions.includes(Actions.IS_ADMIN),
+        ),
+      }),
+      {},
+    )
+
+    client.setQueryData(GlobalState.AUTHORIZATION, autho)
+  }, [])
 
   useEffect(() => {
     if (!og) return

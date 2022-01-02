@@ -4,9 +4,10 @@ import Layout from '@utils/components/Layout'
 import { AccountAddData } from '@utils/data/add-account-data'
 import { Field } from '@utils/data/update-deal-data'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
-import { investigate } from '@utils/libs/investigate'
 import { Account, AccountType } from '@utils/models/account'
+import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
 import { addAccount } from '@utils/service/account'
 import { getUsers } from '@utils/service/user'
@@ -201,7 +202,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   return {
-    notFound: investigate(client, ['users']).isError,
+    notFound: await checkActionError(req, Actions.CREATE_NEW_ACCOUNT),
     props: {
       dehydratedState: dehydrate(client),
     },

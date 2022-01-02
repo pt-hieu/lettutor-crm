@@ -15,6 +15,8 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { phoneRegExp } from '@utils/data/regex'
 import { investigate } from '@utils/libs/investigate'
+import { checkActionError } from '@utils/libs/checkActions'
+import { Actions } from '@utils/models/role'
 
 export interface LeadUpdateFromData
   extends Pick<
@@ -215,7 +217,9 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(client, ['lead', id], ['users']).isError,
+    notFound:
+      investigate(client, ['lead', id]).isError ||
+      (await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)),
     props: {
       dehydratedState: dehydrate(client),
     },

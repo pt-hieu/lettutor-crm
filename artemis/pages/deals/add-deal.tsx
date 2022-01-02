@@ -3,11 +3,13 @@ import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import { DealUpdateData, Field } from '@utils/data/update-deal-data'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
+import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
 import { getAccounts } from '@utils/service/account'
 import { getContacts } from '@utils/service/contact'
@@ -227,6 +229,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: await checkActionError(req, Actions.CREATE_NEW_DEAL),
     props: {
       dehydratedState: dehydrate(client),
     },

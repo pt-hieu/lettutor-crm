@@ -2,6 +2,8 @@ import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
 import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { Actions } from '@utils/models/role'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -21,6 +23,8 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
     }),
     [],
   )
+
+  const auth = useAuthorization()
 
   return (
     <div className="flex justify-between items-center p-1">
@@ -58,23 +62,25 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      <ButtonAdd
-        title="Create Account"
-        asLink
-        link="/accounts/add-account"
-        menuItems={
-          <>
-            <button className={menuItemClass}>
-              <span className="fa fa-upload mr-4" />
-              Import Accounts
-            </button>
-            <button className={menuItemClass}>
-              <span className="fa fa-book mr-4" />
-              Import Notes
-            </button>
-          </>
-        }
-      />
+      {auth[Actions.CREATE_NEW_ACCOUNT] && (
+        <ButtonAdd
+          title="Create Account"
+          asLink
+          link="/accounts/add-account"
+          menuItems={
+            <>
+              <button className={menuItemClass}>
+                <span className="fa fa-upload mr-4" />
+                Import Accounts
+              </button>
+              <button className={menuItemClass}>
+                <span className="fa fa-book mr-4" />
+                Import Notes
+              </button>
+            </>
+          }
+        />
+      )}
     </div>
   )
 }

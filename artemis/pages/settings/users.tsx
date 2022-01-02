@@ -11,7 +11,9 @@ import { useQueryState } from '@utils/hooks/useQueryState'
 import ButtonAddUser from '@components/Settings/ButtonAddUser'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import Animate from '@utils/components/Animate'
-import { Role } from '@utils/models/role'
+import { Actions, Role } from '@utils/models/role'
+import { checkActionError } from '@utils/libs/checkActions'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -40,6 +42,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
+    notFound: await checkActionError(req, Actions.VIEW_ALL_USERS),
     props: {
       dehydratedState: dehydrate(client),
     },
@@ -90,6 +93,7 @@ export default function UsersSettings() {
   )
 
   const [start, end, total] = usePaginateItem(users)
+  const auth = useAuthorization()
 
   return (
     <SettingsLayout title="CRM | Users">
@@ -100,7 +104,8 @@ export default function UsersSettings() {
           onRoleChange={setRole}
           onStatusChange={setStatus}
         />
-        <ButtonAddUser />
+
+        {auth[Actions.CREATE_NEW_USER] && <ButtonAddUser />}
       </div>
 
       <div className="mt-4">

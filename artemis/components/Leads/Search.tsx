@@ -2,6 +2,8 @@ import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
 import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { Actions } from '@utils/models/role'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -14,6 +16,8 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
   const { register, handleSubmit, reset } = useForm({
     defaultValues: { search },
   })
+
+  const auth = useAuthorization()
 
   const submit = useCallback(
     handleSubmit(({ search }) => {
@@ -58,23 +62,25 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      <ButtonAdd
-        title="Create Lead"
-        asLink
-        link="/leads/add-lead"
-        menuItems={
-          <>
-            <button className={menuItemClass}>
-              <span className="fa fa-upload mr-4" />
-              Import Leads
-            </button>
-            <button className={menuItemClass}>
-              <span className="fa fa-book mr-4" />
-              Import Notes
-            </button>
-          </>
-        }
-      />
+      {auth[Actions.CREATE_NEW_LEAD] && (
+        <ButtonAdd
+          title="Create Lead"
+          asLink
+          link="/leads/add-lead"
+          menuItems={
+            <>
+              <button className={menuItemClass}>
+                <span className="fa fa-upload mr-4" />
+                Import Leads
+              </button>
+              <button className={menuItemClass}>
+                <span className="fa fa-book mr-4" />
+                Import Notes
+              </button>
+            </>
+          }
+        />
+      )}
     </div>
   )
 }

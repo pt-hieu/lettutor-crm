@@ -27,133 +27,147 @@ import { notification } from 'antd'
 import { useCallback, useEffect, useMemo } from 'react'
 import { TaskStatus } from '@utils/models/task'
 import TaskList from '@utils/components/TaskList'
+import { checkActionError } from '@utils/libs/checkActions'
+import { Actions } from '@utils/models/role'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 
 type LeadInfo = {
   label: string
   props: Omit<Props<'input' | 'textarea' | 'select' | undefined>, 'editable'>
 }
 
-const fields = (
-  register: UseFormRegister<LeadUpdateFromData>,
-  errors: FieldErrors<LeadUpdateFromData>,
-  users: User[],
-): Array<LeadInfo> => [
-  {
-    label: 'Lead Owner',
-    props: {
-      as: 'select',
-      error: errors.ownerId?.message,
-      props: {
-        children: (
-          <>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </>
-        ),
-        id: 'lead-owner',
-        ...register('ownerId'),
+const fields =
+  (disabled?: boolean) =>
+  (
+    register: UseFormRegister<LeadUpdateFromData>,
+    errors: FieldErrors<LeadUpdateFromData>,
+    users: User[],
+  ): Array<LeadInfo> =>
+    [
+      {
+        label: 'Lead Owner',
+        props: {
+          as: 'select',
+          error: errors.ownerId?.message,
+          props: {
+            disabled,
+            children: (
+              <>
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name}
+                  </option>
+                ))}
+              </>
+            ),
+            id: 'lead-owner',
+            ...register('ownerId'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Full Name',
-    props: {
-      error: errors.fullName?.message,
-      props: {
-        type: 'text',
-        id: 'full-name',
-        ...register('fullName'),
+      {
+        label: 'Full Name',
+        props: {
+          error: errors.fullName?.message,
+          props: {
+            type: 'text',
+            disabled,
+            id: 'full-name',
+            ...register('fullName'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Email',
-    props: {
-      error: errors.email?.message,
-      props: {
-        type: 'email',
-        id: 'email',
-        ...register('email'),
+      {
+        label: 'Email',
+        props: {
+          error: errors.email?.message,
+          props: {
+            type: 'email',
+            disabled,
+            id: 'email',
+            ...register('email'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Phone',
-    props: {
-      error: errors.phoneNum?.message,
-      props: {
-        type: 'text',
-        id: 'phone',
-        ...register('phoneNum'),
+      {
+        label: 'Phone',
+        props: {
+          error: errors.phoneNum?.message,
+          props: {
+            type: 'text',
+            id: 'phone',
+            disabled,
+            ...register('phoneNum'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Lead Status',
-    props: {
-      error: errors.status?.message,
-      as: 'select',
-      props: {
-        id: 'status',
-        children: (
-          <>
-            {Object.values(LeadStatus).map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </>
-        ),
-        ...register('status'),
+      {
+        label: 'Lead Status',
+        props: {
+          error: errors.status?.message,
+          as: 'select',
+          props: {
+            id: 'status',
+            disabled,
+            children: (
+              <>
+                {Object.values(LeadStatus).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </>
+            ),
+            ...register('status'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Lead Source',
-    props: {
-      error: errors.source?.message,
-      as: 'select',
-      props: {
-        id: 'source',
-        children: (
-          <>
-            {Object.values(LeadSource).map((source) => (
-              <option key={source} value={source}>
-                {source}
-              </option>
-            ))}
-          </>
-        ),
-        ...register('source'),
+      {
+        label: 'Lead Source',
+        props: {
+          error: errors.source?.message,
+          as: 'select',
+          props: {
+            id: 'source',
+            disabled,
+            children: (
+              <>
+                {Object.values(LeadSource).map((source) => (
+                  <option key={source} value={source}>
+                    {source}
+                  </option>
+                ))}
+              </>
+            ),
+            ...register('source'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Address',
-    props: {
-      error: errors.address?.message,
-      props: {
-        type: 'text',
-        id: 'address',
-        ...register('address'),
+      {
+        label: 'Address',
+        props: {
+          error: errors.address?.message,
+          props: {
+            type: 'text',
+            disabled,
+            id: 'address',
+            ...register('address'),
+          },
+        },
       },
-    },
-  },
-  {
-    label: 'Description',
-    props: {
-      error: errors.description?.message,
-      props: {
-        type: 'text',
-        id: 'desc',
-        ...register('description'),
+      {
+        label: 'Description',
+        props: {
+          error: errors.description?.message,
+          props: {
+            type: 'text',
+            id: 'desc',
+            disabled,
+            ...register('description'),
+          },
+        },
       },
-    },
-  },
-]
+    ]
 
 const LeadDetail = () => {
   const { query } = useRouter()
@@ -162,6 +176,8 @@ const LeadDetail = () => {
   const client = useQueryClient()
   const { data: lead } = useQuery<Lead>(['lead', id], getLead(id))
   const { data: users } = useQuery<User[]>('users', { enabled: false })
+
+  const auth = useAuthorization()
 
   const defaultValues = useMemo(
     () => ({
@@ -230,23 +246,25 @@ const LeadDetail = () => {
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
-                {fields(register, errors, users || []).map(
-                  ({ label, props }) => (
-                    <div
-                      key={label}
-                      className="grid grid-cols-[250px,350px] gap-4"
-                    >
-                      <span className="inline-block text-right font-medium pt-[8px]">
-                        {label}
-                      </span>
-                      <InlineEdit
-                        onEditCancel={() => reset(defaultValues)}
-                        onEditComplete={submit}
-                        {...props}
-                      />
-                    </div>
-                  ),
-                )}
+                {fields(auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS])(
+                  register,
+                  errors,
+                  users || [],
+                ).map(({ label, props }) => (
+                  <div
+                    key={label}
+                    className="grid grid-cols-[250px,350px] gap-4"
+                  >
+                    <span className="inline-block text-right font-medium pt-[8px]">
+                      {label}
+                    </span>
+                    <InlineEdit
+                      onEditCancel={() => reset(defaultValues)}
+                      onEditComplete={submit}
+                      {...props}
+                    />
+                  </div>
+                ))}
               </form>
             </div>
             <div className="pt-4">
@@ -301,7 +319,9 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: investigate(client, ['lead', id]).isError,
+    notFound:
+      investigate(client, ['lead', id]).isError ||
+      (await checkActionError(req, Actions.VIEW_ALL_LEAD_DETAILS)),
     props: {
       dehydratedState: dehydrate(client),
     },

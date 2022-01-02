@@ -7,6 +7,8 @@ import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { Switch, Tooltip } from 'antd'
 import { ViewMode } from 'pages/deals'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { Actions } from '@utils/models/role'
 
 type Props = {
   search: string | undefined
@@ -20,6 +22,8 @@ export default function DealsSearch({
   const { register, handleSubmit, reset } = useForm({
     defaultValues: { search },
   })
+
+  const auth = useAuthorization()
 
   const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode')
 
@@ -85,23 +89,25 @@ export default function DealsSearch({
           </div>
         </Tooltip>
 
-        <ButtonAdd
-          title="Create Deal"
-          asLink
-          link="/deals/add-deal"
-          menuItems={
-            <>
-              <button className={menuItemClass}>
-                <span className="fa fa-upload mr-4" />
-                Import Deals
-              </button>
-              <button className={menuItemClass}>
-                <span className="fa fa-book mr-4" />
-                Import Notes
-              </button>
-            </>
-          }
-        />
+        {auth[Actions.CREATE_NEW_DEAL] && (
+          <ButtonAdd
+            title="Create Deal"
+            asLink
+            link="/deals/add-deal"
+            menuItems={
+              <>
+                <button className={menuItemClass}>
+                  <span className="fa fa-upload mr-4" />
+                  Import Deals
+                </button>
+                <button className={menuItemClass}>
+                  <span className="fa fa-book mr-4" />
+                  Import Notes
+                </button>
+              </>
+            }
+          />
+        )}
       </div>
     </div>
   )

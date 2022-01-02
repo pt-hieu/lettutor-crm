@@ -8,7 +8,7 @@ import { getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect, Fragment } from 'react'
+import { useEffect } from 'react'
 import { RegisterOptions, useForm } from 'react-hook-form'
 import {
   dehydrate,
@@ -19,6 +19,8 @@ import {
 } from 'react-query'
 import { User } from '@utils/models/user'
 import Layout from '@utils/components/Layout'
+import { checkActionError } from '@utils/libs/checkActions'
+import { Actions } from '@utils/models/role'
 
 export interface LeadAddFormData
   extends Pick<
@@ -209,6 +211,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   return {
+    notFound: await checkActionError(req, Actions.CREATE_NEW_LEAD),
     props: {
       dehydratedState: dehydrate(client),
     },

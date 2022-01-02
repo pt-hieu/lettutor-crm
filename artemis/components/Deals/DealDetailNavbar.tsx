@@ -1,5 +1,7 @@
 import TraceInfo from '@utils/components/TraceInfo'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Deal } from '@utils/models/deal'
+import { Actions } from '@utils/models/role'
 import { useRouter } from 'next/router'
 
 type Props = {
@@ -8,7 +10,9 @@ type Props = {
 
 const DealDetailNavbar = ({ deal }: Props) => {
   const { id, fullName, amount } = deal
+
   const router = useRouter()
+  const auth = useAuthorization()
 
   const navigateToEditPage = () => {
     router.push(`/deals/${id}/edit`)
@@ -29,9 +33,14 @@ const DealDetailNavbar = ({ deal }: Props) => {
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <button className="crm-button-secondary" onClick={navigateToEditPage}>
-            Edit
-          </button>
+          {auth[Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS] && (
+            <button
+              className="crm-button-secondary"
+              onClick={navigateToEditPage}
+            >
+              Edit
+            </button>
+          )}
         </div>
       </div>
     </div>

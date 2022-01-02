@@ -4,10 +4,12 @@ import Layout from '@utils/components/Layout'
 import { ContactUpdateData } from '@utils/data/update-contact-data'
 import { Field } from '@utils/data/update-lead-data'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { LeadSource } from '@utils/models/lead'
+import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
 import { getAccounts } from '@utils/service/account'
 import { addContact } from '@utils/service/contact'
@@ -210,6 +212,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   return {
+    notFound: await checkActionError(req, Actions.CREATE_NEW_CONTACT),
     props: {
       dehydratedState: dehydrate(client),
     },
