@@ -170,7 +170,11 @@ const LeadsAdd = () => {
 
   return (
     <Layout requireLogin title="CRM | Add a new lead">
-      <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
+      <form
+        noValidate
+        onSubmit={addLead}
+        className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6"
+      >
         <div>
           {/* Lead Infomation Start */}
           {LeadAddData.map(({ title, items }) => (
@@ -185,14 +189,23 @@ const LeadsAdd = () => {
         </div>
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
-          <button className="crm-button-outline" onClick={() => push('/leads')}>
+          <button
+            type="button"
+            className="crm-button-outline"
+            onClick={() => push('/leads')}
+          >
             Cancel
           </button>
-          <button className="crm-button" onClick={addLead} disabled={isLoading}>
+          <button
+            type="submit"
+            className="crm-button"
+            onClick={addLead}
+            disabled={isLoading}
+          >
             Submit
           </button>
         </div>
-      </div>
+      </form>
     </Layout>
   )
 }

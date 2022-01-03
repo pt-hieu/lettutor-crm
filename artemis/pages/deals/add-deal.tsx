@@ -168,7 +168,11 @@ const AddDeal = () => {
 
   return (
     <Layout requireLogin title="CRM | Add Deal">
-      <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
+      <form
+        noValidate
+        onSubmit={editDeal}
+        className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6"
+      >
         <div>
           {DealUpdateData.map(({ title, items }) => (
             <div className="flex flex-col gap-6" key={title}>
@@ -182,10 +186,15 @@ const AddDeal = () => {
         </div>
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
-          <button className="crm-button-outline" onClick={() => push(`/deals`)}>
+          <button
+            type="button"
+            className="crm-button-outline"
+            onClick={() => push(`/deals`)}
+          >
             Cancel
           </button>
           <button
+            type="submit"
             className="crm-button"
             onClick={editDeal}
             disabled={isLoading}
@@ -193,7 +202,7 @@ const AddDeal = () => {
             Save
           </button>
         </div>
-      </div>
+      </form>
     </Layout>
   )
 }

@@ -159,9 +159,12 @@ const EditLead = () => {
 
   return (
     <Layout requireLogin title="CRM | Edit lead">
-      <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
+      <form
+        noValidate
+        onSubmit={editLead}
+        className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6"
+      >
         <div>
-          {/* Lead Infomation Start */}
           {LeadUpdateData.map(({ title, items }) => (
             <div className="flex flex-col gap-6" key={title}>
               <h1 className="font-semibold text-lg text-gray-700">{title}</h1>
@@ -175,12 +178,14 @@ const EditLead = () => {
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
           <button
+            type="button"
             className="crm-button-outline"
             onClick={() => push(`/leads/${id}`)}
           >
             Cancel
           </button>
           <button
+            type="submit"
             className="crm-button"
             onClick={editLead}
             disabled={isLoading}
@@ -188,7 +193,7 @@ const EditLead = () => {
             Save
           </button>
         </div>
-      </div>
+      </form>
     </Layout>
   )
 }

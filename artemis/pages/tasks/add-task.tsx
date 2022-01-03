@@ -327,9 +327,12 @@ const CreateTask = () => {
 
   return (
     <Layout requireLogin title="CRM | Add Task">
-      <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
+      <form
+        noValidate
+        onSubmit={handleAddTask}
+        className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6"
+      >
         <div>
-          {/* Lead Infomation Start */}
           {TaskAddData.map(({ title, items }) => (
             <div className="flex flex-col gap-6" key={title}>
               <h1 className="font-semibold text-lg text-gray-700">{title}</h1>
@@ -342,10 +345,15 @@ const CreateTask = () => {
         </div>
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
-          <button className="crm-button-outline" onClick={() => push(`/tasks`)}>
+          <button
+            type="button"
+            className="crm-button-outline"
+            onClick={() => push(`/tasks`)}
+          >
             Cancel
           </button>
           <button
+            type="submit"
             className="crm-button"
             onClick={handleAddTask}
             disabled={isLoading}
@@ -353,7 +361,7 @@ const CreateTask = () => {
             Submit
           </button>
         </div>
-      </div>
+      </form>
     </Layout>
   )
 }

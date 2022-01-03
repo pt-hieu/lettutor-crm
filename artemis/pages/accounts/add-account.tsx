@@ -146,9 +146,12 @@ const CreateAccount = () => {
 
   return (
     <Layout requireLogin title="CRM | Add account">
-      <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
+      <form
+        noValidate
+        onSubmit={handleAddAccount}
+        className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6"
+      >
         <div>
-          {/* Lead Infomation Start */}
           {AccountAddData.map(({ title, items }) => (
             <div className="flex flex-col gap-6" key={title}>
               <h1 className="font-semibold text-lg text-gray-700">{title}</h1>
@@ -162,12 +165,14 @@ const CreateAccount = () => {
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
           <button
+            type="button"
             className="crm-button-outline"
             onClick={() => push(`/accounts`)}
           >
             Cancel
           </button>
           <button
+            type="submit"
             className="crm-button"
             onClick={handleAddAccount}
             disabled={isLoading}
@@ -175,7 +180,7 @@ const CreateAccount = () => {
             Submit
           </button>
         </div>
-      </div>
+      </form>
     </Layout>
   )
 }

@@ -163,7 +163,11 @@ const EditAccount = () => {
 
   return (
     <Layout requireLogin title="CRM | Edit account">
-      <div className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6">
+      <form
+        noValidate
+        onSubmit={editAccount}
+        className="crm-container grid grid-cols-[1fr,180px] gap-4 pt-6"
+      >
         <div>
           {AccountUpdateData.map(({ title, items }) => (
             <div className="flex flex-col gap-6" key={title}>
@@ -178,12 +182,14 @@ const EditAccount = () => {
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
           <button
+            type="button"
             className="crm-button-outline"
             onClick={() => push(`/accounts/${id}`)}
           >
             Cancel
           </button>
           <button
+            type="submit"
             className="crm-button"
             onClick={editAccount}
             disabled={isLoading}
@@ -191,7 +197,7 @@ const EditAccount = () => {
             Save
           </button>
         </div>
-      </div>
+      </form>
     </Layout>
   )
 }
