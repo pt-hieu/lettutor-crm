@@ -14,6 +14,7 @@ import { API } from 'environment'
 import { useSubscription } from '@utils/hooks/useSubscription'
 import { signOut } from 'next-auth/client'
 import { OpCode } from '@utils/models/subscription'
+import SessionInvalidate from './SessionInvalidate'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })
 
@@ -75,16 +76,6 @@ function Layout({
     }
   }, [session])
 
-  const data = useSubscription()
-
-  useEffect(() => {
-    if (!session || !data) return
-    if (data.opcode !== OpCode.INVALIDATE_SESSION) return
-
-    if (session.user.roles.some((role) => role.id === data.payload)) {
-      signOut()
-    }
-  }, [data])
 
   useEffect(() => {
     if (!og) return
@@ -109,6 +100,8 @@ function Layout({
           }
         />
       </Head>
+
+      <SessionInvalidate />
 
       {process.env.NODE_ENV === 'production' && (
         <>
