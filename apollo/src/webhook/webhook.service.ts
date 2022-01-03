@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios'
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { lastValueFrom, map } from 'rxjs'
+import { lastValueFrom, map, tap } from 'rxjs'
 import { Lead, LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
@@ -51,5 +51,25 @@ export class WebhookService {
     leadInfo.source = LeadSource.FACEBOOK
 
     return this.leadService.addLead(leadInfo)
+  }
+
+  async processStrapiBugCall(dto: DTO.Strapi.Bug) {
+    if (dto.event !== 'entry.create') return
+    if (dto.model !== 'bug') return
+
+    const data = {
+      title: dto.entry.subject,
+      body: dto.entry.description,
+      assignees: ['pt-hieu'],
+    }
+
+    const url = 'https://api.github.com/repos/pt-hieu/lettutor-crm/issues'
+    this.httpService
+      .post(url, data, {
+        headers: {
+          Authorization: 'token ' + process.env.GH_TOKEN,
+        },
+      })
+      .pipe(map((res) => res.data))
   }
 }
