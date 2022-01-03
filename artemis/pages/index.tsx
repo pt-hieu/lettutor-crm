@@ -1,10 +1,11 @@
 import { ViewBoard } from '@components/Home/ViewBoard'
 import Layout from '@utils/components/Layout'
 import { getSessionToken } from '@utils/libs/getToken'
-import { investigate } from '@utils/libs/investigate'
+import { TaskStatus } from '@utils/models/task'
 import { getDeals } from '@utils/service/deal'
 import { getLeads } from '@utils/service/lead'
 import { getTasks } from '@utils/service/task'
+import moment from 'moment'
 import { GetServerSideProps } from 'next'
 import { useState } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
@@ -19,17 +20,26 @@ export default function Index() {
 
   const { data: tasks, isLoading: tasksLoading } = useQuery(
     ['tasks', taskPage],
-    getTasks({ page: taskPage, isOpen: true }),
+    getTasks({
+      page: taskPage,
+      status: Object.values(TaskStatus).filter(
+        (s) => s !== TaskStatus.COMPLETED,
+      ),
+    }),
   )
 
   const { data: leads, isLoading: leadsLoading } = useQuery(
     ['leads', leadPage],
-    getLeads({ page: leadPage, isToday: true }),
+    getLeads({ page: leadPage, from: moment().startOf('day').toDate() }),
   )
 
   const { data: deals, isLoading: dealsLoading } = useQuery(
     ['deals', dealPage],
-    getDeals({ page: dealPage, isCurrentMonth: true }),
+    getDeals({
+      page: dealPage,
+      closeFrom: moment().startOf('month').toDate(),
+      closeTo: moment().endOf('month').toDate(),
+    }),
   )
 
   return (
@@ -78,15 +88,30 @@ export const getServerSideProps: GetServerSideProps = async ({
     await Promise.all([
       client.prefetchQuery(
         ['leads', page],
-        getLeads({ page, isToday: true }, token),
+        getLeads({ page, from: moment().startOf('day').toDate() }, token),
       ),
       client.prefetchQuery(
         ['tasks', page],
-        getTasks({ page, isOpen: true }, token),
+        getTasks(
+          {
+            page,
+            status: Object.values(TaskStatus).filter(
+              (s) => s !== TaskStatus.COMPLETED,
+            ),
+          },
+          token,
+        ),
       ),
       client.prefetchQuery(
         ['deals', page],
-        getDeals({ page, isCurrentMonth: true }, token),
+        getDeals(
+          {
+            page,
+            closeFrom: moment().startOf('month').toDate(),
+            closeTo: moment().endOf('month').toDate(),
+          },
+          token,
+        ),
       ),
     ])
   }

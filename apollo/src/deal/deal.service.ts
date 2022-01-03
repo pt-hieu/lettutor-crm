@@ -55,14 +55,14 @@ export class DealService {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
     }
 
-    if (query.isCurrentMonth) {
-      const d = new Date()
-      const beginDate = new Date(d.getFullYear(), d.getMonth(), 2)
-      const endDate = new Date(d.getFullYear(), d.getMonth() + 1, 2)
-      q.andWhere('d.closingDate BETWEEN :begin AND :end', {
-        begin: beginDate.toISOString(),
-        end: endDate.toISOString(),
+    if (query.closeFrom) {
+      q.andWhere('d.closingDate > :from', {
+        from: query.closeFrom.toISOString(),
       })
+    }
+
+    if (query.closeTo) {
+      q.andWhere('d.closingDate < :to', { to: query.closeTo.toISOString() })
     }
 
     if (query.source)

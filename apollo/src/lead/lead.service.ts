@@ -20,6 +20,7 @@ import { Task } from 'src/task/task.entity'
 import { TaskService } from 'src/task/task.service'
 import { PayloadService } from 'src/global/payload.service'
 import { Actions } from 'src/type/action'
+import { format } from 'path/posix'
 
 @Injectable()
 export class LeadService {
@@ -45,15 +46,12 @@ export class LeadService {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
     }
 
-    if (query.isToday) {
-      const d = new Date()
-      const beginDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-      const endDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
+    if (query.from) {
+      q.andWhere('l.createdAt > :from', { from: query.from.toISOString() })
+    }
 
-      q.andWhere('l.createdAt BETWEEN :begin AND :end', {
-        begin: beginDate.toISOString(),
-        end: endDate.toISOString(),
-      })
+    if (query.to) {
+      q.andWhere('l.createdAt < :to', { to: query.to.toISOString() })
     }
 
     if (query.status)

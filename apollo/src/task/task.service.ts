@@ -109,13 +109,10 @@ export class TaskService {
       })
     }
 
-    if (query.isOpen)
-      q.andWhere('t.status != :completed', { completed: TaskStatus.COMPLETED })
-
     if (query.priority)
       q.andWhere('t.priority IN (:...priority)', { priority: query.priority })
 
-    if (!query.isOpen && query.status)
+    if (query.status)
       q.andWhere('t.status IN (:...status)', { status: query.status })
 
     if (query.search) {

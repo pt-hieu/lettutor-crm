@@ -11,9 +11,6 @@ import PoseidonAuth from './PoseidonAuth'
 import { Actions } from '@utils/models/role'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { API } from 'environment'
-import { useSubscription } from '@utils/hooks/useSubscription'
-import { signOut } from 'next-auth/client'
-import { OpCode } from '@utils/models/subscription'
 import SessionInvalidate from './SessionInvalidate'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })

@@ -119,11 +119,17 @@ export class GetManyQuery extends Paginate {
   @IsEnum(LeadSource, { each: true })
   source?: LeadSource[]
 
-  @ApiPropertyOptional({ type: Boolean })
+  @ApiPropertyOptional({ type: Date })
   @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true')
-  isCurrentMonth?: boolean
+  @IsDate()
+  @Type(() => Date)
+  closeFrom?: Date
+
+  @ApiPropertyOptional({ type: Date })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  closeTo?: Date
 }
 
 export class UpdateDeal {
