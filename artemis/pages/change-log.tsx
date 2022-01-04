@@ -9,6 +9,7 @@ import moment from 'moment'
 import ReactMarkdown from 'react-markdown'
 import { GetServerSideProps } from 'next'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
+import root from 'react-shadow'
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const client = new QueryClient()
@@ -47,8 +48,12 @@ export default function ChangeLogs() {
                   <span className="font-medium">{version}</span> -{' '}
                   {moment(releasedAt).format('MMMM DD, YYYY')}
                 </div>
+
                 <div className="border rounded-lg rounded-tl-none p-4 bg-blue-400 text-white grid grid-cols-[1fr,60px]">
-                  <ReactMarkdown>{changes}</ReactMarkdown>
+                  <root.div>
+                    <ReactMarkdown>{changes}</ReactMarkdown>
+                  </root.div>
+
                   <div className="flex justify-center items-start">
                     <button>
                       <span className="fa fa-angle-right" />
