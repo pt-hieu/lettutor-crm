@@ -8,7 +8,7 @@ export default function PoseidonAuth() {
   const client = useQueryClient()
   const { mutateAsync } = useMutation(
     'log-in-to-poseidon',
-    strapiApiCall<{ jwt: string }>()(logInToPoseidon),
+    strapiApiCall<{ jwt: string }, any>()(logInToPoseidon),
     {
       onSuccess(res) {
         client.setQueryData(GlobalState.POSEIDON_TOKEN, res.jwt)
@@ -17,7 +17,7 @@ export default function PoseidonAuth() {
   )
 
   useEffect(() => {
-    mutateAsync()
+    mutateAsync(undefined)
   }, [])
 
   return <></>
