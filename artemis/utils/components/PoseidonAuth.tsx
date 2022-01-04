@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from 'react-query'
 
 export default function PoseidonAuth() {
   const client = useQueryClient()
+
   const { mutateAsync } = useMutation(
     'log-in-to-poseidon',
     strapiApiCall<{ jwt: string }, any>()(logInToPoseidon),
@@ -17,6 +18,9 @@ export default function PoseidonAuth() {
   )
 
   useEffect(() => {
+    const token = client.getQueryData(GlobalState.POSEIDON_TOKEN)
+    if (token) return
+
     mutateAsync(undefined)
   }, [])
 

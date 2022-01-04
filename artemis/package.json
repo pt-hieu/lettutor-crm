@@ -30,6 +30,7 @@
     "react-scroll": "^1.8.4",
     "react-shadow": "^19.0.2",
     "react-useanimations": "^2.0.6",
+    "remark-gfm": "^3.0.1",
     "typeorm": "^0.2.41",
     "yup": "^0.32.11"
   },

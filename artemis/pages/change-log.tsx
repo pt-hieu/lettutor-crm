@@ -10,6 +10,9 @@ import ReactMarkdown from 'react-markdown'
 import { GetServerSideProps } from 'next'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import root from 'react-shadow'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQueryState } from '@utils/hooks/useQueryState'
+import remarkGfm from 'remark-gfm'
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const client = new QueryClient()
@@ -34,36 +37,46 @@ export default function ChangeLogs() {
     },
   )
 
+  const [selectedVersion, setSelectedVesrion] = useQueryState<string>('version')
+
+  const selectedChange = useMemo(
+    () =>
+      changeLogs?.data.find((log) => log.attributes.version === selectedVersion)
+        ?.attributes.changes,
+    [changeLogs, selectedVersion],
+  )
+
+  useEffect(() => {
+    setSelectedVesrion(changeLogs?.data[0].attributes.version)
+  }, [])
+
   return (
     <Layout title="Artemis | Change Log">
-      <div className="crm-container">
-        <div className="text-xl font-medium">Artemis Change Log</div>
-        <Divider />
-
-        <div className="flex flex-col gap-6">
+      <div className="crm-container grid grid-cols-[200px,1fr] gap-4">
+        <div className="flex flex-col gap-2 py-5 border-r pr-4">
           {changeLogs?.data.map(
-            ({ id, attributes: { version, releasedAt, changes } }) => (
-              <div key={id + 'changelog'}>
-                <div className="inline-block border border-b-0 p-3 pb-1 border-blue-400">
-                  <span className="font-medium">{version}</span> -{' '}
-                  {moment(releasedAt).format('MMMM DD, YYYY')}
-                </div>
-
-                <div className="border rounded-lg rounded-tl-none p-4 bg-blue-400 text-white grid grid-cols-[1fr,60px]">
-                  <root.div>
-                    <ReactMarkdown>{changes}</ReactMarkdown>
-                  </root.div>
-
-                  <div className="flex justify-center items-start">
-                    <button>
-                      <span className="fa fa-angle-right" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+            ({ id, attributes: { version, releasedAt } }) => (
+              <button
+                onClick={() => setSelectedVesrion(version)}
+                key={id + 'changelog'}
+                className={`crm-button-outline text-left ${
+                  selectedVersion === version
+                    ? 'bg-blue-400 text-white border-white hover:text-white hover:border-white'
+                    : ''
+                }`}
+              >
+                <span className="font-medium">{version}</span> -{' '}
+                {moment(releasedAt).format('MMMM DD')}
+              </button>
             ),
           )}
         </div>
+
+        <root.div className="bg-blue-400 text-white px-4 rounded-md">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {selectedChange || ''}
+          </ReactMarkdown>
+        </root.div>
       </div>
     </Layout>
   )
