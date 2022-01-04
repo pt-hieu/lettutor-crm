@@ -10,3 +10,14 @@ export interface Base {
   updatedBy: User
 }
 
+
+export interface Strapi<T> {
+  id: string
+  attributes: T
+}
+
+export interface StrapiTimestamp {
+  updatedAt: Date
+  createdAt: Date
+  publishedAt: Date
+}

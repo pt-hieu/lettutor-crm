@@ -26,7 +26,7 @@ export default function SettingMenu({ visible, setVisible }: Props) {
       shouldAnimateOnExit
       presenceProps={{ exitBeforeEnter: true }}
       on={visible}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.17 }}
       animation={{
         start: { opacity: 0 },
         animate: { opacity: 1 },

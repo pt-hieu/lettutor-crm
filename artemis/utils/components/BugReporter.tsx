@@ -9,6 +9,7 @@ import { useMutation, useQuery } from 'react-query'
 import { createBug } from '@utils/service/bug'
 import Loading from './Loading'
 import { GlobalState } from '@utils/GlobalStateKey'
+import { strapiApiCall } from '@utils/libs/strapiApiCall'
 
 export type BugSubmitPayload = {
   email: string
@@ -53,11 +54,11 @@ export default function BugReporter() {
 
   const { mutateAsync, isLoading } = useMutation(
     'submit-bug',
-    createBug(token || ''),
+    strapiApiCall<any, BugSubmitPayload>(token)(createBug),
     {
       onSuccess() {
         notification.success({
-          message: 'Submitting bug successfulyy. Thank you!',
+          message: 'Submit bug successfully. Thank you!',
         })
 
         close()
@@ -78,7 +79,7 @@ export default function BugReporter() {
   )
 
   return (
-    <div className="fixed bottom-5 right-[100px]">
+    <div className="fixed bottom-5 right-[100px] z-[1000]">
       <Tooltip
         title={<div className="text-center">Found a bug?</div>}
         placement="left"
@@ -103,7 +104,11 @@ export default function BugReporter() {
               We are sorry for such inconvience :(
             </div>
 
-            <form noValidate onSubmit={submitBug} className="flex flex-col gap-4">
+            <form
+              noValidate
+              onSubmit={submitBug}
+              className="flex flex-col gap-4"
+            >
               <div>
                 <label htmlFor="email" className="crm-label after:content-['']">
                   Your Email

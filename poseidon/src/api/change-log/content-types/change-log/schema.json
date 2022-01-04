@@ -4,7 +4,8 @@
   "info": {
     "singularName": "change-log",
     "pluralName": "change-logs",
-    "displayName": "ChangeLogs"
+    "displayName": "ChangeLogs",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -21,6 +22,10 @@
       "type": "richtext",
       "required": true,
       "maxLength": 1000
+    },
+    "releasedAt": {
+      "type": "date",
+      "required": true
     }
   }
 }

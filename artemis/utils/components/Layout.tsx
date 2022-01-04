@@ -73,7 +73,6 @@ function Layout({
     }
   }, [session])
 
-
   useEffect(() => {
     if (!og) return
 
@@ -100,12 +99,8 @@ function Layout({
 
       <SessionInvalidate />
 
-      {process.env.NODE_ENV === 'production' && (
-        <>
-          <BugReporter />
-          <PoseidonAuth />
-        </>
-      )}
+      {process.env.NODE_ENV === 'production' && <BugReporter />}
+      <PoseidonAuth />
 
       {requireLogin && <RequireLogin />}
       {(session || !requireLogin) && (
