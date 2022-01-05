@@ -143,14 +143,14 @@ export default function DealsView() {
   )
 
   const [start, end, total] = usePaginateItem(deals)
-  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
+  const [viewMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
     subscribe: true,
   })
 
   useEffect(() => {
-    if (kanbanMode) return
+    if (viewMode) return
     setKanbanMode(ViewMode.TABULAR)
-  }, [])
+  }, [viewMode])
 
   return (
     <DealsViewLayout
@@ -183,7 +183,7 @@ export default function DealsView() {
         <div className="w-full">
           <Animate
             shouldAnimateOnExit
-            on={kanbanMode}
+            on={viewMode}
             presenceProps={{
               exitBeforeEnter: true,
               presenceAffectsLayout: true,
@@ -195,10 +195,10 @@ export default function DealsView() {
               end: { opacity: 0 },
             }}
           >
-            {kanbanMode === ViewMode.KANBAN && (
+            {viewMode === ViewMode.KANBAN && (
               <KanbanView queryKey={key} data={deals} />
             )}
-            {(kanbanMode === ViewMode.TABULAR || kanbanMode === undefined) && (
+            {(viewMode === ViewMode.TABULAR || viewMode === undefined) && (
               <Table
                 showSorterTooltip={false}
                 columns={dealColumns}
