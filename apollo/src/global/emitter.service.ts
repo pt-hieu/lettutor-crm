@@ -2,7 +2,6 @@ import { Injectable, MessageEvent } from '@nestjs/common'
 import { BehaviorSubject } from 'rxjs'
 import { OpCode } from 'src/type/opcode'
 import { OnEvent } from '@nestjs/event-emitter'
-import { DTO } from 'src/type'
 
 @Injectable()
 export class EmitterService {
@@ -17,5 +16,6 @@ export class EmitterService {
   @OnEvent('auth.invalidate', { async: true })
   invalidateSession(payload: any) {
     this.$emitter.next({ data: { opcode: OpCode.INVALIDATE_SESSION, payload } })
+    this.$emitter.next({ data: { opcode: OpCode.CONNECT_SUCCESSFULLY } })
   }
 }
