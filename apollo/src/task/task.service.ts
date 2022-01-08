@@ -18,7 +18,7 @@ import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { Brackets, FindOneOptions, Repository } from 'typeorm'
 import { PayloadService } from 'src/global/payload.service'
-import { Task, TaskStatus } from './task.entity'
+import { Task } from './task.entity'
 
 @Injectable()
 export class TaskService {
@@ -180,6 +180,4 @@ export class TaskService {
   async updateAllTasks(tasks: Task[]) {
     await this.taskRepo.save(tasks)
   }
-
-  async
 }
