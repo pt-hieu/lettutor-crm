@@ -324,7 +324,7 @@ export default function ConvertModal({ close, visible }: Props) {
         </Animate>
       ),
     }),
-    [fullName, owner?.name, convertToDeal, data, height, errors],
+    [fullName, owner?.name, convertToDeal, data, height, errors, ownerId],
   )
 
   return (
