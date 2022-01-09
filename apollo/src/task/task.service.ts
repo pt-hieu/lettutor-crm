@@ -82,7 +82,9 @@ export class TaskService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(task)
+      !this.utilService.checkOwnership(task) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_ALL_TASK_DETAILS) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
     ) {
       throw new ForbiddenException()
     }
@@ -136,7 +138,8 @@ export class TaskService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(task)
+      !this.utilService.checkOwnership(task) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
     ) {
       throw new ForbiddenException()
     }
