@@ -18,6 +18,7 @@ import { ContactService } from 'src/contact/contact.service'
 import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
 import { PayloadService } from 'src/global/payload.service'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 
 describe('contact service', () => {
   let contactRepo: MockType<Repository<Contact>>
@@ -27,6 +28,7 @@ describe('contact service', () => {
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot()],
       providers: [
         ContactService,
         AccountService,

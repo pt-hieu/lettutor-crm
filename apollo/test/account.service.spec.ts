@@ -13,6 +13,7 @@ import { Role, User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
 import { UtilService } from 'src/global/util.service'
 import { PayloadService } from 'src/global/payload.service'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 
 describe('account service', () => {
   let accountService: AccountService
@@ -21,6 +22,7 @@ describe('account service', () => {
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot()],
       providers: [
         AccountService,
         UserService,

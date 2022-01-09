@@ -20,7 +20,6 @@ import { Task } from 'src/task/task.entity'
 import { TaskService } from 'src/task/task.service'
 import { PayloadService } from 'src/global/payload.service'
 import { Actions } from 'src/type/action'
-import { format } from 'path/posix'
 
 @Injectable()
 export class LeadService {

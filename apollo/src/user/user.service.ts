@@ -14,7 +14,6 @@ import { compare, hash } from 'bcrypt'
 import { JwtPayload } from 'src/utils/interface'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { stringify } from 'querystring'
 
 const PWD_TOKEN_EXPIRATION = 5 //in days
 
