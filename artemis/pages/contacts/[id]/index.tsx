@@ -9,7 +9,7 @@ import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
@@ -238,6 +238,7 @@ const ContactDetail = () => {
   )
 
   const auth = useAuthorization()
+  const isOwner = useOwnership(contact)
 
   const openTasks = useMemo(
     () =>
@@ -267,7 +268,7 @@ const ContactDetail = () => {
                   errors,
                   users || [],
                   accounts || [],
-                  !auth[Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS],
+                  !auth[Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS] && !isOwner,
                 ).map(({ label, props }) => (
                   <div
                     key={label}

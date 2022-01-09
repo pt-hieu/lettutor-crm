@@ -30,7 +30,7 @@ import TaskList from '@utils/components/TaskList'
 import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 
 type LeadInfo = {
   label: string
@@ -179,6 +179,7 @@ const LeadDetail = () => {
   const { data: users } = useQuery<User[]>('users', { enabled: false })
 
   const auth = useAuthorization()
+  const isOwner = useOwnership(lead)
 
   const defaultValues = useMemo(
     () => ({
@@ -247,11 +248,9 @@ const LeadDetail = () => {
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
-                {fields(!auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS])(
-                  register,
-                  errors,
-                  users || [],
-                ).map(({ label, props }) => (
+                {fields(
+                  !auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS] && !isOwner,
+                )(register, errors, users || []).map(({ label, props }) => (
                   <div
                     key={label}
                     className="grid grid-cols-[250px,350px] gap-4"

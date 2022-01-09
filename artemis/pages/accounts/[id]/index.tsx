@@ -32,6 +32,7 @@ import {
   useQueryClient,
 } from 'react-query'
 import { AccountUpdateFormData, editAccountSchema } from './edit'
+import { useOwnership } from '@utils/hooks/useOwnership'
 
 type AccountInfo = {
   label: string
@@ -73,7 +74,9 @@ const AccountDetail = () => {
   }, [defaultValues])
 
   const auth = useAuthorization()
-  const disabled = !auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS]
+  const isOwner = useOwnership(account)
+
+  const disabled = !auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] && !isOwner
 
   const accountInfo: AccountInfo[] = [
     {
@@ -174,7 +177,6 @@ const AccountDetail = () => {
     [id],
   )
   const cancel = useCallback(() => {
-    console.trace()
     reset(defaultValues)
   }, [defaultValues])
 

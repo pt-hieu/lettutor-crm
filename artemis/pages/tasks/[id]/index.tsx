@@ -27,7 +27,7 @@ import { getUsers } from '@utils/service/user'
 import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 
 enum Relatives {
   LEAD = 'lead',
@@ -160,6 +160,8 @@ const TaskDetail = () => {
   const { data: users } = useQuery<User[]>('users', { enabled: false })
   const { data: task } = useQuery<Task>(['task', id], getTask(id))
 
+  const isOwner = useOwnership(task)
+
   const relatives = [
     {
       relative: Relatives.LEAD,
@@ -287,7 +289,8 @@ const TaskDetail = () => {
                     register,
                     errors,
                     users: users || [],
-                    disabled: !auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS],
+                    disabled:
+                      !auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS] && !isOwner,
                   }).map(({ label, props }) => (
                     <div
                       key={label}
@@ -314,7 +317,8 @@ const TaskDetail = () => {
                   </Tooltip>
                 ) : (
                   <>
-                    {auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS] && (
+                    {(auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS] ||
+                      isOwner) && (
                       <Confirm
                         message="Are you sure you want to mark this task as completed?"
                         title="Warning closing task"
