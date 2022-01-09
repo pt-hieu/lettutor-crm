@@ -33,10 +33,10 @@ export interface TaskFormData
     'subject' | 'status' | 'priority' | 'dueDate' | 'description'
   > {
   ownerId: string
-  leadId?: string
-  contactId?: string
-  accountId?: string
-  dealId?: string
+  leadId: string | null
+  contactId: string | null
+  accountId: string | null
+  dealId: string | null
 }
 
 const SelectKeys = ['leadContact', 'accountDeal'] as const
@@ -203,18 +203,24 @@ const CreateTask = () => {
   }, [session?.user.id])
 
   const handleAddTask = handleSubmit((data) => {
-    const nullableKeys = ['leadId', 'contactId', 'accountId', 'dealId']
-    nullableKeys.forEach((key) => {
-      if (
-        data[key as keyof typeof data] === '' ||
-        (key !== leadOrContact && key !== accountOrDeal)
-      ) {
-        delete data[key as keyof typeof data]
-      }
-      if (leadOrContact === 'leadId') {
-        key !== 'leadId' && delete data[key as keyof typeof data]
-      }
-    })
+    if (accountOrDeal === 'accountId') {
+      data.dealId = null
+      data.accountId === '' && (data.accountId = null)
+    } else {
+      data.accountId = null
+      data.dealId === '' && (data.dealId = null)
+    }
+
+    if (leadOrContact === 'leadId') {
+      data.contactId = null
+      data.accountId = null
+      data.dealId = null
+      data.leadId === '' && (data.leadId = null)
+    } else {
+      data.leadId = null
+      data.contactId === '' && (data.contactId = null)
+    }
+
     if (!data.dueDate) {
       data.dueDate = null
     }
