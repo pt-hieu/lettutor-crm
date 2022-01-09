@@ -18,6 +18,7 @@ import { Contact } from 'src/contact/contact.entity'
 import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
 import { PayloadService } from 'src/global/payload.service'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 
 describe('deal service', () => {
   let dealRepo: MockType<Repository<Deal>>
@@ -28,6 +29,7 @@ describe('deal service', () => {
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot()],
       providers: [
         DealService,
         AccountService,

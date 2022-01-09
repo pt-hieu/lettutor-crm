@@ -22,6 +22,7 @@ import { NoteService } from 'src/note/note.service'
 import { TaskService } from 'src/task/task.service'
 import { Task } from 'src/task/task.entity'
 import { PayloadService } from 'src/global/payload.service'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 
 describe('lead service', () => {
   let leadService: LeadService
@@ -33,6 +34,7 @@ describe('lead service', () => {
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot()],
       providers: [
         LeadService,
         AccountService,

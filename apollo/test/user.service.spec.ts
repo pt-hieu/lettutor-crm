@@ -11,6 +11,7 @@ import moment from 'moment'
 import { BadRequestException } from '@nestjs/common'
 import { JwtPayload } from 'src/utils/interface'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 
 describe('user service', () => {
   let usersRepo: MockType<Repository<User>>
@@ -19,6 +20,7 @@ describe('user service', () => {
 
   beforeEach(async () => {
     const ref: TestingModule = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot()],
       providers: [
         UserService,
         {
