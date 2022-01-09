@@ -79,7 +79,12 @@ export class LeadService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(lead)
+      !this.utilService.checkOwnership(lead) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_ALL_LEAD_DETAILS) &&
+      !this.utilService.checkRoleAction(
+        Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS,
+      ) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_CONVERT_LEAD_DETAILS)
     ) {
       throw new ForbiddenException()
     }
@@ -104,7 +109,8 @@ export class LeadService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(lead)
+      !this.utilService.checkOwnership(lead) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)
     ) {
       throw new ForbiddenException()
     }
@@ -129,6 +135,14 @@ export class LeadService {
       where: { id },
       relations: ['owner', 'tasks', 'tasks.owner'],
     })
+
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(lead) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_CONVERT_LEAD_DETAILS)
+    ) {
+      throw new ForbiddenException()
+    }
 
     let newOwner: User
     if (ownerId) {

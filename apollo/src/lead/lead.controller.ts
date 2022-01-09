@@ -42,28 +42,18 @@ export class LeadController {
   }
 
   @Get(':id')
-  @DefineAction(Actions.VIEW_ALL_LEAD_DETAILS)
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)
-  @DefineAction(Actions.VIEW_AND_CONVERT_LEAD_DETAILS)
   @ApiOperation({ summary: 'to get lead information by Id' })
   getLeadById(@Param('id', ParseUUIDPipe) id: string) {
-    const relations = ['owner']
-
-    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
-      relations.push('tasks', 'tasks.owner')
-    }
-
     return this.service.getLeadById(
       {
         where: { id },
-        relations,
+        relations: ['owner', 'tasks', 'tasks.owner'],
       },
       true,
     )
   }
 
   @Patch(':id')
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)
   @ApiOperation({ summary: 'to update lead manually' })
   updateLead(
     @Param('id', ParseUUIDPipe) id: string,
@@ -73,7 +63,6 @@ export class LeadController {
   }
 
   @Post(':id/convert')
-  @DefineAction(Actions.VIEW_AND_CONVERT_LEAD_DETAILS)
   @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
   @ApiBody({ required: false, type: DTO.Deal.ConvertToDeal })
   async convert(
