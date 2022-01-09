@@ -68,7 +68,11 @@ export class ContactService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(found)
+      !this.utilService.checkOwnership(found) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_ALL_CONTACT_DETAILS) &&
+      !this.utilService.checkRoleAction(
+        Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS,
+      )
     ) {
       throw new ForbiddenException()
     }
@@ -103,7 +107,10 @@ export class ContactService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(contact)
+      !this.utilService.checkOwnership(contact) &&
+      !this.utilService.checkRoleAction(
+        Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS,
+      )
     ) {
       throw new ForbiddenException()
     }

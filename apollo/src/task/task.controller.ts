@@ -34,10 +34,6 @@ export class TaskController {
   }
 
   @Get(':id')
-  @DefineAction(
-    Actions.VIEW_ALL_TASK_DETAILS,
-    Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS,
-  )
   @ApiOperation({ summary: 'to get task information by Id' })
   getTaskById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getTaskById({
@@ -47,7 +43,6 @@ export class TaskController {
   }
 
   @Patch(':id')
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
   @ApiOperation({ summary: 'to edit a task' })
   updateContact(
     @Param('id', ParseUUIDPipe) id: string,

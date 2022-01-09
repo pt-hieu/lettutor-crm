@@ -32,36 +32,22 @@ export class AccountController {
   }
 
   @Get(':id')
-  @DefineAction(
-    Actions.VIEW_ALL_ACCOUNT_DETAILS,
-    Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
-  )
   @ApiOperation({ summary: 'to get account information by Id' })
   getAccountById(@Param('id', ParseUUIDPipe) id: string) {
-    const relations = ['owner']
-
-    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_CONTACTS)) {
-      relations.push('contacts')
-      if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
-        relations.push('contacts.tasks', 'contacts.tasks.owner')
-      }
-    }
-
-    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_DEALS)) {
-      relations.push('deals')
-      if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
-        relations.push('deals.tasks', 'deals.tasks.owner')
-      }
-    }
-
-    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
-      relations.push('tasks', 'tasks.owner')
-    }
-
     return this.service.getAccountById(
       {
         where: { id },
-        relations,
+        relations: [
+          'owner',
+          'contacts',
+          'contacts.tasks',
+          'contacts.tasks.owner',
+          'deals',
+          'deals.tasks',
+          'deals.tasks.owner',
+          'tasks',
+          'tasks.owner',
+        ],
       },
       true,
     )
@@ -75,7 +61,6 @@ export class AccountController {
   }
 
   @Patch(':id')
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS)
   @ApiOperation({ summary: 'to edit a account' })
   updateAccount(
     @Param('id', ParseUUIDPipe) id: string,
