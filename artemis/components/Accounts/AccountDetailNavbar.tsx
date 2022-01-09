@@ -1,5 +1,6 @@
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useOwnership } from '@utils/hooks/useOwnership'
 import { Account } from '@utils/models/account'
 import { Actions } from '@utils/models/role'
 import { useRouter } from 'next/router'
@@ -17,6 +18,7 @@ const AccountDetailNavbar = ({ data }: Props) => {
   }
 
   const auth = useAuthorization()
+  const isOwner = useOwnership(data)
 
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-10 transform translate-y-[-16px]">
@@ -28,7 +30,7 @@ const AccountDetailNavbar = ({ data }: Props) => {
         </div>
 
         <div className="flex flex-row gap-3">
-          {auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] && (
+          {(auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] || isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

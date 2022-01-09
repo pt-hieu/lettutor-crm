@@ -24,6 +24,7 @@ import { useState } from 'react'
 import ConfirmReasonForLoss from '@components/Deals/ConfirmReasonForLoss'
 import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
+import { useServerSideOwnership } from '@utils/hooks/useOwnership'
 
 export type DealUpdateFormData = {
   ownerId: string
@@ -331,7 +332,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['deal', id]).isError ||
-      (await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)),
+      ((await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)) &&
+        !(await useServerSideOwnership(req, client, ['deal', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },

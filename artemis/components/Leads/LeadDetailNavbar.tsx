@@ -1,6 +1,7 @@
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useModal } from '@utils/hooks/useModal'
+import { useOwnership } from '@utils/hooks/useOwnership'
 import { Lead } from '@utils/models/lead'
 import { Actions } from '@utils/models/role'
 import { useRouter } from 'next/router'
@@ -16,6 +17,7 @@ const LeadDetailNavbar = ({ lead }: Props) => {
   const [convert, openConvert, closeConvert] = useModal()
 
   const auth = useAuthorization()
+  const isOwner = useOwnership(lead)
 
   const navigateToEditPage = () => {
     router.push(`/leads/${id}/edit`)
@@ -41,7 +43,7 @@ const LeadDetailNavbar = ({ lead }: Props) => {
             </button>
           )}
 
-          {auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS] && (
+          {(auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS] || isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

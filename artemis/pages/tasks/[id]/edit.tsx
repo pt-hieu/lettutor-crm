@@ -4,6 +4,7 @@ import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
 import { TaskAddData } from '@utils/data/add-task-data'
 import { Field } from '@utils/data/update-deal-data'
+import { useServerSideOwnership } from '@utils/hooks/useOwnership'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
@@ -395,7 +396,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['task', id]).isError ||
-      (await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)),
+      ((await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)) &&
+        !(await useServerSideOwnership(req, client, ['task', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },

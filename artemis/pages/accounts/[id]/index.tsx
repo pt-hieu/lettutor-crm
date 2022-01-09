@@ -9,6 +9,7 @@ import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useServerSideOwnership } from '@utils/hooks/useOwnership'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
@@ -291,11 +292,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['account', id]).isError ||
-      (await checkActionError(
+      ((await checkActionError(
         req,
         Actions.VIEW_ALL_ACCOUNT_DETAILS,
         Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
-      )),
+      )) &&
+        !(await useServerSideOwnership(req, client, ['account', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },

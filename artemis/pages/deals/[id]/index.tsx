@@ -38,6 +38,7 @@ import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
 import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useServerSideOwnership } from '@utils/hooks/useOwnership'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -475,11 +476,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['deal', id]).isError ||
-      (await checkActionError(
+      ((await checkActionError(
         req,
         Actions.VIEW_ALL_DEAL_DETAILS,
         Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS,
-      )),
+      )) &&
+        !(await useServerSideOwnership(req, client, ['deal', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },

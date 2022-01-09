@@ -4,6 +4,7 @@ import Layout from '@utils/components/Layout'
 import { phoneRegExp } from '@utils/data/regex'
 import { ContactUpdateData } from '@utils/data/update-contact-data'
 import { Field } from '@utils/data/update-lead-data'
+import { useServerSideOwnership } from '@utils/hooks/useOwnership'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
@@ -241,7 +242,11 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['contact', id]).isError ||
-      (await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS)),
+      ((await checkActionError(
+        req,
+        Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS,
+      )) &&
+        !(await useServerSideOwnership(req, client, ['contact', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },

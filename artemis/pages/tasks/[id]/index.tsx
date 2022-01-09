@@ -27,6 +27,7 @@ import { getUsers } from '@utils/service/user'
 import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useServerSideOwnership } from '@utils/hooks/useOwnership'
 
 enum Relatives {
   LEAD = 'lead',
@@ -354,11 +355,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['task', id], 'users').isError ||
-      (await checkActionError(
+      ((await checkActionError(
         req,
         Actions.VIEW_ALL_TASK_DETAILS,
         Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS,
-      )),
+      )) &&
+        !(await useServerSideOwnership(req, client, ['task', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },
