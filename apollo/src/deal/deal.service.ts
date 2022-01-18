@@ -91,7 +91,9 @@ export class DealService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(deal)
+      !this.utilService.checkOwnership(deal) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_ALL_DEAL_DETAILS) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS)
     ) {
       throw new ForbiddenException()
     }
@@ -124,7 +126,8 @@ export class DealService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(deal)
+      !this.utilService.checkOwnership(deal) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS)
     ) {
       throw new ForbiddenException()
     }

@@ -39,33 +39,25 @@ export class DealController {
   }
 
   @Get(':id')
-  @DefineAction(
-    Actions.VIEW_ALL_DEAL_DETAILS,
-    Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS,
-  )
   @ApiOperation({ summary: 'to get deal information by Id' })
   getDealById(@Param('id', ParseUUIDPipe) id: string) {
-    const relations = ['owner', 'account', 'contact']
-
-    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_TASKS)) {
-      relations.push('tasks', 'tasks.owner')
-    }
-
-    if (this.utilService.checkRoleAction(Actions.VIEW_ALL_NOTES)) {
-      relations.push('notes')
-    }
-
     return this.service.getDealById(
       {
         where: { id },
-        relations,
+        relations: [
+          'owner',
+          'account',
+          'contact',
+          'tasks',
+          'tasks.owner',
+          'notes',
+        ],
       },
       true,
     )
   }
 
   @Patch(':id')
-  @DefineAction(Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS)
   @ApiOperation({ summary: 'to update deal manually' })
   updateDeal(
     @Param('id', ParseUUIDPipe) id: string,

@@ -34,7 +34,11 @@ export class AccountService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(account)
+      !this.utilService.checkOwnership(account) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNT_DETAILS) &&
+      !this.utilService.checkRoleAction(
+        Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
+      )
     ) {
       throw new ForbiddenException()
     }
@@ -107,7 +111,10 @@ export class AccountService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(account)
+      !this.utilService.checkOwnership(account) &&
+      !this.utilService.checkRoleAction(
+        Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
+      )
     ) {
       throw new ForbiddenException()
     }

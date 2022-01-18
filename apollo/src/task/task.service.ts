@@ -18,7 +18,7 @@ import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { Brackets, FindOneOptions, Repository } from 'typeorm'
 import { PayloadService } from 'src/global/payload.service'
-import { Task, TaskStatus } from './task.entity'
+import { Task } from './task.entity'
 
 @Injectable()
 export class TaskService {
@@ -45,7 +45,7 @@ export class TaskService {
       dto.accountId = null
       dto.contactId = null
       dto.dealId = null
-    } else if (dto.contactId) {
+    } else {
       dto.leadId = null
 
       if (dto.accountId) {
@@ -55,9 +55,11 @@ export class TaskService {
       }
 
       await Promise.all([
-        this.contactService.getContactById({
-          where: { id: dto.contactId },
-        }),
+        dto.contactId
+          ? this.contactService.getContactById({
+              where: { id: dto.contactId },
+            })
+          : undefined,
         dto.accountId
           ? this.accountService.getAccountById({ where: { id: dto.accountId } })
           : undefined,
@@ -80,7 +82,9 @@ export class TaskService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(task)
+      !this.utilService.checkOwnership(task) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_ALL_TASK_DETAILS) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
     ) {
       throw new ForbiddenException()
     }
@@ -134,7 +138,8 @@ export class TaskService {
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(task)
+      !this.utilService.checkOwnership(task) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
     ) {
       throw new ForbiddenException()
     }
@@ -151,14 +156,12 @@ export class TaskService {
       return this.taskRepo.save({ ...task, ...dto })
     }
 
-    if (dto.contactId) {
-      dto.leadId = null
-      dto.accountId
-        ? (dto.dealId = null)
-        : dto.dealId
-        ? (dto.accountId = null)
-        : undefined
-    }
+    dto.leadId = null
+    dto.accountId
+      ? (dto.dealId = null)
+      : dto.dealId
+      ? (dto.accountId = null)
+      : undefined
 
     await Promise.all([
       dto.contactId
@@ -180,6 +183,4 @@ export class TaskService {
   async updateAllTasks(tasks: Task[]) {
     await this.taskRepo.save(tasks)
   }
-
-  async
 }

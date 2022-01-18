@@ -9,6 +9,7 @@ import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useServerSideOwnership } from '@utils/hooks/useOwnership'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
@@ -31,6 +32,7 @@ import {
   useQueryClient,
 } from 'react-query'
 import { AccountUpdateFormData, editAccountSchema } from './edit'
+import { useOwnership } from '@utils/hooks/useOwnership'
 
 type AccountInfo = {
   label: string
@@ -72,7 +74,9 @@ const AccountDetail = () => {
   }, [defaultValues])
 
   const auth = useAuthorization()
-  const disabled = !auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS]
+  const isOwner = useOwnership(account)
+
+  const disabled = !auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] && !isOwner
 
   const accountInfo: AccountInfo[] = [
     {
@@ -173,7 +177,6 @@ const AccountDetail = () => {
     [id],
   )
   const cancel = useCallback(() => {
-    console.trace()
     reset(defaultValues)
   }, [defaultValues])
 
@@ -291,11 +294,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['account', id]).isError ||
-      (await checkActionError(
+      ((await checkActionError(
         req,
         Actions.VIEW_ALL_ACCOUNT_DETAILS,
         Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
-      )),
+      )) &&
+        !(await useServerSideOwnership(req, client, ['account', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },

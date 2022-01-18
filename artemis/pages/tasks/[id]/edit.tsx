@@ -4,6 +4,7 @@ import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
 import { TaskAddData } from '@utils/data/add-task-data'
 import { Field } from '@utils/data/update-deal-data'
+import { useServerSideOwnership } from '@utils/hooks/useOwnership'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
@@ -23,7 +24,7 @@ import { getUsers } from '@utils/service/user'
 import { notification, Select } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
 import { TaskFormData, taskSchema } from '../add-task'
@@ -67,23 +68,6 @@ const CreateTask = () => {
   const { replace, query, push } = useRouter()
   const id = query.id as string
 
-  const [leadOrContact, setLeadOrContact] = useState(
-    LabelSelect.leadContact[0].value,
-  )
-  const [accountOrDeal, setAccountOrDeal] = useState(
-    LabelSelect.accountDeal[0].value,
-  )
-
-  const valueSelect: SelectValue = {
-    leadContact: leadOrContact,
-    accountDeal: accountOrDeal,
-  }
-
-  const handleChangeSelect: SelectChange = {
-    leadContact: (value: string) => setLeadOrContact(value),
-    accountDeal: (value: string) => setAccountOrDeal(value),
-  }
-
   const { data: task } = useQuery<Task>(['task', id], { enabled: false })
 
   const { data: taskOwners } = useQuery<User[]>(['users'], {
@@ -105,6 +89,27 @@ const CreateTask = () => {
   const { data: deals } = useQuery<Deal[]>(['deals'], {
     enabled: false,
   })
+
+  const [leadOrContact, setLeadOrContact] = useState(
+    task?.lead?.id
+      ? LabelSelect.leadContact[1].value
+      : LabelSelect.leadContact[0].value,
+  )
+  const [accountOrDeal, setAccountOrDeal] = useState(
+    task?.deal?.id
+      ? LabelSelect.accountDeal[1].value
+      : LabelSelect.accountDeal[0].value,
+  )
+
+  const valueSelect: SelectValue = {
+    leadContact: leadOrContact,
+    accountDeal: accountOrDeal,
+  }
+
+  const handleChangeSelect: SelectChange = {
+    leadContact: (value: string) => setLeadOrContact(value),
+    accountDeal: (value: string) => setAccountOrDeal(value),
+  }
 
   const leadOptions = leads?.map((lead) => ({
     value: lead.id,
@@ -173,6 +178,7 @@ const CreateTask = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<TaskFormData>({
     resolver: yupResolver(taskSchema),
@@ -190,22 +196,45 @@ const CreateTask = () => {
     },
   })
 
+  useEffect(() => {
+    if (leadOrContact === 'leadId') {
+      setValue('leadId', task?.lead?.id || '')
+    } else {
+      setValue('contactId', task?.contact?.id || '')
+    }
+  }, [leadOrContact])
+
+  useEffect(() => {
+    if (accountOrDeal === 'accountId') {
+      setValue('accountId', task?.account?.id || '')
+    } else {
+      setValue('dealId', task?.deal?.id || '')
+    }
+  }, [accountOrDeal])
+
   const submitTask = handleSubmit((data) => {
-    const nullableKeys = ['leadId', 'contactId', 'accountId', 'dealId']
-    nullableKeys.forEach((key) => {
-      if (
-        data[key as keyof typeof data] === '' ||
-        (key !== leadOrContact && key !== accountOrDeal)
-      ) {
-        delete data[key as keyof typeof data]
-      }
-      if (leadOrContact === 'leadId') {
-        key !== 'leadId' && delete data[key as keyof typeof data]
-      }
-    })
+    if (accountOrDeal === 'accountId') {
+      data.dealId = null
+      data.accountId === '' && (data.accountId = null)
+    } else {
+      data.accountId = null
+      data.dealId === '' && (data.dealId = null)
+    }
+
+    if (leadOrContact === 'leadId') {
+      data.contactId = null
+      data.accountId = null
+      data.dealId = null
+      data.leadId === '' && (data.leadId = null)
+    } else {
+      data.leadId = null
+      data.contactId === '' && (data.contactId = null)
+    }
+
     if (!data.dueDate) {
       data.dueDate = null
     }
+
     mutateAsync(data)
   })
 
@@ -395,7 +424,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['task', id]).isError ||
-      (await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)),
+      ((await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)) &&
+        !(await useServerSideOwnership(req, client, ['task', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },

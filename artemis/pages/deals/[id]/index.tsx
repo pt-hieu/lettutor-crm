@@ -23,7 +23,12 @@ import DealDetailNavbar from 'components/Deals/DealDetailNavbar'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
+import {
+  FieldErrors,
+  useForm,
+  UseFormRegister,
+  useWatch,
+} from 'react-hook-form'
 import { useModal } from '@utils/hooks/useModal'
 import {
   dehydrate,
@@ -38,6 +43,7 @@ import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
 import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -264,6 +270,8 @@ const DealDetail = () => {
   const { data: accounts } = useQuery<Account[]>('accounts', { enabled: false })
   const { data: deal } = useQuery<Deal>(['deal', id], getDeal(id))
 
+  const isOwner = useOwnership(deal)
+
   const defaultValues = useMemo(
     () => ({
       ownerId: deal?.owner?.id,
@@ -390,7 +398,9 @@ const DealDetail = () => {
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
-                {fields(!auth[Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS])({
+                {fields(
+                  !auth[Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS] && !isOwner,
+                )({
                   register,
                   errors,
                   users: users || [],
@@ -475,11 +485,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['deal', id]).isError ||
-      (await checkActionError(
+      ((await checkActionError(
         req,
         Actions.VIEW_ALL_DEAL_DETAILS,
         Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS,
-      )),
+      )) &&
+        !(await useServerSideOwnership(req, client, ['deal', id]))),
     props: {
       dehydratedState: dehydrate(client),
     },

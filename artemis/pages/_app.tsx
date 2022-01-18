@@ -9,12 +9,23 @@ import { useState } from 'react'
 import axios from 'axios'
 import { notification } from 'antd'
 import OpenGraph from '@utils/components/OpenGraph'
+import Head from 'next/head'
 
 axios.defaults.withCredentials = true
 
 notification.config({
   placement: 'bottomRight',
 })
+
+const NoOverlay = `
+  window.addEventListener('error', event => {
+    event.stopImmediatePropagation()
+  })
+
+  window.addEventListener('unhandledrejection', event => {
+    event.stopImmediatePropagation()
+  })
+`
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [client] = useState(() => new QueryClient())
@@ -29,6 +40,11 @@ function MyApp({ Component, pageProps }: AppProps) {
     >
       <QueryClientProvider client={client}>
         <Hydrate state={pageProps?.dehydratedState}>
+          <Head>
+            {process.env.NODE_ENV !== 'production' && (
+              <script dangerouslySetInnerHTML={{ __html: NoOverlay }} />
+            )}
+          </Head>
           <Component {...pageProps} />
           <OpenGraph />
         </Hydrate>
