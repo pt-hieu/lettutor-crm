@@ -89,7 +89,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
               : ' !ring-0 text-black'
             : '')
         }
-        disabled={disabled ?? editable === false}
+        disabled={!!disabled || editable === false}
         {...rest}
       />
       <AnimatePresence presenceAffectsLayout>
