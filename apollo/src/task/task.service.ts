@@ -156,26 +156,26 @@ export class TaskService {
       return this.taskRepo.save({ ...task, ...dto })
     }
 
-    dto.leadId = null
-    dto.accountId
-      ? (dto.dealId = null)
-      : dto.dealId
-      ? (dto.accountId = null)
-      : undefined
-
-    await Promise.all([
-      dto.contactId
-        ? this.contactService.getContactById({
-            where: { id: dto.contactId },
-          })
-        : undefined,
+    if (dto.contactId || dto.accountId || dto.dealId) {
+      dto.leadId = null
       dto.accountId
-        ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-        : undefined,
-      dto.dealId
-        ? this.dealService.getDealById({ where: { id: dto.dealId } })
-        : undefined,
-    ])
+        ? (dto.dealId = null)
+        : dto.dealId
+        ? (dto.accountId = null)
+        : undefined
+
+      await Promise.all([
+        dto.contactId
+          ? this.contactService.getContactById({ where: { id: dto.contactId } })
+          : undefined,
+        dto.accountId
+          ? this.accountService.getAccountById({ where: { id: dto.accountId } })
+          : undefined,
+        dto.dealId
+          ? this.dealService.getDealById({ where: { id: dto.dealId } })
+          : undefined,
+      ])
+    }
 
     return this.taskRepo.save({ ...task, ...dto })
   }
