@@ -55,7 +55,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
       (Object.keys(dealByStage) as DealStage[]).reduce(
         (sum, curr) => ({
           ...sum,
-          [curr]: dealByStage[curr].length,
+          [curr]: dealByStage[curr]?.length,
         }),
         {},
       ) as Record<DealStage, number>,
@@ -67,7 +67,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
       (Object.keys(dealByStage) as DealStage[]).reduce(
         (sum, curr) => ({
           ...sum,
-          [curr]: dealByStage[curr].reduce(
+          [curr]: dealByStage[curr]?.reduce(
             (sum, curr) => sum + (curr.amount || 0),
             0,
           ),
@@ -122,10 +122,9 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
   )
 
   const [dealId, setDealId] = useState<string | undefined>()
-  const [closeStage, setCloseStage] =
-    useState<
-      DealStage.CLOSED_LOST | DealStage.CLOSED_LOST_TO_COMPETITION | undefined
-    >()
+  const [closeStage, setCloseStage] = useState<
+    DealStage.CLOSED_LOST | DealStage.CLOSED_LOST_TO_COMPETITION | undefined
+  >()
 
   const finishDeal = (dealId: string, updateDealDto: UpdateDealDto) => {
     mutateAsync({
@@ -212,7 +211,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                 </div>
 
                 <div className="max-h-[calc(100vh-293px)] crm-transition flex flex-col gap-2 overflow-auto crm-scrollbar pr-2 mr-[-15px]">
-                  {dealByStage[stage].map(
+                  {dealByStage[stage]?.map(
                     (
                       {
                         id,
