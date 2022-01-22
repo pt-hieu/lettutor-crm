@@ -6,7 +6,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 @Entity({ name: 'note' })
 export class Note extends BaseEntity {
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (u) => u.deals)
   @JoinColumn()
   owner: User | null
 
