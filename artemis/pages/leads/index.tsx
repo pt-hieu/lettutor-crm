@@ -113,6 +113,21 @@ export default function LeadsViews() {
     getLeads({ limit, page, search, source, status }),
   )
 
+  const applySearch = (keyword: string | undefined) => {
+    setPage(1)
+    setSearch(keyword)
+  }
+
+  const applySourceFilter = (sources: LeadSource[] | undefined) => {
+    setPage(1)
+    setSource(sources)
+  }
+
+  const applyStatusFilter = (status: LeadStatus[] | undefined) => {
+    setPage(1)
+    setStatus(status)
+  }
+
   const [start, end, total] = usePaginateItem(leads)
 
   return (
@@ -122,12 +137,12 @@ export default function LeadsViews() {
         <LeadSidebar
           source={source}
           status={status}
-          onSourceChange={setSource}
-          onStatusChange={setStatus}
+          onSourceChange={applySourceFilter}
+          onStatusChange={applyStatusFilter}
         />
       }
     >
-      <Search search={search} onSearchChange={setSearch} />
+      <Search search={search} onSearchChange={applySearch} />
 
       <div className="mt-4">
         <AnimatePresence presenceAffectsLayout>

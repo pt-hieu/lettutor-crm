@@ -6,6 +6,7 @@ import Animate from '@utils/components/Animate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
+import { formatDate } from '@utils/libs/time'
 import { Deal, DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { getDeals } from '@utils/service/deal'
@@ -81,6 +82,7 @@ export const dealColumns: TableColumnType<Deal>[] = [
       compare: (a, b) =>
         new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime(),
     },
+    render: (_, { closingDate }) => formatDate(closingDate),
   },
   {
     title: 'Contact Name',
@@ -142,6 +144,21 @@ export default function DealsView() {
     getDeals({ limit, page, search, source, stage }),
   )
 
+  const applySearch = (keyword: string | undefined) => {
+    setPage(1)
+    setSearch(keyword)
+  }
+
+  const applySourceFilter = (sources: LeadSource[] | undefined) => {
+    setPage(1)
+    setSource(sources)
+  }
+
+  const applyStageFilter = (stages: DealStage[] | undefined) => {
+    setPage(1)
+    setStage(stages)
+  }
+
   const [start, end, total] = usePaginateItem(deals)
   const [viewMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
     subscribe: true,
@@ -158,13 +175,13 @@ export default function DealsView() {
       sidebar={
         <DealsSidebar
           source={source}
-          onSourceChange={setSource}
+          onSourceChange={applySourceFilter}
           stage={stage}
-          onStageChange={setStage}
+          onStageChange={applyStageFilter}
         />
       }
     >
-      <DealsSearch search={search} onSearchChange={setSearch} />
+      <DealsSearch search={search} onSearchChange={applySearch} />
 
       <div className="mt-4">
         <AnimatePresence presenceAffectsLayout>

@@ -109,14 +109,26 @@ export default function ContactsView() {
     getContacts({ limit, page, search, source }),
   )
 
+  const applySearch = (keyword: string | undefined) => {
+    setPage(1)
+    setSearch(keyword)
+  }
+
+  const applySourceFilter = (sources: LeadSource[] | undefined) => {
+    setPage(1)
+    setSource(sources)
+  }
+
   const [start, end, total] = usePaginateItem(leads)
 
   return (
     <ContactsViewLayout
       title="CRM | Contacts"
-      sidebar={<ContactsSidebar source={source} onSourceChange={setSource} />}
+      sidebar={
+        <ContactsSidebar source={source} onSourceChange={applySourceFilter} />
+      }
     >
-      <Search search={search} onSearchChange={setSearch} />
+      <Search search={search} onSearchChange={applySearch} />
 
       <div className="mt-4">
         <AnimatePresence presenceAffectsLayout>
