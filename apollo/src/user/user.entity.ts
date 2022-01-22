@@ -83,6 +83,7 @@ export class Role extends BaseEntity {
   parent: Role
 
   @Column({ type: 'uuid', array: true, default: null, select: false })
+  @Exclude({ toPlainOnly: true })
   childrenIds: string[]
 
   @OneToMany(() => Role, (r) => r.parent)
