@@ -32,12 +32,15 @@ export class User extends BaseEntity {
   email: string
 
   @Column({ type: 'varchar', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   password: string | null
 
   @Column({ type: 'varchar', nullable: true, default: null, unique: true })
+  @Exclude({ toPlainOnly: true })
   passwordToken: string | null
 
   @Column({ nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   tokenExpiration: Date | null
 
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
