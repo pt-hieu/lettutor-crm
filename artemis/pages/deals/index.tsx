@@ -142,6 +142,21 @@ export default function DealsView() {
     getDeals({ limit, page, search, source, stage }),
   )
 
+  const applySearch = (keyword: string | undefined) => {
+    setPage(1)
+    setSearch(keyword)
+  }
+
+  const applySourceFilter = (sources: LeadSource[] | undefined) => {
+    setPage(1)
+    setSource(sources)
+  }
+
+  const applyStageFilter = (stages: DealStage[] | undefined) => {
+    setPage(1)
+    setStage(stages)
+  }
+
   const [start, end, total] = usePaginateItem(deals)
   const [viewMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
     subscribe: true,
@@ -158,13 +173,13 @@ export default function DealsView() {
       sidebar={
         <DealsSidebar
           source={source}
-          onSourceChange={setSource}
+          onSourceChange={applySourceFilter}
           stage={stage}
-          onStageChange={setStage}
+          onStageChange={applyStageFilter}
         />
       }
     >
-      <DealsSearch search={search} onSearchChange={setSearch} />
+      <DealsSearch search={search} onSearchChange={applySearch} />
 
       <div className="mt-4">
         <AnimatePresence presenceAffectsLayout>
