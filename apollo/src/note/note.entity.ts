@@ -1,10 +1,19 @@
 import { Exclude } from 'class-transformer'
 import { Deal } from 'src/deal/deal.entity'
-import { Ownerful } from 'src/utils/owner.entity'
+import { User } from 'src/user/user.entity'
+import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 @Entity({ name: 'note' })
-export class Note extends Ownerful {
+export class Note extends BaseEntity {
+  @ManyToOne(() => User)
+  @JoinColumn()
+  owner: User | null
+
+  @Column({ type: 'uuid', nullable: true })
+  @Exclude({ toPlainOnly: true })
+  ownerId: string | null
+
   @ManyToOne(() => Deal, (deal) => deal.notes)
   @JoinColumn()
   deal: Deal
