@@ -23,12 +23,7 @@ import DealDetailNavbar from 'components/Deals/DealDetailNavbar'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  FieldErrors,
-  useForm,
-  UseFormRegister,
-  useWatch,
-} from 'react-hook-form'
+import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
 import { useModal } from '@utils/hooks/useModal'
 import {
   dehydrate,

@@ -6,6 +6,7 @@ import Animate from '@utils/components/Animate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
+import { formatDate } from '@utils/libs/time'
 import { Deal, DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { getDeals } from '@utils/service/deal'
@@ -81,6 +82,7 @@ export const dealColumns: TableColumnType<Deal>[] = [
       compare: (a, b) =>
         new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime(),
     },
+    render: (_, { closingDate }) => formatDate(closingDate),
   },
   {
     title: 'Contact Name',
