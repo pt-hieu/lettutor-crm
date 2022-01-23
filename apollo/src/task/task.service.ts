@@ -92,6 +92,30 @@ export class TaskService {
     return task
   }
 
+  async getManyRaw() {
+    let q = this.taskRepo
+      .createQueryBuilder('t')
+      .leftJoin('t.owner', 'owner')
+      .leftJoin('t.lead', 'lead')
+      .leftJoin('t.account', 'account')
+      .leftJoin('t.deal', 'deal')
+      .addSelect([
+        'owner.name',
+        'owner.email',
+        'lead.fullName',
+        'account.fullName',
+        'deal.fullName',
+      ])
+
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
+      q.andWhere('owner.id = :ownerId', {
+        ownerId: this.payloadService.data.id,
+      })
+    }
+  
+    return q.getMany()
+  }
+
   async getMany(query: DTO.Task.GetManyQuery) {
     let q = this.taskRepo
       .createQueryBuilder('t')

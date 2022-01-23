@@ -31,6 +31,12 @@ export class ContactController {
     return this.service.getMany(query)
   }
 
+  @Get('raw')
+  @ApiOperation({ summary: 'get raw all contacts' })
+  getManyRaw() {
+    return this.service.getManyRaw()
+  }
+
   @Post()
   @DefineAction(Actions.CREATE_NEW_CONTACT)
   @ApiOperation({ summary: 'to add new contact manually' })

@@ -84,6 +84,20 @@ export class AccountService {
     return this.accountRepo.save(dto)
   }
 
+  async getManyRaw() {
+    let q = this.accountRepo
+      .createQueryBuilder('acc')
+      .select("acc.fullName")
+      .leftJoin('acc.owner', 'owner')
+      .addSelect(['owner.name', 'owner.email'])
+
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
+
+    return q.getMany()
+  }
+
   async getMany(query: DTO.Account.GetManyQuery) {
     let q = this.accountRepo
       .createQueryBuilder('acc')

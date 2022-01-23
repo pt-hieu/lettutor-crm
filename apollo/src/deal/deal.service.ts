@@ -31,7 +31,33 @@ export class DealService {
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) {}
+  ) { }
+
+
+  async getManyRaw() {
+    let q = this.dealRepo
+      .createQueryBuilder('d')
+      .leftJoin('d.owner', 'owner')
+      .leftJoin('d.account', 'account')
+      .leftJoin('d.contact', 'contact')
+      .leftJoin('d.tasks', 'tasks')
+      .addSelect([
+        'owner.name',
+        'owner.email',
+        'account.fullName',
+        'account.description',
+        'contact.fullName',
+        'tasks.subject',
+        'tasks.dueDate',
+        'tasks.id',
+      ])
+
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_DEALS)) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
+
+    return q.getMany()
+  }
 
   async getMany(query: DTO.Deal.GetManyQuery) {
     let q = this.dealRepo

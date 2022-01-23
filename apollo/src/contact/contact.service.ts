@@ -24,7 +24,26 @@ export class ContactService {
     private readonly userService: UserService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) {}
+  ) { }
+
+  async getManyRaw() {
+    let q = this.contactRepo
+      .createQueryBuilder('contact')
+      .select(['contact.fullName', 'contact.email'])
+      .leftJoin('contact.owner', 'owner')
+      .leftJoin('contact.account', 'account')
+      .addSelect([
+        'owner.name',
+        'owner.email',
+        'account.fullName',
+      ])
+
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_CONTACTS)) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
+
+    return q.getMany()
+  }
 
   async getMany(query: DTO.Contact.GetManyQuery) {
     let q = this.contactRepo

@@ -28,6 +28,13 @@ export class LeadController {
     private readonly utilService: UtilService,
   ) {}
 
+  @Get('raw')
+  @ApiOperation({ summary: 'view all leads raw' })
+  getManyRaw() {
+    return this.service.getManyRaw()
+  }
+
+
   @Get()
   @ApiOperation({ summary: 'view, search and filter all leads' })
   index(@Query() query: DTO.Lead.GetManyQuery) {

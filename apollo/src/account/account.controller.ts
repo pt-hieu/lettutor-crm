@@ -31,6 +31,12 @@ export class AccountController {
     return this.service.getMany(query)
   }
 
+  @Get('/raw')
+  @ApiOperation({ summary: 'view and search all accounts' })
+  getManyRaw() {
+    return this.service.getManyRaw()
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'to get account information by Id' })
   getAccountById(@Param('id', ParseUUIDPipe) id: string) {
