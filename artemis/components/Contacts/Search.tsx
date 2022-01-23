@@ -63,24 +63,8 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
         </Animate>
       </form>
 
-      {auth[Actions.CREATE_NEW_CONTACT] && (
-        <ButtonAdd
-          title="Create Contact"
-          asLink
-          link="/contacts/add-contact"
-          menuItems={
-            <>
-              <button className={menuItemClass}>
-                <span className="fa fa-upload mr-4" />
-                Import Contacts
-              </button>
-              <button className={menuItemClass}>
-                <span className="fa fa-book mr-4" />
-                Import Notes
-              </button>
-            </>
-          }
-        />
+      {auth[Actions.Contact.CREATE_NEW_CONTACT] && (
+        <ButtonAdd title="Create Contact" asLink link="/contacts/add-contact" />
       )}
     </div>
   )

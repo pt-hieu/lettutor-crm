@@ -35,7 +35,7 @@ const DealDetailNavbar = ({ deal }: Props) => {
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          {(auth[Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS] || isOwner) && (
+          {(auth[Actions.Deal.VIEW_AND_EDIT_ALL_DEAL_DETAILS] || isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

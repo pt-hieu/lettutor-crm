@@ -1,5 +1,5 @@
 import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
-import { Role } from '@utils/models/role'
+import { Actions, ActionScope, Role } from '@utils/models/role'
 import Action from './Action'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 
@@ -27,24 +27,44 @@ export default function ActionPanel({ role, disabled }: Props) {
           </div>
 
           <div className="mt-4 w-full flex flex-col gap-2">
-            {role?.actions.map((action, index) => (
-              <Draggable
-                draggableId={action}
-                isDragDisabled={disabled}
-                key={action + 'alreadyhaveaction'}
-                index={index}
-              >
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                  >
-                    <Action data={action} />
+            {Object.values(ActionScope).map((scope) => {
+              const actions = Object.values(Actions[scope]).filter(
+                (scopedAction) =>
+                  role?.actions.some((action) => action === scopedAction),
+              )
+
+              if (!actions.length) return null
+              console.log(actions);
+              
+
+              return (
+                <div key={scope}>
+                  <div className="font-semibold mb-3 pl-[24px] text-[17px]">
+                    {scope}
                   </div>
-                )}
-              </Draggable>
-            ))}
+                  <div className="flex flex-col gap-2">
+                    {actions.map((action, index) => (
+                      <Draggable
+                        draggableId={action}
+                        isDragDisabled={disabled}
+                        key={action + 'alreadyhaveaction'}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <Action data={action} />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
             {provided.placeholder}
           </div>
         </div>

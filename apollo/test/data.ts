@@ -2,9 +2,10 @@ import { Account, AccountType } from 'src/account/account.entity'
 import { Deal, DealStage } from 'src/deal/deal.entity'
 import { Lead, LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Actions } from 'src/type/action'
-import { Role, User, UserStatus } from 'src/user/user.entity'
+import { User, UserStatus } from 'src/user/user.entity'
 import { Task, TaskPriority, TaskStatus } from 'src/task/task.entity'
 import { Contact } from 'src/contact/contact.entity'
+import { Role } from 'src/role/role.entity'
 
 export const role: Role = {
   actions: [Actions.IS_ADMIN],
@@ -130,7 +131,7 @@ export const deal: Deal = {
 export const task: Task = {
   id: '1234',
   owner: user,
-  ownerId: lead.owner.id,
+  ownerId: user.id,
   lead: lead,
   contact: contact,
   contactId: contact.id,

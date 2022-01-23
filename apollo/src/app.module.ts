@@ -20,6 +20,7 @@ import { NoteModule } from './note/note.module'
 import { LeadModule } from './lead/lead.module'
 import { ContactModule } from './contact/contact.module'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { RoleModule } from './role/role.module'
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
     WebhookModule,
     HttpModule,
     TaskModule,
+    RoleModule,
     NoteModule,
     GlobalModule,
   ],

@@ -5,6 +5,7 @@ import { LeadSource } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { Ownerful } from 'src/utils/owner.entity'
+import { Exclude } from 'class-transformer'
 
 export enum DealStage {
   QUALIFICATION = 'Qualification',
@@ -25,6 +26,7 @@ export class Deal extends Ownerful {
   account: Account
 
   @Column({ type: 'uuid' })
+  @Exclude({ toPlainOnly: true })
   accountId: string
 
   @ManyToOne(() => Contact)
@@ -32,6 +34,7 @@ export class Deal extends Ownerful {
   contact: Contact
 
   @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   contactId: string | null
 
   @Column({ type: 'varchar' })

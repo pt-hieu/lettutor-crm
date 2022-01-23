@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { LeadSource, LeadStatus } from 'src/lead/lead.entity'
@@ -8,6 +9,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 @Entity({ name: 'contact' })
 export class Contact extends Ownerful {
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   accountId: string | null
 
   @ManyToOne(() => Account, (account) => account.contacts)

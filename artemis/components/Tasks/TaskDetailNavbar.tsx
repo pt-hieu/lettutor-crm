@@ -29,7 +29,7 @@ const TaskDetailNavbar = ({ task }: Props) => {
         </div>
 
         <div className="flex flex-row gap-3">
-          {(auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS] || isOwner) && (
+          {(auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] || isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

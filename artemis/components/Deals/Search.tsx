@@ -25,7 +25,9 @@ export default function DealsSearch({
 
   const auth = useAuthorization()
 
-  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode')
+  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
+    subscribe: true,
+  })
 
   const submit = useCallback(
     handleSubmit(({ search }) => {
@@ -89,24 +91,8 @@ export default function DealsSearch({
           </div>
         </Tooltip>
 
-        {auth[Actions.CREATE_NEW_DEAL] && (
-          <ButtonAdd
-            title="Create Deal"
-            asLink
-            link="/deals/add-deal"
-            menuItems={
-              <>
-                <button className={menuItemClass}>
-                  <span className="fa fa-upload mr-4" />
-                  Import Deals
-                </button>
-                <button className={menuItemClass}>
-                  <span className="fa fa-book mr-4" />
-                  Import Notes
-                </button>
-              </>
-            }
-          />
+        {auth[Actions.Deal.CREATE_NEW_DEAL] && (
+          <ButtonAdd title="Create Deal" asLink link="/deals/add-deal" />
         )}
       </div>
     </div>

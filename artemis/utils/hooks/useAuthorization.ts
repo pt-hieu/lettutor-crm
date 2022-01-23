@@ -1,8 +1,7 @@
 import { GlobalState } from '@utils/GlobalStateKey'
-import { Actions } from '@utils/models/role'
 import { useQuery } from 'react-query'
 
-export type UseAuthorizationReturnType = Partial<Record<Actions, boolean>>
+export type UseAuthorizationReturnType = Partial<Record<string, boolean>>
 
 export const useAuthorization = (): UseAuthorizationReturnType => {
   const { data } = useQuery<UseAuthorizationReturnType>(

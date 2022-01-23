@@ -1,4 +1,4 @@
-import { User, Role } from 'src/user/user.entity'
+import { User } from 'src/user/user.entity'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -8,6 +8,7 @@ import { Response } from 'express'
 import { JwtPayload } from 'src/utils/interface'
 import jwt from 'jsonwebtoken'
 import { Actions } from 'src/type/action'
+import { Role } from 'src/role/role.entity'
 
 const ADMINISTRATIVE_ROLE_NAME = 'Admin'
 

@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Task } from 'src/task/task.entity'
@@ -26,6 +27,7 @@ export enum LeadSource {
 @Entity({ name: 'lead' })
 export class Lead extends Ownerful {
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   accountId: string | null
 
   @ManyToOne(() => Account, (account) => account.contacts)

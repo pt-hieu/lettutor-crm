@@ -29,7 +29,7 @@ const ContactDetailNavbar = ({ data }: Props) => {
 
         <div className="flex flex-row gap-3">
           <button className="crm-button">Send Email</button>
-          {(auth[Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS] || isOwner) && (
+          {(auth[Actions.Contact.VIEW_AND_EDIT_ALL_CONTACT_DETAILS] || isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

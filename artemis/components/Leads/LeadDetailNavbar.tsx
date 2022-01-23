@@ -37,13 +37,13 @@ const LeadDetailNavbar = ({ lead }: Props) => {
         <div className="grid grid-cols-3 gap-3">
           <button className="crm-button">Send Email</button>
 
-          {(auth[Actions.VIEW_AND_CONVERT_LEAD_DETAILS] || isOwner) && (
+          {(auth[Actions.Lead.VIEW_AND_CONVERT_LEAD_DETAILS] || isOwner) && (
             <button onClick={openConvert} className="crm-button-secondary">
               Convert
             </button>
           )}
 
-          {(auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS] || isOwner) && (
+          {(auth[Actions.Lead.VIEW_AND_EDIT_ALL_LEAD_DETAILS] || isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

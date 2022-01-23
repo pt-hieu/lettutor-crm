@@ -11,7 +11,7 @@ import { Account } from 'src/account/account.entity'
 import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
 import { UserService } from 'src/user/user.service'
-import { Role, User } from 'src/user/user.entity'
+import { User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
 import { LeadService } from 'src/lead/lead.service'
 import { Lead } from 'src/lead/lead.entity'
@@ -23,6 +23,7 @@ import { TaskService } from 'src/task/task.service'
 import { Task } from 'src/task/task.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Role } from 'src/role/role.entity'
 
 describe('lead service', () => {
   let leadService: LeadService

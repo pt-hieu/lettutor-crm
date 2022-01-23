@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer'
 import { Deal } from 'src/deal/deal.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
@@ -10,6 +11,7 @@ export class Note extends BaseEntity {
   owner: User | null
 
   @Column({ type: 'uuid', nullable: true })
+  @Exclude({ toPlainOnly: true })
   ownerId: string | null
 
   @ManyToOne(() => Deal, (deal) => deal.notes)
@@ -17,6 +19,7 @@ export class Note extends BaseEntity {
   deal: Deal
 
   @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   dealId: string | null
 
   @Column({ type: 'varchar' })

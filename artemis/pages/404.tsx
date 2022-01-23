@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default function NotFound() {
   return (
-    <Layout header={false} title="CRM | Not Found">
+    <Layout requireLogin header={false} title="CRM | Not Found">
       <div className="grid place-content-center h-screen">
         <div className="flex flex-col items-center gap-8">
           <img
@@ -11,11 +11,13 @@ export default function NotFound() {
             src="/illus/not_found.svg"
             alt="not found figure"
           />
+
           <div className="text-center">
             <div className="font-bold text-2xl">Oops!</div>
             <div className="mb-2">
               It's seemed like you followed a bad link.
             </div>
+
             <Link href="/">
               <a className="crm-button mx-auto inline-block hover:text-white">
                 <span className="fa fa-home mr-2" />

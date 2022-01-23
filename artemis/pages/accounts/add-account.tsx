@@ -204,7 +204,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   return {
-    notFound: await checkActionError(req, Actions.CREATE_NEW_ACCOUNT),
+    notFound: await checkActionError(req, Actions.Account.CREATE_NEW_ACCOUNT),
     props: {
       dehydratedState: dehydrate(client),
     },

@@ -76,7 +76,8 @@ const AccountDetail = () => {
   const auth = useAuthorization()
   const isOwner = useOwnership(account)
 
-  const disabled = !auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] && !isOwner
+  const disabled =
+    !auth[Actions.Account.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] && !isOwner
 
   const accountInfo: AccountInfo[] = [
     {
@@ -296,8 +297,8 @@ export const getServerSideProps: GetServerSideProps = async ({
       investigate(client, ['account', id]).isError ||
       ((await checkActionError(
         req,
-        Actions.VIEW_ALL_ACCOUNT_DETAILS,
-        Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
+        Actions.Account.VIEW_ALL_ACCOUNT_DETAILS,
+        Actions.Account.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS,
       )) &&
         !(await useServerSideOwnership(req, client, ['account', id]))),
     props: {

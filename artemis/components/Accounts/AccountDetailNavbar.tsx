@@ -30,7 +30,7 @@ const AccountDetailNavbar = ({ data }: Props) => {
         </div>
 
         <div className="flex flex-row gap-3">
-          {(auth[Actions.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] || isOwner) && (
+          {(auth[Actions.Account.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] || isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}
