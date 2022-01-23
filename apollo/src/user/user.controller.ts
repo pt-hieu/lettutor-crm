@@ -49,8 +49,8 @@ export class UserController {
     return this.service.getMany(query)
   }
 
-  @Get()
-  @ApiOperation({ summary: 'to get RAW all users in the system' })
+  @Get('raw')
+  @ApiOperation({ summary: 'to get raw users in the system' })
   async getManyRaw() {
     return this.service.getManyRaw()
   }

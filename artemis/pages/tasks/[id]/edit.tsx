@@ -15,12 +15,12 @@ import { Lead } from '@utils/models/lead'
 import { Actions } from '@utils/models/role'
 import { Task } from '@utils/models/task'
 import { User } from '@utils/models/user'
-import { getAccounts } from '@utils/service/account'
-import { getContacts } from '@utils/service/contact'
-import { getDeals } from '@utils/service/deal'
-import { getLeads } from '@utils/service/lead'
+import { getRawAccounts } from '@utils/service/account'
+import { getRawContacts } from '@utils/service/contact'
+import { getRawDeals } from '@utils/service/deal'
+import { getRawLeads } from '@utils/service/lead'
 import { getTask, updateTask } from '@utils/service/task'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers } from '@utils/service/user'
 import { notification, Select } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -392,31 +392,11 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   if (token) {
     await Promise.all([
-      client.prefetchQuery(
-        ['users'],
-        getUsers(
-          {
-            shouldNotPaginate: true,
-          },
-          token,
-        ),
-      ),
-      client.prefetchQuery(
-        ['leads'],
-        getLeads({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        ['contacts'],
-        getContacts({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        ['accounts'],
-        getAccounts({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        ['deals'],
-        getDeals({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery(['users'], getRawUsers(token)),
+      client.prefetchQuery(['leads'], getRawLeads(token)),
+      client.prefetchQuery(['contacts'], getRawContacts(token)),
+      client.prefetchQuery(['accounts'], getRawAccounts(token)),
+      client.prefetchQuery(['deals'], getRawDeals(token)),
       client.prefetchQuery(['task', id], getTask(id, token)),
     ])
   }
@@ -424,7 +404,10 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['task', id]).isError ||
-      ((await checkActionError(req, Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS)) &&
+      ((await checkActionError(
+        req,
+        Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS,
+      )) &&
         !(await useServerSideOwnership(req, client, ['task', id]))),
     props: {
       dehydratedState: dehydrate(client),

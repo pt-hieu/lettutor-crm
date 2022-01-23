@@ -21,6 +21,15 @@ export const getContacts =
       })
       .then((res) => res.data)
 
+export const getRawContacts = (token?: string) => () =>
+  axios
+    .get<Pick<Contact, 'id' | 'fullName'>>(API + '/api/contact/raw', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((res) => res.data)
+
 export const getContact = (id?: string, token?: string) => () =>
   axios
     .get<Contact>(API + `/api/contact/${id}`, {

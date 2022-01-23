@@ -19,9 +19,9 @@ import { LeadSource } from '@utils/models/lead'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
-import { getAccounts } from '@utils/service/account'
+import { getRawAccounts } from '@utils/service/account'
 import { getContact, updateContact } from '@utils/service/contact'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -268,7 +268,8 @@ const ContactDetail = () => {
                   errors,
                   users || [],
                   accounts || [],
-                  !auth[Actions.Contact.VIEW_AND_EDIT_ALL_CONTACT_DETAILS] && !isOwner,
+                  !auth[Actions.Contact.VIEW_AND_EDIT_ALL_CONTACT_DETAILS] &&
+                    !isOwner,
                 ).map(({ label, props }) => (
                   <div
                     key={label}
@@ -350,14 +351,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (token) {
     await Promise.all([
       client.prefetchQuery(['contact', id], getContact(id, token)),
-      client.prefetchQuery(
-        'users',
-        getUsers({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        'accounts',
-        getAccounts({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery('users', getRawUsers(token)),
+      client.prefetchQuery('accounts', getRawAccounts(token)),
     ])
   }
 

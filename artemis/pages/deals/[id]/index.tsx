@@ -14,10 +14,10 @@ import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
-import { getAccounts } from '@utils/service/account'
-import { getContacts } from '@utils/service/contact'
+import { getAccounts, getRawAccounts } from '@utils/service/account'
+import { getContacts, getRawContacts } from '@utils/service/contact'
 import { getDeal, updateDeal } from '@utils/service/deal'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers, getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import DealDetailNavbar from 'components/Deals/DealDetailNavbar'
 import { GetServerSideProps } from 'next'
@@ -394,7 +394,8 @@ const DealDetail = () => {
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
                 {fields(
-                  !auth[Actions.Deal.VIEW_AND_EDIT_ALL_DEAL_DETAILS] && !isOwner,
+                  !auth[Actions.Deal.VIEW_AND_EDIT_ALL_DEAL_DETAILS] &&
+                    !isOwner,
                 )({
                   register,
                   errors,
@@ -462,18 +463,9 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (token) {
     await Promise.all([
       client.prefetchQuery(['deal', id], getDeal(id, token)),
-      client.prefetchQuery(
-        'users',
-        getUsers({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        'accounts',
-        getAccounts({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        'contacts',
-        getContacts({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery('users', getRawUsers(token)),
+      client.prefetchQuery('accounts', getRawAccounts(token)),
+      client.prefetchQuery('contacts', getRawContacts(token)),
     ])
   }
 

@@ -33,6 +33,15 @@ export const addTask = async (taskInfo: TaskFormData) => {
   return data
 }
 
+export const getRawTasks = (token?: string) => () =>
+  axios
+    .get<Pick<Task, 'id' | 'subject'>[]>(API + '/api/task/raw', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((res) => res.data)
+
 export const updateTask = (id: string) => (data: TaskFormData) =>
   axios.patch(API + '/api/task/' + id, data).then((res) => res.data)
 

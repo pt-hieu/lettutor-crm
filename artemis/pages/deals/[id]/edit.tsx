@@ -2,7 +2,7 @@ import Input from '@utils/components/Input'
 import { useModal } from '@utils/hooks/useModal'
 import { getSessionToken } from '@utils/libs/getToken'
 import { LeadSource } from '@utils/models/lead'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers, getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -15,8 +15,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { DealUpdateData, Field } from '@utils/data/update-deal-data'
 import { getDeal, updateDeal } from '@utils/service/deal'
 import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
-import { getContacts } from '@utils/service/contact'
-import { getAccounts } from '@utils/service/account'
+import { getContacts, getRawContacts } from '@utils/service/contact'
+import { getAccounts, getRawAccounts } from '@utils/service/account'
 import { Contact } from '@utils/models/contact'
 import { Account } from '@utils/models/account'
 import { investigate } from '@utils/libs/investigate'
@@ -308,23 +308,9 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   if (token) {
     await Promise.all([
-      client.prefetchQuery(
-        ['users'],
-        getUsers(
-          {
-            shouldNotPaginate: true,
-          },
-          token,
-        ),
-      ),
-      client.prefetchQuery(
-        ['contacts'],
-        getContacts({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        ['accounts'],
-        getAccounts({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery(['users'], getRawUsers(token)),
+      client.prefetchQuery(['contacts'], getRawContacts(token)),
+      client.prefetchQuery(['accounts'], getRawAccounts(token)),
       client.prefetchQuery(['deal', id], getDeal(id, token)),
     ])
   }

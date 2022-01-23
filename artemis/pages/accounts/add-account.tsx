@@ -10,7 +10,7 @@ import { Account, AccountType } from '@utils/models/account'
 import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
 import { addAccount } from '@utils/service/account'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers, getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -190,17 +190,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const token = getSessionToken(req.cookies)
 
   if (token) {
-    await Promise.all([
-      client.prefetchQuery(
-        ['users'],
-        getUsers(
-          {
-            shouldNotPaginate: true,
-          },
-          token,
-        ),
-      ),
-    ])
+    await Promise.all([client.prefetchQuery(['users'], getRawUsers(token))])
   }
 
   return {
