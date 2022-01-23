@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "change_logs",
+  "info": {
+    "singularName": "change-log",
+    "pluralName": "change-logs",
+    "displayName": "ChangeLogs",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "version": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "regex": "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$"
+    },
+    "changes": {
+      "type": "richtext",
+      "required": true,
+      "maxLength": 1000
+    },
+    "releasedAt": {
+      "type": "date",
+      "required": true
+    }
+  }
+}

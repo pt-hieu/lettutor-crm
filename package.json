@@ -1,20 +1,17 @@
 {
   "name": "lettutor-crm",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "bootstrap": "concurrently \"cd hades && yarn\" \"cd artemis && yarn\" \"cd apollo && yarn\"",
+    "dev": "concurrently -k \"cd artemis && yarn dev\" \"cd apollo && yarn dev\"",
+    "poseidon": "cd poseidon && yarn dev",
+    "dev:legacy": "concurrently -k \"cd artemis && yarn dev:legacy\" \"cd apollo && yarn dev\"",
+    "postgres": "docker run -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 --name postgres postgres:alpine",
+    "psql": "docker exec -it postgres bash",
+    "migrate": "cd hades && yarn migrate"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pt-hieu/lettutor-crm.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/pt-hieu/lettutor-crm/issues"
-  },
-  "homepage": "https://github.com/pt-hieu/lettutor-crm#readme"
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  }
 }

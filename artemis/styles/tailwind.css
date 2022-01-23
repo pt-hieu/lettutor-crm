@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@layer components {
+  .crm-button {
+    @apply px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 crm-transition;
+  }
+
+  .crm-button-secondary {
+    @apply crm-button bg-gray-100 text-black hover:bg-gray-50 crm-transition;
+  }
+
+  .crm-button:disabled {
+    @apply cursor-default bg-gray-600;
+  }
+
+  .crm-button-outline {
+    @apply box-border px-3 py-2 rounded-md border border-gray-400 bg-white text-gray-600  hover:text-blue-400 hover:border-blue-400  crm-transition;
+  }
+
+  .crm-button-danger {
+    @apply crm-button bg-red-600 hover:bg-red-500;
+  }
+
+  .crm-button-danger:disabled {
+    @apply cursor-default bg-gray-600;
+  }
+
+  .crm-button-outline:disabled {
+    @apply cursor-default;
+  }
+
+  .crm-input {
+    @apply focus:outline-none text-[14px] border-none focus:border-none !ring-1 ring-gray-200 rounded-md text-gray-600 !crm-transition;
+  }
+
+  .crm-input--invalid {
+    @apply ring-red-600 focus:ring-red-600;
+  }
+
+  .crm-label {
+    @apply mb-2 block required select-none;
+  }
+
+  .crm-transition {
+    @apply transition duration-300 ease-in-out;
+  }
+
+  .required::after {
+    content: '*';
+    @apply text-red-600;
+  }
+
+  .crm-link {
+    @apply text-black hover:text-blue-600;
+  }
+
+  .crm-container {
+    @apply px-[60px] py-4;
+  }
+
+  .crm-scrollbar {
+    scrollbar-color: rgba(37, 99, 235, 1) white;
+    scrollbar-width: thin;
+  }
+
+  .crm-scrollbar::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .crm-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-blue-600;
+  }
+
+  * {
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .debug {
+    @apply border-red-600;
+  }
+}
+
+@tailwind utilities;
