@@ -63,10 +63,6 @@ export class RoleService {
     )
       throw new BadRequestException('Name has been taken')
 
-    if (role.default) {
-      throw new BadRequestException('This role can not be updated')
-    }
-
     return this.roleRepo
       .save({
         ...role,
