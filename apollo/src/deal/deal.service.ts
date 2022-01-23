@@ -31,7 +31,14 @@ export class DealService {
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) {}
+  ) { }
+
+
+  getManyRaw() {
+    return this.dealRepo.find({
+      select: ['id', 'fullName']
+    })
+  }
 
   async getMany(query: DTO.Deal.GetManyQuery) {
     let q = this.dealRepo

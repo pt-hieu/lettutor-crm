@@ -45,6 +45,15 @@ export const getUsers =
       })
       .then((res) => res.data)
 
+export const getRawUsers = (token?: string) => () =>
+  axios
+    .get<Pick<User, 'id' | 'name'>[]>(API + '/api/user/raw', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((res) => res.data)
+
 export const addUser = async (data: {
   name: string
   email: string

@@ -11,10 +11,10 @@ import { DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
-import { getAccounts } from '@utils/service/account'
-import { getContacts } from '@utils/service/contact'
+import { getRawAccounts } from '@utils/service/account'
+import { getRawContacts } from '@utils/service/contact'
 import { addDeal } from '@utils/service/deal'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -217,23 +217,9 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   if (token) {
     await Promise.all([
-      client.prefetchQuery(
-        ['users'],
-        getUsers(
-          {
-            shouldNotPaginate: true,
-          },
-          token,
-        ),
-      ),
-      client.prefetchQuery(
-        ['contacts'],
-        getContacts({ shouldNotPaginate: true }, token),
-      ),
-      client.prefetchQuery(
-        ['accounts'],
-        getAccounts({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery(['users'], getRawUsers(token)),
+      client.prefetchQuery(['contacts'], getRawContacts(token)),
+      client.prefetchQuery(['accounts'], getRawAccounts(token)),
     ])
   }
 

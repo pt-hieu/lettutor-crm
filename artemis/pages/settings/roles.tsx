@@ -9,6 +9,7 @@ import { Actions, Role } from '@utils/models/role'
 import {
   deleteRole as deleteRoleService,
   getRoles,
+  restore,
   updateRole,
 } from '@utils/service/role'
 import { GetServerSideProps } from 'next'
@@ -107,6 +108,22 @@ export default function SettingRoles() {
     },
   )
 
+  const { mutateAsync: restoreMutateAsync, isLoading: isRestoring } =
+    useMutation(['restore-role'], restore, {
+      onSuccess() {
+        client.invalidateQueries('roles')
+        notification.success({ message: 'Restore role successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Restore role unsuccessfully' })
+      },
+    })
+
+  const restoreRole = useCallback(() => {
+    if (!selectedRole) return
+    restoreMutateAsync(selectedRole.id)
+  }, [selectedRole])
+
   const deleteRole = useCallback(() => {
     deleteMutateAsync()
   }, [])
@@ -159,24 +176,42 @@ export default function SettingRoles() {
           </form>
 
           <div className="flex gap-2">
-            {auth[Actions.Role.DELETE_ROLE] && selectedRole && (
-              <Confirm
-                asInform={(selectedRole?.usersCount || 0) > 0}
-                message={
-                  (selectedRole?.usersCount || 0) > 0
-                    ? `This role can not be deleted. There still ${selectedRole?.usersCount} users attached to this role.`
-                    : 'Are you sure you want to delete this role'
-                }
-                onYes={deleteRole}
-              >
-                <button
-                  disabled={isLoading || isDeleting}
-                  className="crm-button-danger"
+            {auth[Actions.Role.DELETE_ROLE] &&
+              selectedRole &&
+              !selectedRole.default && (
+                <Confirm
+                  asInform={
+                    (selectedRole?.usersCount || 0) > 0 || selectedRole.default
+                  }
+                  message={
+                    (selectedRole?.usersCount || 0) > 0
+                      ? `This role can not be deleted. There still ${selectedRole?.usersCount} users attached to this role.`
+                      : selectedRole.default
+                      ? "This role can not be deleted since it's reserved"
+                      : 'Are you sure you want to delete this role'
+                  }
+                  onYes={deleteRole}
                 >
-                  Delete
-                </button>
-              </Confirm>
+                  <button
+                    disabled={isLoading || isDeleting}
+                    className="crm-button-danger"
+                  >
+                    Delete
+                  </button>
+                </Confirm>
+              )}
+
+            {auth[Actions.Role.RESTORE_DEFAULT_ROLE] && selectedRole?.default && (
+              <button
+                disabled={isRestoring}
+                onClick={restoreRole}
+                className="crm-button"
+              >
+                <span className="fa fa-undo mr-2" />
+                Restore
+              </button>
             )}
+
             {auth[Actions.Role.CREATE_NEW_ROLE] && (
               <button onClick={openCreateRole} className="crm-button">
                 <span className="fa fa-plus mr-2" />
@@ -195,7 +230,9 @@ export default function SettingRoles() {
               }
               role={selectedRole}
             />
+
             <div className=""></div>
+
             <AvailableActionPanel
               disabled={
                 isLoading || isDeleting || !auth[Actions.Role.EDIT_ROLE]

@@ -18,10 +18,16 @@ import { TaskService } from './task.service'
 @ApiBearerAuth('jwt')
 @Controller('task')
 export class TaskController {
-  constructor(private readonly service: TaskService) {}
+  constructor(private readonly service: TaskService) { }
+
+  @Get('raw')
+  @ApiOperation({ summary: 'to view raw all tasks' })
+  getManyRaw() {
+    return this.service.getManyRaw()
+  }
 
   @Get()
-  @ApiOperation({ summary: 'view, search and filter all tasks' })
+  @ApiOperation({ summary: 'to view, search and filter all tasks' })
   index(@Query() query: DTO.Task.GetManyQuery) {
     return this.service.getMany(query)
   }

@@ -26,6 +26,12 @@ export class ContactService {
     private readonly payloadService: PayloadService,
   ) {}
 
+  async getManyRaw() {
+    return this.contactRepo.find({
+      select: ['id', 'fullName'],
+    })
+  }
+
   async getMany(query: DTO.Contact.GetManyQuery) {
     let q = this.contactRepo
       .createQueryBuilder('lc')

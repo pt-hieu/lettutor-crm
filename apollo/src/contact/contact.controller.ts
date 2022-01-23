@@ -22,13 +22,19 @@ export class ContactController {
   constructor(
     private readonly service: ContactService,
     private readonly utilService: UtilService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all contacts' })
   @ApiQuery({ type: DTO.Contact.GetManyQuery })
   index(@Query() query: DTO.Contact.GetManyQuery) {
     return this.service.getMany(query)
+  }
+
+  @Get('raw')
+  @ApiOperation({ summary: 'get raw all contacts' })
+  getManyRaw() {
+    return this.service.getManyRaw()
   }
 
   @Post()

@@ -84,6 +84,12 @@ export class AccountService {
     return this.accountRepo.save(dto)
   }
 
+  getManyRaw() {
+    return this.accountRepo.find({
+      select: ['id', 'fullName'],
+    })
+  }
+
   async getMany(query: DTO.Account.GetManyQuery) {
     let q = this.accountRepo
       .createQueryBuilder('acc')

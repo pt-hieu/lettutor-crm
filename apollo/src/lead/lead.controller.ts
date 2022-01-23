@@ -26,7 +26,13 @@ export class LeadController {
   constructor(
     private readonly service: LeadService,
     private readonly utilService: UtilService,
-  ) {}
+  ) { }
+
+  @Get('raw')
+  @ApiOperation({ summary: 'to view raw all leads' })
+  getManyRaw() {
+    return this.service.getManyRaw()
+  }
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all leads' })

@@ -18,7 +18,7 @@ import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccount, updateAccount } from '@utils/service/account'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers, getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -285,10 +285,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (token) {
     await Promise.all([
       client.prefetchQuery(['account', id], getAccount(id, token)),
-      client.prefetchQuery(
-        'users',
-        getUsers({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery('users', getRawUsers(token)),
     ])
   }
 

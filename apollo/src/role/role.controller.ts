@@ -51,4 +51,11 @@ export class RoleController {
   delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.removeRole(id)
   }
+
+  @Post(':id/default')
+  @DefineAction(Actions.RESTORE_DEFAULT_ROLE)
+  @ApiOperation({ summary: 'to restore default action for role' })
+  restore(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.restoreDefault(id)
+  }
 }

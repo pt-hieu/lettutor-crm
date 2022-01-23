@@ -26,6 +26,15 @@ export const getLeads =
       })
       .then((res) => res.data)
 
+export const getRawLeads = (token?: string) => () =>
+  axios
+    .get<Pick<Lead, 'id' | 'fullName'>[]>(API + '/api/lead/raw', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((res) => res.data)
+
 export const getLead = (id?: string, token?: string) => () =>
   axios
     .get<Lead>(API + `/api/lead/${id}`, {

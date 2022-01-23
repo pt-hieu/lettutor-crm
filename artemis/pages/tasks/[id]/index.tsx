@@ -23,7 +23,7 @@ import { TaskFormData, taskSchema } from '../add-task'
 import { User } from '@utils/models/user'
 import { yupResolver } from '@hookform/resolvers/yup'
 import InlineEdit from '@utils/components/InlineEdit'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers, getUsers } from '@utils/service/user'
 import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
@@ -350,16 +350,13 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (token) {
     await Promise.all([
       client.prefetchQuery(['task', id], getTask(id, token)),
-      client.prefetchQuery(
-        'users',
-        getUsers({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery('users', getRawUsers(token)),
     ])
   }
 
   return {
     notFound:
-      investigate(client, ['task', id], 'users').isError ||
+      investigate(client, ['task', id]).isError ||
       ((await checkActionError(
         req,
         Actions.Task.VIEW_ALL_TASK_DETAILS,

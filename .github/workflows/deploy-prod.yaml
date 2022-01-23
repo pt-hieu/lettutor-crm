@@ -1,7 +1,7 @@
 name: Deploy
 on:
   push:
-    branches: ["dev"]
+    branches: [master]
 
 env:
   REGISTRY: ghcr.io
@@ -40,8 +40,10 @@ jobs:
         with:
           context: ./apollo
           push: true
-          tags: ghcr.io/pt-hieu/lettutor-crm:apollo
+          file: {context}/Dockerfile.prod
+          tags: ghcr.io/pt-hieu/lettutor-crm:apollo-prod
           labels: ${{ steps.meta.outputs.labels }}
+
   artemis:
     runs-on: ubuntu-latest
     permissions:
@@ -69,9 +71,11 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: ./artemis
+          file: {context}/Dockerfile.prod
           push: true
-          tags: ghcr.io/pt-hieu/lettutor-crm:artemis
+          tags: ghcr.io/pt-hieu/lettutor-crm:artemis-prod
           labels: ${{ steps.meta.outputs.labels }}
+
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -83,6 +87,6 @@ jobs:
           PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
-            cd ~/lettutor-crm && ./start.sh
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@18.167.61.239 '
+            cd ~/lettutor-crm && ./start-prod.sh
           '

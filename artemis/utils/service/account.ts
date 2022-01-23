@@ -21,6 +21,15 @@ export const getAccounts =
       })
       .then((res) => res.data)
 
+export const getRawAccounts = (token?: string) => () =>
+  axios
+    .get<Pick<Account, 'id' | 'fullName'>>(API + '/api/account/raw', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((res) => res.data)
+
 export const addAccount = async (contactInfo: AccountAddFormData) => {
   const { data } = await axios.post<Account>(API + `/api/account`, contactInfo)
   return data

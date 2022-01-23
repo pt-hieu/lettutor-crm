@@ -11,8 +11,8 @@ export const getDeals =
       search?: string
       source?: LeadSource[]
       stage?: DealStage[]
-      closeFrom?: Date,
-      closeTo?:Date
+      closeFrom?: Date
+      closeTo?: Date
     } & PagingQuery,
     token?: string,
   ) =>
@@ -23,6 +23,15 @@ export const getDeals =
         params,
       })
       .then((res) => res.data)
+
+export const getRawDeals = (token?: string) => () =>
+  axios
+    .get<Pick<Deal, 'id' | 'fullName'>[]>(API + '/api/deal/raw', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((res) => res.data)
 
 export const getDeal = (id?: string, token?: string) => () =>
   axios

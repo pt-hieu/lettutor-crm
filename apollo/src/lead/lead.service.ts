@@ -35,6 +35,12 @@ export class LeadService {
     private readonly payloadService: PayloadService,
   ) {}
 
+  getManyRaw() {
+    return this.leadRepo.find({
+      select: ['id', 'fullName'],
+    })
+  }
+
   async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadRepo
       .createQueryBuilder('l')

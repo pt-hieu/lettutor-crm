@@ -21,7 +21,7 @@ import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
 import { editLeadSchema, LeadUpdateFromData } from './edit'
 import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers, getUsers } from '@utils/service/user'
 import { User } from '@utils/models/user'
 import { notification } from 'antd'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -249,7 +249,8 @@ const LeadDetail = () => {
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
                 {fields(
-                  !auth[Actions.Lead.VIEW_AND_EDIT_ALL_LEAD_DETAILS] && !isOwner,
+                  !auth[Actions.Lead.VIEW_AND_EDIT_ALL_LEAD_DETAILS] &&
+                    !isOwner,
                 )(register, errors, users || []).map(({ label, props }) => (
                   <div
                     key={label}
@@ -311,10 +312,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (token) {
     await Promise.all([
       client.prefetchQuery(['lead', id], getLead(id, token)),
-      client.prefetchQuery(
-        'users',
-        getUsers({ shouldNotPaginate: true }, token),
-      ),
+      client.prefetchQuery('users', getRawUsers(token)),
     ])
   }
 

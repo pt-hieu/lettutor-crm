@@ -133,6 +133,12 @@ export class UserService {
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)
   }
 
+  getManyRaw() {
+    return this.userRepo.find({
+      select: ['id', 'name'],
+    })
+  }
+
   getMany({
     limit,
     page,

@@ -4,7 +4,7 @@ import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { addLeadService } from '@utils/service/lead'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers, getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -215,12 +215,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const token = getSessionToken(req.cookies)
 
   if (token) {
-    await Promise.all([
-      client.prefetchQuery(
-        ['users'],
-        getUsers({ shouldNotPaginate: true }, token),
-      ),
-    ])
+    await Promise.all([client.prefetchQuery(['users'], getRawUsers(token))])
   }
 
   return {

@@ -20,7 +20,7 @@ import { Deal, DealStage } from '@utils/models/deal'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useInput } from '@utils/hooks/useInput'
-import { getUsers } from '@utils/service/user'
+import { getRawUsers, getUsers } from '@utils/service/user'
 import { User } from '@utils/models/user'
 
 interface Props {
@@ -69,13 +69,9 @@ export default function ConvertModal({ close, visible }: Props) {
   const mutation = useRef<ResizeObserver | undefined>(undefined)
   const [height, setHeight] = useState<number | string>(400)
 
-  const { data: users } = useQuery(
-    'users',
-    getUsers({ shouldNotPaginate: true }),
-    {
-      enabled: visible,
-    },
-  )
+  const { data: users } = useQuery('users', getRawUsers(), {
+    enabled: visible,
+  })
   const [ownerId, changeOwnerId] = useInput(lead?.owner?.id)
   const [error, setError] = useState<'Owner is required.'>()
 
@@ -277,7 +273,7 @@ export default function ConvertModal({ close, visible }: Props) {
                 onChange: changeOwnerId,
                 children: (
                   <>
-                    {(users as unknown as User[]).map((u) => (
+                    {users?.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.name}
                       </option>

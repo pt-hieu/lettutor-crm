@@ -24,3 +24,6 @@ export const createRole = (data: Pick<Role, 'actions' | 'name'>) =>
 
 export const deleteRole = (id: string) => () =>
   axios.delete(API + '/api/role/' + id).then((res) => res.data)
+
+export const restore = (id: string) =>
+  axios.post(API + '/api/role/' + id + '/default').then((res) => res.data)

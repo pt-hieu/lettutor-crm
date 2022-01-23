@@ -1,10 +1,15 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import { InjectRepository } from "@nestjs/typeorm";
-import { paginate } from "nestjs-typeorm-paginate";
-import { DTO } from "src/type";
-import { Not, Repository } from "typeorm";
-import { Role } from "./role.entity";
+import {
+  BadRequestException,
+  UnprocessableEntityException,
+  Injectable,
+} from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { InjectRepository } from '@nestjs/typeorm'
+import { paginate } from 'nestjs-typeorm-paginate'
+import { DTO } from 'src/type'
+import { Not, Repository } from 'typeorm'
+import { Role } from './role.entity'
+import { RoleActionMapping } from './role.subscriber'
 
 @Injectable()
 export class RoleService {
@@ -13,7 +18,7 @@ export class RoleService {
     private eventEmitter: EventEmitter2,
   ) {}
 
- getManyRole(dto: DTO.Role.GetManyRole) {
+  getManyRole(dto: DTO.Role.GetManyRole) {
     const qb = this.roleRepo
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.children', 'children')
@@ -34,6 +39,20 @@ export class RoleService {
     })
   }
 
+  async restoreDefault(id: string) {
+    const role = await this.roleRepo.findOne(id)
+    if (!role) throw new BadRequestException('Role does not exist')
+    if (!role.default)
+      throw new UnprocessableEntityException('Role is not default')
+
+    role.actions = RoleActionMapping[role.name]
+
+    return this.roleRepo.save(role).then((res) => {
+      this.eventEmitter.emit('auth.invalidate', id)
+      return res
+    })
+  }
+
   async updateRole(id: string, dto: DTO.Role.UpdateRole) {
     const role = await this.roleRepo.findOne(id)
     if (!role) throw new BadRequestException('Role does not exist')
@@ -44,20 +63,25 @@ export class RoleService {
     )
       throw new BadRequestException('Name has been taken')
 
-    this.eventEmitter.emit('auth.invalidate', id)
-
-    return this.roleRepo.save({
-      ...role,
-      ...dto,
-    })
+    return this.roleRepo
+      .save({
+        ...role,
+        ...dto,
+      })
+      .then((res) => {
+        this.eventEmitter.emit('auth.invalidate', id)
+        return res
+      })
   }
 
   async removeRole(id: string) {
     const role = await this.roleRepo.findOne({ where: { id } })
+
     if (!role) throw new BadRequestException('Role does not exist')
+    if (role.default) {
+      throw new BadRequestException('This role can not be deleted')
+    }
 
     return this.roleRepo.remove(role)
   }
-
-  
 }
