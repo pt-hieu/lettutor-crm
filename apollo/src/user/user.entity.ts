@@ -32,12 +32,15 @@ export class User extends BaseEntity {
   email: string
 
   @Column({ type: 'varchar', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   password: string | null
 
   @Column({ type: 'varchar', nullable: true, default: null, unique: true })
+  @Exclude({ toPlainOnly: true })
   passwordToken: string | null
 
   @Column({ nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   tokenExpiration: Date | null
 
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
@@ -80,6 +83,7 @@ export class Role extends BaseEntity {
   parent: Role
 
   @Column({ type: 'uuid', array: true, default: null, select: false })
+  @Exclude({ toPlainOnly: true })
   childrenIds: string[]
 
   @OneToMany(() => Role, (r) => r.parent)

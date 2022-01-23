@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
@@ -32,9 +33,11 @@ export class Task extends Ownerful {
   contact: Contact
 
   @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   contactId: string | null
 
   @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   leadId: string | null
 
   @ManyToOne(() => Account, (account) => account.tasks)
@@ -42,6 +45,7 @@ export class Task extends Ownerful {
   account: Account
 
   @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   accountId: string
 
   @ManyToOne(() => Deal, (deal) => deal.tasks)
@@ -49,6 +53,7 @@ export class Task extends Ownerful {
   deal: Deal
 
   @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
   dealId: string
 
   @Column({ enum: TaskPriority, type: 'enum', default: TaskPriority.HIGH })
