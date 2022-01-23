@@ -14,7 +14,13 @@ export enum DefaultRoleName {
 
 export const RoleActionMapping: Record<DefaultRoleName, Actions[]> = {
   [DefaultRoleName.ADMIN]: [Actions.IS_ADMIN],
-  [DefaultRoleName.SALE]: [Actions.CREATE_NEW_TASK],
+  [DefaultRoleName.SALE]: [
+    Actions.CREATE_NEW_TASK,
+    Actions.CREATE_NEW_ACCOUNT,
+    Actions.CREATE_NEW_CONTACT,
+    Actions.CREATE_NEW_DEAL,
+    Actions.CREATE_NEW_LEAD,
+  ],
 }
 
 @EventSubscriber()
