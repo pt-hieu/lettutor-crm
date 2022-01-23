@@ -40,7 +40,7 @@ jobs:
         with:
           context: ./apollo
           push: true
-          file: {context}/Dockerfile.prod
+          file: ./apollo/Dockerfile.prod
           tags: ghcr.io/pt-hieu/lettutor-crm:apollo-prod
           labels: ${{ steps.meta.outputs.labels }}
 
@@ -71,7 +71,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: ./artemis
-          file: {context}/Dockerfile.prod
+          file: ./artemis/Dockerfile.prod
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:artemis-prod
           labels: ${{ steps.meta.outputs.labels }}
