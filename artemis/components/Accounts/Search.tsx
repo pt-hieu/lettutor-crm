@@ -62,7 +62,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      {auth[Actions.CREATE_NEW_ACCOUNT] && (
+      {auth[Actions.Account.CREATE_NEW_ACCOUNT] && (
         <ButtonAdd
           title="Create Account"
           asLink

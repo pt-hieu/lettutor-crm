@@ -91,7 +91,7 @@ export default function DealsSearch({
           </div>
         </Tooltip>
 
-        {auth[Actions.CREATE_NEW_DEAL] && (
+        {auth[Actions.Deal.CREATE_NEW_DEAL] && (
           <ButtonAdd
             title="Create Deal"
             asLink

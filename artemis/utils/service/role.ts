@@ -1,5 +1,5 @@
 import { PagingQuery } from '@utils/models/paging'
-import { Actions, Role } from '@utils/models/role'
+import { Role } from '@utils/models/role'
 import axios from 'axios'
 import { API } from 'environment'
 
@@ -16,7 +16,7 @@ export const getRoles =
       .then((res) => res.data)
 
 export const updateRole =
-  (id: string) => (data: { name?: string; actions?: Actions[] }) =>
+  (id: string) => (data: { name?: string; actions?: string[] }) =>
     axios.patch(API + '/api/role/' + id, data).then((res) => res.data)
 
 export const createRole = (data: Pick<Role, 'actions' | 'name'>) =>

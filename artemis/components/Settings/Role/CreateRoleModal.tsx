@@ -110,25 +110,31 @@ export default function CreateRoleModal({ close, visible }: Props) {
         <div className="mb-4 grid grid-cols-[100px,1fr]">
           <div></div>
           <div className="p-4 border rounded-md flex flex-col gap-2 max-h-[300px] overflow-auto crm-scrollbar">
-            {Object.values(Actions).map((action, index) => (
-              <div key={action + 'select'} className="flex gap-2 items-center">
-                <Input
-                  showError={false}
-                  props={{
-                    ...register('actions'),
-                    value: action,
-                    id: action + index + 'select',
-                    type: 'checkbox',
-                  }}
-                />
-                <label
-                  htmlFor={action + index + 'select'}
-                  className="crm-label after:content-[''] mb-0"
+            {Object.values(Actions)
+              .map((scope) => Object.values(scope))
+              .flat()
+              .map((action, index) => (
+                <div
+                  key={action + 'select'}
+                  className="flex gap-2 items-center"
                 >
-                  {action}
-                </label>
-              </div>
-            ))}
+                  <Input
+                    showError={false}
+                    props={{
+                      ...register('actions'),
+                      value: action,
+                      id: action + index + 'select',
+                      type: 'checkbox',
+                    }}
+                  />
+                  <label
+                    htmlFor={action + index + 'select'}
+                    className="crm-label after:content-[''] mb-0"
+                  >
+                    {action}
+                  </label>
+                </div>
+              ))}
           </div>
         </div>
       </form>

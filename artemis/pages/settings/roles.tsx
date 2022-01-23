@@ -127,7 +127,7 @@ export default function SettingRoles() {
 
       if (res.source.droppableId === 'available-action') {
         mutateAsync({
-          actions: [...selectedRole.actions, res.draggableId as Actions],
+          actions: [...selectedRole.actions, res.draggableId],
         })
       }
     },
@@ -159,7 +159,7 @@ export default function SettingRoles() {
           </form>
 
           <div className="flex gap-2">
-            {auth[Actions.DELETE_ROLE] && selectedRole && (
+            {auth[Actions.Role.DELETE_ROLE] && selectedRole && (
               <Confirm
                 asInform={(selectedRole?.usersCount || 0) > 0}
                 message={
@@ -177,7 +177,7 @@ export default function SettingRoles() {
                 </button>
               </Confirm>
             )}
-            {auth[Actions.CREATE_NEW_ROLE] && (
+            {auth[Actions.Role.CREATE_NEW_ROLE] && (
               <button onClick={openCreateRole} className="crm-button">
                 <span className="fa fa-plus mr-2" />
                 Add New Role
@@ -190,12 +190,16 @@ export default function SettingRoles() {
         <DragDropContext onDragEnd={dndUpdate}>
           <div className="w-full grid grid-cols-[1fr,30px,1fr] gap-4 h-[calc(100vh-60px-102px)] mt-8 text-gray-700">
             <ActionPanel
-              disabled={isLoading || isDeleting || !auth[Actions.EDIT_ROLE]}
+              disabled={
+                isLoading || isDeleting || !auth[Actions.Role.EDIT_ROLE]
+              }
               role={selectedRole}
             />
             <div className=""></div>
             <AvailableActionPanel
-              disabled={isLoading || isDeleting || !auth[Actions.EDIT_ROLE]}
+              disabled={
+                isLoading || isDeleting || !auth[Actions.Role.EDIT_ROLE]
+              }
               data={selectedRole}
             />
           </div>

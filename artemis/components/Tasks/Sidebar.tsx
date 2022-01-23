@@ -1,5 +1,4 @@
 import MultipleQuery from '@utils/components/MultipleQuery'
-import { AccountType } from '@utils/models/account'
 import { TaskPriority, TaskStatus } from '@utils/models/task'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'

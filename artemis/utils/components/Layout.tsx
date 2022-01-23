@@ -41,17 +41,20 @@ function Layout({
   const client = useQueryClient()
 
   useEffect(() => {
-    const auth = Object.values(Actions).reduce(
-      (sum, curr) => ({
-        ...sum,
-        [curr]: session?.user.roles.some(
-          (role) =>
-            role.actions.includes(curr) ||
-            role.actions.includes(Actions.IS_ADMIN),
-        ),
-      }),
-      {},
-    )
+    const auth = Object.values(Actions)
+      .map((scope) => Object.values(scope))
+      .flat()
+      .reduce(
+        (sum, curr) => ({
+          ...sum,
+          [curr]: session?.user.roles.some(
+            (role) =>
+              role.actions.includes(curr) ||
+              role.actions.includes(Actions.Admin.IS_ADMIN),
+          ),
+        }),
+        {},
+      )
 
     client.setQueryData(GlobalState.AUTHORIZATION, auth)
   }, [session])

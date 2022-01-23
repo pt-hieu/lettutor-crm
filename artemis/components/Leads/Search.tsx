@@ -62,7 +62,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      {auth[Actions.CREATE_NEW_LEAD] && (
+      {auth[Actions.Lead.CREATE_NEW_LEAD] && (
         <ButtonAdd
           title="Create Lead"
           asLink
