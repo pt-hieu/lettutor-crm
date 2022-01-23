@@ -22,13 +22,19 @@ export class AccountController {
   constructor(
     private readonly service: AccountService,
     private readonly utilService: UtilService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'view and search all accounts' })
   @ApiQuery({ type: DTO.Account.GetManyQuery })
   index(@Query() query: DTO.Account.GetManyQuery) {
     return this.service.getMany(query)
+  }
+
+  @Get('/raw')
+  @ApiOperation({ summary: 'to view raw all accounts' })
+  getManyRaw() {
+    return this.service.getManyRaw()
   }
 
   @Get(':id')

@@ -22,7 +22,7 @@ export class AccountService {
     private readonly userService: UserService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) {}
+  ) { }
 
   async getAccountById(option: FindOneOptions<Account>, trace?: boolean) {
     const account = await this.accountRepo.findOne(option)
@@ -51,18 +51,18 @@ export class AccountService {
 
     account.deals
       ? account.deals.forEach((deal) => {
-          deal.tasks
-            ? (tasksToDisplay = tasksToDisplay.concat(deal.tasks))
-            : undefined
-        })
+        deal.tasks
+          ? (tasksToDisplay = tasksToDisplay.concat(deal.tasks))
+          : undefined
+      })
       : undefined
 
     account.contacts
       ? account.contacts.forEach((contact) => {
-          contact.tasks
-            ? (tasksToDisplay = tasksToDisplay.concat(contact.tasks))
-            : undefined
-        })
+        contact.tasks
+          ? (tasksToDisplay = tasksToDisplay.concat(contact.tasks))
+          : undefined
+      })
       : undefined
 
     account['tasksToDisplay'] = [
@@ -82,6 +82,20 @@ export class AccountService {
     }
 
     return this.accountRepo.save(dto)
+  }
+
+  async getManyRaw() {
+    let q = this.accountRepo
+      .createQueryBuilder('acc')
+      .select(["acc.id", "acc.fullName"])
+      .leftJoin('acc.owner', 'owner')
+      .addSelect(['owner.name', 'owner.email'])
+
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
+
+    return q.getMany()
   }
 
   async getMany(query: DTO.Account.GetManyQuery) {

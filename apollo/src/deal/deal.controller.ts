@@ -24,6 +24,12 @@ export class DealController {
     private readonly utilService: UtilService,
   ) {}
 
+  @Get('raw')
+  @ApiOperation({ summary: 'to view raw all deals' })
+  getManyRaw() {
+    return this.service.getManyRaw()
+  }
+
   @Get()
   @ApiOperation({ summary: 'view, search and filter all deal' })
   @ApiQuery({ type: DTO.Deal.GetManyQuery })
