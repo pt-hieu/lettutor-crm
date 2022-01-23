@@ -12,5 +12,5 @@ export class PayloadService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() {}
+  constructor() { }
 }

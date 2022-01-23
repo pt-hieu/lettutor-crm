@@ -33,7 +33,22 @@ export class LeadService {
     private readonly taskService: TaskService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) {}
+  ) { }
+
+
+  async getManyRaw() {
+    let q = this.leadRepo
+      .createQueryBuilder('l')
+      .select(["l.id", "l.fullName", "l.email",])
+      .leftJoin('l.owner', 'owner')
+      .addSelect(['owner.name', 'owner.email'])
+
+    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_LEADS)) {
+      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
+    }
+
+    return q.getMany()
+  }
 
   async getMany(query: DTO.Lead.GetManyQuery) {
     let q = this.leadRepo
@@ -68,6 +83,7 @@ export class LeadService {
     if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
   }
+
 
   async getLeadById(option: FindOneOptions<Lead>, trace?: boolean) {
     const lead = await this.leadRepo.findOne(option)

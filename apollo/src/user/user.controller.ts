@@ -49,6 +49,12 @@ export class UserController {
     return this.service.getMany(query)
   }
 
+  @Get()
+  @ApiOperation({ summary: 'to get RAW all users in the system' })
+  async getManyRaw() {
+    return this.service.getManyRaw()
+  }
+
   @Post()
   @DefineAction(Actions.CREATE_NEW_USER)
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
