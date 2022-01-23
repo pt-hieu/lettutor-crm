@@ -13,13 +13,13 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
-import { UserService } from './user.service'
+import { RoleService } from './role.service'
 
 @Controller('role')
 @ApiTags('role')
 @ApiBearerAuth('jwt')
 export class RoleController {
-  constructor(private service: UserService) {}
+  constructor(private service: RoleService) {}
 
   @Get()
   @ApiQuery({ type: DTO.Role.GetManyRole })

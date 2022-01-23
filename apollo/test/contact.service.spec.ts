@@ -11,7 +11,7 @@ import { DealService } from 'src/deal/deal.service'
 import { Deal } from 'src/deal/deal.entity'
 import { NotFoundException } from '@nestjs/common'
 import { UserService } from 'src/user/user.service'
-import { Role, User } from 'src/user/user.entity'
+import { User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
 import { Contact } from 'src/contact/contact.entity'
 import { ContactService } from 'src/contact/contact.service'
@@ -19,6 +19,7 @@ import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
 import { PayloadService } from 'src/global/payload.service'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Role } from 'src/role/role.entity'
 
 describe('contact service', () => {
   let contactRepo: MockType<Repository<Contact>>

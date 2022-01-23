@@ -9,11 +9,12 @@ import { NotFoundException } from '@nestjs/common'
 import { DTO } from 'src/type'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
 import { UserService } from 'src/user/user.service'
-import { Role, User } from 'src/user/user.entity'
+import { User } from 'src/user/user.entity'
 import { MailService } from 'src/mail/mail.service'
 import { UtilService } from 'src/global/util.service'
 import { PayloadService } from 'src/global/payload.service'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Role } from 'src/role/role.entity'
 
 describe('account service', () => {
   let accountService: AccountService

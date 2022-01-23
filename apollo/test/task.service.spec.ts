@@ -10,7 +10,7 @@ import { NotFoundException } from '@nestjs/common'
 import { MailService } from 'src/mail/mail.service'
 import { Account } from 'src/account/account.entity'
 import { AccountService } from 'src/account/account.service'
-import { Role, User } from 'src/user/user.entity'
+import { User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 import { TaskService } from 'src/task/task.service'
 import { Task } from 'src/task/task.entity'
@@ -23,6 +23,7 @@ import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
 import { PayloadService } from 'src/global/payload.service'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Role } from 'src/role/role.entity'
 
 describe('task service', () => {
   let taskRepo: MockType<Repository<Deal>>
