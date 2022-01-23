@@ -1,8 +1,8 @@
 import { JwtPayload } from '@utils/models/payload'
-import { Actions } from '@utils/models/role'
+import { Actions, ActionValues } from '@utils/models/role'
 import { getSession } from 'next-auth/client'
 
-export async function checkActionError(req: any, ...actions: Actions[]) {
+export async function checkActionError(req: any, ...actions: ActionValues[]) {
   const session = (await getSession({ req })) as { user: JwtPayload }
 
   if (!session) return true
@@ -10,7 +10,7 @@ export async function checkActionError(req: any, ...actions: Actions[]) {
     session.user.roles.some(
       (role) =>
         role.actions.includes(action) ||
-        role.actions.includes(Actions.IS_ADMIN),
+        role.actions.includes(Actions.Admin.IS_ADMIN),
     ),
   ).length
 }

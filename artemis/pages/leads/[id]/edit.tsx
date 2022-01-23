@@ -225,7 +225,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['lead', id]).isError ||
-      ((await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)) &&
+      ((await checkActionError(req, Actions.Lead.VIEW_AND_EDIT_ALL_LEAD_DETAILS)) &&
         !(await useServerSideOwnership(req, client, ['lead', id]))),
     props: {
       dehydratedState: dehydrate(client),

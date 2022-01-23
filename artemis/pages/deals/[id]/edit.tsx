@@ -332,7 +332,10 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['deal', id]).isError ||
-      ((await checkActionError(req, Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS)) &&
+      ((await checkActionError(
+        req,
+        Actions.Deal.VIEW_AND_EDIT_ALL_DEAL_DETAILS,
+      )) &&
         !(await useServerSideOwnership(req, client, ['deal', id]))),
     props: {
       dehydratedState: dehydrate(client),

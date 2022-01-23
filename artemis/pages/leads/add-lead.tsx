@@ -224,7 +224,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   return {
-    notFound: await checkActionError(req, Actions.CREATE_NEW_LEAD),
+    notFound: await checkActionError(req, Actions.Lead.CREATE_NEW_LEAD),
     props: {
       dehydratedState: dehydrate(client),
     },

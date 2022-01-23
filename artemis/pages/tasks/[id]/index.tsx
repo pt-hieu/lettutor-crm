@@ -290,7 +290,8 @@ const TaskDetail = () => {
                     errors,
                     users: users || [],
                     disabled:
-                      !auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS] && !isOwner,
+                      !auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] &&
+                      !isOwner,
                   }).map(({ label, props }) => (
                     <div
                       key={label}
@@ -317,7 +318,7 @@ const TaskDetail = () => {
                   </Tooltip>
                 ) : (
                   <>
-                    {(auth[Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS] ||
+                    {(auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] ||
                       isOwner) && (
                       <Confirm
                         message="Are you sure you want to mark this task as completed?"
@@ -361,8 +362,8 @@ export const getServerSideProps: GetServerSideProps = async ({
       investigate(client, ['task', id], 'users').isError ||
       ((await checkActionError(
         req,
-        Actions.VIEW_ALL_TASK_DETAILS,
-        Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS,
+        Actions.Task.VIEW_ALL_TASK_DETAILS,
+        Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS,
       )) &&
         !(await useServerSideOwnership(req, client, ['task', id]))),
     props: {

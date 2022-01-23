@@ -42,7 +42,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: await checkActionError(req, Actions.VIEW_ALL_USERS),
+    notFound: await checkActionError(req, Actions.User.VIEW_ALL_USERS),
     props: {
       dehydratedState: dehydrate(client),
     },
@@ -105,7 +105,7 @@ export default function UsersSettings() {
           onStatusChange={setStatus}
         />
 
-        {auth[Actions.CREATE_NEW_USER] && <ButtonAddUser />}
+        {auth[Actions.User.CREATE_NEW_USER] && <ButtonAddUser />}
       </div>
 
       <div className="mt-4">

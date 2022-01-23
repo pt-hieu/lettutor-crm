@@ -394,7 +394,7 @@ const DealDetail = () => {
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
                 {fields(
-                  !auth[Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS] && !isOwner,
+                  !auth[Actions.Deal.VIEW_AND_EDIT_ALL_DEAL_DETAILS] && !isOwner,
                 )({
                   register,
                   errors,
@@ -482,8 +482,8 @@ export const getServerSideProps: GetServerSideProps = async ({
       investigate(client, ['deal', id]).isError ||
       ((await checkActionError(
         req,
-        Actions.VIEW_ALL_DEAL_DETAILS,
-        Actions.VIEW_AND_EDIT_ALL_DEAL_DETAILS,
+        Actions.Deal.VIEW_ALL_DEAL_DETAILS,
+        Actions.Deal.VIEW_AND_EDIT_ALL_DEAL_DETAILS,
       )) &&
         !(await useServerSideOwnership(req, client, ['deal', id]))),
     props: {

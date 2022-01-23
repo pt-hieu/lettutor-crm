@@ -249,7 +249,7 @@ const LeadDetail = () => {
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
                 {fields(
-                  !auth[Actions.VIEW_AND_EDIT_ALL_LEAD_DETAILS] && !isOwner,
+                  !auth[Actions.Lead.VIEW_AND_EDIT_ALL_LEAD_DETAILS] && !isOwner,
                 )(register, errors, users || []).map(({ label, props }) => (
                   <div
                     key={label}
@@ -321,7 +321,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   return {
     notFound:
       investigate(client, ['lead', id]).isError ||
-      ((await checkActionError(req, Actions.VIEW_ALL_LEAD_DETAILS)) &&
+      ((await checkActionError(req, Actions.Lead.VIEW_ALL_LEAD_DETAILS)) &&
         !(await useServerSideOwnership(req, client, ['lead', id]))),
     props: {
       dehydratedState: dehydrate(client),

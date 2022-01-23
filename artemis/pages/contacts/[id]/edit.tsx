@@ -244,7 +244,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       investigate(client, ['contact', id]).isError ||
       ((await checkActionError(
         req,
-        Actions.VIEW_AND_EDIT_ALL_CONTACT_DETAILS,
+        Actions.Contact.VIEW_AND_EDIT_ALL_CONTACT_DETAILS,
       )) &&
         !(await useServerSideOwnership(req, client, ['contact', id]))),
     props: {
