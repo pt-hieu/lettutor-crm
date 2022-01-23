@@ -93,7 +93,7 @@ describe('role service', () => {
       roleRepo.findOne.mockReturnValue(undefined).mockReturnValueOnce(role)
 
       roleRepo.find.mockReturnValue([])
-      roleRepo.save.mockReturnValue(role)
+      roleRepo.save.mockReturnValue(Promise.resolve(role))
 
       expect(await roleService.updateRole('12', dto)).toEqual(role)
     })
