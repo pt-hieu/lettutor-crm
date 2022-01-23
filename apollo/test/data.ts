@@ -130,7 +130,7 @@ export const deal: Deal = {
 export const task: Task = {
   id: '1234',
   owner: user,
-  ownerId: lead.owner.id,
+  ownerId: user.id,
   lead: lead,
   contact: contact,
   contactId: contact.id,

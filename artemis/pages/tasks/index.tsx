@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { getTasks } from '@utils/service/task'
+import { formatDate } from '@utils/libs/time'
 
 export const taskColumns: TableColumnType<Task>[] = [
   {
@@ -29,6 +30,7 @@ export const taskColumns: TableColumnType<Task>[] = [
     title: 'Due Date',
     dataIndex: 'dueDate',
     key: 'dueDate',
+    render: (_, { dueDate }) => formatDate(dueDate as Date),
   },
   {
     title: 'Status',

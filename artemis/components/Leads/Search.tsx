@@ -67,18 +67,18 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           title="Create Lead"
           asLink
           link="/leads/add-lead"
-          menuItems={
-            <>
-              <button className={menuItemClass}>
-                <span className="fa fa-upload mr-4" />
-                Import Leads
-              </button>
-              <button className={menuItemClass}>
-                <span className="fa fa-book mr-4" />
-                Import Notes
-              </button>
-            </>
-          }
+          //menuItems={
+          //<>
+          //<button className={menuItemClass}>
+          //<span className="fa fa-upload mr-4" />
+          //Import Leads
+          //</button>
+          //<button className={menuItemClass}>
+          //<span className="fa fa-book mr-4" />
+          //Import Notes
+          //</button>
+          //</>
+          //}
         />
       )}
     </div>

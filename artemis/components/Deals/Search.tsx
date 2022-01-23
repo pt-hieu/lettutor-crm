@@ -92,23 +92,7 @@ export default function DealsSearch({
         </Tooltip>
 
         {auth[Actions.Deal.CREATE_NEW_DEAL] && (
-          <ButtonAdd
-            title="Create Deal"
-            asLink
-            link="/deals/add-deal"
-            menuItems={
-              <>
-                <button className={menuItemClass}>
-                  <span className="fa fa-upload mr-4" />
-                  Import Deals
-                </button>
-                <button className={menuItemClass}>
-                  <span className="fa fa-book mr-4" />
-                  Import Notes
-                </button>
-              </>
-            }
-          />
+          <ButtonAdd title="Create Deal" asLink link="/deals/add-deal" />
         )}
       </div>
     </div>
