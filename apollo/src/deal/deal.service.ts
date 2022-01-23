@@ -34,21 +34,10 @@ export class DealService {
   ) { }
 
 
-  async getManyRaw() {
-    let q = this.dealRepo
-      .createQueryBuilder('d')
-      .select(['d.id', 'd.fullName'])
-      .leftJoin('d.owner', 'owner')
-      .addSelect([
-        'owner.name',
-        'owner.email',
-      ])
-
-    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_DEALS)) {
-      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
-    }
-
-    return q.getMany()
+  getManyRaw() {
+    return this.dealRepo.find({
+      select: ['id', 'fullName']
+    })
   }
 
   async getMany(query: DTO.Deal.GetManyQuery) {

@@ -24,24 +24,12 @@ export class ContactService {
     private readonly userService: UserService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) { }
+  ) {}
 
   async getManyRaw() {
-    let q = this.contactRepo
-      .createQueryBuilder('contact')
-      .select(['contact.id', 'contact.fullName', 'contact.email'])
-      .leftJoin('contact.owner', 'owner')
-      .addSelect([
-        'owner.name',
-        'owner.email',
-        'account.fullName',
-      ])
-
-    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_CONTACTS)) {
-      q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
-    }
-
-    return q.getMany()
+    return this.contactRepo.find({
+      select: ['id', 'fullName'],
+    })
   }
 
   async getMany(query: DTO.Contact.GetManyQuery) {

@@ -134,11 +134,9 @@ export class UserService {
   }
 
   getManyRaw() {
-    let q = this.userRepo
-      .createQueryBuilder('u')
-      .addSelect(['u.id', 'u.name', 'u.email', 'u.status'])
-
-   return q.getMany()
+    return this.userRepo.find({
+      select: ['id', 'name'],
+    })
   }
 
   getMany({
