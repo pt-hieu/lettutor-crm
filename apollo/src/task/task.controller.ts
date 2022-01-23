@@ -18,10 +18,10 @@ import { TaskService } from './task.service'
 @ApiBearerAuth('jwt')
 @Controller('task')
 export class TaskController {
-  constructor(private readonly service: TaskService) {}
+  constructor(private readonly service: TaskService) { }
 
   @Get('raw')
-  @ApiOperation({ summary: 'to view raw task' })
+  @ApiOperation({ summary: 'to view raw all tasks' })
   getManyRaw() {
     return this.service.getManyRaw()
   }

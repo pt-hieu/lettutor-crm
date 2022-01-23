@@ -29,7 +29,7 @@ export class ContactService {
   async getManyRaw() {
     let q = this.contactRepo
       .createQueryBuilder('contact')
-      .select(['contact.fullName', 'contact.email'])
+      .select(['contact.id', 'contact.fullName', 'contact.email'])
       .leftJoin('contact.owner', 'owner')
       .leftJoin('contact.account', 'account')
       .addSelect([

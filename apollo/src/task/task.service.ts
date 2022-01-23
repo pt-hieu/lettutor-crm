@@ -33,7 +33,7 @@ export class TaskService {
     private readonly dealService: DealService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) {}
+  ) { }
 
   async addTask(dto: DTO.Task.AddTask) {
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
@@ -57,8 +57,8 @@ export class TaskService {
       await Promise.all([
         dto.contactId
           ? this.contactService.getContactById({
-              where: { id: dto.contactId },
-            })
+            where: { id: dto.contactId },
+          })
           : undefined,
         dto.accountId
           ? this.accountService.getAccountById({ where: { id: dto.accountId } })
@@ -112,7 +112,7 @@ export class TaskService {
         ownerId: this.payloadService.data.id,
       })
     }
-  
+
     return q.getMany()
   }
 
@@ -185,8 +185,8 @@ export class TaskService {
       dto.accountId
         ? (dto.dealId = null)
         : dto.dealId
-        ? (dto.accountId = null)
-        : undefined
+          ? (dto.accountId = null)
+          : undefined
 
       await Promise.all([
         dto.contactId

@@ -22,7 +22,7 @@ export class ContactController {
   constructor(
     private readonly service: ContactService,
     private readonly utilService: UtilService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all contacts' })

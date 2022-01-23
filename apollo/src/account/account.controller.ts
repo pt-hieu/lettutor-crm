@@ -22,7 +22,7 @@ export class AccountController {
   constructor(
     private readonly service: AccountService,
     private readonly utilService: UtilService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'view and search all accounts' })
@@ -32,7 +32,7 @@ export class AccountController {
   }
 
   @Get('/raw')
-  @ApiOperation({ summary: 'view and search all accounts' })
+  @ApiOperation({ summary: 'to view raw all accounts' })
   getManyRaw() {
     return this.service.getManyRaw()
   }
