@@ -37,19 +37,11 @@ export class DealService {
   async getManyRaw() {
     let q = this.dealRepo
       .createQueryBuilder('d')
+      .select(['d.id', 'd.fullName'])
       .leftJoin('d.owner', 'owner')
-      .leftJoin('d.account', 'account')
-      .leftJoin('d.contact', 'contact')
-      .leftJoin('d.tasks', 'tasks')
       .addSelect([
         'owner.name',
         'owner.email',
-        'account.fullName',
-        'account.description',
-        'contact.fullName',
-        'tasks.subject',
-        'tasks.dueDate',
-        'tasks.id',
       ])
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_DEALS)) {

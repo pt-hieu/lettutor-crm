@@ -31,7 +31,6 @@ export class ContactService {
       .createQueryBuilder('contact')
       .select(['contact.id', 'contact.fullName', 'contact.email'])
       .leftJoin('contact.owner', 'owner')
-      .leftJoin('contact.account', 'account')
       .addSelect([
         'owner.name',
         'owner.email',
