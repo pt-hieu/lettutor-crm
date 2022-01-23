@@ -9,7 +9,7 @@ RUN yarn install --frozen-lockfile
 COPY ./ ./
 
 RUN npm install -g typescript
-RUN yarn build && yarn --production --ignore-scripts --prefer-offline
+RUN yarn build:dev && yarn --production --ignore-scripts --prefer-offline
 
 FROM node:alpine AS runner
 WORKDIR /app
@@ -29,4 +29,4 @@ COPY --from=builder /app/.env.development ./.env.development
 USER nextjs
 
 EXPOSE 3000
-CMD ["yarn", "start"]
+CMD ["yarn", "start:dev"]
