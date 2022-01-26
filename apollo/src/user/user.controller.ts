@@ -44,8 +44,7 @@ export class UserController {
 
   @Get()
   @ApiOperation({ summary: 'to get all users in the system' })
-  @ApiQuery({ type: DTO.User.UserGetManyQuery })
-  async index(@Query() query: DTO.User.UserGetManyQuery) {
+  getAllUser(@Query() query: DTO.User.UserGetManyQuery) {
     return this.service.getMany(query)
   }
 
