@@ -1,7 +1,13 @@
 FROM strapi/base:alpine
-RUN --mount=type=secret,id=my-secret 
+RUN --mount=type=secret,id=secret 
 
 ENV NODE_ENV=production
+
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_ACCESS_SECRET
+ARG AWS_REGION
+ARG AWS_BUCKET_NAME
+ARG AWS_S3_STORAGE_CLASS
 
 ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 ENV AWS_ACCESS_SECRET=${AWS_ACCESS_SECRET}
