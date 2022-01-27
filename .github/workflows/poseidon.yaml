@@ -8,6 +8,12 @@ env:
 jobs:
   poseidon:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+      AWS_ACCESS_SECRET: ${{ secrets.AWS_SECRET }}
+      AWS_REGION: ap-east-1
+      AWS_BUCKET_NAME: strapi-dev
+      AWS_S3_STORAGE_CLASS: S3 Standard
     permissions:
       contents: read
       packages: write
