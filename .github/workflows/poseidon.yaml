@@ -42,3 +42,18 @@ jobs:
             AWS_REGION=ap-east-1
             AWS_BUCKET_NAME=strapi-dev
             AWS_S3_STORAGE_CLASS=S3 Standard
+
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: poseidon
+    steps:
+      - uses: actions/checkout@v2
+      - name: deploy on ec2
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
+            cd ~/lettutor-crm && ./start-poseidon.sh
+          '
