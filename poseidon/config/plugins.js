@@ -9,6 +9,9 @@ module.exports = ({ env }) => ({
         params: {
           Bucket: env("AWS_BUCKET_NAME"),
           StorageClass: env("AWS_S3_STORAGE_CLASSES"),
+          CreateBucketConfiguration: {
+            LocationConstraint: env("AWS_REGION"),
+          },
         },
       },
     },
