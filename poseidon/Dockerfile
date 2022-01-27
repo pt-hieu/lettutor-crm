@@ -1,6 +1,4 @@
 FROM strapi/base:alpine
-RUN --mount=type=secret,id=secret 
-
 ENV NODE_ENV=production
 
 ARG AWS_ACCESS_KEY_ID
@@ -23,9 +21,7 @@ COPY yarn.lock .
 RUN yarn install --frozen-lockfile
 
 COPY favicon.ico .
-COPY .env .
-
-COPY public/ public/
+COPY public/robots.txt public/
 COPY src/ src/
 COPY config/ config/
 
