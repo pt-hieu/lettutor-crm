@@ -1727,6 +1727,14 @@
     "@strapi/utils" "4.0.0"
     sendmail "^1.6.1"
 
+"@strapi/provider-upload-aws-s3@^4.0.5":
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/@strapi/provider-upload-aws-s3/-/provider-upload-aws-s3-4.0.5.tgz#13d886ff3c96d1813bd262d6a82be4247b3d41df"
+  integrity sha512-Ke+ODOw/EPeTWU84eM4PiqW7FjnSUn1rtmzhz9Zv07fXNBSBDEU2lZSgacGxo/uK9fuGnAjxq8CeWZVms71fpQ==
+  dependencies:
+    aws-sdk "2.892.0"
+    lodash "4.17.21"
+
 "@strapi/provider-upload-local@4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@strapi/provider-upload-local/-/provider-upload-local-4.0.0.tgz#20c3281baddcaee7354f94e2e0b52b512c2cc419"
