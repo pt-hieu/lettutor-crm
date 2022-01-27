@@ -1,10 +1,7 @@
 FROM strapi/base:alpine
-
-RUN --mount=type=secret,id=my-secret \
-  cat /run/secrets/my-secret
+RUN --mount=type=secret,id=my-secret 
 
 ENV NODE_ENV=production
-
 WORKDIR /app
 
 COPY package.json .
