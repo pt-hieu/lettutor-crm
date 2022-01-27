@@ -1,6 +1,10 @@
 FROM strapi/base:alpine
 
+RUN --mount=type=secret,id=my-secret \
+  cat /run/secrets/my-secret
+
 ENV NODE_ENV=production
+
 WORKDIR /app
 
 COPY package.json .
@@ -9,7 +13,9 @@ COPY yarn.lock .
 RUN yarn install --frozen-lockfile
 
 COPY favicon.ico .
-COPY public/robots.txt public/
+COPY .env .
+
+COPY public/ public/
 COPY src/ src/
 COPY config/ config/
 
