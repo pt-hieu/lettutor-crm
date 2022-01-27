@@ -8,8 +8,6 @@ env:
 jobs:
   poseidon:
     runs-on: ubuntu-latest
-    env:
-
     permissions:
       contents: read
       packages: write
