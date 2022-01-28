@@ -3,4 +3,3 @@ import { Actions } from './type/action'
 
 export const KEY = 'actions'
 export const DefineAction = (...actions: Actions[]) => SetMetadata(KEY, actions)
-export const Foo = "Bar"
