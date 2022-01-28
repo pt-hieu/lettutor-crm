@@ -17,27 +17,30 @@ jobs:
     outputs:
       components: ${{ steps.result.outputs.components }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Get Diff On Artemis
         uses: technote-space/get-diff-action@v6.0.1
         with:
           PATTERNS: |
-            +(artemis)/**/*.{tsx,ts,js,json,jsx}
+            artemis/**/*.{tsx,ts,js,json,jsx}
           SET_ENV_NAME: ARTEMIS_DIFF
 
       - name: Get Diff On Apollo
         uses: technote-space/get-diff-action@v6.0.1
         with:
           PATTERNS: |
-            +(apollo)/src/**/*.{ts}
-            +(apollo)/*.{js,json}
+            apollo/src/**/*.{ts}
+            apollo/*.{js,json}
           SET_ENV_NAME: APOLLO_DIFF
 
       - name: Get Diff On Poseidon
         uses: technote-space/get-diff-action@v6.0.1
         with:
           PATTERNS: |
-            +(poseidon)/{src,config}/**/*.{js,json}
-            +(poseidon)/*.{js,json}
+            poseidon/{src,config}/**/*.{js,json}
+            poseidon/*.{js,json}
           SET_ENV_NAME: POSEIDON_DIFF
 
       - name: Determine Output
