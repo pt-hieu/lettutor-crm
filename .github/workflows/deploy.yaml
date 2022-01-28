@@ -41,7 +41,7 @@ jobs:
   apollo:
     runs-on: ubuntu-latest
     needs: check-diff
-    if: env.APOLLO_DIFF
+    if: ${{ env.APOLLO_DIFF }}
     permissions:
       contents: read
       packages: write
@@ -74,7 +74,7 @@ jobs:
   artemis:
     runs-on: ubuntu-latest
     needs: check-diff
-    if: env.ARTEMIS_DIFF
+    if: ${{ env.ARTEMIS_DIFF }}
     permissions:
       contents: read
       packages: write
@@ -107,7 +107,7 @@ jobs:
   poseidon:
     runs-on: ubuntu-latest
     needs: check-diff
-    if: env.POSEIDON_DIFF
+    if: ${{ env.POSEIDON_DIFF }}
     permissions:
       contents: read
       packages: write
