@@ -44,9 +44,9 @@ jobs:
         id: result
         run: |
           params=()
-          [[ ${{ env.APOLLO_DIFF != "" }} ]] && params+=(apollo)
-          [[ ${{ env.ARTEMIS_DIFF != "" }} ]] && params+=(artemis)
-          [[ ${{ env.POSEIDON_DIFF != "" }} ]] && params+=(poseidon)
+          [[ -z ${{ env.APOLLO_DIFF }} ]] && params+=(apollo)
+          [[ -z ${{ env.ARTEMIS_DIFF }} ]] && params+=(artemis)
+          [[ -z ${{ env.POSEIDON_DIFF }} ]] && params+=(poseidon)
 
           echo "::set-output name=components::"${params[@]}""
 
