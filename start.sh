@@ -20,6 +20,7 @@ do
       docker-compose pull poseidon
       docker-compose up -d
       ;;
+  esac
 done
 
 yes | docker image prune
