@@ -14,6 +14,8 @@ concurrency:
 jobs:
   check-diff:
     runs-on: ubuntu-latest
+    outputs:
+      components: ${{ steps.result.outputs.components }}
     steps:
       - name: Get Diff On Artemis
         uses: technote-space/get-diff-action@v6.0.1
@@ -38,10 +40,21 @@ jobs:
             poseidon/*.{js,json}
           SET_ENV_NAME: POSEIDON_DIFF
 
+      - name: Determine Output
+        id: result
+        run: |
+          params=()
+          [[ ${{ env.APOLLO_DIFF }} ]] && params+=(apollo)
+          [[ ${{ env.ARTEMIS_DIFF }} ]] && params+=(artemis)
+          [[ ${{ env.POSEIDON_DIFF }} ]] && params+=(poseidon)
+
+          echo "::set-output name=components::"${params[@]}""
+
+
   apollo:
     runs-on: ubuntu-latest
     needs: check-diff
-    if: ${{ env.APOLLO_DIFF }}
+    if: ${{ contains(needs.check-diff.outputs.components, 'apollo') }}
     permissions:
       contents: read
       packages: write
@@ -74,7 +87,7 @@ jobs:
   artemis:
     runs-on: ubuntu-latest
     needs: check-diff
-    if: ${{ env.ARTEMIS_DIFF }}
+    if: ${{ contains(needs.check-diff.outputs.components, 'artemis') }}
     permissions:
       contents: read
       packages: write
@@ -107,7 +120,7 @@ jobs:
   poseidon:
     runs-on: ubuntu-latest
     needs: check-diff
-    if: ${{ env.POSEIDON_DIFF }}
+    if: ${{ contains(needs.check-diff.outputs.components, 'poseidon') }}
     permissions:
       contents: read
       packages: write
@@ -154,12 +167,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          params=()
-
-          [[ ${{ env.APOLLO_DIFF }} ]] && params+=(apollo)
-          [[ ${{ env.ARTEMIS_DIFF }} ]] && params+=(artemis)
-          [[ ${{ env.POSEIDON_DIFF }} ]] && params+=(poseidon)
           
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
-            cd ~/lettutor-crm && ./start.sh "${params[@]}"
+            cd ~/lettutor-crm && ./start.sh "${needs.check-diff.outputs.components}"
           '
