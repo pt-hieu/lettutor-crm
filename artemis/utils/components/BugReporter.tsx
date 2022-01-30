@@ -9,7 +9,6 @@ import { useMutation, useQuery } from 'react-query'
 import { createBug } from '@utils/service/bug'
 import Loading from './Loading'
 import { GlobalState } from '@utils/GlobalStateKey'
-import { strapiApiCall } from '@utils/libs/strapiApiCall'
 
 export type BugSubmitPayload = {
   email: string
@@ -52,24 +51,20 @@ export default function BugReporter() {
     reset()
   }, [visible])
 
-  const { mutateAsync, isLoading } = useMutation(
-    'submit-bug',
-    strapiApiCall<any, BugSubmitPayload>(token)(createBug),
-    {
-      onSuccess() {
-        notification.success({
-          message: 'Submit bug successfully. Thank you!',
-        })
+  const { mutateAsync, isLoading } = useMutation('submit-bug', createBug, {
+    onSuccess() {
+      notification.success({
+        message: 'Submit bug successfully. Thank you!',
+      })
 
-        close()
-      },
-      onError() {
-        notification.error({
-          message: 'Oops, submitting bug unsuccessfully, please try again',
-        })
-      },
+      close()
     },
-  )
+    onError() {
+      notification.error({
+        message: 'Oops, submitting bug unsuccessfully, please try again',
+      })
+    },
+  })
 
   const submitBug = useCallback(
     handleSubmit((data) => {

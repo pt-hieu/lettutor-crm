@@ -1,26 +1,17 @@
 import Layout from '@utils/components/Layout'
-import { strapiApiCall } from '@utils/libs/strapiApiCall'
-import { Strapi } from '@utils/models/base'
-import { ChangeLog } from '@utils/models/changeLog'
-import { StrapiPaginate } from '@utils/models/paging'
 import { getChangeLog } from '@utils/service/changeLog'
-import { Divider } from 'antd'
 import moment from 'moment'
 import ReactMarkdown from 'react-markdown'
 import { GetServerSideProps } from 'next'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import root from 'react-shadow'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import remarkGfm from 'remark-gfm'
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const client = new QueryClient()
-
-  await client.prefetchQuery(
-    'change-logs',
-    strapiApiCall<any, any>()(getChangeLog),
-  )
+  await client.prefetchQuery('change-logs', getChangeLog)
 
   return {
     props: {
@@ -30,12 +21,9 @@ export const getServerSideProps: GetServerSideProps = async () => {
 }
 
 export default function ChangeLogs() {
-  const { data: changeLogs } = useQuery<StrapiPaginate<Strapi<ChangeLog>>>(
-    'change-logs',
-    {
-      enabled: false,
-    },
-  )
+  const { data: changeLogs } = useQuery('change-logs', getChangeLog, {
+    enabled: false,
+  })
 
   const [selectedVersion, setSelectedVesrion] = useQueryState<string>('version')
 

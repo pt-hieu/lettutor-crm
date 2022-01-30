@@ -1,8 +1,5 @@
-import axios, { AxiosRequestConfig } from 'axios'
+import { toStrapi } from '@utils/libs/toStrapi'
 import { POSEIDON_API } from 'environment'
 
-export const createBug =
-  (config: AxiosRequestConfig) => (data: any) =>
-    axios
-      .post(POSEIDON_API + '/api/bugs', { data }, config)
-      .then((res) => res.data)
+export const createBug = (data: any) =>
+  toStrapi.post(POSEIDON_API + '/api/bugs', { data }).then((res) => res.data)

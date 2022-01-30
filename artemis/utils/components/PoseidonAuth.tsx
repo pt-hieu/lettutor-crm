@@ -1,5 +1,4 @@
 import { GlobalState } from '@utils/GlobalStateKey'
-import { strapiApiCall } from '@utils/libs/strapiApiCall'
 import { logInToPoseidon } from '@utils/service/auth'
 import { useEffect } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
@@ -9,7 +8,7 @@ export default function PoseidonAuth() {
 
   const { mutateAsync } = useMutation(
     'log-in-to-poseidon',
-    strapiApiCall<{ jwt: string }, any>()(logInToPoseidon),
+    logInToPoseidon,
     {
       onSuccess(res) {
         client.setQueryData(GlobalState.POSEIDON_TOKEN, res.jwt)
