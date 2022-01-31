@@ -14,11 +14,11 @@ if ("then" in agrv) {
   if (agrv.init) {
     command =
       "concurrently " +
-      choices.map((choice) => `"cd ${choice} && yarn"`).join(" ");
+      agrv.block.map((choice) => `"cd ${choice} && yarn"`).join(" ");
   } else {
     command =
       "concurrently -k " +
-      choices.map((choice) => `"cd ${choice} && yarn dev"`).join(" ");
+      agrv.block.map((choice) => `"cd ${choice} && yarn dev"`).join(" ");
   }
 }
 

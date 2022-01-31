@@ -16,12 +16,12 @@ else {
     if (agrv.init) {
         command =
             "concurrently " +
-                choices.map(function (choice) { return "\"cd ".concat(choice, " && yarn\""); }).join(" ");
+                agrv.block.map(function (choice) { return "\"cd ".concat(choice, " && yarn\""); }).join(" ");
     }
     else {
         command =
             "concurrently -k " +
-                choices.map(function (choice) { return "\"cd ".concat(choice, " && yarn dev\""); }).join(" ");
+                agrv.block.map(function (choice) { return "\"cd ".concat(choice, " && yarn dev\""); }).join(" ");
     }
 }
 var concurrentProc = (0, child_process_1.exec)(command, function () { });
