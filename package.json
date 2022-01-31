@@ -3,16 +3,19 @@
   "version": "0.1.0",
   "main": "index.js",
   "scripts": {
-    "bootstrap": "concurrently \"cd hades && yarn\" \"cd artemis && yarn\" \"cd apollo && yarn\"",
-    "dev": "concurrently -k \"cd artemis && yarn dev\" \"cd apollo && yarn dev\"",
-    "poseidon": "cd poseidon && yarn dev",
-    "migrate": "cd hades && yarn migrate",
     "postgres": "docker run -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 --name postgres postgres:alpine",
     "db": "docker exec -it postgres psql -U postgres",
     "athena": "cd athena && terraform",
-    "tool": "cd athena && terraformer"
+    "tool": "cd athena && terraformer",
+    "build:script": "tsc ./script.ts",
+    "r": "node ./script.js --block"
   },
   "devDependencies": {
-    "concurrently": "^7.0.0"
+    "@types/node": "^17.0.13",
+    "@types/yargs": "^17.0.8",
+    "concurrently": "^7.0.0",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.5",
+    "yargs": "^17.3.1"
   }
 }
