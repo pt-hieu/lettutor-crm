@@ -178,7 +178,7 @@ jobs:
   deploy-apollo:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [apollo, artemis, poseidon]
+    needs: apollo
     steps:
       - uses: actions/checkout@v2
       - name: deploy on ec2
@@ -194,7 +194,7 @@ jobs:
   deploy-poseidon:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [apollo, artemis, poseidon]
+    needs: poseidon
     steps:
       - uses: actions/checkout@v2
       - name: deploy on ec2
