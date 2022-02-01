@@ -19,7 +19,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/.env ./
 
-ENV FE_URL http://dev-artemis.web-crm.software
+ENV FE_URL https://dev-artemis.web-crm.software
 ENV DB_HOST postgres
 ENV APOLLO_GLOBAL_PREFIX v1/api
 ENV GH_TOKEN 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
