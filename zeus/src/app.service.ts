@@ -17,7 +17,7 @@ type TPayload = {
   query: any
 }
 
-type TMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
+export type TMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
 
 @Injectable()
 export class AppService {
@@ -43,6 +43,10 @@ export class AppService {
         method: req.method as TMethod,
         data: req.body,
         url: this.env.apolloService + path + '?' + stringify(query),
+        headers: {
+          'X-Api-Key': process.env.API_KEY,
+          'X-User': JSON.stringify(req.user),
+        },
       }),
     )
   }

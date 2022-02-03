@@ -5,7 +5,6 @@ import {
   ApiBearerAuth,
   ApiExtraModels,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger'
 import { UserService } from './user.service'
