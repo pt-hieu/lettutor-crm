@@ -44,8 +44,8 @@ export class AppService {
         data: req.body,
         url: this.env.apolloService + path + '?' + stringify(query),
         headers: {
-          'X-Api-Key': process.env.API_KEY,
-          'X-User': JSON.stringify(req.user),
+          'x-api-key': process.env.API_KEY,
+          'x-user': JSON.stringify(req.user),
         },
       }),
     )

@@ -3,10 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { UserModule } from './user/user.module'
 import { AuthModule } from './auth/auth.module'
 import { APP_GUARD } from '@nestjs/core'
-import { JwtAuthGuard } from './jwt.guard'
-import { PassportModule } from '@nestjs/passport'
-import { JwtModule } from '@nestjs/jwt'
-import { JwtStrategy } from './jwt.strategy'
+import { JwtAuthGuard } from './auth.guard'
 import { ActionGuard } from './action.guard'
 import { MailModule } from './mail/mail.module'
 import { AccountModule } from './account/account.module'
@@ -40,8 +37,6 @@ import { RoleModule } from './role/role.module'
     UserModule,
     MailModule,
     AuthModule,
-    PassportModule,
-    JwtModule.register({ secret: process.env.JWT_SECRET }),
     LeadModule,
     ContactModule,
     AccountModule,
@@ -54,7 +49,6 @@ import { RoleModule } from './role/role.module'
     GlobalModule,
   ],
   providers: [
-    JwtStrategy,
     BaseSubscriber,
     {
       provide: APP_GUARD,

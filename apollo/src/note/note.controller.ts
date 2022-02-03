@@ -1,12 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { NoteService } from './note.service'
 
 @ApiTags('note')
-@ApiBearerAuth('jwt')
+@ApiSecurity('x-api-key')
 @Controller('note')
 export class NoteController {
   constructor(private readonly service: NoteService) {}

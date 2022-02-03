@@ -33,14 +33,9 @@ async function bootstrap() {
     app.use(morgan('dev'))
     const config = new DocumentBuilder()
       .setTitle('Apollo')
-      .addBearerAuth(
-        {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          in: 'header',
-        },
-        'jwt',
+      .addApiKey(
+        { type: 'apiKey', name: 'x-api-key', in: 'header' },
+        'x-api-key',
       )
       .setVersion('0.0.1')
       .build()
