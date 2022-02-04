@@ -6,6 +6,7 @@ import { EmitterService } from './emitter.service'
 @Controller('subscribe')
 @ApiTags('subscribe')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 export class SubscribeController {
   constructor(private readonly service: EmitterService) {}
 

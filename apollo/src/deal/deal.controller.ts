@@ -17,6 +17,7 @@ import { DealService } from './deal.service'
 
 @ApiTags('deal')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('deal')
 export class DealController {
   constructor(

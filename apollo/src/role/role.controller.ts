@@ -18,6 +18,7 @@ import { RoleService } from './role.service'
 @Controller('role')
 @ApiTags('role')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 export class RoleController {
   constructor(private service: RoleService) {}
 

@@ -16,6 +16,7 @@ import { TaskService } from './task.service'
 
 @ApiTags('task')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('task')
 export class TaskController {
   constructor(private readonly service: TaskService) {}

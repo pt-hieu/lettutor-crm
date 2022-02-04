@@ -10,7 +10,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBody,
+  ApiOperation,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger'
 import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 import { DefineAction } from 'src/action.decorator'
@@ -20,6 +25,7 @@ import { LeadService } from './lead.service'
 
 @ApiTags('lead')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('lead')
 export class LeadController {
   constructor(private readonly service: LeadService) {}

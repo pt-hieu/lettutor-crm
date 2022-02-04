@@ -18,6 +18,7 @@ import { AccountService } from './account.service'
 @ApiTags('account')
 @Controller('account')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 export class AccountController {
   constructor(
     private readonly service: AccountService,

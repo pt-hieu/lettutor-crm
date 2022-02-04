@@ -17,6 +17,7 @@ import { ContactService } from './contact.service'
 
 @ApiTags('contact')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('contact')
 export class ContactController {
   constructor(

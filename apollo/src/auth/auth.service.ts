@@ -6,7 +6,6 @@ import { compare, hash } from 'bcrypt'
 import { DTO } from 'src/type'
 import { Response } from 'express'
 import { JwtPayload } from 'src/utils/interface'
-import jwt from 'jsonwebtoken'
 import { Actions } from 'src/type/action'
 import { Role } from 'src/role/role.entity'
 
@@ -43,7 +42,9 @@ export class AuthService {
   }
 
   async validate(dto: DTO.Auth.Login, res: Response) {
-    const user = await this.userRepo.findOne({ email: dto.email })
+    const user = await this.userRepo.findOne({
+      where: { email: dto.email },
+    })
 
     if (!user) throw new BadRequestException('Email or password is wrong')
 
@@ -54,15 +55,14 @@ export class AuthService {
       email: user.email,
       id: user.id,
       name: user.name,
-      roles: user.roles,
+      roles: user.roles.map((role) => ({
+        name: role.name,
+        actions: role.actions,
+      })),
     }
 
     if (process.env.NODE_ENV !== 'production') {
-      const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: '1d',
-      })
-
-      res.set('X-Access-Token', token)
+      res.set('X-User', JSON.stringify(payload))
     }
 
     return payload

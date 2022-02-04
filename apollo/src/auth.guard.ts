@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { Request } from 'express'
+import { Request as Req } from 'express'
 import { PayloadService } from './global/payload.service'
 import { IS_PUBLIC_KEY } from './utils/decorators/public.decorator'
 import { JwtPayload } from './utils/interface'
@@ -25,7 +25,7 @@ export class JwtAuthGuard implements CanActivate {
     ])
 
     let canActivate = false
-    const req = ctx.switchToHttp().getRequest() as Request
+    const req = ctx.switchToHttp().getRequest() as Req & { user: any }
 
     const isGoodApiKey = req.headers['x-api-key'] === process.env.API_KEY
     if (!isGoodApiKey) throw new BadRequestException('Bad API key')

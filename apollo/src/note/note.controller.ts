@@ -7,6 +7,7 @@ import { NoteService } from './note.service'
 
 @ApiTags('note')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('note')
 export class NoteController {
   constructor(private readonly service: NoteService) {}

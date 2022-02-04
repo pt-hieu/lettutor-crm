@@ -39,7 +39,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     } catch (e) {}
 
     if (!isPublic && !canActivate) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException('Zeus')
     }
 
     return isPublic || canActivate

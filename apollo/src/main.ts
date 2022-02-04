@@ -1,6 +1,5 @@
 import 'dotenv/config.js'
 import { NestFactory } from '@nestjs/core'
-import cookieParser from 'cookie-parser'
 import { AppModule } from 'src/app.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
@@ -19,14 +18,8 @@ async function bootstrap() {
       enableDebugMessages: process.env.NODE_ENV !== 'production',
     }),
   )
-  app.useGlobalInterceptors(new TransformInterceptor())
-  app.setGlobalPrefix(process.env.APOLLO_GLOBAL_PREFIX || 'api')
-  app.use(cookieParser())
-  app.enableCors({
-    credentials: true,
-    origin: [process.env.FE_URL],
-  })
 
+  app.useGlobalInterceptors(new TransformInterceptor())
   registerSchema(ConvertToDealSchema)
 
   if (process.env.NODE_ENV !== 'production') {
@@ -37,6 +30,7 @@ async function bootstrap() {
         { type: 'apiKey', name: 'x-api-key', in: 'header' },
         'x-api-key',
       )
+      .addApiKey({ type: 'apiKey', name: 'x-user', in: 'header' }, 'x-user')
       .setVersion('0.0.1')
       .build()
     const document = SwaggerModule.createDocument(app, config)

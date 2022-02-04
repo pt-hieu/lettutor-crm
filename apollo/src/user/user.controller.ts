@@ -15,6 +15,7 @@ import { Actions } from 'src/type/action'
 
 @ApiTags('user')
 @ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('user')
 @ApiExtraModels(DTO.Paging.Paginate)
 export class UserController {
