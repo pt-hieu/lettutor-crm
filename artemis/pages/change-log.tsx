@@ -29,35 +29,32 @@ export default function ChangeLogs() {
 
   const selectedChange = useMemo(
     () =>
-      changeLogs?.data.find((log) => log.attributes.version === selectedVersion)
-        ?.attributes.changes,
+      changeLogs?.items.find((log) => log.version === selectedVersion)?.changes,
     [changeLogs, selectedVersion],
   )
 
   useEffect(() => {
-    setSelectedVesrion(changeLogs?.data[0].attributes.version)
+    setSelectedVesrion(changeLogs?.items[0].version)
   }, [])
 
   return (
     <Layout title="Artemis | Change Log">
       <div className="crm-container grid grid-cols-[200px,1fr] gap-4">
         <div className="flex flex-col gap-2 py-5 border-r pr-4">
-          {changeLogs?.data.map(
-            ({ id, attributes: { version, releasedAt } }) => (
-              <button
-                onClick={() => setSelectedVesrion(version)}
-                key={id + 'changelog'}
-                className={`crm-button-outline text-left ${
-                  selectedVersion === version
-                    ? 'bg-blue-400 text-white border-white hover:text-white hover:border-white'
-                    : ''
-                }`}
-              >
-                <span className="font-medium">{version}</span> -{' '}
-                {moment(releasedAt).format('MMMM DD')}
-              </button>
-            ),
-          )}
+          {changeLogs?.items.map(({ id, version, releasedAt }) => (
+            <button
+              onClick={() => setSelectedVesrion(version)}
+              key={id + 'changelog'}
+              className={`crm-button-outline text-left ${
+                selectedVersion === version
+                  ? 'bg-blue-400 text-white border-white hover:text-white hover:border-white'
+                  : ''
+              }`}
+            >
+              <span className="font-medium">{version}</span> -{' '}
+              {moment(releasedAt).format('MMMM DD')}
+            </button>
+          ))}
         </div>
 
         <root.div className="bg-blue-400 text-white px-4 rounded-md">
