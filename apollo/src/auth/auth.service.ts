@@ -58,6 +58,7 @@ export class AuthService {
       roles: user.roles.map((role) => ({
         name: role.name,
         actions: role.actions,
+        id: role.id,
       })),
     }
 

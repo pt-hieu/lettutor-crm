@@ -9,7 +9,6 @@ import { MailModule } from './mail/mail.module'
 import { AccountModule } from './account/account.module'
 import { DealModule } from './deal/deal.module'
 import { WebhookModule } from './webhook/webhook.module'
-import { HttpModule } from '@nestjs/axios'
 import { BaseSubscriber } from './base.subscriber'
 import { GlobalModule } from './global/global.module'
 import { TaskModule } from './task/task.module'
@@ -18,6 +17,7 @@ import { LeadModule } from './lead/lead.module'
 import { ContactModule } from './contact/contact.module'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { RoleModule } from './role/role.module'
+import { HttpModule } from '@nestjs/axios'
 
 @Module({
   imports: [
@@ -38,11 +38,13 @@ import { RoleModule } from './role/role.module'
     MailModule,
     AuthModule,
     LeadModule,
+    HttpModule.register({
+      timeout: 5000,
+    }),
     ContactModule,
     AccountModule,
     DealModule,
     WebhookModule,
-    HttpModule,
     TaskModule,
     RoleModule,
     NoteModule,

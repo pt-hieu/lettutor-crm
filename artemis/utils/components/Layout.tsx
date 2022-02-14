@@ -61,12 +61,14 @@ function Layout({
   useEffect(() => {
     if (!session) return
 
-    const eventSource = new EventSource(API + '/apollo/subscribe', {
+    const eventSource = new EventSource(API + '/subscribe', {
       withCredentials: true,
     })
 
     if (!eventSource) return
     eventSource.onmessage = ({ data }: MessageEvent) => {
+      console.log({ data })
+
       client.setQueryData(GlobalState.SUBSCRIPTION, JSON.parse(data))
     }
 

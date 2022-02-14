@@ -40,4 +40,8 @@ export const PUBLIC_ROUTES: TPublicRoute[] = [
     value: '/apollo/webhook/strapi',
     method: 'post',
   },
+  {
+    value: "/events",
+    method: "post"
+  }
 ]
