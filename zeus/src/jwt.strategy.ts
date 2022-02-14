@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { Request } from 'express'
-import { PayloadService } from './global/payload.service'
 
 const cookieExtractor = function (req: Request) {
   let token = null
@@ -18,7 +17,7 @@ const cookieExtractor = function (req: Request) {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly payloadService: PayloadService) {
+  constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         cookieExtractor,
@@ -30,7 +29,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    this.payloadService.data = payload
     return payload
   }
 }

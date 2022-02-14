@@ -37,6 +37,8 @@ export class UtilService {
   }
 
   public checkRoleAction(...requiredActions: Actions[]) {
+    if (!this.payloadService.data) return false
+
     return !!requiredActions.filter((action) =>
       this.payloadService.data.roles.some(
         (role) =>

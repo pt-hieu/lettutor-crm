@@ -6,13 +6,14 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DTO } from 'src/type'
 import { Public } from 'src/utils/decorators/public.decorator'
 import { WebhookService } from './webhook.service'
 
 @ApiTags('webhook')
-@ApiBearerAuth('jwt')
+@ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('webhook')
 export class WebhookController {
   constructor(private readonly service: WebhookService) {}

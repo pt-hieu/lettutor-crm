@@ -3,16 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { UserModule } from './user/user.module'
 import { AuthModule } from './auth/auth.module'
 import { APP_GUARD } from '@nestjs/core'
-import { JwtAuthGuard } from './jwt.guard'
-import { PassportModule } from '@nestjs/passport'
-import { JwtModule } from '@nestjs/jwt'
-import { JwtStrategy } from './jwt.strategy'
+import { JwtAuthGuard } from './auth.guard'
 import { ActionGuard } from './action.guard'
 import { MailModule } from './mail/mail.module'
 import { AccountModule } from './account/account.module'
 import { DealModule } from './deal/deal.module'
 import { WebhookModule } from './webhook/webhook.module'
-import { HttpModule } from '@nestjs/axios'
 import { BaseSubscriber } from './base.subscriber'
 import { GlobalModule } from './global/global.module'
 import { TaskModule } from './task/task.module'
@@ -21,6 +17,7 @@ import { LeadModule } from './lead/lead.module'
 import { ContactModule } from './contact/contact.module'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { RoleModule } from './role/role.module'
+import { HttpModule } from '@nestjs/axios'
 
 @Module({
   imports: [
@@ -40,21 +37,20 @@ import { RoleModule } from './role/role.module'
     UserModule,
     MailModule,
     AuthModule,
-    PassportModule,
-    JwtModule.register({ secret: process.env.JWT_SECRET }),
     LeadModule,
+    HttpModule.register({
+      timeout: 5000,
+    }),
     ContactModule,
     AccountModule,
     DealModule,
     WebhookModule,
-    HttpModule,
     TaskModule,
     RoleModule,
     NoteModule,
     GlobalModule,
   ],
   providers: [
-    JwtStrategy,
     BaseSubscriber,
     {
       provide: APP_GUARD,

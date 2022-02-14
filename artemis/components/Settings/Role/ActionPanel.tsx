@@ -34,9 +34,6 @@ export default function ActionPanel({ role, disabled }: Props) {
               )
 
               if (!actions.length) return null
-              console.log(actions);
-              
-
               return (
                 <div key={scope}>
                   <div className="font-semibold mb-3 pl-[24px] text-[17px]">

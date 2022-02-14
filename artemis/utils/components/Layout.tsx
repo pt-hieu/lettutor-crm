@@ -7,7 +7,6 @@ import { OG } from './OpenGraph'
 import { useQueryClient } from 'react-query'
 import { GlobalState } from '@utils/GlobalStateKey'
 import BugReporter from './BugReporter'
-import PoseidonAuth from './PoseidonAuth'
 import { Actions } from '@utils/models/role'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { API } from 'environment'
@@ -62,12 +61,14 @@ function Layout({
   useEffect(() => {
     if (!session) return
 
-    const eventSource = new EventSource(API + '/api/subscribe', {
+    const eventSource = new EventSource(API + '/subscribe', {
       withCredentials: true,
     })
 
     if (!eventSource) return
     eventSource.onmessage = ({ data }: MessageEvent) => {
+      console.log({ data })
+
       client.setQueryData(GlobalState.SUBSCRIPTION, JSON.parse(data))
     }
 
@@ -103,9 +104,8 @@ function Layout({
       <SessionInvalidate />
 
       {process.env.NODE_ENV === 'production' && <BugReporter />}
-      <PoseidonAuth />
-
       {requireLogin && <RequireLogin />}
+
       {(session || !requireLogin) && (
         <>
           {header && <Header key="header" />}

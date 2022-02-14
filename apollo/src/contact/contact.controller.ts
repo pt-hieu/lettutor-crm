@@ -8,7 +8,7 @@ import {
   Body,
   Post,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger'
+import { ApiOperation, ApiTags, ApiQuery, ApiSecurity } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
@@ -16,7 +16,8 @@ import { Actions } from 'src/type/action'
 import { ContactService } from './contact.service'
 
 @ApiTags('contact')
-@ApiBearerAuth('jwt')
+@ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('contact')
 export class ContactController {
   constructor(

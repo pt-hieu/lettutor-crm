@@ -2,10 +2,9 @@ import { DTO } from 'src/type'
 import { Public } from 'src/utils/decorators/public.decorator'
 import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
 import {
-  ApiBearerAuth,
   ApiExtraModels,
   ApiOperation,
-  ApiQuery,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger'
 import { UserService } from './user.service'
@@ -15,7 +14,8 @@ import { DefineAction } from 'src/action.decorator'
 import { Actions } from 'src/type/action'
 
 @ApiTags('user')
-@ApiBearerAuth('jwt')
+@ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('user')
 @ApiExtraModels(DTO.Paging.Paginate)
 export class UserController {

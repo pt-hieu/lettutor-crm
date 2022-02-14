@@ -14,7 +14,7 @@ export default NextAuth({
       async authorize(credentials: Record<string, string>) {
         const [res, err] = await asyncTryCatch(() =>
           axios
-            .post(`${API}/api/auth/validate`, {
+            .post(`${API}/apollo/auth/validate`, {
               email: credentials.email,
               password: credentials.password,
             })
