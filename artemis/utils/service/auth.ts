@@ -1,13 +1,13 @@
-import { toStrapi } from '@utils/libs/toStrapi'
+import axios from 'axios'
 import {
-  POSEIDON_API,
+  API,
   POSEIDON_IDENTIFIER,
   POSEIDON_PASSWORD,
 } from 'environment'
 
 export const logInToPoseidon = () =>
-  toStrapi
-    .post<{ jwt: string }>(POSEIDON_API + '/api/auth/local', {
+  axios
+    .post<{ jwt: string }>(API + '/poseidon/auth/local', {
       identifier: POSEIDON_IDENTIFIER,
       password: POSEIDON_PASSWORD,
     })

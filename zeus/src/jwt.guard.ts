@@ -17,7 +17,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest() as Request
 
-    /** @example /api/apollo/lead */
+    /** @example /apollo/lead */
     const path = req.path
     const method = req.method.toLocaleLowerCase()
 

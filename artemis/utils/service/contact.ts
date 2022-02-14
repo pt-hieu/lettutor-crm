@@ -15,7 +15,7 @@ export const getContacts =
   ) =>
   () =>
     axios
-      .get<Paginate<Contact>>(API + '/api/contact', {
+      .get<Paginate<Contact>>(API + '/apollo/contact', {
         headers: { authorization: 'Bearer ' + token },
         params,
       })
@@ -23,7 +23,7 @@ export const getContacts =
 
 export const getRawContacts = (token?: string) => () =>
   axios
-    .get<Pick<Contact, 'id' | 'fullName'>>(API + '/api/contact/raw', {
+    .get<Pick<Contact, 'id' | 'fullName'>>(API + '/apollo/contact/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },
@@ -32,7 +32,7 @@ export const getRawContacts = (token?: string) => () =>
 
 export const getContact = (id?: string, token?: string) => () =>
   axios
-    .get<Contact>(API + `/api/contact/${id}`, {
+    .get<Contact>(API + `/apollo/contact/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
@@ -43,7 +43,7 @@ export const updateContact = async (params: {
 }) => {
   const { id, contactInfo } = params
   const { data } = await axios.patch<Contact>(
-    API + `/api/contact/${id}`,
+    API + `/apollo/contact/${id}`,
     contactInfo,
   )
 
@@ -51,6 +51,6 @@ export const updateContact = async (params: {
 }
 
 export const addContact = async (contactInfo: ContactAddFormData) => {
-  const { data } = await axios.post<Contact>(API + `/api/contact`, contactInfo)
+  const { data } = await axios.post<Contact>(API + `/apollo/contact`, contactInfo)
   return data
 }

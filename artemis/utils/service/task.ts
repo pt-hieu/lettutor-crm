@@ -15,7 +15,7 @@ export const getTasks =
   ) =>
   () =>
     axios
-      .get<Paginate<Task>>(API + '/api/task', {
+      .get<Paginate<Task>>(API + '/apollo/task', {
         headers: { authorization: 'Bearer ' + token },
         params,
       })
@@ -23,19 +23,19 @@ export const getTasks =
 
 export const getTask = (id?: string, token?: string) => () =>
   axios
-    .get<Task>(API + `/api/task/${id}`, {
+    .get<Task>(API + `/apollo/task/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
 
 export const addTask = async (taskInfo: TaskFormData) => {
-  const { data } = await axios.post<Task>(API + `/api/task`, taskInfo)
+  const { data } = await axios.post<Task>(API + `/apollo/task`, taskInfo)
   return data
 }
 
 export const getRawTasks = (token?: string) => () =>
   axios
-    .get<Pick<Task, 'id' | 'subject'>[]>(API + '/api/task/raw', {
+    .get<Pick<Task, 'id' | 'subject'>[]>(API + '/apollo/task/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },
@@ -43,9 +43,9 @@ export const getRawTasks = (token?: string) => () =>
     .then((res) => res.data)
 
 export const updateTask = (id: string) => (data: TaskFormData) =>
-  axios.patch(API + '/api/task/' + id, data).then((res) => res.data)
+  axios.patch(API + '/apollo/task/' + id, data).then((res) => res.data)
 
 export const closeTask = (id: string, ownerId: string) => () =>
   axios
-    .patch(API + '/api/task/' + id, { status: TaskStatus.COMPLETED, ownerId })
+    .patch(API + '/apollo/task/' + id, { status: TaskStatus.COMPLETED, ownerId })
     .then((res) => res.data)
