@@ -4,6 +4,7 @@ import {
   HttpException,
   ServiceUnavailableException,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common'
 import { Request } from 'express'
 import { catchError, first, lastValueFrom, map, Observable } from 'rxjs'
@@ -29,6 +30,10 @@ export class AppService {
         map((res) => res.data),
         first(),
         catchError((e) => {
+          if (e.code) {
+            throw new InternalServerErrorException(e.code)
+          }
+
           throw new HttpException(e.response.data, e.response.status)
         }),
       ),
@@ -45,7 +50,7 @@ export class AppService {
         url: this.env.apolloService + path + '?' + stringify(query),
         headers: {
           'x-api-key': this.env.apiKey,
-          'x-user': JSON.stringify(req.user)
+          'x-user': JSON.stringify(req.user || ''),
         },
       }),
     )

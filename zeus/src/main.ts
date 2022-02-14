@@ -2,7 +2,6 @@ import 'dotenv/config.js'
 import { NestFactory } from '@nestjs/core'
 import cookieParser from 'cookie-parser'
 import { AppModule } from 'src/app.module'
-import morgan from 'morgan'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -13,10 +12,6 @@ async function bootstrap() {
     credentials: true,
     origin: [process.env.FE_URL],
   })
-
-  if (process.env.NODE_ENV !== 'production') {
-    app.use(morgan('dev'))
-  }
 
   await app.listen(4000)
 }

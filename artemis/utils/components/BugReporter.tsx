@@ -5,10 +5,9 @@ import Input from './Input'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useCallback, useEffect } from 'react'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation } from 'react-query'
 import { createBug } from '@utils/service/bug'
 import Loading from './Loading'
-import { GlobalState } from '@utils/GlobalStateKey'
 
 export type BugSubmitPayload = {
   email: string
@@ -40,10 +39,6 @@ export default function BugReporter() {
     reset,
   } = useForm<BugSubmitPayload>({
     resolver: yupResolver(schema),
-  })
-
-  const { data: token } = useQuery<string>(GlobalState.POSEIDON_TOKEN, {
-    enabled: false,
   })
 
   useEffect(() => {
@@ -93,91 +88,73 @@ export default function BugReporter() {
         footer={null}
         centered
       >
-        {!!token ? (
-          <>
-            <div className="font-medium text-xl mb-4">
-              We are sorry for such inconvience :(
-            </div>
+        <div className="font-medium text-xl mb-4">
+          We are sorry for such inconvience :(
+        </div>
 
-            <form
-              noValidate
-              onSubmit={submitBug}
-              className="flex flex-col gap-4"
-            >
-              <div>
-                <label htmlFor="email" className="crm-label after:content-['']">
-                  Your Email
-                </label>
-                <Input
-                  error={errors.email?.message}
-                  props={{
-                    type: 'email',
-                    id: 'email',
-                    className: 'w-full',
-                    placeholder:
-                      'So we can contact you for any further discussion',
-                    ...register('email'),
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="subject" className="crm-label">
-                  Subject
-                </label>
-                <Input
-                  error={errors.subject?.message}
-                  props={{
-                    type: 'text',
-                    id: 'subject',
-                    className: 'w-full',
-                    placeholder: 'What do you call this bug?',
-                    ...register('subject'),
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="desc" className="crm-label">
-                  Description
-                </label>
-                <Input
-                  error={errors.description?.message}
-                  as="textarea"
-                  props={{
-                    id: 'desc',
-                    className: 'w-full',
-                    placeholder: 'How to re-produce it?',
-                    ...register('description'),
-                  }}
-                />
-              </div>
-
-              <div className="flex gap-2 justify-end mt-4">
-                <button
-                  disabled={isLoading}
-                  type="submit"
-                  className="crm-button"
-                >
-                  <Loading on={isLoading}>Submit</Loading>
-                </button>
-                <button
-                  disabled={isLoading}
-                  onClick={close}
-                  type="button"
-                  className="crm-button-outline"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </>
-        ) : (
-          <div className="min-h-[300px] grid place-content-center text-center">
-            <div className="font-medium">Oops, Something is wrong!!</div>
-            <div>Bug reporter is now having a bug :(</div>
+        <form noValidate onSubmit={submitBug} className="flex flex-col gap-4">
+          <div>
+            <label htmlFor="email" className="crm-label after:content-['']">
+              Your Email
+            </label>
+            <Input
+              error={errors.email?.message}
+              props={{
+                type: 'email',
+                id: 'email',
+                className: 'w-full',
+                placeholder: 'So we can contact you for any further discussion',
+                ...register('email'),
+              }}
+            />
           </div>
-        )}
+
+          <div>
+            <label htmlFor="subject" className="crm-label">
+              Subject
+            </label>
+            <Input
+              error={errors.subject?.message}
+              props={{
+                type: 'text',
+                id: 'subject',
+                className: 'w-full',
+                placeholder: 'What do you call this bug?',
+                ...register('subject'),
+              }}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="desc" className="crm-label">
+              Description
+            </label>
+            <Input
+              error={errors.description?.message}
+              as="textarea"
+              props={{
+                id: 'desc',
+                className: 'w-full',
+                placeholder: 'How to re-produce it?',
+                ...register('description'),
+              }}
+            />
+          </div>
+
+          <div className="flex gap-2 justify-end mt-4">
+            <button disabled={isLoading} type="submit" className="crm-button">
+              <Loading on={isLoading}>Submit</Loading>
+            </button>
+            <button
+              disabled={isLoading}
+              onClick={close}
+              type="button"
+              className="crm-button-outline"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </Modal>
     </div>
   )
