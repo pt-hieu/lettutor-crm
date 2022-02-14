@@ -1,0 +1,34 @@
+FROM node:14-alpine AS builder
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+COPY package.json yarn.lock ./
+
+RUN yarn install --frozen-lockfile
+RUN yarn remove bcrypt && yarn add bcrypt
+
+COPY ./ ./
+RUN npm install -g typescript
+RUN yarn build
+
+FROM node:alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV dev
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/.env ./
+
+ENV FE_URL https://dev-artemis.web-crm.software
+ENV APOLLO_GLOBAL_PREFIX v1/api
+
+ENV APOLLO_SERVICE=http://apollo:8000
+ENV POSEIDON_SERVICE=http://poseidon:1337/api
+
+ENV API_KEY crm-dev
+ENV JWT_SECRET crm-dev
+
+EXPOSE 4000
+CMD ["npm", "start"]

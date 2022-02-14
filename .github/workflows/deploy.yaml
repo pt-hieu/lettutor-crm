@@ -42,6 +42,14 @@ jobs:
             poseidon/*.{js,json}
           SET_ENV_NAME: POSEIDON_DIFF
 
+      - name: Get Diff On Zeus
+        uses: technote-space/get-diff-action@v6.0.1
+        with:
+          PATTERNS: |
+            zeus/src/**/*.ts
+            zeus/*.{js,json}
+          SET_ENV_NAME: ZEUS_DIFF
+
       - name: Determine Output
         id: result
         run: |
@@ -49,6 +57,7 @@ jobs:
           [[ "${{ env.APOLLO_DIFF }}" != "" ]] && params+=(apollo)
           [[ "${{ env.ARTEMIS_DIFF }}" != "" ]] && params+=(artemis)
           [[ "${{ env.POSEIDON_DIFF }}" != "" ]] && params+=(poseidon)
+          [[ "${{ env.ZEUS_DIFF }}" != "" ]] && params+=(zeus)
 
           echo "::set-output name=components::"${params[@]}""
 
@@ -82,6 +91,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: ./apollo
+          file: ./docker/Dockerfile.apollo
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:apollo
           labels: ${{ steps.meta.outputs.labels }}
@@ -115,6 +125,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: ./artemis
+          file: ./docker/Dockerfile.artemis
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:artemis
           labels: ${{ steps.meta.outputs.labels }}
@@ -148,6 +159,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: ./poseidon
+          file: ./docker/Dockerfile.poseidon
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:poseidon
           labels: ${{ steps.meta.outputs.labels }}
@@ -157,6 +169,40 @@ jobs:
             AWS_REGION=ap-east-1
             AWS_BUCKET_NAME=strapi-dev-93427349
             AWS_S3_STORAGE_CLASS=S3 Standard
+
+  zeus:
+    runs-on: ubuntu-latest
+    needs: check-diff
+    if: ${{ contains(needs.check-diff.outputs.components, 'zeus') }}
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: ./zeus
+          file: ./docker/Dockerfile.zeus
+          push: true
+          tags: ghcr.io/pt-hieu/lettutor-crm:zeus
+          labels: ${{ steps.meta.outputs.labels }}
 
   deploy-artemis:
     runs-on: ubuntu-latest
@@ -188,6 +234,22 @@ jobs:
           
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
             cd ~/lettutor-crm && ./start.sh apollo
+          '
+ 
+  deploy-zeus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: zeus
+    steps:
+      - uses: actions/checkout@v2
+      - name: deploy on ec2
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
+            cd ~/lettutor-crm && ./start.sh zeus
           '
 
   deploy-poseidon:
