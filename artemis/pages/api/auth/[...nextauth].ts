@@ -21,7 +21,7 @@ export default NextAuth({
             .then((res) => res.data),
         )
 
-        err && console.log(err);
+        err && console.log(err)
         return res
       },
     }),
