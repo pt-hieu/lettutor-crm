@@ -13,9 +13,6 @@ import useGlobalDate from '@utils/hooks/useGlobalDate'
 export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
 
-const activeLink =
-  'before:content before:absolute before:top-[101%] before:w-full before:bg-blue-600 before:h-[3px] text-blue-600'
-
 export default function Header() {
   const [seed] = useState(Math.random())
   const { pathname } = useRouter()
@@ -66,19 +63,27 @@ export default function Header() {
             Artemis CRM
           </a>
         </Link>
-        <span className="ml-12 flex gap-6">
+
+        <div className="ml-12 flex gap-6">
           {data.map(({ link, title }) => (
             <Link href={link} key={link}>
               <a
                 className={`relative crm-link leading-[28px] whitespace-nowrap ${
-                  link === `/${splitPath[1]}` ? activeLink : ''
+                  link === `/${splitPath[1]}` ? 'text-blue-600' : ''
                 }`}
               >
                 {title}
+
+                {link === `/${splitPath[1]}` && (
+                  <motion.span
+                    layoutId="underline"
+                    className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]"
+                  />
+                )}
               </a>
             </Link>
           ))}
-        </span>
+        </div>
       </div>
 
       <div className="flex gap-3 items-center relative z-20">
