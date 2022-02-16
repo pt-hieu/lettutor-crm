@@ -1,4 +1,4 @@
-import { Avatar, Tooltip } from 'antd'
+import { Avatar } from 'antd'
 import { MouseEvent, useCallback, useEffect, useState, useMemo } from 'react'
 import Confirm from './Confirm'
 import { signOut } from 'next-auth/client'
@@ -68,7 +68,7 @@ export default function Header() {
           {data.map(({ link, title }) => (
             <Link href={link} key={link}>
               <a
-                className={`relative crm-link leading-[28px] whitespace-nowrap ${
+                className={`relative crm-link font-medium leading-[28px] whitespace-nowrap ${
                   link === `/${splitPath[1]}` ? 'text-blue-600' : ''
                 }`}
               >
@@ -88,14 +88,19 @@ export default function Header() {
 
       <div className="flex gap-3 items-center relative z-20">
         <div className="relative">
-          <Tooltip title="Settings">
-            <button onClick={toggleSettingMenu}>
-              <span className="fa fa-cog" />
-            </button>
-          </Tooltip>
+          <button
+            className="text-blue-600 border border-blue-600 px-2 py-1.5 rounded-md"
+            onClick={toggleSettingMenu}
+          >
+            <span className="fa fa-cog mr-2" />
+            Settings
+          </button>
+
           <SettingMenu setVisible={setSettingMenu} visible={settingMenu} />
         </div>
+
         <span>|</span>
+
         <button onClick={toggle}>
           <Avatar src={`https://avatars.dicebear.com/api/bottts/${seed}.svg`} />
         </button>

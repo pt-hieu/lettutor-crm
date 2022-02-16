@@ -48,7 +48,10 @@ export default function DealsSearch({
           }}
         />
 
-        <button className="crm-button ml-4">Search</button>
+        <button className="crm-button ml-4 px-4">
+          <span className="fa fa-search" />
+        </button>
+
         <Animate
           shouldAnimateOnExit
           transition={{ duration: 0.2 }}

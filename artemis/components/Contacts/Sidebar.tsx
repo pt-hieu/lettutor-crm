@@ -35,7 +35,7 @@ export default function ContactsSidebar({
       <div className="flex justify-between border-b pb-2 mb-2 items-center">
         <div className="font-semibold ">Filters</div>
         <button onClick={applyFilter} className="crm-button-outline">
-          Apply
+          <span className="fa-solid fa-filter" />
         </button>
       </div>
 
