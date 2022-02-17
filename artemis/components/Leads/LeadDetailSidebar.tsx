@@ -7,16 +7,27 @@ export enum LeadDetailSections {
   ClosedActivities = 'Closed Activities',
 }
 
-const SideBarItems: SidebarStructure = [
-  {
-    title: 'Related List',
-    options: Object.values(LeadDetailSections).map((item) => ({
-      label: item,
-    })),
-  },
-]
-
 const LeadDetailSidebar = () => {
+  const SideBarItems: SidebarStructure = [
+    {
+      title: 'Related List',
+      options: [
+        {
+          label: LeadDetailSections.OpenActivities,
+          choices: [
+            {
+              label: 'Task',
+              onClick: () => console.log('Open add task!'),
+            },
+          ],
+        },
+        {
+          label: LeadDetailSections.ClosedActivities,
+        },
+      ],
+    },
+  ]
+
   return <DetailPageSidebar data={SideBarItems} />
 }
 
