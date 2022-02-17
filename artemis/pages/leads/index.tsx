@@ -100,13 +100,21 @@ export default function LeadsViews() {
   const [limit, setLimit] = useQueryState<number>('limit')
 
   const [search, setSearch] = useQueryState<string>('search')
-  const [source, setSource] = useQueryState<Array<LeadSource>>('source', {
-    isArray: true,
-  })
+  const [source, setSource] = useQueryState<Array<LeadSource>>(
+    'source',
+    undefined,
+    {
+      isArray: true,
+    },
+  )
 
-  const [status, setStatus] = useQueryState<Array<LeadStatus>>('status', {
-    isArray: true,
-  })
+  const [status, setStatus] = useQueryState<Array<LeadStatus>>(
+    'status',
+    undefined,
+    {
+      isArray: true,
+    },
+  )
 
   const { data: leads, isLoading } = useQuery(
     ['leads', page || 1, limit || 10, search || '', source || [], status || []],

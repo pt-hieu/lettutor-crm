@@ -100,9 +100,13 @@ export default function ContactsView() {
   const [limit, setLimit] = useQueryState<number>('limit')
 
   const [search, setSearch] = useQueryState<string>('search')
-  const [source, setSource] = useQueryState<Array<LeadSource>>('source', {
-    isArray: true,
-  })
+  const [source, setSource] = useQueryState<Array<LeadSource>>(
+    'source',
+    undefined,
+    {
+      isArray: true,
+    },
+  )
 
   const { data: leads, isLoading } = useQuery(
     ['contacts', page || 1, limit || 10, search || '', source || []],

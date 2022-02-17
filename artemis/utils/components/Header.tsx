@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import SettingMenu from './SettingMenu'
 import useGlobalDate from '@utils/hooks/useGlobalDate'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 
 export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
@@ -20,6 +21,7 @@ export default function Header() {
   const [settingMenu, setSettingMenu] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
 
+  const [session] = useTypedSession()
   const splitPath = useMemo(() => pathname.split('/'), [pathname])
 
   const { effect } = useGlobalDate({
@@ -121,6 +123,10 @@ export default function Header() {
               transition={{ duration: 0.2 }}
               className="absolute border top-[120%] right-0 bg-white rounded-md shadow-md py-2 min-w-[150px] whitespace-nowrap flex flex-col h-auto"
             >
+              <div className={menuItemClass + " border-b-[1.5px] cursor-default hover:bg-white"}>
+                <span className="fa fa-user mr-2" />
+                {session?.user.name}</div>
+
               <Link href="/change-password">
                 <a className={menuItemClass}>
                   <span className="fa fa-key mr-2" />

@@ -25,9 +25,7 @@ export default function DealsSearch({
 
   const auth = useAuthorization()
 
-  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
-    subscribe: true,
-  })
+  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode')
 
   const submit = useCallback(
     handleSubmit(({ search }) => {
