@@ -150,14 +150,13 @@ export class UserService {
     let q = this.userRepo
       .createQueryBuilder('u')
       .addSelect(['u.id', 'u.name', 'u.email', 'u.status'])
+      .leftJoinAndSelect('u.roles', 'roles')
 
     if (role) {
-      q = q.leftJoinAndSelect('u.roles', 'roles', 'roles.name=:role', { role })
-    } else {
-      q = q.leftJoinAndSelect('u.roles', 'roles')
+      q = q.where('roles.name=:role', { role })
     }
 
-    if (status) q = q.where('u.status = :status', { status })
+    if (status) q = q.andWhere('u.status = :status', { status })
 
     if (search) {
       q = q.andWhere(

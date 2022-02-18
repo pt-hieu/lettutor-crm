@@ -1,4 +1,4 @@
-import { Avatar, Tooltip } from 'antd'
+import { Avatar } from 'antd'
 import { MouseEvent, useCallback, useEffect, useState, useMemo } from 'react'
 import Confirm from './Confirm'
 import { signOut } from 'next-auth/client'
@@ -9,12 +9,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import SettingMenu from './SettingMenu'
 import useGlobalDate from '@utils/hooks/useGlobalDate'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 
 export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
-
-const activeLink =
-  'before:content before:absolute before:top-[101%] before:w-full before:bg-blue-600 before:h-[3px] text-blue-600'
 
 export default function Header() {
   const [seed] = useState(Math.random())
@@ -23,6 +21,7 @@ export default function Header() {
   const [settingMenu, setSettingMenu] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
 
+  const [session] = useTypedSession()
   const splitPath = useMemo(() => pathname.split('/'), [pathname])
 
   const { effect } = useGlobalDate({
@@ -66,31 +65,44 @@ export default function Header() {
             Artemis CRM
           </a>
         </Link>
-        <span className="ml-12 flex gap-6">
+
+        <div className="ml-12 flex gap-6">
           {data.map(({ link, title }) => (
             <Link href={link} key={link}>
               <a
-                className={`relative crm-link leading-[28px] whitespace-nowrap ${
-                  link === `/${splitPath[1]}` ? activeLink : ''
+                className={`relative crm-link font-medium leading-[28px] whitespace-nowrap ${
+                  link === `/${splitPath[1]}` ? 'text-blue-600' : ''
                 }`}
               >
                 {title}
+
+                {link === `/${splitPath[1]}` && (
+                  <motion.span
+                    layoutId="underline"
+                    className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]"
+                  />
+                )}
               </a>
             </Link>
           ))}
-        </span>
+        </div>
       </div>
 
       <div className="flex gap-3 items-center relative z-20">
         <div className="relative">
-          <Tooltip title="Settings">
-            <button onClick={toggleSettingMenu}>
-              <span className="fa fa-cog" />
-            </button>
-          </Tooltip>
+          <button
+            className="text-blue-600 border border-blue-600 px-2 py-1.5 rounded-md"
+            onClick={toggleSettingMenu}
+          >
+            <span className="fa fa-cog mr-2" />
+            Settings
+          </button>
+
           <SettingMenu setVisible={setSettingMenu} visible={settingMenu} />
         </div>
+
         <span>|</span>
+
         <button onClick={toggle}>
           <Avatar src={`https://avatars.dicebear.com/api/bottts/${seed}.svg`} />
         </button>
@@ -111,6 +123,10 @@ export default function Header() {
               transition={{ duration: 0.2 }}
               className="absolute border top-[120%] right-0 bg-white rounded-md shadow-md py-2 min-w-[150px] whitespace-nowrap flex flex-col h-auto"
             >
+              <div className={menuItemClass + " border-b-[1.5px] cursor-default hover:bg-white"}>
+                <span className="fa fa-user mr-2" />
+                {session?.user.name}</div>
+
               <Link href="/change-password">
                 <a className={menuItemClass}>
                   <span className="fa fa-key mr-2" />

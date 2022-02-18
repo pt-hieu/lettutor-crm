@@ -8,7 +8,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
@@ -16,7 +16,8 @@ import { Actions } from 'src/type/action'
 import { DealService } from './deal.service'
 
 @ApiTags('deal')
-@ApiBearerAuth('jwt')
+@ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('deal')
 export class DealController {
   constructor(

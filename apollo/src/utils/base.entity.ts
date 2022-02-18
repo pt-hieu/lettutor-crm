@@ -31,5 +31,6 @@ export abstract class BaseEntity {
   updatedBy: User | null
 
   @DeleteDateColumn({ name: 'deleted_at' })
-  public deletedAt: Date
+  @Exclude({ toPlainOnly: true })
+  deletedAt: Date
 }

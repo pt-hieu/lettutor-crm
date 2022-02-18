@@ -8,17 +8,18 @@ import {
   Query,
   Post,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { TaskService } from './task.service'
 
 @ApiTags('task')
-@ApiBearerAuth('jwt')
+@ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('task')
 export class TaskController {
-  constructor(private readonly service: TaskService) { }
+  constructor(private readonly service: TaskService) {}
 
   @Get('raw')
   @ApiOperation({ summary: 'to view raw all tasks' })

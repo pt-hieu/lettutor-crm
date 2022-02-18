@@ -25,9 +25,7 @@ export default function DealsSearch({
 
   const auth = useAuthorization()
 
-  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
-    subscribe: true,
-  })
+  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode')
 
   const submit = useCallback(
     handleSubmit(({ search }) => {
@@ -48,7 +46,10 @@ export default function DealsSearch({
           }}
         />
 
-        <button className="crm-button ml-4">Search</button>
+        <button className="crm-button ml-4 px-4">
+          <span className="fa fa-search" />
+        </button>
+
         <Animate
           shouldAnimateOnExit
           transition={{ duration: 0.2 }}

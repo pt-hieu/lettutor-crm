@@ -1,0 +1,32 @@
+FROM strapi/base:alpine
+ENV NODE_ENV=production
+
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_ACCESS_SECRET
+ARG AWS_REGION
+ARG AWS_BUCKET_NAME
+ARG AWS_S3_STORAGE_CLASS
+
+ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+ENV AWS_ACCESS_SECRET=${AWS_ACCESS_SECRET}
+ENV AWS_REGION=${AWS_REGION}
+ENV AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+ENV AWS_S3_STORAGE_CLASS=${AWS_S3_STORAGE_CLASS}
+
+WORKDIR /app
+
+COPY package.json .
+COPY yarn.lock .
+
+RUN yarn install --frozen-lockfile
+
+COPY favicon.ico .
+COPY public/robots.txt public/
+COPY src/ src/
+COPY config/ config/
+
+RUN yarn build
+
+EXPOSE 1337
+
+CMD ["yarn", "start"]

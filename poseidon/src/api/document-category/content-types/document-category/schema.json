@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "document_categories",
+  "info": {
+    "singularName": "document-category",
+    "pluralName": "document-categories",
+    "displayName": "DocumentCategory",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "maxLength": 100,
+      "required": true
+    },
+    "document_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::document-item.document-item"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    }
+  }
+}

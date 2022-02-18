@@ -18,7 +18,7 @@ export const getDeals =
   ) =>
   () =>
     axios
-      .get<Paginate<Deal>>(API + '/api/deal', {
+      .get<Paginate<Deal>>(API + '/apollo/deal', {
         headers: { authorization: 'Bearer ' + token },
         params,
       })
@@ -26,7 +26,7 @@ export const getDeals =
 
 export const getRawDeals = (token?: string) => () =>
   axios
-    .get<Pick<Deal, 'id' | 'fullName'>[]>(API + '/api/deal/raw', {
+    .get<Pick<Deal, 'id' | 'fullName'>[]>(API + '/apollo/deal/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },
@@ -35,7 +35,7 @@ export const getRawDeals = (token?: string) => () =>
 
 export const getDeal = (id?: string, token?: string) => () =>
   axios
-    .get<Deal>(API + `/api/deal/${id}`, {
+    .get<Deal>(API + `/apollo/deal/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
@@ -45,12 +45,12 @@ export const updateDeal = async (params: {
   dealInfo: Partial<DealUpdateFormData>
 }) => {
   const { id, dealInfo } = params
-  const { data } = await axios.patch<Deal>(API + `/api/deal/${id}`, dealInfo)
+  const { data } = await axios.patch<Deal>(API + `/apollo/deal/${id}`, dealInfo)
 
   return data
 }
 
 export const addDeal = async (dealInfo: DealUpdateFormData) => {
-  const { data } = await axios.post<Deal>(API + `/api/deal`, dealInfo)
+  const { data } = await axios.post<Deal>(API + `/apollo/deal`, dealInfo)
   return data
 }

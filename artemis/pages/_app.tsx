@@ -1,7 +1,8 @@
 import { AppProps } from 'next/app'
 import { Provider as NextAuthProvider } from 'next-auth/client'
 import '../styles/tailwind.css'
-import '../styles/global.css'
+import '../styles/global.scss'
+import '../styles/markdown.css'
 import 'antd/dist/antd.css'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Hydrate } from 'react-query/hydration'
@@ -40,11 +41,11 @@ function MyApp({ Component, pageProps }: AppProps) {
     >
       <QueryClientProvider client={client}>
         <Hydrate state={pageProps?.dehydratedState}>
-          <Head>
+          {/* <Head>
             {process.env.NODE_ENV !== 'production' && (
               <script dangerouslySetInnerHTML={{ __html: NoOverlay }} />
             )}
-          </Head>
+          </Head> */}
           <Component {...pageProps} />
           <OpenGraph />
         </Hydrate>

@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="h-[80px] text-center flex justify-between items-center px-[60px]">
+    <footer className="h-[80px] border bg-white text-center flex justify-between items-center px-[60px]">
       <div className='flex'>
         <div>
           <span className="font-medium mr-2">Artemis CRM</span>

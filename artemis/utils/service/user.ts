@@ -4,21 +4,23 @@ import axios from 'axios'
 import { API } from 'environment'
 
 export const requestResetEmail = (data: { email: string }) =>
-  axios.post(API + '/api/user/reset-password', data)
+  axios.post(API + '/apollo/user/reset-password', data)
 
 export const updatePassword = (data: { token: string; password: string }) =>
-  axios.put(API + '/api/user/password', data)
+  axios.put(API + '/apollo/user/password', data)
 
 export const changePassword = async (data: {
   oldPassword: string
   newPassword: string
 }) =>
-  axios.patch(API + '/api/user/change-password', data).then((res) => res.data)
+  axios
+    .patch(API + '/apollo/user/change-password', data)
+    .then((res) => res.data)
 
 export const getSelf = (token?: string) => () =>
   axios
     .get<Pick<User, 'name' | 'email' | 'status' | 'roles' | 'id'>>(
-      API + '/api/user/self',
+      API + '/apollo/user/self',
       {
         headers: { authorization: 'Bearer ' + token },
       },
@@ -26,7 +28,7 @@ export const getSelf = (token?: string) => () =>
     .then((res) => res.data)
 
 export const updateUserInformation = (data: { name: string }) =>
-  axios.patch<User>(API + '/api/user', data).then((res) => res.data)
+  axios.patch<User>(API + '/apollo/user', data).then((res) => res.data)
 
 export const getUsers =
   (
@@ -39,7 +41,7 @@ export const getUsers =
   ) =>
   () =>
     axios
-      .get<Paginate<User>>(API + '/api/user', {
+      .get<Paginate<User>>(API + '/apollo/user', {
         headers: { authorization: 'Bearer ' + token },
         params,
       })
@@ -47,7 +49,7 @@ export const getUsers =
 
 export const getRawUsers = (token?: string) => () =>
   axios
-    .get<Pick<User, 'id' | 'name'>[]>(API + '/api/user/raw', {
+    .get<Pick<User, 'id' | 'name'>[]>(API + '/apollo/user/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },
@@ -59,5 +61,5 @@ export const addUser = async (data: {
   email: string
   roleId: string
 }) => {
-  return axios.post(API + '/api/user', data).then((res) => res.data)
+  return axios.post(API + '/apollo/user', data).then((res) => res.data)
 }
