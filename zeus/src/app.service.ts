@@ -76,7 +76,7 @@ export class AppService {
     if (Array.isArray(response.data)) {
       result.items = response.data.map(({ id, attributes }) => {
         Object.entries(attributes).forEach(([key, value]: [string, any]) => {
-          if (value.data && Array.isArray(value.data)) {
+          if (value && value.data && Array.isArray(value.data)) {
             attributes[key] = value.data.map(({ id, attributes }) => ({
               id,
               ...attributes,

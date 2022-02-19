@@ -6,6 +6,7 @@ import { User, UserStatus } from 'src/user/user.entity'
 import { Task, TaskPriority, TaskStatus } from 'src/task/task.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Role } from 'src/role/role.entity'
+import { Note } from 'src/note/note.entity'
 
 export const role: Role = {
   actions: [Actions.IS_ADMIN],
@@ -70,6 +71,7 @@ export const lead: Lead = {
   createdById: null,
   updatedById: null,
   deletedAt: null,
+  notes: [],
 }
 
 export const account: Account = {
@@ -91,6 +93,7 @@ export const account: Account = {
   createdById: null,
   updatedById: null,
   deletedAt: null,
+  notes: [],
 }
 
 export const contact: Contact = {
@@ -145,6 +148,30 @@ export const task: Task = {
   subject: 'test',
   dueDate: null,
   description: null,
+  createdAt: null,
+  updatedAt: null,
+  createdBy: null,
+  updatedBy: null,
+  createdById: null,
+  updatedById: null,
+  deletedAt: null,
+}
+
+
+export const note: Note = {
+  id: '1234',
+  owner: user,
+  ownerId: user.id,
+  lead: lead,
+  leadId: lead.id,
+  contact: contact,
+  contactId: contact.id,
+  account: account,
+  accountId: account.id,
+  deal: deal,
+  dealId: deal.id,
+  title: 'Test Note title',
+  content: 'Test Note content',
   createdAt: null,
   updatedAt: null,
   createdBy: null,

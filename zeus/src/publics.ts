@@ -41,7 +41,11 @@ export const PUBLIC_ROUTES: TPublicRoute[] = [
     method: 'post',
   },
   {
-    value: "/events",
-    method: "post"
-  }
+    value: '/events',
+    method: 'post',
+  },
+  {
+    value: '/poseidon/documents',
+    method: 'get',
+  },
 ]

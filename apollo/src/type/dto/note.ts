@@ -9,6 +9,21 @@ export class AddNote {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  leadId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  contactId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  accountId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
   dealId?: string
 
   @ApiPropertyOptional()
