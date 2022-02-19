@@ -3,6 +3,7 @@ import DetailPageSidebar, {
 } from '@utils/components/DetailPageSidebar'
 
 export enum LeadDetailSections {
+  Notes = 'Notes',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }

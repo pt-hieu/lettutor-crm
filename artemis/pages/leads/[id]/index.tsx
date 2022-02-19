@@ -1,4 +1,29 @@
+import { NoteSection } from '@components/Notes/NoteSection'
+import { yupResolver } from '@hookform/resolvers/yup'
+import InlineEdit from '@utils/components/InlineEdit'
+import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
+import TaskList from '@utils/components/TaskList'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { checkActionError } from '@utils/libs/checkActions'
+import { getSessionToken } from '@utils/libs/getToken'
+import { investigate } from '@utils/libs/investigate'
+import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
+import { Actions } from '@utils/models/role'
+import { TaskStatus } from '@utils/models/task'
+import { User } from '@utils/models/user'
+import { getLead, updateLead } from '@utils/service/lead'
+import { getRawUsers } from '@utils/service/user'
+import { notification } from 'antd'
+import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
+import LeadDetailSidebar, {
+  LeadDetailSections,
+} from 'components/Leads/LeadDetailSidebar'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo } from 'react'
+import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
 import {
   dehydrate,
   QueryClient,
@@ -6,31 +31,7 @@ import {
   useQuery,
   useQueryClient,
 } from 'react-query'
-import { getSessionToken } from '@utils/libs/getToken'
-import { GetServerSideProps } from 'next'
-import { getLead, updateLead } from '@utils/service/lead'
-import { useRouter } from 'next/router'
-import LeadDetailSidebar, {
-  LeadDetailSections,
-} from 'components/Leads/LeadDetailSidebar'
-import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
-import { investigate } from '@utils/libs/investigate'
-import InlineEdit from '@utils/components/InlineEdit'
-import { Props } from '@utils/components/Input'
 import { editLeadSchema, LeadUpdateFromData } from './edit'
-import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
-import { getRawUsers, getUsers } from '@utils/service/user'
-import { User } from '@utils/models/user'
-import { notification } from 'antd'
-import { useCallback, useEffect, useMemo } from 'react'
-import { TaskStatus } from '@utils/models/task'
-import TaskList from '@utils/components/TaskList'
-import { checkActionError } from '@utils/libs/checkActions'
-import { Actions } from '@utils/models/role'
-import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 
 type LeadInfo = {
   label: string
@@ -268,6 +269,8 @@ const LeadDetail = () => {
                 ))}
               </form>
             </div>
+            {/* Notes */}
+            <NoteSection noteFor="Lead" hasFilter />
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
