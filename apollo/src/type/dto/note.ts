@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsOptional, IsString, IsUUID, MaxLength } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator'
+import { Paginate } from './paging'
 
 export class AddNote {
   @ApiProperty()
@@ -36,4 +38,23 @@ export class AddNote {
   @IsString()
   @MaxLength(500)
   content?: string
+}
+
+
+export class GetManyQuery extends Paginate {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  search?: string
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  nTopRecent?: number
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  sort?: string
 }
