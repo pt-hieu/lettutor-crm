@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 import { IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator'
 import { Paginate } from './paging'
 
@@ -48,6 +49,12 @@ export class GetManyQuery extends Paginate {
 
   @ApiPropertyOptional()
   @IsNumber()
+  @Type(() => Number)
   @IsOptional()
-  topRecent?: number
+  nTopRecent?: number
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  sort?: string
 }

@@ -1,6 +1,6 @@
 import { DTO } from 'src/type'
 import { Test, TestingModule } from '@nestjs/testing'
-import { MockType, repositoryMockFactory } from './utils'
+import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
 import { Repository } from 'typeorm'
 import { account, contact, deal, note, task, user } from './data'
 import { Deal } from 'src/deal/deal.entity'
@@ -113,7 +113,7 @@ describe('note service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       noteRepo.save.mockReturnValue({ ...note })
-      
+
       expect(await noteService.addNote(dto)).toEqual(note)
     })
 
@@ -194,6 +194,21 @@ describe('note service', () => {
       expect(noteService.addNote(dto)).rejects.toThrow(
         new NotFoundException(`Deal not found`),
       )
+    })
+  })
+
+  describe('getMany', () => {
+    it('should return tasks succeed', async () => {
+      const dto: DTO.Note.GetManyQuery = {
+        nTopRecent: 3,
+        limit: 10,
+        page: 1,
+        shouldNotPaginate: true,
+      }
+
+      mockQueryBuilder.getMany.mockReturnValue([note])
+
+      expect((await noteService.getMany(dto))).toEqual([note])
     })
   })
 

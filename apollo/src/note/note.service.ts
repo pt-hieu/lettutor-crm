@@ -48,7 +48,7 @@ export class NoteService {
     dto.leadId = null
     if (dto.accountId) {
       dto.dealId = null
-    } else if(dto.dealId) {
+    } else if (dto.dealId) {
       dto.accountId = null
     }
 
@@ -83,13 +83,20 @@ export class NoteService {
         'account.fullName',
         'deal.fullName',
       ])
-
-    q.orderBy('t.createdAt', 'DESC')
-    if (query.topRecent) {
-      q.limit(query.topRecent)
+    
+    if (query.sort === 'first') {
+      q.addOrderBy('t.createdAt', 'DESC')
     }
-    
-    
+
+    if (query.sort === 'last') {
+      q.addOrderBy('t.createdAt', 'ASC')
+    }
+
+    if (query.nTopRecent) {
+      q.limit(query.nTopRecent)
+    }
+
+
     if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.limit, page: query.page })
   }
