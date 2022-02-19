@@ -40,7 +40,7 @@ const taskSchema = yup.object().shape({
 
 const AddTaskModal = ({
   visible,
-  handleClose: close,
+  handleClose,
   handleCreateTask,
   isLoading,
 }: Props) => {
@@ -52,6 +52,7 @@ const AddTaskModal = ({
     handleSubmit,
     register,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<TaskFormData>({
     resolver: yupResolver(taskSchema),
@@ -63,6 +64,10 @@ const AddTaskModal = ({
   })
 
   const createTask = handleSubmit(handleCreateTask)
+  const closeModal = () => {
+    handleClose()
+    reset()
+  }
 
   useEffect(() => {
     setValue('ownerId', session?.user.id || '')
@@ -71,7 +76,7 @@ const AddTaskModal = ({
   return (
     <Modal
       visible={visible}
-      onCancel={close}
+      onCancel={closeModal}
       centered
       footer={
         <div className="flex w-full gap-2 justify-end">
@@ -82,7 +87,7 @@ const AddTaskModal = ({
           >
             <Loading on={isLoading}>Submit</Loading>
           </button>
-          <button onClick={close} className="crm-button-outline">
+          <button onClick={closeModal} className="crm-button-outline">
             Cancel
           </button>
         </div>
