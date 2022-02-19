@@ -46,9 +46,7 @@ export class NoteService {
     dto.leadId = null
     if (dto.accountId) {
       dto.dealId = null
-    }
-
-    if (!dto.accountId && dto.dealId) {
+    } else if(dto.dealId) {
       dto.accountId = null
     }
 
