@@ -5,6 +5,9 @@ import { User } from './user'
 export type AddNoteDto = {
   ownerId: string
   dealId?: string
+  leadId?: string
+  contactId?: string
+  accountId?: string
   title?: string
   content?: string
 }

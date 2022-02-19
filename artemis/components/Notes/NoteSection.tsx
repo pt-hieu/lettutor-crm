@@ -1,7 +1,7 @@
 import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
 import { Select } from 'antd'
 import { useMemo, useState } from 'react'
-import { NoteAdder } from './NoteAdder'
+import { INoteData, NoteAdder } from './NoteAdder'
 import { NoteContent } from './NoteContent'
 const { Option, OptGroup } = Select
 
@@ -18,9 +18,20 @@ enum Sort {
 interface IProps {
   noteFor: 'Contact' | 'Account' | 'Lead' | 'Deal' | 'Task'
   hasFilter?: boolean
+  onAddNote: (data: INoteData) => void
+  onEditNote: (data: INoteData) => void
+  onChangeSort?: () => void
+  onChangeFilter?: () => void
 }
 
-export const NoteSection = ({ noteFor, hasFilter = false }: IProps) => {
+export const NoteSection = ({
+  noteFor,
+  hasFilter = false,
+  onAddNote,
+  onEditNote,
+  onChangeFilter,
+  onChangeSort,
+}: IProps) => {
   const [showNoteAdder, setShowNoteAdder] = useState(true)
   const [filter, setFilter] = useState<Filter>(Filter.All)
   const [sort, setSort] = useState<Sort>(Sort.RecentFirst)
@@ -28,6 +39,7 @@ export const NoteSection = ({ noteFor, hasFilter = false }: IProps) => {
   function handleChangeSelect(value: string) {
     if (Object.values(Sort).includes(value as Sort)) {
       setSort(value as Sort)
+      onChangeSort && onChangeSort()
     }
   }
 
@@ -75,7 +87,7 @@ export const NoteSection = ({ noteFor, hasFilter = false }: IProps) => {
           sort === Sort.RecentFirst ? 'flex-col' : 'flex-col-reverse'
         }`}
       >
-        {showNoteAdder && <NoteAdder />}
+        {showNoteAdder && <NoteAdder onAddNote={onAddNote} />}
 
         <div className="mb-2 flex flex-col gap-3">
           <NoteContent
@@ -87,6 +99,7 @@ export const NoteSection = ({ noteFor, hasFilter = false }: IProps) => {
               Officiis repellendus quae ab molestias voluptate."
             setShowNoteAdder={setShowNoteAdder}
             hideEditButton={!showNoteAdder}
+            onEditNote={onEditNote}
           />
           <NoteContent
             time="2021-12-19T11:44:39+0000"
@@ -98,6 +111,7 @@ export const NoteSection = ({ noteFor, hasFilter = false }: IProps) => {
               Officiis repellendus quae ab molestias voluptate."
             setShowNoteAdder={setShowNoteAdder}
             hideEditButton={!showNoteAdder}
+            onEditNote={onEditNote}
           />
         </div>
         <PreviousNotes />

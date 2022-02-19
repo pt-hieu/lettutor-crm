@@ -1,3 +1,4 @@
+import { INoteData } from '@components/Notes/NoteAdder'
 import { NoteSection } from '@components/Notes/NoteSection'
 import { yupResolver } from '@hookform/resolvers/yup'
 import InlineEdit from '@utils/components/InlineEdit'
@@ -6,14 +7,17 @@ import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
+import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getLead, updateLead } from '@utils/service/lead'
+import { addNote } from '@utils/service/note'
 import { getRawUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
@@ -182,6 +186,8 @@ const LeadDetail = () => {
   const auth = useAuthorization()
   const isOwner = useOwnership(lead)
 
+  const [session] = useTypedSession()
+
   const defaultValues = useMemo(
     () => ({
       ownerId: lead?.owner?.id,
@@ -237,6 +243,26 @@ const LeadDetail = () => {
     [lead],
   )
 
+  const { mutateAsync: addNoteLead } = useMutation('add-note-lead', addNote, {
+    onSuccess(data) {
+      client.invalidateQueries(['lead', id, 'note'])
+    },
+    onError() {
+      notification.error({ message: 'Add note unsuccessfully' })
+    },
+  })
+
+  const handleAddNote = (data: INoteData) => {
+    const dataInfo: AddNoteDto = {
+      ownerId: session?.user.id as string,
+      leadId: lead?.id,
+      ...data,
+    }
+    addNoteLead(dataInfo)
+  }
+
+  const handleEditNote = (data: INoteData) => {}
+
   return (
     <Layout title={`CRM | Lead | ${lead?.fullName}`} requireLogin>
       <div className="crm-container">
@@ -270,7 +296,12 @@ const LeadDetail = () => {
               </form>
             </div>
             {/* Notes */}
-            <NoteSection noteFor="Lead" hasFilter />
+            <NoteSection
+              noteFor="Lead"
+              hasFilter
+              onAddNote={handleAddNote}
+              onEditNote={handleEditNote}
+            />
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"

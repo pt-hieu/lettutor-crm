@@ -1,38 +1,39 @@
-import { Popover } from 'antd'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import Input from '../../utils/components/Input'
-import * as yup from 'yup'
 import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import Input from '../../utils/components/Input'
 
 export const noteShema = yup.object().shape({
-  note: yup
+  content: yup
     .string()
     .trim()
     .required('Note is required')
     .max(500, 'Note must be at most 500 characters'),
 })
 
-interface INoteData {
+export interface INoteData {
   title?: string
-  note: string
+  content: string
 }
 
 interface ITextboxProps {
   onCancel: () => void
+  onSave: (data: INoteData) => void
   defaultTitle?: string
   defaultNote?: string
 }
 
 export const NoteTextBox = ({
   onCancel,
+  onSave,
   defaultTitle,
   defaultNote,
 }: ITextboxProps) => {
   const [hasTitle, setHasTitle] = useState(!!defaultTitle)
   const [title, setTitle] = useState(defaultTitle || '')
-  const [note, setNote] = useState(defaultNote || '')
+  const [content, setContent] = useState(defaultNote || '')
 
   const {
     register,
@@ -41,13 +42,13 @@ export const NoteTextBox = ({
   } = useForm<INoteData>({
     resolver: yupResolver(noteShema),
     defaultValues: {
-      note: note,
+      content,
     },
   })
 
   const titleRef = useRef<any>(null)
   const noteRef = useRef<any>(null)
-  const { ref, ...rest } = register('note')
+  const { ref, ...rest } = register('content')
 
   const handleAddTitle = () => {
     setHasTitle(true)
@@ -59,9 +60,11 @@ export const NoteTextBox = ({
     setTitle('')
   }
 
-  const handleSave = handleSubmit(() => {
-    //request add note
-    console.log('note data', { title, note })
+  const handleSave = handleSubmit((data) => {
+    if (hasTitle && title) {
+      data.title = title
+    }
+    onSave(data)
   })
 
   useEffect(() => {
@@ -91,16 +94,16 @@ export const NoteTextBox = ({
           placeholder="Add a note"
           className="border-transparent focus:border-transparent focus:ring-0 w-full min-h-[40px] pl-2 pt-1"
           {...rest}
-          name="note"
+          name="content"
           ref={(e) => {
             ref(e)
             noteRef.current = e // you can still assign to ref
           }}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
         />
         <AnimatePresence presenceAffectsLayout>
-          {errors.note && (
+          {errors.content && (
             <motion.div
               initial="init"
               animate="animating"
@@ -111,7 +114,7 @@ export const NoteTextBox = ({
               }}
               className="text-red-600 overflow-hidden pl-2"
             >
-              {errors.note.message}
+              {errors.content.message}
             </motion.div>
           )}
         </AnimatePresence>
@@ -142,15 +145,24 @@ export const NoteTextBox = ({
   )
 }
 
-interface INoteAdderProps {}
+interface INoteAdderProps {
+  onAddNote: (data: INoteData) => void
+}
 
-export const NoteAdder = (props: INoteAdderProps) => {
+export const NoteAdder = ({ onAddNote }: INoteAdderProps) => {
   const [isActive, setIsActive] = useState(false)
+
+  const handleAddNote = (data: INoteData) => {
+    onAddNote(data)
+  }
 
   return (
     <div className="mb-4">
       {isActive ? (
-        <NoteTextBox onCancel={() => setIsActive(false)} />
+        <NoteTextBox
+          onCancel={() => setIsActive(false)}
+          onSave={handleAddNote}
+        />
       ) : (
         <Input
           as="input"

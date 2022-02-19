@@ -2,7 +2,7 @@ import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
 import moment from 'moment'
 import { useState } from 'react'
-import { NoteTextBox } from './NoteAdder'
+import { INoteData, NoteTextBox } from './NoteAdder'
 
 const iconBtn = 'p-2 bg-white rounded-full text-gray-700 border cursor-pointer'
 
@@ -13,6 +13,7 @@ interface IProps {
   time: string
   setShowNoteAdder: (value: boolean) => void
   hideEditButton?: boolean
+  onEditNote: (data: INoteData) => void
 }
 
 export const NoteContent = ({
@@ -22,6 +23,7 @@ export const NoteContent = ({
   time,
   setShowNoteAdder,
   hideEditButton = false,
+  onEditNote,
 }: IProps) => {
   const [editMode, setEditMode] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
@@ -45,6 +47,7 @@ export const NoteContent = ({
           onCancel={handleCancel}
           defaultTitle={title}
           defaultNote={note}
+          onSave={onEditNote}
         />
       ) : (
         <div className="flex flex-row relative group pr-[100px]">
