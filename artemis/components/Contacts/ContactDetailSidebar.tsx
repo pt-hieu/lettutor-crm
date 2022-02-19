@@ -91,6 +91,7 @@ const ContactDetailSidebar = () => {
       ],
     },
   ]
+
   return (
     <>
       <AddTaskModal
