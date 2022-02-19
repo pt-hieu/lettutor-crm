@@ -10,7 +10,7 @@ import { NoteService } from './note.service'
 @ApiSecurity('x-user')
 @Controller('note')
 export class NoteController {
-  constructor(private readonly service: NoteService) {}
+  constructor(private readonly service: NoteService) { }
 
   @Post()
   @DefineAction(Actions.CREATE_NEW_NOTE)
