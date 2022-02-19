@@ -20,8 +20,7 @@ import { Deal, DealStage } from '@utils/models/deal'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useInput } from '@utils/hooks/useInput'
-import { getRawUsers, getUsers } from '@utils/service/user'
-import { User } from '@utils/models/user'
+import { getRawUsers } from '@utils/service/user'
 
 interface Props {
   visible: boolean
