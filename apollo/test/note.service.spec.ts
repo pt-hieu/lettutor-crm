@@ -57,12 +57,6 @@ describe('note service', () => {
           },
         },
         {
-          provide: NoteService,
-          useValue: {
-            addNote: jest.fn(),
-          },
-        },
-        {
           provide: LeadService,
           useValue: {
             getLeadById: jest.fn(),
@@ -119,11 +113,11 @@ describe('note service', () => {
 
       userRepo.findOne.mockReturnValue({ ...user })
       noteRepo.save.mockReturnValue({ ...note })
-      console.log(await noteService.addNote(dto))
+      
       expect(await noteService.addNote(dto)).toEqual(note)
     })
 
-    it('should add note succeed with owner, contact', async () => {
+    it('should add note successfully with owner, contact', async () => {
       const dto: DTO.Note.AddNote = {
         ownerId: note.ownerId,
         contactId: note.contactId,
@@ -155,14 +149,13 @@ describe('note service', () => {
     it('should throw not found exception when contact not found', async () => {
       const dto: DTO.Note.AddNote = {
         ownerId: note.ownerId,
-        dealId: note.dealId,
         title: note.title,
-        content: note.content
+        content: note.content,
+        contactId: note.contactId
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
       contactRepo.findOne.mockReturnValue(undefined)
-      accountRepo.findOne.mockReturnValue({ ...account })
 
       expect(noteService.addNote(dto)).rejects.toThrow(
         new NotFoundException(`Contact not found`),
@@ -172,7 +165,8 @@ describe('note service', () => {
     it('should throw not found exception when account not found', async () => {
       const dto: DTO.Note.AddNote = {
         ownerId: note.ownerId,
-        dealId: note.dealId,
+        contactId: note.contactId,
+        accountId: note.accountId,
         title: note.title,
         content: note.content
       }
