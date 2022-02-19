@@ -64,9 +64,15 @@ const AddTaskModal = ({
   })
 
   const createTask = handleSubmit(handleCreateTask)
+
+  const submitModal = () => {
+    createTask()
+    reset({ ownerId: session?.user.id })
+  }
+
   const closeModal = () => {
     handleClose()
-    reset()
+    reset({ ownerId: session?.user.id })
   }
 
   useEffect(() => {
@@ -81,7 +87,7 @@ const AddTaskModal = ({
       footer={
         <div className="flex w-full gap-2 justify-end">
           <button
-            onClick={createTask}
+            onClick={submitModal}
             disabled={isLoading}
             className="crm-button"
           >
