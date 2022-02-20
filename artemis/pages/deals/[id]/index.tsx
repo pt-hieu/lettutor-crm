@@ -39,6 +39,7 @@ import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
+import DealDetailSidebar from '@components/Deals/DealDetailSidebar'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -388,7 +389,7 @@ const DealDetail = () => {
         <DealDetailNavbar deal={deal!} />
 
         <div className="grid grid-cols-[250px,1fr]">
-          <DetailPageSidebar data={dealSidebarOptions} />
+          <DealDetailSidebar />
           <div className="flex flex-col divide-y gap-4">
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
