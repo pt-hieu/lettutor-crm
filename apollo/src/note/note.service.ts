@@ -10,7 +10,7 @@ import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
-import { Note } from './note.entity'
+import { Note, NoteSort } from './note.entity'
 
 @Injectable()
 export class NoteService {
@@ -72,13 +72,13 @@ export class NoteService {
     return this.noteRepo.save(dto)
   }
 
-  getMany(query: DTO.Note.GetManyQuery) {
+  getMany(query: DTO.Note.GetManyQuery, filter: DTO.Note.FilterNote) {
     let q = this.noteRepo
-      .createQueryBuilder('t')
-      .leftJoin('t.owner', 'owner')
-      .leftJoin('t.lead', 'lead')
-      .leftJoin('t.account', 'account')
-      .leftJoin('t.deal', 'deal')
+      .createQueryBuilder('note')
+      .leftJoin('note.owner', 'owner')
+      .leftJoin('note.lead', 'lead')
+      .leftJoin('note.account', 'account')
+      .leftJoin('note.deal', 'deal')
       .addSelect([
         'owner.name',
         'owner.email',
@@ -86,12 +86,30 @@ export class NoteService {
         'account.fullName',
         'deal.fullName',
       ])
-
-    if (query.sort === 'first') {
-      q.addOrderBy('t.createdAt', 'DESC')
+    
+    if (filter.leadId) {
+      q.andWhere('note.leadId = :leadId', {
+        leadId: filter.leadId
+      } )
+    } else if (filter.contactId) {
+      q.andWhere('note.contactId = :contactId', {
+        contactId: filter.contactId
+      })
+    } else if (filter.accountId) {
+      q.andWhere('note.accountId = :accountId', {
+        accountId: filter.accountId
+      })
+    } else if (filter.dealId) {
+      q.andWhere('note.dealId = :dealId', {
+        dealId: filter.dealId
+      })
+    }
+    
+    if (query.sort === NoteSort.FIRST) {
+      q.addOrderBy('note.createdAt', 'DESC')
     }
 
-    if (query.sort === 'last') {
+    if (query.sort === NoteSort.LAST) {
       q.addOrderBy('t.createdAt', 'ASC')
     }
 

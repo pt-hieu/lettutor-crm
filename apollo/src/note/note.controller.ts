@@ -22,13 +22,14 @@ export class NoteController {
 
   @Get()
   @ApiOperation({ summary: 'to view, search and filter all notes' })
-  index(@Query() query: DTO.Note.GetManyQuery) {
-    return this.service.getMany(query)
+  index(@Query() query: DTO.Note.GetManyQuery,
+   @Body() filter: DTO.Note.FilterNote) {
+    return this.service.getMany(query, filter)
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'to get note information by Id' })
-  getTaskById(@Param('id', ParseUUIDPipe) id: string) {
+  getNoteById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getNoteById({
       where: { id },
       relations: ['owner', 'account', 'lead', 'contact', 'deal'],
@@ -41,7 +42,6 @@ export class NoteController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.Note.UpdateBody,
   ) {
-    console.log(":helsd")
     return this.service.update(id, dto)
   }
 }
