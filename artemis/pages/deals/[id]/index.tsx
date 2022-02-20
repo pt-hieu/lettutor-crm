@@ -41,6 +41,12 @@ import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 import DealDetailSidebar from '@components/Deals/DealDetailSidebar'
 
+import { NoteSection } from '@components/Notes/NoteSection'
+import { addNote } from '@utils/service/note'
+import { INoteData } from '@components/Notes/NoteAdder'
+import { AddNoteDto } from '@utils/models/note'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+
 enum RelatedList {
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
@@ -258,6 +264,7 @@ const DealDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
 
+  const [session] = useTypedSession()
   const auth = useAuthorization()
 
   const client = useQueryClient()
@@ -366,6 +373,29 @@ const DealDetail = () => {
     [deal],
   )
 
+  const { mutateAsync: addNewNote } = useMutation('add-note-deal', addNote, {
+    onSuccess(data) {
+      // client.setQueryData(["note", id], (oldData) => {
+      //   return [...((oldData as Note[]) || []), data]
+      // })
+      client.invalidateQueries(['deal', id])
+    },
+    onError() {
+      notification.error({ message: 'Add note unsuccessfully' })
+    },
+  })
+
+  const handleAddNote = (data: INoteData) => {
+    const dataInfo: AddNoteDto = {
+      ownerId: session?.user.id as string,
+      dealId: deal?.id,
+      ...data,
+    }
+    addNewNote(dataInfo)
+  }
+
+  const handleEditNote = (data: INoteData) => {}
+
   return (
     <Layout title={`CRM | Deal | ${deal?.fullName}`} requireLogin>
       {deal && (
@@ -420,6 +450,14 @@ const DealDetail = () => {
                 ))}
               </form>
             </div>
+            {/* Notes */}
+            {/* <NoteSection
+              noteFor="Deal"
+              onAddNote={handleAddNote}
+              onEditNote={handleEditNote}
+              notes={deal?.notes || []}
+              totalNotes={deal?.notes.length || 0}
+            /> */}
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"

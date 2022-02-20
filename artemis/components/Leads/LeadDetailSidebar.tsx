@@ -10,6 +10,7 @@ import { useRouter } from 'next/router'
 import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
 
 export enum LeadDetailSections {
+  Notes = 'Notes',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }
@@ -53,6 +54,9 @@ const LeadDetailSidebar = () => {
     {
       title: 'Related List',
       options: [
+        {
+          label: LeadDetailSections.Notes,
+        },
         {
           label: LeadDetailSections.OpenActivities,
           choices: [

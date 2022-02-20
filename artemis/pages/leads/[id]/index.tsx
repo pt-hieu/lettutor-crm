@@ -1,4 +1,34 @@
+import { INoteData } from '@components/Notes/NoteAdder'
+import { NoteSection } from '@components/Notes/NoteSection'
+import { yupResolver } from '@hookform/resolvers/yup'
+import InlineEdit from '@utils/components/InlineEdit'
+import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
+import TaskList from '@utils/components/TaskList'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { checkActionError } from '@utils/libs/checkActions'
+import { getSessionToken } from '@utils/libs/getToken'
+import { investigate } from '@utils/libs/investigate'
+import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
+import { AddNoteDto, Note } from '@utils/models/note'
+import { Paginate } from '@utils/models/paging'
+import { Actions } from '@utils/models/role'
+import { TaskStatus } from '@utils/models/task'
+import { User } from '@utils/models/user'
+import { getLead, updateLead } from '@utils/service/lead'
+import { addNote, deleteNote, editNote, getNotes } from '@utils/service/note'
+import { getRawUsers } from '@utils/service/user'
+import { notification } from 'antd'
+import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
+import LeadDetailSidebar, {
+  LeadDetailSections,
+} from 'components/Leads/LeadDetailSidebar'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo } from 'react'
+import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
 import {
   dehydrate,
   QueryClient,
@@ -6,31 +36,7 @@ import {
   useQuery,
   useQueryClient,
 } from 'react-query'
-import { getSessionToken } from '@utils/libs/getToken'
-import { GetServerSideProps } from 'next'
-import { getLead, updateLead } from '@utils/service/lead'
-import { useRouter } from 'next/router'
-import LeadDetailSidebar, {
-  LeadDetailSections,
-} from 'components/Leads/LeadDetailSidebar'
-import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
-import { investigate } from '@utils/libs/investigate'
-import InlineEdit from '@utils/components/InlineEdit'
-import { Props } from '@utils/components/Input'
 import { editLeadSchema, LeadUpdateFromData } from './edit'
-import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
-import { getRawUsers } from '@utils/service/user'
-import { User } from '@utils/models/user'
-import { notification } from 'antd'
-import { useCallback, useEffect, useMemo } from 'react'
-import { TaskStatus } from '@utils/models/task'
-import TaskList from '@utils/components/TaskList'
-import { checkActionError } from '@utils/libs/checkActions'
-import { Actions } from '@utils/models/role'
-import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 
 type LeadInfo = {
   label: string
@@ -177,9 +183,15 @@ const LeadDetail = () => {
   const client = useQueryClient()
   const { data: lead } = useQuery<Lead>(['lead', id], getLead(id))
   const { data: users } = useQuery<User[]>('users', { enabled: false })
+  const { data: notes } = useQuery<Paginate<Note>>(
+    ['lead', id, 'notes'],
+    getNotes({ source: 'lead', sourceId: id }),
+  )
 
   const auth = useAuthorization()
   const isOwner = useOwnership(lead)
+
+  const [session] = useTypedSession()
 
   const defaultValues = useMemo(
     () => ({
@@ -236,6 +248,62 @@ const LeadDetail = () => {
     [lead],
   )
 
+  const { mutateAsync: addNoteLead } = useMutation('add-note-lead', addNote, {
+    onSuccess(data) {
+      // client.setQueryData(["note", id], (oldData) => {
+      //   return [...((oldData as Note[]) || []), data]
+      // })
+      client.invalidateQueries(['lead', id, 'notes'])
+    },
+    onError() {
+      notification.error({ message: 'Add note unsuccessfully' })
+    },
+  })
+
+  const handleAddNote = (data: INoteData) => {
+    const dataInfo: AddNoteDto = {
+      ownerId: session?.user.id as string,
+      leadId: lead?.id,
+      source: 'lead',
+      ...data,
+    }
+    addNoteLead(dataInfo)
+  }
+
+  const { mutateAsync: editNoteService } = useMutation(
+    'edit-note-lead',
+    editNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['lead', id, 'notes'])
+        notification.success({ message: 'Edit note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Edit note unsuccessfully' })
+      },
+    },
+  )
+  const handleEditNote = (noteId: string, data: INoteData) => {
+    editNoteService({ noteId, dataInfo: data })
+  }
+
+  const { mutateAsync: deleteNoteService } = useMutation(
+    'delete-note-lead',
+    deleteNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['lead', id, 'notes'])
+        notification.success({ message: 'Delete note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete note unsuccessfully' })
+      },
+    },
+  )
+  const handleDeleteNote = (noteId: string) => {
+    deleteNoteService({ noteId })
+  }
+
   return (
     <Layout title={`CRM | Lead | ${lead?.fullName}`} requireLogin>
       <div className="crm-container">
@@ -268,6 +336,15 @@ const LeadDetail = () => {
                 ))}
               </form>
             </div>
+            {/* Notes */}
+            <NoteSection
+              noteFor="Lead"
+              onAddNote={handleAddNote}
+              onEditNote={handleEditNote}
+              notes={notes?.items || []}
+              totalNotes={notes?.meta?.totalItems || 0}
+              onDeleteNote={handleDeleteNote}
+            />
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -313,6 +390,13 @@ export const getServerSideProps: GetServerSideProps = async ({
     await Promise.all([
       client.prefetchQuery(['lead', id], getLead(id, token)),
       client.prefetchQuery('users', getRawUsers(token)),
+      client.prefetchQuery(
+        ['lead', id, 'notes'],
+        getNotes(
+          { shouldNotPaginate: true, source: 'lead', sourceId: id },
+          token,
+        ),
+      ),
     ])
   }
 
