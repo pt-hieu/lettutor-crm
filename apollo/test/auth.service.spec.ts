@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { AuthService } from 'src/auth/auth.service'
-import { User } from 'src/user/user.entity'
+import { User, UserStatus } from 'src/user/user.entity'
 import { Repository } from 'typeorm'
 import { MockType, repositoryMockFactory } from './utils'
 import { role, user } from './data'
@@ -77,6 +77,21 @@ describe('auth service', () => {
       usersRepo.findOne.mockReturnValue(user)
       expect(authService.validate(dto, res)).rejects.toThrow(
         new BadRequestException('Email or password is wrong'),
+      )
+    })
+
+    it('log in with an inactive account', () => {
+      const dto: DTO.Auth.Login = {
+        email: user.email,
+        password: user.password,
+      }
+
+      let inactiveUser = user
+      inactiveUser.status = UserStatus.INACTIVE
+
+      usersRepo.findOne.mockReturnValue(inactiveUser)
+      expect(authService.validate(dto, res)).rejects.toThrow(
+        new BadRequestException('Inactive Account'),
       )
     })
   })

@@ -2,6 +2,7 @@ import { Account } from './account'
 import { Base } from './base'
 import { Contact } from './contact'
 import { LeadSource } from './lead'
+import { Note } from './note'
 import { Task } from './task'
 import { User } from './user'
 
@@ -34,6 +35,7 @@ export interface Deal extends Base {
   probability: number
   description: string | null
   tasks: Task[]
+  notes: Note[]
 }
 
 export type UpdateDealDto = {

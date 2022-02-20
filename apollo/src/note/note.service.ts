@@ -4,6 +4,7 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
+import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
@@ -32,12 +33,12 @@ export class NoteService {
 
     private readonly userService: UserService,
     private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
 
   ) { }
 
   async addNote(dto: DTO.Note.AddNote) {
-    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
-
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
     if (dto.leadId) {
       await this.leadService.getLeadById({
         where: { id: dto.leadId },
@@ -45,6 +46,7 @@ export class NoteService {
       dto.accountId = null
       dto.contactId = null
       dto.dealId = null
+      dto.ownerId = this.payloadService.data.id
       dto.source = NoteSource.LEAD
       return this.noteRepo.save(dto)
     }
@@ -72,10 +74,11 @@ export class NoteService {
         : undefined,
     ])
 
+    dto.ownerId = this.payloadService.data.id
     return this.noteRepo.save(dto)
   }
 
-  getMany(query: DTO.Note.GetManyQuery, filter: DTO.Note.FilterNote) {
+  getMany(query: DTO.Note.GetManyQuery) {
     let q = this.noteRepo
       .createQueryBuilder('note')
       .leftJoin('note.owner', 'owner')
@@ -90,22 +93,28 @@ export class NoteService {
         'deal.fullName',
       ])
     
-    if (filter.leadId) {
+    if (query.source === NoteSource.LEAD) {
       q.andWhere('note.leadId = :leadId', {
-        leadId: filter.leadId
+        leadId: query.sourceId
       } )
-    } else if (filter.contactId) {
+    }
+    
+    if (query.source === NoteSource.CONTACT) {
       q.andWhere('note.contactId = :contactId', {
-        contactId: filter.contactId
-      })
-    } else if (filter.accountId) {
+        contactId: query.sourceId
+      } )
+    }
+    
+    if (query.source === NoteSource.ACCOUNT) {
       q.andWhere('note.accountId = :accountId', {
-        accountId: filter.accountId
-      })
-    } else if (filter.dealId) {
+        accountId: query.sourceId
+      } )
+    }
+    
+    if (query.source === NoteSource.DEAL) {
       q.andWhere('note.dealId = :dealId', {
-        dealId: filter.dealId
-      })
+        dealId: query.sourceId
+      } )
     }
     
     if (query.sort === NoteSort.FIRST) {
@@ -113,7 +122,7 @@ export class NoteService {
     }
 
     if (query.sort === NoteSort.LAST) {
-      q.addOrderBy('t.createdAt', 'ASC')
+      q.addOrderBy('note.createdAt', 'ASC')
     }
 
     if (query.nTopRecent) {
@@ -143,10 +152,10 @@ export class NoteService {
   }
 
 
-  async update(id: string, dto: DTO.Task.UpdateBody) {
+  async update(id: string, dto: DTO.Note.UpdateBody) {
     const note = await this.getNoteById({ where: { id } })
 
-    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id} })
 
     if (dto.leadId) {
       await this.leadService.getLeadById({
@@ -180,5 +189,14 @@ export class NoteService {
     }
 
     return this.noteRepo.save({ ...note, ...dto })
+  }
+
+
+  async delete(id: string) {
+    const note = await this.getNoteById({ where: { id } })
+
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+
+    return this.noteRepo.remove(note)
   }
 }

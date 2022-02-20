@@ -1,4 +1,4 @@
-import { User } from 'src/user/user.entity'
+import { User, UserStatus } from 'src/user/user.entity'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -47,6 +47,8 @@ export class AuthService {
     })
 
     if (!user) throw new BadRequestException('Email or password is wrong')
+
+    if (user.status != UserStatus.ACTIVE) throw new BadRequestException('Inactive Account')
 
     if (!(await compare(dto.password, user.password)))
       throw new BadRequestException('Email or password is wrong')

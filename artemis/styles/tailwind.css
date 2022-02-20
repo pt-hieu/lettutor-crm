@@ -82,6 +82,10 @@
   .debug {
     @apply border-red-600;
   }
+
+  .placeholder-bold::placeholder {
+    @apply font-semibold text-gray-500;
+  }
 }
 
 @tailwind utilities;
