@@ -5,7 +5,7 @@ import { NoteSort, NoteSource } from 'src/note/note.entity'
 import { Paginate } from './paging'
 
 export class AddNote {
-  @ApiProperty()
+  @IsOptional()
   @IsUUID()
   ownerId: string
 
@@ -84,10 +84,6 @@ export class GetManyQuery extends Paginate {
 
 
 export class UpdateBody {
-  @ApiProperty()
-  @IsUUID()
-  ownerId: string
-
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
