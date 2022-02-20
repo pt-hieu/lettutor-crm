@@ -12,12 +12,13 @@ import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
-import { AddNoteDto } from '@utils/models/note'
+import { AddNoteDto, Note } from '@utils/models/note'
+import { Paginate } from '@utils/models/paging'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getLead, updateLead } from '@utils/service/lead'
-import { addNote } from '@utils/service/note'
+import { addNote, getNotes } from '@utils/service/note'
 import { getRawUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
@@ -182,6 +183,12 @@ const LeadDetail = () => {
   const client = useQueryClient()
   const { data: lead } = useQuery<Lead>(['lead', id], getLead(id))
   const { data: users } = useQuery<User[]>('users', { enabled: false })
+  const { data: notes } = useQuery<Paginate<Note>>(
+    ['lead', id, 'notes'],
+    getNotes({}, 'undefined'),
+  )
+
+  console.log('notes', notes)
 
   const auth = useAuthorization()
   const isOwner = useOwnership(lead)
@@ -245,7 +252,10 @@ const LeadDetail = () => {
 
   const { mutateAsync: addNoteLead } = useMutation('add-note-lead', addNote, {
     onSuccess(data) {
-      client.invalidateQueries(['lead', id, 'note'])
+      // client.setQueryData(["note", id], (oldData) => {
+      //   return [...((oldData as Note[]) || []), data]
+      // })
+      client.invalidateQueries(['lead', id, 'notes'])
     },
     onError() {
       notification.error({ message: 'Add note unsuccessfully' })
@@ -298,9 +308,10 @@ const LeadDetail = () => {
             {/* Notes */}
             <NoteSection
               noteFor="Lead"
-              hasFilter
               onAddNote={handleAddNote}
               onEditNote={handleEditNote}
+              notes={notes?.items || []}
+              totalNotes={notes?.meta?.totalItems || 0}
             />
             <div className="pt-4">
               <div
@@ -347,6 +358,10 @@ export const getServerSideProps: GetServerSideProps = async ({
     await Promise.all([
       client.prefetchQuery(['lead', id], getLead(id, token)),
       client.prefetchQuery('users', getRawUsers(token)),
+      client.prefetchQuery(
+        ['lead', id, 'notes'],
+        getNotes({ shouldNotPaginate: true }, token),
+      ),
     ])
   }
 

@@ -10,7 +10,7 @@ interface IProps {
   title?: string
   note: string
   author: string
-  time: string
+  time: Date
   setShowNoteAdder: (value: boolean) => void
   hideEditButton?: boolean
   onEditNote: (data: INoteData) => void
@@ -56,7 +56,7 @@ export const NoteContent = ({
           </div>
           <div className="flex-1 pl-4">
             {title && <span className="font-semibold">{title}</span>}
-            <div className="w-full whitespace-pre-wrap mb-3">{note}</div>
+            <div className="w-full whitespace-pre-wrap mb-1">{note}</div>
             <div className="flex flex-row text-[12px] items-center text-gray-500">
               <span>Contact</span>
               <span className="px-1"> - </span>

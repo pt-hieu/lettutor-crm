@@ -55,6 +55,9 @@ const LeadDetailSidebar = () => {
       title: 'Related List',
       options: [
         {
+          label: LeadDetailSections.Notes,
+        },
+        {
           label: LeadDetailSections.OpenActivities,
           choices: [
             {

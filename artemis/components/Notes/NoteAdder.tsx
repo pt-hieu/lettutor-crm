@@ -147,13 +147,15 @@ export const NoteTextBox = ({
 
 interface INoteAdderProps {
   onAddNote: (data: INoteData) => void
+  active?: boolean
 }
 
-export const NoteAdder = ({ onAddNote }: INoteAdderProps) => {
-  const [isActive, setIsActive] = useState(false)
+export const NoteAdder = ({ onAddNote, active = false }: INoteAdderProps) => {
+  const [isActive, setIsActive] = useState(active)
 
   const handleAddNote = (data: INoteData) => {
     onAddNote(data)
+    setIsActive(false)
   }
 
   return (
