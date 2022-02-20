@@ -54,6 +54,8 @@ export class AccountController {
           'deals.tasks.owner',
           'tasks',
           'tasks.owner',
+          'notes',
+          'notes.owner'
         ],
       },
       true,

@@ -93,3 +93,9 @@ export class UpdateUser {
   @MaxLength(100)
   name: string
 }
+
+export class ActivateUser {
+  @ApiPropertyOptional({ enum: UserStatus, enumName: 'User Status' })
+  @IsEnum(UserStatus)
+  status?: UserStatus
+}

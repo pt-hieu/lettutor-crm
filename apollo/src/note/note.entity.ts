@@ -7,6 +7,18 @@ import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
+export enum NoteSort {
+  LAST = 'last',
+  FIRST = 'first',
+}
+
+export enum NoteSource {
+  LEAD = 'lead',
+  CONTACT = 'contact',
+  ACCOUNT = 'account',
+  DEAL = 'deal',
+}
+
 @Entity({ name: 'note' })
 export class Note extends BaseEntity {
   @ManyToOne(() => User, (u) => u.deals)
@@ -49,9 +61,12 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   dealId: string | null
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: "" })
   title: string
 
   @Column({ type: 'varchar' })
   content: string
+
+  @Column({ type: 'varchar', default: null })
+  source: string | null
 }

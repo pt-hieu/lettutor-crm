@@ -1,8 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
+import { Public } from 'src/utils/decorators/public.decorator'
 import { NoteService } from './note.service'
 
 @ApiTags('note')
@@ -17,5 +18,30 @@ export class NoteController {
   @ApiOperation({ summary: 'to add new note manually' })
   addNote(@Body() dto: DTO.Note.AddNote) {
     return this.service.addNote(dto)
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'to view, search and filter all notes' })
+  index(@Query() query: DTO.Note.GetManyQuery,
+   @Body() filter: DTO.Note.FilterNote) {
+    return this.service.getMany(query, filter)
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'to get note information by Id' })
+  getNoteById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.getNoteById({
+      where: { id },
+      relations: ['owner', 'account', 'lead', 'contact', 'deal'],
+    })
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'to edit a note' })
+  updateContact(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: DTO.Note.UpdateBody,
+  ) {
+    return this.service.update(id, dto)
   }
 }
