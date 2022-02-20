@@ -75,7 +75,7 @@ export class NoteService {
     return this.noteRepo.save(dto)
   }
 
-  getMany(query: DTO.Note.GetManyQuery, filter: DTO.Note.FilterNote) {
+  getMany(query: DTO.Note.GetManyQuery) {
     let q = this.noteRepo
       .createQueryBuilder('note')
       .leftJoin('note.owner', 'owner')
@@ -90,22 +90,28 @@ export class NoteService {
         'deal.fullName',
       ])
     
-    if (filter.leadId) {
+    if (query.source === NoteSource.LEAD) {
       q.andWhere('note.leadId = :leadId', {
-        leadId: filter.leadId
+        leadId: query.sourceId
       } )
-    } else if (filter.contactId) {
+    }
+    
+    if (query.source === NoteSource.CONTACT) {
       q.andWhere('note.contactId = :contactId', {
-        contactId: filter.contactId
-      })
-    } else if (filter.accountId) {
+        contactId: query.sourceId
+      } )
+    }
+    
+    if (query.source === NoteSource.ACCOUNT) {
       q.andWhere('note.accountId = :accountId', {
-        accountId: filter.accountId
-      })
-    } else if (filter.dealId) {
+        accountId: query.sourceId
+      } )
+    }
+    
+    if (query.source === NoteSource.DEAL) {
       q.andWhere('note.dealId = :dealId', {
-        dealId: filter.dealId
-      })
+        dealId: query.sourceId
+      } )
     }
     
     if (query.sort === NoteSort.FIRST) {
