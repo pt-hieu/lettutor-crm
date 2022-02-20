@@ -31,7 +31,7 @@ export class AddNote {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @MaxLength(50)
+  @MaxLength(100)
   title?: string
 
   @ApiProperty()
@@ -57,4 +57,42 @@ export class GetManyQuery extends Paginate {
   @IsString()
   @IsOptional()
   sort?: string
+}
+
+
+export class UpdateBody {
+  @ApiProperty()
+  @IsUUID()
+  ownerId: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  contactId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  leadId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  accountId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  dealId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  title?: string
+
+  @ApiProperty()
+  @IsString()
+  @MaxLength(500)
+  content?: string
 }
