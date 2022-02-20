@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator'
-import { NoteSort } from 'src/note/note.entity'
+import { NoteSort, NoteSource } from 'src/note/note.entity'
 import { Paginate } from './paging'
 
 export class AddNote {
@@ -39,6 +39,13 @@ export class AddNote {
   @IsString()
   @MaxLength(500)
   content?: string
+
+  @ApiPropertyOptional({
+    type: NoteSource,
+    enum: NoteSource,
+  })
+  @IsString()
+  source?: string
 }
 
 
