@@ -20,7 +20,7 @@ interface IProps {
   noteFor: 'Contact' | 'Account' | 'Lead' | 'Deal' | 'Task'
   hasFilter?: boolean
   onAddNote: (data: INoteData) => void
-  onEditNote: (data: INoteData) => void
+  onEditNote: (noteId: string, data: INoteData) => void
   onDeleteNote: (noteId: string) => void
   onChangeSort?: () => void
   onChangeFilter?: () => void
@@ -115,20 +115,25 @@ export const NoteSection = ({
         {showNoteAdder && <NoteAdder onAddNote={onAddNote} />}
 
         <div className="mb-2 flex flex-col gap-4">
-          {notes.map(({ updatedAt, owner, content, title, id }) => (
-            <NoteContent
-              key={id}
-              time={updatedAt}
-              author={owner?.name || 'Unknown User'}
-              note={content}
-              title={title}
-              setShowNoteAdder={setShowNoteAdder}
-              hideEditButton={!showNoteAdder}
-              onEditNote={onEditNote}
-              onDeleteNote={onDeleteNote}
-              noteId={id}
-            />
-          ))}
+          {notes.map((item) => {
+            const { updatedAt, owner, content, title, id, source } = item
+            return (
+              <NoteContent
+                key={id}
+                time={updatedAt}
+                author={owner?.name || 'Unknown User'}
+                note={content}
+                title={title}
+                setShowNoteAdder={setShowNoteAdder}
+                hideEditButton={!showNoteAdder}
+                onEditNote={onEditNote}
+                onDeleteNote={onDeleteNote}
+                noteId={id}
+                noteSource={source}
+                sourceName={item[source]?.fullName as string}
+              />
+            )
+          })}
         </div>
         {showPrevious && <PreviousNotes />}
       </div>

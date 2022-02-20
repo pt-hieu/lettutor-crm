@@ -1,5 +1,6 @@
 import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
+import { NoteSource } from '@utils/models/note'
 import moment from 'moment'
 import { useState } from 'react'
 import { INoteData, NoteTextBox } from './NoteAdder'
@@ -13,9 +14,11 @@ interface IProps {
   time: Date
   setShowNoteAdder: (value: boolean) => void
   hideEditButton?: boolean
-  onEditNote: (data: INoteData) => void
+  onEditNote: (noteId: string, data: INoteData) => void
   onDeleteNote: (noteId: string) => void
   noteId: string
+  noteSource: NoteSource
+  sourceName: string
 }
 
 export const NoteContent = ({
@@ -28,6 +31,8 @@ export const NoteContent = ({
   onEditNote,
   onDeleteNote,
   noteId,
+  noteSource,
+  sourceName,
 }: IProps) => {
   const [editMode, setEditMode] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
@@ -46,6 +51,11 @@ export const NoteContent = ({
     onDeleteNote(noteId)
   }
 
+  const handleEditNote = (data: INoteData) => {
+    onEditNote(noteId, data)
+    handleCancel()
+  }
+
   return (
     <>
       {editMode ? (
@@ -53,7 +63,7 @@ export const NoteContent = ({
           onCancel={handleCancel}
           defaultTitle={title}
           defaultNote={note}
-          onSave={onEditNote}
+          onSave={handleEditNote}
         />
       ) : (
         <div className="flex flex-row relative group pr-[100px]">
@@ -64,10 +74,10 @@ export const NoteContent = ({
             {title && <span className="font-semibold">{title}</span>}
             <div className="w-full whitespace-pre-wrap mb-1">{note}</div>
             <div className="flex flex-row text-[12px] items-center text-gray-500">
-              <span>Contact</span>
+              <span className="capitalize">{noteSource}</span>
               <span className="px-1"> - </span>
               <span className="max-w-[120px] truncate text-blue-600">
-                Kris Marrierres qwqwqwqwq
+                {sourceName}
               </span>
               <span className="px-3 font-bold text-[16px]">•</span>
               <span>Add note</span>

@@ -18,7 +18,7 @@ import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getLead, updateLead } from '@utils/service/lead'
-import { addNote, getNotes } from '@utils/service/note'
+import { addNote, deleteNote, editNote, getNotes } from '@utils/service/note'
 import { getRawUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
@@ -270,9 +270,39 @@ const LeadDetail = () => {
     addNoteLead(dataInfo)
   }
 
-  const handleEditNote = (data: INoteData) => {}
+  const { mutateAsync: editNoteService } = useMutation(
+    'edit-note-lead',
+    editNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['lead', id, 'notes'])
+        notification.success({ message: 'Edit note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Edit note unsuccessfully' })
+      },
+    },
+  )
+  const handleEditNote = (noteId: string, data: INoteData) => {
+    editNoteService({ noteId, dataInfo: data })
+  }
 
-  const handleDeleteNote = (noteId: string) => {}
+  const { mutateAsync: deleteNoteService } = useMutation(
+    'delete-note-lead',
+    deleteNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['lead', id, 'notes'])
+        notification.success({ message: 'Delete note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete note unsuccessfully' })
+      },
+    },
+  )
+  const handleDeleteNote = (noteId: string) => {
+    deleteNoteService({ noteId })
+  }
 
   return (
     <Layout title={`CRM | Lead | ${lead?.fullName}`} requireLogin>
