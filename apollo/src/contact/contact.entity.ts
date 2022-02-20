@@ -9,7 +9,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 @Entity({ name: 'contact' })
 export class Contact extends Ownerful {
-  @Column({ type: 'uuid', select: false, nullable: true, default: null })
+  @Column({ type: 'uuid', select: true, nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   accountId: string | null
 

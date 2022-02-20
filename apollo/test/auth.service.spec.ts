@@ -46,11 +46,13 @@ describe('auth service', () => {
         email: user.email,
         id: user.id,
         name: user.name,
-        roles: [{
-          action: role.actions,
-          id: role.id,
-          name: role.name
-        }],
+        roles: [
+          {
+            actions: role.actions,
+            id: role.id,
+            name: role.name,
+          },
+        ],
       })
     })
 

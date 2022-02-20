@@ -1,6 +1,6 @@
 import { MailService } from 'src/mail/mail.service'
 import { DTO } from 'src/type'
-import { User } from 'src/user/user.entity'
+import { User, UserStatus } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
@@ -300,6 +300,34 @@ describe('user service', () => {
       usersRepo.findOne.mockReturnValue(undefined)
 
       expect(userService.updateUser(dto, user)).rejects.toThrow(
+        new BadRequestException('User does not exist'),
+      )
+    })
+  })
+
+  describe('activate user', () => {
+    it('should activate-deactive user succeed', async () => {
+      const dto: DTO.User.ActivateUser = {
+        status: UserStatus.INACTIVE,
+      }
+
+      usersRepo.findOne.mockReturnValue({ ...user })
+      usersRepo.save.mockReturnValue({ ...user, ...dto })
+
+      expect(await userService.activateUser(user.id, dto)).toEqual({
+        ...user,
+        ...dto,
+      })
+    })
+
+    it('should throw error when user does not exist', () => {
+      const dto: DTO.User.ActivateUser = {
+        status: UserStatus.INACTIVE,
+      }
+
+      usersRepo.findOne.mockReturnValue(undefined)
+
+      expect(userService.activateUser(user.id, dto)).rejects.toThrow(
         new BadRequestException('User does not exist'),
       )
     })

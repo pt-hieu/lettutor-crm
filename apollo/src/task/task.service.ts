@@ -48,10 +48,22 @@ export class TaskService {
     } else {
       dto.leadId = null
 
+      if (dto.contactId) {
+        const contact = await this.contactService.getContactById({
+          where: { id: dto.contactId },
+        })
+
+        dto.accountId = contact.accountId
+      }
+
       if (dto.accountId) {
         dto.dealId = null
       } else if (dto.dealId) {
-        dto.accountId = null
+        const deal = await this.dealService.getDealById({
+          where: { id: dto.dealId },
+        })
+
+        dto.accountId = deal.accountId
       }
 
       await Promise.all([

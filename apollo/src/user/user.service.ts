@@ -179,4 +179,12 @@ export class UserService {
     user.name = dto.name
     return this.userRepo.save(user)
   }
+
+  async activateUser(id: string, dto: DTO.User.ActivateUser) {
+    const user = await this.userRepo.findOne({ where: { id } })
+    if (!user) throw new BadRequestException('User does not exist')
+
+    user.status = dto.status
+    return this.userRepo.save(user)
+  }
 }
