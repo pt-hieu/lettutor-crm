@@ -2,6 +2,8 @@ import ContactDetailNavbar from '@components/Contacts/ContactDetailNavbar'
 import ContactDetailSidebar, {
   ContactDetailSections,
 } from '@components/Contacts/ContactDetailSidebar'
+import { INoteData } from '@components/Notes/NoteAdder'
+import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 import { yupResolver } from '@hookform/resolvers/yup'
 import DealInfo from '@utils/components/DealInfo'
 import InlineEdit from '@utils/components/InlineEdit'
@@ -10,22 +12,31 @@ import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { LeadSource } from '@utils/models/lead'
+import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getRawAccounts } from '@utils/service/account'
 import { getContact, updateContact } from '@utils/service/contact'
+import {
+  addNote,
+  deleteNote,
+  editNote,
+  getNotes,
+  SortNoteType,
+} from '@utils/service/note'
 import { getRawUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
 import {
   dehydrate,
@@ -188,6 +199,21 @@ const ContactDetail = () => {
     enabled: false,
   })
 
+  const [sortNote, setSortNote] = useState<SortNoteType>('first')
+  const [viewAllNote, setViewAllNote] = useState(false)
+
+  const { data: notes } = useQuery<any>(
+    ['contact', id, 'notes', sortNote, viewAllNote],
+    getNotes({
+      source: 'contact',
+      sourceId: id,
+      sort: sortNote,
+      shouldNotPaginate: viewAllNote,
+      // nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
+      limit: DEFAULT_NUM_NOTE,
+    }),
+  )
+
   const defaultValues = useMemo(
     () => ({
       ownerId: contact?.owner?.id,
@@ -240,6 +266,8 @@ const ContactDetail = () => {
   const auth = useAuthorization()
   const isOwner = useOwnership(contact)
 
+  const [session] = useTypedSession()
+
   const openTasks = useMemo(
     () =>
       contact?.tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
@@ -250,6 +278,68 @@ const ContactDetail = () => {
       contact?.tasks?.filter((task) => task.status === TaskStatus.COMPLETED),
     [contact],
   )
+
+  const { mutateAsync: addNoteService } = useMutation(
+    'add-note-contact',
+    addNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['contact', id, 'notes'])
+      },
+      onError() {
+        notification.error({ message: 'Add note unsuccessfully' })
+      },
+    },
+  )
+
+  const handleAddNote = (data: INoteData) => {
+    const dataInfo: AddNoteDto = {
+      ownerId: session?.user.id as string,
+      contactId: contact?.id,
+      source: 'contact',
+      ...data,
+    }
+    addNoteService(dataInfo)
+  }
+
+  const { mutateAsync: editNoteService } = useMutation(
+    'edit-note-contact',
+    editNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['contact', id, 'notes'])
+        notification.success({ message: 'Edit note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Edit note unsuccessfully' })
+      },
+    },
+  )
+  const handleEditNote = (noteId: string, data: INoteData) => {
+    editNoteService({ noteId, dataInfo: data })
+  }
+
+  const { mutateAsync: deleteNoteService } = useMutation(
+    'delete-note-contact',
+    deleteNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['contact', id, 'notes'])
+        notification.success({ message: 'Delete note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete note unsuccessfully' })
+      },
+    },
+  )
+
+  const handleDeleteNote = (noteId: string) => {
+    deleteNoteService({ noteId })
+  }
+
+  const handleChangeFilterSort = ({ sort }: { sort: SortNoteType }) => {
+    setSortNote(sort)
+  }
 
   return (
     <Layout title={`CRM | Contact | ${contact?.fullName}`} requireLogin>
@@ -287,6 +377,17 @@ const ContactDetail = () => {
                 ))}
               </form>
             </div>
+            {/* Notes */}
+            <NoteSection
+              noteFor="Contact"
+              onAddNote={handleAddNote}
+              onEditNote={handleEditNote}
+              notes={viewAllNote ? notes || [] : notes?.items || []}
+              totalNotes={notes?.meta?.totalItems || 0}
+              onDeleteNote={handleDeleteNote}
+              onChangeFilterSort={handleChangeFilterSort}
+              onViewAllNote={setViewAllNote}
+            />
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -353,6 +454,20 @@ export const getServerSideProps: GetServerSideProps = async ({
       client.prefetchQuery(['contact', id], getContact(id, token)),
       client.prefetchQuery('users', getRawUsers(token)),
       client.prefetchQuery('accounts', getRawAccounts(token)),
+      client.prefetchQuery(
+        ['contact', id, 'notes', 'first', false],
+        getNotes(
+          {
+            source: 'contact',
+            sourceId: id,
+            sort: 'first',
+            shouldNotPaginate: false,
+            // nTopRecent: DEFAULT_NUM_NOTE,
+            limit: DEFAULT_NUM_NOTE,
+          },
+          token,
+        ),
+      ),
     ])
   }
 

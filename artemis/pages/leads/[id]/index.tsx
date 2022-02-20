@@ -1,5 +1,5 @@
 import { INoteData } from '@components/Notes/NoteAdder'
-import { NoteSection } from '@components/Notes/NoteSection'
+import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 import { yupResolver } from '@hookform/resolvers/yup'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
@@ -18,7 +18,13 @@ import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getLead, updateLead } from '@utils/service/lead'
-import { addNote, deleteNote, editNote, getNotes } from '@utils/service/note'
+import {
+  addNote,
+  deleteNote,
+  editNote,
+  getNotes,
+  SortNoteType,
+} from '@utils/service/note'
 import { getRawUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
@@ -27,7 +33,7 @@ import LeadDetailSidebar, {
 } from 'components/Leads/LeadDetailSidebar'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
 import {
   dehydrate,
@@ -183,9 +189,20 @@ const LeadDetail = () => {
   const client = useQueryClient()
   const { data: lead } = useQuery<Lead>(['lead', id], getLead(id))
   const { data: users } = useQuery<User[]>('users', { enabled: false })
-  const { data: notes } = useQuery<Paginate<Note>>(
-    ['lead', id, 'notes'],
-    getNotes({ source: 'lead', sourceId: id }),
+
+  const [sortNote, setSortNote] = useState<SortNoteType>('first')
+  const [viewAllNote, setViewAllNote] = useState(false)
+
+  const { data: notes } = useQuery<any>(
+    ['lead', id, 'notes', sortNote, viewAllNote],
+    getNotes({
+      source: 'lead',
+      sourceId: id,
+      sort: sortNote,
+      shouldNotPaginate: viewAllNote,
+      nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
+      limit: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
+    }),
   )
 
   const auth = useAuthorization()
@@ -249,10 +266,7 @@ const LeadDetail = () => {
   )
 
   const { mutateAsync: addNoteLead } = useMutation('add-note-lead', addNote, {
-    onSuccess(data) {
-      // client.setQueryData(["note", id], (oldData) => {
-      //   return [...((oldData as Note[]) || []), data]
-      // })
+    onSuccess() {
       client.invalidateQueries(['lead', id, 'notes'])
     },
     onError() {
@@ -300,8 +314,13 @@ const LeadDetail = () => {
       },
     },
   )
+
   const handleDeleteNote = (noteId: string) => {
     deleteNoteService({ noteId })
+  }
+
+  const handleChangeFilterSort = ({ sort }: { sort: SortNoteType }) => {
+    setSortNote(sort)
   }
 
   return (
@@ -341,9 +360,11 @@ const LeadDetail = () => {
               noteFor="Lead"
               onAddNote={handleAddNote}
               onEditNote={handleEditNote}
-              notes={notes?.items || []}
+              notes={viewAllNote ? notes || [] : notes?.items || []}
               totalNotes={notes?.meta?.totalItems || 0}
               onDeleteNote={handleDeleteNote}
+              onChangeFilterSort={handleChangeFilterSort}
+              onViewAllNote={setViewAllNote}
             />
             <div className="pt-4">
               <div
@@ -391,9 +412,16 @@ export const getServerSideProps: GetServerSideProps = async ({
       client.prefetchQuery(['lead', id], getLead(id, token)),
       client.prefetchQuery('users', getRawUsers(token)),
       client.prefetchQuery(
-        ['lead', id, 'notes'],
+        ['lead', id, 'notes', 'first', false],
         getNotes(
-          { shouldNotPaginate: true, source: 'lead', sourceId: id },
+          {
+            source: 'lead',
+            sourceId: id,
+            sort: 'first',
+            shouldNotPaginate: false,
+            nTopRecent: DEFAULT_NUM_NOTE,
+            limit: DEFAULT_NUM_NOTE,
+          },
           token,
         ),
       ),

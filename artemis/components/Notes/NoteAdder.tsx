@@ -61,7 +61,7 @@ export const NoteTextBox = ({
   }
 
   const handleSave = handleSubmit((data) => {
-    if (hasTitle && title) {
+    if (hasTitle) {
       data.title = title
     }
     onSave(data)

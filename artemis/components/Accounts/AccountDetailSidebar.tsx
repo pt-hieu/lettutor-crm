@@ -9,6 +9,7 @@ import { addTask } from '@utils/service/task'
 import { notification } from 'antd'
 
 export enum AccountDetailSections {
+  Notes = 'Notes',
   Deals = 'Deals',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
@@ -53,6 +54,9 @@ const AccountDetailSidebar = () => {
     {
       title: 'Related List',
       options: [
+        {
+          label: AccountDetailSections.Notes,
+        },
         {
           label: AccountDetailSections.Deals,
         },
