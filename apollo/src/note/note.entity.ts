@@ -49,7 +49,7 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   dealId: string | null
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: "" })
   title: string
 
   @Column({ type: 'varchar' })
