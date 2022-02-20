@@ -5,7 +5,7 @@ import { NoteSort, NoteSource } from 'src/note/note.entity'
 import { Paginate } from './paging'
 
 export class AddNote {
-  @ApiProperty()
+  @IsOptional()
   @IsUUID()
   ownerId: string
 
