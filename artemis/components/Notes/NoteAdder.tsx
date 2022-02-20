@@ -38,6 +38,7 @@ export const NoteTextBox = ({
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<INoteData>({
     resolver: yupResolver(noteShema),
@@ -61,6 +62,10 @@ export const NoteTextBox = ({
   }
 
   const handleSave = handleSubmit((data) => {
+    if (title.length > 100) {
+      setError('content', { message: 'Title must be at most 100 characters' })
+      return
+    }
     if (hasTitle) {
       data.title = title
     }
