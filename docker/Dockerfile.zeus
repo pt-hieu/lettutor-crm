@@ -21,7 +21,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/.env ./
 
-ENV FE_URL https://dev-artemis.web-crm.software
+ENV FE_URL http://dev-artemis.web-crm.software
 ENV GLOBAL_PREFIX v1/api
 
 ENV APOLLO_SERVICE=http://apollo:8000
