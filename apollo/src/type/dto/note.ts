@@ -84,10 +84,6 @@ export class GetManyQuery extends Paginate {
 
 
 export class UpdateBody {
-  @ApiProperty()
-  @IsUUID()
-  ownerId: string
-
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
