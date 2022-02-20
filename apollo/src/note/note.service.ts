@@ -151,10 +151,10 @@ export class NoteService {
   }
 
 
-  async update(id: string, dto: DTO.Task.UpdateBody) {
+  async update(id: string, dto: DTO.Note.UpdateBody) {
     const note = await this.getNoteById({ where: { id } })
 
-    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id} })
 
     if (dto.leadId) {
       await this.leadService.getLeadById({
