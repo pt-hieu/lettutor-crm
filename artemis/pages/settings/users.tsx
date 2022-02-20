@@ -3,7 +3,7 @@ import SettingsLayout from '@components/Settings/SettingsLayout'
 import { getUsers } from '@utils/service/user'
 import { getRoles } from '@utils/service/role'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Table, TableColumnType } from 'antd'
+import { Space, Table, TableColumnType } from 'antd'
 import { GetServerSideProps } from 'next'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 import { User, UserStatus } from '@utils/models/user'
@@ -14,6 +14,7 @@ import Animate from '@utils/components/Animate'
 import { Actions, Role } from '@utils/models/role'
 import { checkActionError } from '@utils/libs/checkActions'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -49,36 +50,6 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 }
 
-const columns: TableColumnType<User>[] = [
-  {
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-    sorter: { compare: (a, b) => a.name.localeCompare(b.name) },
-  },
-  {
-    title: 'Email',
-    dataIndex: 'email',
-    key: 'email',
-    sorter: { compare: (a, b) => a.email.localeCompare(b.email) },
-  },
-  {
-    title: 'Roles',
-    dataIndex: 'roles',
-    key: 'roles',
-    sorter: {
-      compare: (a, b) => a.roles[0].name.localeCompare(b.roles[0].name),
-    },
-    render: (v: Role[]) => v.map((role) => role.name).join(', '),
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    sorter: { compare: (a, b) => a.status.localeCompare(b.status) },
-  },
-]
-
 export default function UsersSettings() {
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
@@ -87,13 +58,67 @@ export default function UsersSettings() {
   const [role, setRole] = useQueryState<string>('role')
   const [status, setStatus] = useQueryState<UserStatus>('status')
 
+  const [session] = useTypedSession()
+  const id = session?.user.id
+
   const { data: users, isLoading } = useQuery(
     ['users', page || 1, limit || 10, role || '', search || '', status || ''],
     getUsers({ limit, page, role, search, status }),
   )
 
   const [start, end, total] = usePaginateItem(users)
+
   const auth = useAuthorization()
+
+  const columns: TableColumnType<User>[] = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      sorter: { compare: (a, b) => a.name.localeCompare(b.name) },
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      sorter: { compare: (a, b) => a.email.localeCompare(b.email) },
+    },
+    {
+      title: 'Roles',
+      dataIndex: 'roles',
+      key: 'roles',
+      sorter: {
+        compare: (a, b) => a.roles[0].name.localeCompare(b.roles[0].name),
+      },
+      render: (v: Role[]) => v.map((role) => role.name).join(', '),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      sorter: { compare: (a, b) => a.status.localeCompare(b.status) },
+    },
+  ]
+
+  if (auth[Actions.User.VIEW_AND_EDIT_ALL_USER_STATUS]) {
+    columns.push({
+      title: 'Action',
+      key: 'action',
+      render: (_, record: User) => (
+        <>
+          {record.id !== id && (
+            <Space>
+              {record.status === UserStatus.ACTIVE ? (
+                <button className="crm-button-danger">Deactive</button>
+              ) : (
+                <button className="crm-button">Active</button>
+              )}
+            </Space>
+          )}
+        </>
+      ),
+    })
+  }
 
   return (
     <SettingsLayout title="CRM | Users">
