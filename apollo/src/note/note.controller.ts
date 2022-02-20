@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
@@ -37,10 +37,19 @@ export class NoteController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'to edit a note' })
-  updateContact(
+  updateNote(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.Note.UpdateBody,
   ) {
     return this.service.update(id, dto)
+  }
+
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'to delete a note' })
+  deleteNote(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.service.delete(id)
   }
 }

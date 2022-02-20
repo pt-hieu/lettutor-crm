@@ -4,6 +4,7 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
+import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
@@ -32,6 +33,7 @@ export class NoteService {
 
     private readonly userService: UserService,
     private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
 
   ) { }
 
@@ -119,7 +121,7 @@ export class NoteService {
     }
 
     if (query.sort === NoteSort.LAST) {
-      q.addOrderBy('t.createdAt', 'ASC')
+      q.addOrderBy('note.createdAt', 'ASC')
     }
 
     if (query.nTopRecent) {
@@ -186,5 +188,14 @@ export class NoteService {
     }
 
     return this.noteRepo.save({ ...note, ...dto })
+  }
+
+
+  async delete(id: string) {
+    const note = await this.getNoteById({ where: { id } })
+
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+
+    return this.noteRepo.delete(note)
   }
 }
