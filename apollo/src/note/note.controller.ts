@@ -22,9 +22,8 @@ export class NoteController {
 
   @Get()
   @ApiOperation({ summary: 'to view, search and filter all notes' })
-  index(@Query() query: DTO.Note.GetManyQuery,
-   @Body() filter: DTO.Note.FilterNote) {
-    return this.service.getMany(query, filter)
+  index(@Query() query: DTO.Note.GetManyQuery) {
+    return this.service.getMany(query)
   }
 
   @Get(':id')
