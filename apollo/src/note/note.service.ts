@@ -38,8 +38,7 @@ export class NoteService {
   ) { }
 
   async addNote(dto: DTO.Note.AddNote) {
-    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
-
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
     if (dto.leadId) {
       await this.leadService.getLeadById({
         where: { id: dto.leadId },
@@ -47,6 +46,7 @@ export class NoteService {
       dto.accountId = null
       dto.contactId = null
       dto.dealId = null
+      dto.ownerId = this.payloadService.data.id
       dto.source = NoteSource.LEAD
       return this.noteRepo.save(dto)
     }
@@ -74,6 +74,7 @@ export class NoteService {
         : undefined,
     ])
 
+    dto.ownerId = this.payloadService.data.id
     return this.noteRepo.save(dto)
   }
 
