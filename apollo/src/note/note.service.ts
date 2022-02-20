@@ -197,6 +197,6 @@ export class NoteService {
 
     await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
 
-    return this.noteRepo.delete(note)
+    return this.noteRepo.remove(note)
   }
 }
