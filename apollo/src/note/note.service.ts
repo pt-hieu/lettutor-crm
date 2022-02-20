@@ -10,7 +10,7 @@ import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
-import { Note, NoteSort } from './note.entity'
+import { Note, NoteSort, NoteSource } from './note.entity'
 
 @Injectable()
 export class NoteService {
@@ -45,13 +45,16 @@ export class NoteService {
       dto.accountId = null
       dto.contactId = null
       dto.dealId = null
+      dto.source = NoteSource.LEAD
       return this.noteRepo.save(dto)
     }
 
     dto.leadId = null
+
     if (dto.accountId) {
       dto.dealId = null
     } else if (dto.dealId) {
+      dto.source = NoteSource.DEAL
       dto.accountId = null
     }
 

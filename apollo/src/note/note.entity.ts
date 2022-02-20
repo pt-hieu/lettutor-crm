@@ -12,6 +12,13 @@ export enum NoteSort {
   FIRST = 'first',
 }
 
+export enum NoteSource {
+  LEAD = 'lead',
+  CONTACT = 'contact',
+  ACCOUNT = 'account',
+  DEAL = 'deal',
+}
+
 @Entity({ name: 'note' })
 export class Note extends BaseEntity {
   @ManyToOne(() => User, (u) => u.deals)
@@ -59,4 +66,7 @@ export class Note extends BaseEntity {
 
   @Column({ type: 'varchar' })
   content: string
+
+  @Column({ type: 'varchar', default: null })
+  source: string | null
 }
