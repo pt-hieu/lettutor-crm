@@ -41,6 +41,10 @@
     @apply mb-2 block required select-none;
   }
 
+  .crm-label-optional {
+    @apply mb-2 block select-none;
+  }
+
   .crm-transition {
     @apply transition duration-300 ease-in-out;
   }

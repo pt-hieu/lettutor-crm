@@ -7,6 +7,11 @@ import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
+export enum NoteSort {
+  LAST = 'last',
+  FIRST = 'first',
+}
+
 @Entity({ name: 'note' })
 export class Note extends BaseEntity {
   @ManyToOne(() => User, (u) => u.deals)

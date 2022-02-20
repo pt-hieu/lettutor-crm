@@ -63,3 +63,13 @@ export const addUser = async (data: {
 }) => {
   return axios.post(API + '/apollo/user', data).then((res) => res.data)
 }
+
+export const updateStatus = async (data: {
+  userId: string
+  status: UserStatus.ACTIVE | UserStatus.INACTIVE
+}) => {
+  const { userId, status } = data
+  return axios
+    .patch(API + `/apollo/user/${userId}/activate`, { status })
+    .then((res) => res.data)
+}
