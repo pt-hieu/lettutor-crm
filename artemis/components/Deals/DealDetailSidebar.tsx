@@ -1,27 +1,28 @@
-import { useModal } from '@utils/hooks/useModal'
-import { notification } from 'antd'
-import { addTask } from '@utils/service/task'
-
 import DetailPageSidebar, {
   SidebarStructure,
 } from '@utils/components/DetailPageSidebar'
-import { useMutation, useQueryClient } from 'react-query'
-import { useRouter } from 'next/router'
 import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
+import { useRouter } from 'next/router'
+import { useModal } from '@utils/hooks/useModal'
+import { useMutation, useQueryClient } from 'react-query'
+import { addTask } from '@utils/service/task'
+import { notification } from 'antd'
 
-export enum LeadDetailSections {
+export enum DealDetailSections {
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }
 
-const LeadDetailSidebar = () => {
+const DealDetailSidebar = () => {
   const router = useRouter()
-  const leadId = router.query.id as string
+  const dealId = router.query.id as string
+
+  const [createTaskVisible, openCreateTask, closeCreateTask] = useModal()
 
   const queryClient = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      queryClient.invalidateQueries(['lead', leadId])
+      queryClient.invalidateQueries(['deal', dealId])
       notification.success({
         message: 'Add task successfully.',
       })
@@ -38,23 +39,21 @@ const LeadDetailSidebar = () => {
 
     mutateAsync({
       ...formData,
-      leadId,
+      leadId: null,
       contactId: null,
       accountId: null,
-      dealId: null,
+      dealId,
     })
 
     closeCreateTask()
   }
-
-  const [createTaskVisible, openCreateTask, closeCreateTask] = useModal()
 
   const SideBarItems: SidebarStructure = [
     {
       title: 'Related List',
       options: [
         {
-          label: LeadDetailSections.OpenActivities,
+          label: DealDetailSections.OpenActivities,
           choices: [
             {
               label: 'Task',
@@ -63,7 +62,7 @@ const LeadDetailSidebar = () => {
           ],
         },
         {
-          label: LeadDetailSections.ClosedActivities,
+          label: DealDetailSections.ClosedActivities,
         },
       ],
     },
@@ -82,4 +81,4 @@ const LeadDetailSidebar = () => {
   )
 }
 
-export default LeadDetailSidebar
+export default DealDetailSidebar

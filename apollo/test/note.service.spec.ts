@@ -103,6 +103,19 @@ describe('note service', () => {
   })
 
   describe('add note', () => {
+    it('should add note succeed with no title', async () => {
+      const dto: DTO.Note.AddNote = {
+        ownerId: note.ownerId,
+        leadId: note.leadId,
+        content: note.content
+      }
+
+      userRepo.findOne.mockReturnValue({ ...user })
+      noteRepo.save.mockReturnValue({ ...note })
+
+      expect(await noteService.addNote(dto)).toEqual(note)
+    })
+
     it('should add note succeed with owner and lead', async () => {
       const dto: DTO.Note.AddNote = {
         ownerId: note.ownerId,
