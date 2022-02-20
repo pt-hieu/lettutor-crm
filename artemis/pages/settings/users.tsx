@@ -1,11 +1,18 @@
 import Search from '@components/Settings/Search'
 import SettingsLayout from '@components/Settings/SettingsLayout'
-import { getUsers } from '@utils/service/user'
+import Confirm from '@utils/components/Confirm'
+import { getUsers, updateStatus } from '@utils/service/user'
 import { getRoles } from '@utils/service/role'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Space, Table, TableColumnType } from 'antd'
+import { notification, Space, Table, TableColumnType } from 'antd'
 import { GetServerSideProps } from 'next'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from 'react-query'
 import { User, UserStatus } from '@utils/models/user'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import ButtonAddUser from '@components/Settings/ButtonAddUser'
@@ -69,6 +76,31 @@ export default function UsersSettings() {
   const [start, end, total] = usePaginateItem(users)
 
   const auth = useAuthorization()
+  const queryClient = useQueryClient()
+
+  const { mutateAsync } = useMutation('update-user-status', updateStatus, {
+    onSuccess: (res: User) => {
+      queryClient.invalidateQueries(['users'])
+      notification.success({
+        message: `${
+          res.status === UserStatus.ACTIVE ? 'Activate' : 'Deactivate'
+        } user successfully.`,
+      })
+    },
+    onError: () => {
+      notification.error({
+        message: 'Activate - Deactivate user unsuccessfully.',
+      })
+    },
+  })
+
+  const activate = (userId: string) => () => {
+    mutateAsync({ userId, status: UserStatus.ACTIVE })
+  }
+
+  const deactivate = (userId: string) => () => {
+    mutateAsync({ userId, status: UserStatus.INACTIVE })
+  }
 
   const columns: TableColumnType<User>[] = [
     {
@@ -109,9 +141,21 @@ export default function UsersSettings() {
           {record.id !== id && (
             <Space>
               {record.status === UserStatus.ACTIVE ? (
-                <button className="crm-button-danger">Deactive</button>
+                <Confirm
+                  message="Are you sure you want to deactivate this user?"
+                  title="Deactivate user"
+                  onYes={deactivate(record.id)}
+                >
+                  <button className="crm-button-danger">Deactivate</button>
+                </Confirm>
               ) : (
-                <button className="crm-button">Active</button>
+                <Confirm
+                  message="Are you sure you want to activate this user?"
+                  title="Activate user"
+                  onYes={activate(record.id)}
+                >
+                  <button className="crm-button">Activate</button>
+                </Confirm>
               )}
             </Space>
           )}
