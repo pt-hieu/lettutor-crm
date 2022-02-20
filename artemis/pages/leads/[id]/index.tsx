@@ -185,10 +185,8 @@ const LeadDetail = () => {
   const { data: users } = useQuery<User[]>('users', { enabled: false })
   const { data: notes } = useQuery<Paginate<Note>>(
     ['lead', id, 'notes'],
-    getNotes({}, 'undefined'),
+    getNotes({ source: 'lead', sourceId: id }),
   )
-
-  console.log('notes', notes)
 
   const auth = useAuthorization()
   const isOwner = useOwnership(lead)
@@ -266,12 +264,15 @@ const LeadDetail = () => {
     const dataInfo: AddNoteDto = {
       ownerId: session?.user.id as string,
       leadId: lead?.id,
+      source: 'lead',
       ...data,
     }
     addNoteLead(dataInfo)
   }
 
   const handleEditNote = (data: INoteData) => {}
+
+  const handleDeleteNote = (noteId: string) => {}
 
   return (
     <Layout title={`CRM | Lead | ${lead?.fullName}`} requireLogin>
@@ -312,6 +313,7 @@ const LeadDetail = () => {
               onEditNote={handleEditNote}
               notes={notes?.items || []}
               totalNotes={notes?.meta?.totalItems || 0}
+              onDeleteNote={handleDeleteNote}
             />
             <div className="pt-4">
               <div
@@ -360,7 +362,10 @@ export const getServerSideProps: GetServerSideProps = async ({
       client.prefetchQuery('users', getRawUsers(token)),
       client.prefetchQuery(
         ['lead', id, 'notes'],
-        getNotes({ shouldNotPaginate: true }, token),
+        getNotes(
+          { shouldNotPaginate: true, source: 'lead', sourceId: id },
+          token,
+        ),
       ),
     ])
   }

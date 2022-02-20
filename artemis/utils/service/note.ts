@@ -12,10 +12,9 @@ export const getNotes =
   (
     params: {
       search?: string
-      // status?: LeadStatus[]
-      // source?: LeadSource[]
-      // from?: Date
-      // to?: Date
+      sort?: 'last' | 'first'
+      source: 'lead' | 'contact' | 'account' | 'deal'
+      sourceId: string
     } & PagingQuery,
     token?: string,
   ) =>
@@ -26,3 +25,5 @@ export const getNotes =
         params,
       })
       .then((res) => res.data)
+
+export const deleteNote = () => {}

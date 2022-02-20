@@ -451,13 +451,13 @@ const DealDetail = () => {
               </form>
             </div>
             {/* Notes */}
-            <NoteSection
+            {/* <NoteSection
               noteFor="Deal"
               onAddNote={handleAddNote}
               onEditNote={handleEditNote}
               notes={deal?.notes || []}
               totalNotes={deal?.notes.length || 0}
-            />
+            /> */}
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"

@@ -14,6 +14,8 @@ interface IProps {
   setShowNoteAdder: (value: boolean) => void
   hideEditButton?: boolean
   onEditNote: (data: INoteData) => void
+  onDeleteNote: (noteId: string) => void
+  noteId: string
 }
 
 export const NoteContent = ({
@@ -24,6 +26,8 @@ export const NoteContent = ({
   setShowNoteAdder,
   hideEditButton = false,
   onEditNote,
+  onDeleteNote,
+  noteId,
 }: IProps) => {
   const [editMode, setEditMode] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
@@ -38,7 +42,9 @@ export const NoteContent = ({
     setShowNoteAdder(true)
   }
 
-  const handleDeleteNote = () => {}
+  const handleDeleteNote = () => {
+    onDeleteNote(noteId)
+  }
 
   return (
     <>

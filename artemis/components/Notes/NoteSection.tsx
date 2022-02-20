@@ -21,6 +21,7 @@ interface IProps {
   hasFilter?: boolean
   onAddNote: (data: INoteData) => void
   onEditNote: (data: INoteData) => void
+  onDeleteNote: (noteId: string) => void
   onChangeSort?: () => void
   onChangeFilter?: () => void
   notes: Note[]
@@ -34,6 +35,7 @@ export const NoteSection = ({
   hasFilter = false,
   onAddNote,
   onEditNote,
+  onDeleteNote,
   onChangeFilter,
   onChangeSort,
   notes,
@@ -123,6 +125,8 @@ export const NoteSection = ({
               setShowNoteAdder={setShowNoteAdder}
               hideEditButton={!showNoteAdder}
               onEditNote={onEditNote}
+              onDeleteNote={onDeleteNote}
+              noteId={id}
             />
           ))}
         </div>
