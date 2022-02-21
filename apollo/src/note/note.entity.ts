@@ -12,6 +12,10 @@ export enum NoteSort {
   FIRST = 'first',
 }
 
+export enum NoteFilter {
+  ACCOUNT_ONLY = 'account',
+}
+
 export enum NoteSource {
   LEAD = 'lead',
   CONTACT = 'contact',
