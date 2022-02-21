@@ -66,13 +66,19 @@ export const NoteContent = ({
           onSave={handleEditNote}
         />
       ) : (
-        <div className="flex flex-row relative group pr-[100px]">
+        <div className="flex flex-row relative group pr-[90px]">
           <div className="w-8 h-8 rounded-full bg-blue-300 text-center text-white leading-8">
             avt
           </div>
           <div className="flex-1 pl-4">
-            {title && <span className="font-semibold">{title}</span>}
-            <div className="w-full whitespace-pre-wrap mb-1">{note}</div>
+            {title && (
+              <span className="font-semibold whitespace-pre-wrap break-all">
+                {title}
+              </span>
+            )}
+            <div className="w-full whitespace-pre-wrap break-all mb-1">
+              {note}
+            </div>
             <div className="flex flex-row text-[12px] items-center text-gray-500">
               <span className="capitalize">{noteSource}</span>
               <span className="px-1"> - </span>
