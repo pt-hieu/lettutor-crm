@@ -53,7 +53,6 @@ export class NoteService {
 
     dto.leadId = null
 
-
     if (dto.contactId) {
       const contact = await this.contactService.getContactById({
         where: { id: dto.contactId },
@@ -111,20 +110,20 @@ export class NoteService {
         'deal.id',
         'deal.fullName',
       ])
-    
-    
+
+
     if (query.source === NoteSource.LEAD) {
       q.andWhere('note.leadId = :leadId', {
         leadId: query.sourceId
-      } )
+      })
     }
-    
+
     if (query.source === NoteSource.CONTACT) {
       q.andWhere('note.contactId = :contactId', {
         contactId: query.sourceId
-      } )
+      })
     }
-    
+
     if (query.source === NoteSource.ACCOUNT) {
       q.andWhere('note.accountId = :accountId', {
         accountId: query.sourceId
@@ -135,13 +134,13 @@ export class NoteService {
         })
       }
     }
-    
+
     if (query.source === NoteSource.DEAL) {
       q.andWhere('note.dealId = :dealId', {
         dealId: query.sourceId
-      } )
+      })
     }
-    
+
     if (query.sort === NoteSort.FIRST) {
       q.addOrderBy('note.createdAt', 'DESC')
     }
@@ -180,7 +179,7 @@ export class NoteService {
   async update(id: string, dto: DTO.Note.UpdateBody) {
     const note = await this.getNoteById({ where: { id } })
 
-    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id} })
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
 
     if (dto.leadId) {
       await this.leadService.getLeadById({
