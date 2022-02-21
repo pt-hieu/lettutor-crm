@@ -49,14 +49,14 @@ export const NoteSection = ({
   totalNotes,
 }: IProps) => {
   const [showNoteAdder, setShowNoteAdder] = useState(true)
-  const [filter, setFilter] = useState<Filter>()
+  const [filter, setFilter] = useState<Filter>(Filter.All)
   const [sort, setSort] = useState<Sort>(Sort.RecentFirst)
   const [showPrevious, setShowPrevious] = useState(true)
 
   function handleChangeSelect(value: string) {
     if (Object.values(Sort).includes(value as Sort)) {
       setSort(value as Sort)
-      const filterParam = filter !== Filter.All ? noteFor : undefined
+      const filterParam = filter === Filter.All ? undefined : noteFor
       if (value === Sort.RecentFirst) {
         onChangeFilterSort({ sort: 'first', filter: filterParam })
       } else if (value === Sort.RecentLast) {
