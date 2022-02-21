@@ -11,7 +11,7 @@ import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 import { FindOneOptions, Repository } from 'typeorm'
-import { Note, NoteSort, NoteSource } from './note.entity'
+import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
 
 @Injectable()
 export class NoteService {
@@ -53,11 +53,24 @@ export class NoteService {
 
     dto.leadId = null
 
+
+    if (dto.contactId) {
+      const contact = await this.contactService.getContactById({
+        where: { id: dto.contactId },
+      })
+      dto.source = NoteSource.CONTACT
+      dto.accountId = contact.accountId
+    }
+
     if (dto.accountId) {
+      dto.source = NoteSource.ACCOUNT
       dto.dealId = null
     } else if (dto.dealId) {
+      const deal = await this.dealService.getDealById({
+        where: { id: dto.dealId },
+      })
       dto.source = NoteSource.DEAL
-      dto.accountId = null
+      dto.accountId = deal.accountId
     }
 
     await Promise.all([
@@ -83,15 +96,22 @@ export class NoteService {
       .createQueryBuilder('note')
       .leftJoin('note.owner', 'owner')
       .leftJoin('note.lead', 'lead')
+      .leftJoin('note.contact', 'contact')
       .leftJoin('note.account', 'account')
       .leftJoin('note.deal', 'deal')
       .addSelect([
         'owner.name',
         'owner.email',
+        'lead.id',
         'lead.fullName',
+        'contact.id',
+        'contact.fullName',
+        'account.id',
         'account.fullName',
+        'deal.id',
         'deal.fullName',
       ])
+    
     
     if (query.source === NoteSource.LEAD) {
       q.andWhere('note.leadId = :leadId', {
@@ -108,7 +128,12 @@ export class NoteService {
     if (query.source === NoteSource.ACCOUNT) {
       q.andWhere('note.accountId = :accountId', {
         accountId: query.sourceId
-      } )
+      })
+      if (query.filter == NoteFilter.ACCOUNT_ONLY) {
+        q.andWhere('note.source = :source', {
+          source: NoteSource.ACCOUNT
+        })
+      }
     }
     
     if (query.source === NoteSource.DEAL) {
@@ -131,7 +156,7 @@ export class NoteService {
 
 
     if (query.shouldNotPaginate === true) return q.getMany()
-    return paginate(q, { limit: query.limit, page: query.page })
+    return paginate(q, { limit: query.nTopRecent, page: query.page })
   }
 
   async getNoteById(option: FindOneOptions<Note>) {

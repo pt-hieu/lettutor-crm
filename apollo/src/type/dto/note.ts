@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator'
-import { NoteSort, NoteSource } from 'src/note/note.entity'
+import { NoteFilter, NoteSort, NoteSource } from 'src/note/note.entity'
 import { Paginate } from './paging'
 
 export class AddNote {
@@ -80,6 +80,14 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   @IsUUID()
   sourceId?: string
+
+  @ApiPropertyOptional({
+    type: NoteFilter,
+    enum: NoteFilter,
+  })
+  @IsOptional()
+  @IsString()
+  filter?: string
 }
 
 
