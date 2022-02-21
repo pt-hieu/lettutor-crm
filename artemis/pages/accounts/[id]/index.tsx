@@ -22,7 +22,7 @@ import { getRawUsers, getUsers } from '@utils/service/user'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
   dehydrate,
@@ -33,6 +33,18 @@ import {
 } from 'react-query'
 import { AccountUpdateFormData, editAccountSchema } from './edit'
 import { useOwnership } from '@utils/hooks/useOwnership'
+import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
+import {
+  addNote,
+  deleteNote,
+  editNote,
+  FilterNoteType,
+  getNotes,
+  SortNoteType,
+} from '@utils/service/note'
+import { INoteData } from '@components/Notes/NoteAdder'
+import { AddNoteDto } from '@utils/models/note'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 
 type AccountInfo = {
   label: string
@@ -45,6 +57,23 @@ const AccountDetail = () => {
 
   const { data: account } = useQuery<Account>(['account', id], getAccount(id))
   const { data: users } = useQuery<User[]>('users', { enabled: false })
+
+  const [sortNote, setSortNote] = useState<SortNoteType>('first')
+  const [filterNote, setFilterNote] = useState<FilterNoteType>()
+  const [viewAllNote, setViewAllNote] = useState(false)
+
+  const { data: notes } = useQuery<any>(
+    ['account', id, 'notes', sortNote, viewAllNote],
+    getNotes({
+      source: 'account',
+      sourceId: id,
+      sort: sortNote,
+      filter: filterNote,
+      shouldNotPaginate: viewAllNote,
+      // nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
+      limit: DEFAULT_NUM_NOTE,
+    }),
+  )
 
   const defaultValues = useMemo(
     (): Partial<AccountUpdateFormData> => ({
@@ -75,6 +104,8 @@ const AccountDetail = () => {
 
   const auth = useAuthorization()
   const isOwner = useOwnership(account)
+
+  const [session] = useTypedSession()
 
   const disabled =
     !auth[Actions.Account.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] && !isOwner
@@ -195,6 +226,76 @@ const AccountDetail = () => {
       ),
     [account],
   )
+
+  const { mutateAsync: addNoteService } = useMutation(
+    'add-note-account',
+    addNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['account', id, 'notes'])
+      },
+      onError() {
+        notification.error({ message: 'Add note unsuccessfully' })
+      },
+    },
+  )
+
+  const handleAddNote = (data: INoteData) => {
+    const dataInfo: AddNoteDto = {
+      ownerId: session?.user.id as string,
+      accountId: account?.id,
+      source: 'account',
+      ...data,
+    }
+    addNoteService(dataInfo)
+  }
+
+  const { mutateAsync: editNoteService } = useMutation(
+    'edit-note-account',
+    editNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['account', id, 'notes'])
+        notification.success({ message: 'Edit note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Edit note unsuccessfully' })
+      },
+    },
+  )
+  const handleEditNote = (noteId: string, data: INoteData) => {
+    editNoteService({ noteId, dataInfo: data })
+  }
+
+  const { mutateAsync: deleteNoteService } = useMutation(
+    'delete-note-account',
+    deleteNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['account', id, 'notes'])
+        notification.success({ message: 'Delete note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete note unsuccessfully' })
+      },
+    },
+  )
+
+  const handleDeleteNote = (noteId: string) => {
+    deleteNoteService({ noteId })
+  }
+
+  const handleChangeFilterSort = ({
+    sort,
+    filter,
+  }: {
+    sort: SortNoteType
+    filter?: FilterNoteType
+  }) => {
+    setSortNote(sort)
+    setFilterNote(filter)
+  }
+
   return (
     <Layout title={`CRM | Account | ${account?.fullName}`} requireLogin>
       <div className="crm-container">
@@ -221,6 +322,18 @@ const AccountDetail = () => {
                 ))}
               </form>
             </div>
+            {/* Notes */}
+            <NoteSection
+              noteFor="Account"
+              onAddNote={handleAddNote}
+              onEditNote={handleEditNote}
+              notes={viewAllNote ? notes || [] : notes?.items || []}
+              totalNotes={notes?.meta?.totalItems || 0}
+              onDeleteNote={handleDeleteNote}
+              onChangeFilterSort={handleChangeFilterSort}
+              onViewAllNote={setViewAllNote}
+              hasFilter
+            />
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -286,6 +399,20 @@ export const getServerSideProps: GetServerSideProps = async ({
     await Promise.all([
       client.prefetchQuery(['account', id], getAccount(id, token)),
       client.prefetchQuery('users', getRawUsers(token)),
+      client.prefetchQuery(
+        ['account', id, 'notes', 'first', false],
+        getNotes(
+          {
+            source: 'account',
+            sourceId: id,
+            sort: 'first',
+            shouldNotPaginate: false,
+            // nTopRecent: DEFAULT_NUM_NOTE,
+            limit: DEFAULT_NUM_NOTE,
+          },
+          token,
+        ),
+      ),
     ])
   }
 

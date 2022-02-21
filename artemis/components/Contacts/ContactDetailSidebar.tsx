@@ -11,6 +11,7 @@ import { Contact } from '@utils/models/contact'
 import { getContact } from '@utils/service/contact'
 
 export enum ContactDetailSections {
+  Notes = 'Notes',
   Deals = 'Deals',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
@@ -73,6 +74,9 @@ const ContactDetailSidebar = () => {
     {
       title: 'Related List',
       options: [
+        {
+          label: ContactDetailSections.Notes,
+        },
         {
           label: ContactDetailSections.Deals,
         },

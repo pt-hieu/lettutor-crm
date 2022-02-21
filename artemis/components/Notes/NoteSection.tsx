@@ -1,7 +1,8 @@
 import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
 import { Note } from '@utils/models/note'
+import { FilterNoteType, SortNoteType } from '@utils/service/note'
 import { Select } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { INoteData, NoteAdder } from './NoteAdder'
 import { NoteContent } from './NoteContent'
 const { Option, OptGroup } = Select
@@ -22,13 +23,19 @@ interface IProps {
   onAddNote: (data: INoteData) => void
   onEditNote: (noteId: string, data: INoteData) => void
   onDeleteNote: (noteId: string) => void
-  onChangeSort?: () => void
-  onChangeFilter?: () => void
+  onChangeFilterSort: ({
+    sort,
+    filter,
+  }: {
+    sort: SortNoteType
+    filter?: FilterNoteType
+  }) => void
+  onViewAllNote: (value: boolean) => void
   notes: Note[]
   totalNotes: number
 }
 
-const DEFAULT_NUM_NOTE = 3
+export const DEFAULT_NUM_NOTE = 3
 
 export const NoteSection = ({
   noteFor,
@@ -36,39 +43,56 @@ export const NoteSection = ({
   onAddNote,
   onEditNote,
   onDeleteNote,
-  onChangeFilter,
-  onChangeSort,
+  onChangeFilterSort,
+  onViewAllNote,
   notes,
   totalNotes,
 }: IProps) => {
   const [showNoteAdder, setShowNoteAdder] = useState(true)
   const [filter, setFilter] = useState<Filter>(Filter.All)
   const [sort, setSort] = useState<Sort>(Sort.RecentFirst)
-  const [showPrevious, setShowPrevious] = useState(false)
+  const [showPrevious, setShowPrevious] = useState(true)
 
   function handleChangeSelect(value: string) {
     if (Object.values(Sort).includes(value as Sort)) {
       setSort(value as Sort)
-      onChangeSort && onChangeSort()
+      const filterParam = filter === Filter.All ? 'all' : 'only'
+      if (value === Sort.RecentFirst) {
+        onChangeFilterSort({ sort: 'first', filter: filterParam })
+      } else if (value === Sort.RecentLast) {
+        onChangeFilterSort({ sort: 'last', filter: filterParam })
+      }
     }
+
+    if (Object.values(Filter).includes(value as Filter)) {
+      setFilter(value as Filter)
+      const sortParam = sort === Sort.RecentFirst ? 'first' : 'last'
+      if (value === Filter.All) {
+        onChangeFilterSort({ sort: sortParam, filter: 'all' })
+      } else if (value === Filter.Only) {
+        onChangeFilterSort({ sort: sortParam, filter: 'only' })
+      }
+    }
+
+    onViewAllNote(false)
+    setShowPrevious(true)
   }
 
   const handleViewPrevious = () => {
+    onViewAllNote(true)
     setShowPrevious(false)
   }
 
-  useEffect(() => {
-    if (notes.length > 0 && totalNotes > DEFAULT_NUM_NOTE) {
-      setShowPrevious(true)
-    }
-  }, [])
+  const checkShowPreviousNotes = () => {
+    return showPrevious && notes.length > 0 && totalNotes > DEFAULT_NUM_NOTE
+  }
 
   const PreviousNotes = () => (
     <div
       className="w-full bg-[#f8f8f8] flex flex-row py-2 px-4 mb-4 justify-between group relative cursor-pointer text-[12px]"
       onClick={handleViewPrevious}
     >
-      <div className="text-blue-500">View Previous Notes</div>
+      <div className="text-blue-500">View All Previous Notes</div>
       <div className="text-gray-500">
         {DEFAULT_NUM_NOTE} of {totalNotes}
       </div>
@@ -116,11 +140,11 @@ export const NoteSection = ({
 
         <div className="mb-2 flex flex-col gap-4">
           {notes.map((item) => {
-            const { updatedAt, owner, content, title, id, source } = item
+            const { createdAt, owner, content, title, id, source } = item
             return (
               <NoteContent
                 key={id}
-                time={updatedAt}
+                time={createdAt}
                 author={owner?.name || 'Unknown User'}
                 note={content}
                 title={title}
@@ -135,7 +159,7 @@ export const NoteSection = ({
             )
           })}
         </div>
-        {showPrevious && <PreviousNotes />}
+        {checkShowPreviousNotes() && <PreviousNotes />}
       </div>
     </div>
   )
