@@ -14,6 +14,7 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
+import { useEffect } from 'react'
 import { dehydrate, QueryClient, useQuery } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({

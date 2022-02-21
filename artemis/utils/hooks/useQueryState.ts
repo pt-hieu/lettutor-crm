@@ -20,23 +20,10 @@ export const useQueryState = <T extends string | string[] | number>(
   const { query, pathname, asPath, replace } = useRouter()
   const [state, setState] = useState<T>()
 
-  const hasEffectRun = useRef(false)
-  useEffect(() => {
-    if (!hasEffectRun.current) return
-    hasEffectRun.current = true
-
-    if (query[name]) {
-      let value = query[name]
-      if (memoizedOptions?.isArray) {
-        value = (value as string).split(',')
-      }
-
-      setState(value as unknown as T)
-      return
-    }
-
-    setState(defaultValue)
-  }, [query])
+  const hookedSetState = useCallback((value: T | undefined) => {
+    shouldUpdateUrl.current = true
+    setState(value)
+  }, [])
 
   const shouldUpdateUrl = useRef(false)
   useEffect(() => {
@@ -50,7 +37,7 @@ export const useQueryState = <T extends string | string[] | number>(
   }, [query])
 
   useEffect(() => {
-    if (shouldUpdateUrl.current == false) return
+    if (!shouldUpdateUrl.current) return
 
     const newQuery = { ...query }
 
@@ -59,6 +46,11 @@ export const useQueryState = <T extends string | string[] | number>(
     }
 
     if (!state && newQuery[name]) {
+      delete newQuery[name]
+    }
+
+    // @ts-expect-error
+    if (memoizedOptions?.isArray && state?.length === 0) {
       delete newQuery[name]
     }
 
@@ -81,10 +73,25 @@ export const useQueryState = <T extends string | string[] | number>(
     replace(newPathname, newAsPath, { shallow: true })
   }, [state])
 
-  const hookedSetState = useCallback((value: T | undefined) => {
-    shouldUpdateUrl.current = true
-    setState(value)
-  }, [])
+  const hasEffectRun = useRef(false)
+  useEffect(() => {
+    if (hasEffectRun.current) return
+
+    hasEffectRun.current = true
+    shouldUpdateUrl.current= true
+
+    if (query[name]) {
+      let value = query[name]
+      if (memoizedOptions?.isArray) {
+        value = (value as string).split(',')
+      }
+
+      setState(value as unknown as T)
+      return
+    }
+
+    setState(defaultValue)
+  }, [query])
 
   return [state, hookedSetState]
 }

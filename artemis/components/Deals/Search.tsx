@@ -1,6 +1,5 @@
 import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
-import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { useCallback } from 'react'
@@ -25,7 +24,10 @@ export default function DealsSearch({
 
   const auth = useAuthorization()
 
-  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>('view-mode')
+  const [kanbanMode, setKanbanMode] = useQueryState<ViewMode>(
+    'view-mode',
+    ViewMode.TABULAR,
+  )
 
   const submit = useCallback(
     handleSubmit(({ search }) => {
