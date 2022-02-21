@@ -25,6 +25,11 @@ interface ITextboxProps {
   defaultNote?: string
 }
 
+const animateVariant = {
+  init: { opacity: 0, height: 0, marginTop: 0 },
+  animating: { opacity: 1, height: 'auto', marginTop: 8 },
+}
+
 export const NoteTextBox = ({
   onCancel,
   onSave,
@@ -33,7 +38,6 @@ export const NoteTextBox = ({
 }: ITextboxProps) => {
   const [hasTitle, setHasTitle] = useState(!!defaultTitle)
   const [title, setTitle] = useState(defaultTitle || '')
-  const [content, setContent] = useState(defaultNote || '')
 
   const {
     register,
@@ -43,7 +47,7 @@ export const NoteTextBox = ({
   } = useForm<INoteData>({
     resolver: yupResolver(noteShema),
     defaultValues: {
-      content,
+      content: defaultNote,
     },
   })
 
@@ -85,16 +89,25 @@ export const NoteTextBox = ({
   return (
     <div className="w-full border-blue-500 border rounded-md">
       <div className="p-2">
-        {hasTitle && (
-          <input
-            placeholder="Add a title..."
-            className="px-2 focus:outline-none placeholder-bold font-semibold text-[15px] text-gray-700 w-[600px]"
-            onBlur={handleTitleInputBlur}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            ref={titleRef}
-          />
-        )}
+        <AnimatePresence presenceAffectsLayout>
+          {hasTitle && (
+            <motion.div
+              initial="init"
+              animate="animating"
+              exit="init"
+              variants={animateVariant}
+            >
+              <input
+                placeholder="Add a title..."
+                className="px-2 focus:outline-none placeholder-bold font-semibold text-[15px] text-gray-700 w-[600px]"
+                onBlur={handleTitleInputBlur}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                ref={titleRef}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <textarea
           placeholder="Add a note"
           className="border-transparent focus:border-transparent focus:ring-0 w-full min-h-[40px] pl-2 pt-1"
@@ -104,8 +117,6 @@ export const NoteTextBox = ({
             ref(e)
             noteRef.current = e // you can still assign to ref
           }}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
         />
         <AnimatePresence presenceAffectsLayout>
           {errors.content && (
@@ -113,10 +124,7 @@ export const NoteTextBox = ({
               initial="init"
               animate="animating"
               exit="init"
-              variants={{
-                init: { opacity: 0, height: 0, marginTop: 0 },
-                animating: { opacity: 1, height: 'auto', marginTop: 8 },
-              }}
+              variants={animateVariant}
               className="text-red-600 overflow-hidden pl-2"
             >
               {errors.content.message}
