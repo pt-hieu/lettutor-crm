@@ -209,8 +209,7 @@ const ContactDetail = () => {
       sourceId: id,
       sort: sortNote,
       shouldNotPaginate: viewAllNote,
-      // nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
-      limit: DEFAULT_NUM_NOTE,
+      nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
     }),
   )
 
@@ -379,7 +378,7 @@ const ContactDetail = () => {
             </div>
             {/* Notes */}
             <NoteSection
-              noteFor="Contact"
+              noteFor="contact"
               onAddNote={handleAddNote}
               onEditNote={handleEditNote}
               notes={viewAllNote ? notes || [] : notes?.items || []}
@@ -462,8 +461,7 @@ export const getServerSideProps: GetServerSideProps = async ({
             sourceId: id,
             sort: 'first',
             shouldNotPaginate: false,
-            // nTopRecent: DEFAULT_NUM_NOTE,
-            limit: DEFAULT_NUM_NOTE,
+            nTopRecent: DEFAULT_NUM_NOTE,
           },
           token,
         ),

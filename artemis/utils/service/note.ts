@@ -1,11 +1,11 @@
-import { AddNoteDto, Note } from '@utils/models/note'
+import { AddNoteDto, Note, NoteSource } from '@utils/models/note'
 import { API } from 'environment'
 import axios from 'axios'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import { INoteData } from '@components/Notes/NoteAdder'
 
 export type SortNoteType = 'last' | 'first'
-export type FilterNoteType = 'all' | 'only'
+export type FilterNoteType = undefined | NoteSource
 
 export const addNote = async (noteInfo: AddNoteDto) => {
   const { data } = await axios.post<Note>(API + `/apollo/note`, noteInfo)
@@ -18,7 +18,7 @@ export const getNotes =
       search?: string
       sort?: SortNoteType
       filter?: FilterNoteType
-      source: 'lead' | 'contact' | 'account' | 'deal'
+      source: NoteSource
       sourceId: string
       nTopRecent?: number
     } & PagingQuery,

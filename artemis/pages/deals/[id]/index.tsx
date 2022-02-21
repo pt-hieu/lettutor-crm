@@ -289,8 +289,7 @@ const DealDetail = () => {
       sourceId: id,
       sort: sortNote,
       shouldNotPaginate: viewAllNote,
-      // nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
-      limit: DEFAULT_NUM_NOTE,
+      nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
     }),
   )
 
@@ -512,7 +511,7 @@ const DealDetail = () => {
             </div>
             {/* Notes */}
             <NoteSection
-              noteFor="Deal"
+              noteFor="deal"
               onAddNote={handleAddNote}
               onEditNote={handleEditNote}
               notes={viewAllNote ? notes || [] : notes?.items || []}
@@ -576,8 +575,7 @@ export const getServerSideProps: GetServerSideProps = async ({
             sourceId: id,
             sort: 'first',
             shouldNotPaginate: false,
-            // nTopRecent: DEFAULT_NUM_NOTE,
-            limit: DEFAULT_NUM_NOTE,
+            nTopRecent: DEFAULT_NUM_NOTE,
           },
           token,
         ),

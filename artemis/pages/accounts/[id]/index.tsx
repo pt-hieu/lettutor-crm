@@ -63,15 +63,14 @@ const AccountDetail = () => {
   const [viewAllNote, setViewAllNote] = useState(false)
 
   const { data: notes } = useQuery<any>(
-    ['account', id, 'notes', sortNote, viewAllNote],
+    ['account', id, 'notes', sortNote, `${filterNote}`, viewAllNote],
     getNotes({
       source: 'account',
       sourceId: id,
       sort: sortNote,
       filter: filterNote,
       shouldNotPaginate: viewAllNote,
-      // nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
-      limit: DEFAULT_NUM_NOTE,
+      nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
     }),
   )
 
@@ -324,7 +323,7 @@ const AccountDetail = () => {
             </div>
             {/* Notes */}
             <NoteSection
-              noteFor="Account"
+              noteFor="account"
               onAddNote={handleAddNote}
               onEditNote={handleEditNote}
               notes={viewAllNote ? notes || [] : notes?.items || []}
@@ -400,15 +399,14 @@ export const getServerSideProps: GetServerSideProps = async ({
       client.prefetchQuery(['account', id], getAccount(id, token)),
       client.prefetchQuery('users', getRawUsers(token)),
       client.prefetchQuery(
-        ['account', id, 'notes', 'first', false],
+        ['account', id, 'notes', 'first', 'undefined', false],
         getNotes(
           {
             source: 'account',
             sourceId: id,
             sort: 'first',
             shouldNotPaginate: false,
-            // nTopRecent: DEFAULT_NUM_NOTE,
-            limit: DEFAULT_NUM_NOTE,
+            nTopRecent: DEFAULT_NUM_NOTE,
           },
           token,
         ),
