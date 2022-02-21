@@ -39,7 +39,7 @@ export class NoteService {
 
   async addNote(dto: DTO.Note.AddNote) {
     await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
-    if (dto.leadId) {
+    if (dto.leadId && dto.source == NoteSource.LEAD) {
       await this.leadService.getLeadById({
         where: { id: dto.leadId },
       })
@@ -53,22 +53,21 @@ export class NoteService {
 
     dto.leadId = null
 
-    if (dto.contactId) {
+    if (dto.contactId && dto.source == NoteSource.CONTACT) {
       const contact = await this.contactService.getContactById({
         where: { id: dto.contactId },
       })
       dto.source = NoteSource.CONTACT
       dto.accountId = contact.accountId
     }
-
-    if (dto.accountId) {
-      dto.source = NoteSource.ACCOUNT
+    
+    if (dto.accountId && dto.source == NoteSource.ACCOUNT) {
       dto.dealId = null
-    } else if (dto.dealId) {
+    }
+    if (dto.dealId && dto.source == NoteSource.DEAL) {
       const deal = await this.dealService.getDealById({
         where: { id: dto.dealId },
       })
-      dto.source = NoteSource.DEAL
       dto.accountId = deal.accountId
     }
 
