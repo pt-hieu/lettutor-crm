@@ -201,4 +201,14 @@ export class TaskService {
   async updateAllTasks(tasks: Task[]) {
     await this.taskRepo.save(tasks)
   }
+
+
+
+  async delete(id: string) {
+    const task = await this.getTaskById({ where: { id } })
+
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+
+    return this.taskRepo.remove(task)
+  }
 }
