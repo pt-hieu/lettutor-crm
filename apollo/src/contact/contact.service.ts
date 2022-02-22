@@ -135,4 +135,19 @@ export class ContactService {
       ...dto,
     })
   }
+
+  async delete(id: string) {
+    const contact = await this.getContactById({ where: { id } })
+
+    if (
+      !this.utilService.checkOwnership(contact) &&
+      !this.utilService.checkRoleAction(Actions.DELETE_CONTACT)
+    ) {
+      throw new ForbiddenException()
+    }
+
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+
+    return this.contactRepo.softRemove(contact)
+  }
 }
