@@ -159,4 +159,19 @@ export class DealService {
       ...dto,
     })
   }
+
+  async delete(id: string) {
+    const deal = await this.getDealById({ where: { id } })
+
+    if (
+      !this.utilService.checkOwnership(deal) &&
+      !this.utilService.checkRoleAction(Actions.DELETE_DEAL)
+    ) {
+      throw new ForbiddenException()
+    }
+
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+
+    return this.dealRepo.softRemove(deal)
+  }
 }
