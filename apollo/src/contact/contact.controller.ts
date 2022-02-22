@@ -69,7 +69,7 @@ export class ContactController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'to soft delete a contact' })
-  softDeleteDeal(
+  softDeleteContact(
     @Param('id', ParseUUIDPipe) id: string
   ) {
     return this.service.delete(id)

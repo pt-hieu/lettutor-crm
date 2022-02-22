@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -76,5 +77,13 @@ export class AccountController {
     @Body() dto: DTO.Account.UpdateAccount,
   ) {
     return this.service.updateAccount(dto, id)
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'to soft delete a account' })
+  softDeleteAccount(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.service.delete(id)
   }
 }
