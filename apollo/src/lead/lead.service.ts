@@ -212,4 +212,19 @@ export class LeadService {
 
     return [account, contact, deal] as const
   }
+
+  async delete(id: string) {
+    const lead = await this.getLeadById({ where: { id } })
+
+    if (
+      !this.utilService.checkOwnership(lead) &&
+      !this.utilService.checkRoleAction(Actions.DELETE_LEAD)
+    ) {
+      throw new ForbiddenException()
+    }
+
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+
+    return this.leadRepo.softRemove(lead)
+  }
 }

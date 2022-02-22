@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -95,5 +96,13 @@ export class LeadController {
     }
 
     return this.service.convert(id, dto, shouldConvertToDeal, ownerId)
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'to soft delete a lead' })
+  softDeleteLead(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.service.delete(id)
   }
 }
