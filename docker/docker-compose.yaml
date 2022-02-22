@@ -1,0 +1,66 @@
+version: '3.9'
+services:
+  artemis:
+    container_name: artemis
+    image: ghcr.io/pt-hieu/lettutor-crm:artemis
+    ports:
+      - '3000:3000'
+
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+
+  apollo:
+    container_name: apollo
+    image: ghcr.io/pt-hieu/lettutor-crm:apollo
+    depends_on:
+      - postgres
+    ports:
+      - '8000:8000'
+
+  postgres-poseidon:
+    container_name: postgres-poseidon
+    image: postgres:alpine
+    ports:
+      - "5433:5433"
+    expose:
+      - 5433
+    command: -p 5433
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cms
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-poseidon:/data/postgres
+
+  poseidon:
+    container_name: poseidon
+    image: ghcr.io/pt-hieu/lettutor-crm:poseidon
+    depends_on:
+      - postgres-poseidon
+    environment:
+      - DATABASE_HOST=postgres-poseidon
+      - DATABASE_PORT=5433
+    ports:
+      - "1337:1337"
+
+  zeus:
+    container_name: zeus
+    image: ghcr.io/pt-hieu/lettutor-crm:zeus
+    depends_on:
+      - apollo
+      - poseidon
+    ports:
+      - '4000:4000'
+
+
+volumes:
+    postgres:
+    postgres-poseidon:

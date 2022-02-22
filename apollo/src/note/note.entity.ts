@@ -1,8 +1,27 @@
 import { Exclude } from 'class-transformer'
+import { Account } from 'src/account/account.entity'
+import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { Lead } from 'src/lead/lead.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+
+export enum NoteSort {
+  LAST = 'last',
+  FIRST = 'first',
+}
+
+export enum NoteFilter {
+  ACCOUNT_ONLY = 'account',
+}
+
+export enum NoteSource {
+  LEAD = 'lead',
+  CONTACT = 'contact',
+  ACCOUNT = 'account',
+  DEAL = 'deal',
+}
 
 @Entity({ name: 'note' })
 export class Note extends BaseEntity {
@@ -14,6 +33,30 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   ownerId: string | null
 
+  @ManyToOne(() => Lead, (lead) => lead.notes)
+  @JoinColumn()
+  lead: Lead
+
+  @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
+  leadId: string | null
+
+  @ManyToOne(() => Contact, (contact) => contact.notes)
+  @JoinColumn()
+  contact: Contact
+
+  @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
+  contactId: string | null
+
+  @ManyToOne(() => Account, (account) => account.notes)
+  @JoinColumn()
+  account: Account
+
+  @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
+  accountId: string
+
   @ManyToOne(() => Deal, (deal) => deal.notes)
   @JoinColumn()
   deal: Deal
@@ -22,9 +65,12 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   dealId: string | null
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: "" })
   title: string
 
   @Column({ type: 'varchar' })
   content: string
+
+  @Column({ type: 'varchar', default: null })
+  source: string | null
 }

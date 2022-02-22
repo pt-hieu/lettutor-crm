@@ -21,6 +21,10 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::document-item.document-item"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
     }
   }
 }

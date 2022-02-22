@@ -1,5 +1,7 @@
-import axios, { AxiosRequestConfig } from 'axios'
-import { POSEIDON_API } from 'environment'
+import { ChangeLog } from '@utils/models/changeLog'
+import { Paginate } from '@utils/models/paging'
+import axios from 'axios'
+import { API } from 'environment'
 
-export const getChangeLog = (config: AxiosRequestConfig) => () =>
-  axios.get(POSEIDON_API + '/api/change-logs', config).then((res) => res.data)
+export const getChangeLog = () =>
+  axios.get<Paginate<ChangeLog>>(API + '/poseidon/change-logs').then((res) => res.data)

@@ -39,6 +39,19 @@ import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
+import DealDetailSidebar from '@components/Deals/DealDetailSidebar'
+
+import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
+import {
+  addNote,
+  deleteNote,
+  editNote,
+  getNotes,
+  SortNoteType,
+} from '@utils/service/note'
+import { INoteData } from '@components/Notes/NoteAdder'
+import { AddNoteDto } from '@utils/models/note'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -257,6 +270,7 @@ const DealDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
 
+  const [session] = useTypedSession()
   const auth = useAuthorization()
 
   const client = useQueryClient()
@@ -264,6 +278,20 @@ const DealDetail = () => {
   const { data: contacts } = useQuery<Contact[]>('contacts', { enabled: false })
   const { data: accounts } = useQuery<Account[]>('accounts', { enabled: false })
   const { data: deal } = useQuery<Deal>(['deal', id], getDeal(id))
+
+  const [sortNote, setSortNote] = useState<SortNoteType>('first')
+  const [viewAllNote, setViewAllNote] = useState(false)
+
+  const { data: notes } = useQuery<any>(
+    ['deal', id, 'notes', sortNote, viewAllNote],
+    getNotes({
+      source: 'deal',
+      sourceId: id,
+      sort: sortNote,
+      shouldNotPaginate: viewAllNote,
+      nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
+    }),
+  )
 
   const isOwner = useOwnership(deal)
 
@@ -365,6 +393,68 @@ const DealDetail = () => {
     [deal],
   )
 
+  const { mutateAsync: addNoteService } = useMutation(
+    'add-note-deal',
+    addNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['deal', id, 'notes'])
+      },
+      onError() {
+        notification.error({ message: 'Add note unsuccessfully' })
+      },
+    },
+  )
+
+  const handleAddNote = (data: INoteData) => {
+    const dataInfo: AddNoteDto = {
+      ownerId: session?.user.id as string,
+      dealId: deal?.id,
+      source: 'deal',
+      ...data,
+    }
+    addNoteService(dataInfo)
+  }
+
+  const { mutateAsync: editNoteService } = useMutation(
+    'edit-note-deal',
+    editNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['deal', id, 'notes'])
+        notification.success({ message: 'Edit note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Edit note unsuccessfully' })
+      },
+    },
+  )
+  const handleEditNote = (noteId: string, data: INoteData) => {
+    editNoteService({ noteId, dataInfo: data })
+  }
+
+  const { mutateAsync: deleteNoteService } = useMutation(
+    'delete-note-deal',
+    deleteNote,
+    {
+      onSuccess() {
+        client.invalidateQueries(['deal', id, 'notes'])
+        notification.success({ message: 'Delete note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete note unsuccessfully' })
+      },
+    },
+  )
+
+  const handleDeleteNote = (noteId: string) => {
+    deleteNoteService({ noteId })
+  }
+
+  const handleChangeFilterSort = ({ sort }: { sort: SortNoteType }) => {
+    setSortNote(sort)
+  }
+
   return (
     <Layout title={`CRM | Deal | ${deal?.fullName}`} requireLogin>
       {deal && (
@@ -388,7 +478,7 @@ const DealDetail = () => {
         <DealDetailNavbar deal={deal!} />
 
         <div className="grid grid-cols-[250px,1fr]">
-          <DetailPageSidebar data={dealSidebarOptions} />
+          <DealDetailSidebar />
           <div className="flex flex-col divide-y gap-4">
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
@@ -419,6 +509,17 @@ const DealDetail = () => {
                 ))}
               </form>
             </div>
+            {/* Notes */}
+            <NoteSection
+              noteFor="deal"
+              onAddNote={handleAddNote}
+              onEditNote={handleEditNote}
+              notes={viewAllNote ? notes || [] : notes?.items || []}
+              totalNotes={notes?.meta?.totalItems || 0}
+              onDeleteNote={handleDeleteNote}
+              onChangeFilterSort={handleChangeFilterSort}
+              onViewAllNote={setViewAllNote}
+            />
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -466,6 +567,19 @@ export const getServerSideProps: GetServerSideProps = async ({
       client.prefetchQuery('users', getRawUsers(token)),
       client.prefetchQuery('accounts', getRawAccounts(token)),
       client.prefetchQuery('contacts', getRawContacts(token)),
+      client.prefetchQuery(
+        ['deal', id, 'notes', 'first', false],
+        getNotes(
+          {
+            source: 'deal',
+            sourceId: id,
+            sort: 'first',
+            shouldNotPaginate: false,
+            nTopRecent: DEFAULT_NUM_NOTE,
+          },
+          token,
+        ),
+      ),
     ])
   }
 

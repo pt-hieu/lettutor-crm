@@ -11,12 +11,9 @@ export interface Base {
 }
 
 
-export interface Strapi<T> {
+export interface StrapiBase {
   id: string
-  attributes: T
-}
 
-export interface StrapiTimestamp {
   updatedAt: Date
   createdAt: Date
   publishedAt: Date

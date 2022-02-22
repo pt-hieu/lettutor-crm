@@ -1,8 +1,5 @@
-import axios, { AxiosRequestConfig } from 'axios'
-import { POSEIDON_API } from 'environment'
+import axios from 'axios'
+import { API } from 'environment'
 
-export const createBug =
-  (config: AxiosRequestConfig) => (data: any) =>
-    axios
-      .post(POSEIDON_API + '/api/bugs', { data }, config)
-      .then((res) => res.data)
+export const createBug = (data: any) =>
+  axios.post(API + '/poseidon/bugs', { data }).then((res) => res.data)

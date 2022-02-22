@@ -28,7 +28,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
   if (token) {
     const [_, error] = await asyncTryCatch(() =>
       axios
-        .get(API + '/api/user/validate-token', { params: { token } })
+        .get(API + '/apollo/user/validate-token', { params: { token } })
         .then((res) => res.data),
     )
 

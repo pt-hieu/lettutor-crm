@@ -1,11 +1,10 @@
 import { DTO } from 'src/type'
 import { Public } from 'src/utils/decorators/public.decorator'
-import { Body, Controller, Get, Patch, Post, Put, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common'
 import {
-  ApiBearerAuth,
   ApiExtraModels,
   ApiOperation,
-  ApiQuery,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger'
 import { UserService } from './user.service'
@@ -15,7 +14,8 @@ import { DefineAction } from 'src/action.decorator'
 import { Actions } from 'src/type/action'
 
 @ApiTags('user')
-@ApiBearerAuth('jwt')
+@ApiSecurity('x-api-key')
+@ApiSecurity('x-user')
 @Controller('user')
 @ApiExtraModels(DTO.Paging.Paginate)
 export class UserController {
@@ -77,5 +77,15 @@ export class UserController {
   @ApiOperation({ summary: 'to request change password' })
   changePwd(@Body() dto: DTO.User.ChangePwd, @Payload() payload: JwtPayload) {
     return this.service.changePwd(dto, payload)
+  }
+
+  @Patch(':id/activate')
+  @DefineAction(Actions.IS_ADMIN)
+  @ApiOperation({ summary: 'to activate-deactivate user' })
+  activateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: DTO.User.ActivateUser,
+  ) {
+    return this.service.activateUser(id, dto)
   }
 }

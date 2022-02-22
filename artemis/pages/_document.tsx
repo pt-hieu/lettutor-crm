@@ -17,7 +17,7 @@ class MyDocument extends Document {
 
           <link
             rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
             crossOrigin="anonymous"
             referrerPolicy="no-referrer"
           />

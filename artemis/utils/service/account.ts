@@ -15,7 +15,7 @@ export const getAccounts =
   ) =>
   () =>
     axios
-      .get<Paginate<Account>>(API + '/api/account', {
+      .get<Paginate<Account>>(API + '/apollo/account', {
         headers: { authorization: 'Bearer ' + token },
         params,
       })
@@ -23,7 +23,7 @@ export const getAccounts =
 
 export const getRawAccounts = (token?: string) => () =>
   axios
-    .get<Pick<Account, 'id' | 'fullName'>>(API + '/api/account/raw', {
+    .get<Pick<Account, 'id' | 'fullName'>>(API + '/apollo/account/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },
@@ -31,13 +31,13 @@ export const getRawAccounts = (token?: string) => () =>
     .then((res) => res.data)
 
 export const addAccount = async (contactInfo: AccountAddFormData) => {
-  const { data } = await axios.post<Account>(API + `/api/account`, contactInfo)
+  const { data } = await axios.post<Account>(API + `/apollo/account`, contactInfo)
   return data
 }
 
 export const getAccount = (id?: string, token?: string) => () =>
   axios
-    .get<Account>(API + `/api/account/${id}`, {
+    .get<Account>(API + `/apollo/account/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
@@ -48,7 +48,7 @@ export const updateAccount = async (params: {
 }) => {
   const { id, accountInfo } = params
   const { data } = await axios.patch<Account>(
-    API + `/api/account/${id}`,
+    API + `/apollo/account/${id}`,
     accountInfo,
   )
 

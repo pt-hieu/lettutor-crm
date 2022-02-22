@@ -1,5 +1,6 @@
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { Ownerful } from 'src/utils/owner.entity'
 import { Column, Entity, OneToMany } from 'typeorm'
@@ -45,4 +46,7 @@ export class Account extends Ownerful {
 
   @OneToMany(() => Task, (task) => task.account)
   tasks: Task[]
+
+  @OneToMany(() => Note, (note) => note.account)
+  notes: Note[]
 }

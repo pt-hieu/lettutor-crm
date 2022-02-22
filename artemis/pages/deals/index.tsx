@@ -123,12 +123,20 @@ export default function DealsView() {
   const [limit, setLimit] = useQueryState<number>('limit')
 
   const [search, setSearch] = useQueryState<string>('search')
-  const [source, setSource] = useQueryState<Array<LeadSource>>('source', {
-    isArray: true,
-  })
-  const [stage, setStage] = useQueryState<Array<DealStage>>('stage', {
-    isArray: true,
-  })
+  const [source, setSource] = useQueryState<Array<LeadSource>>(
+    'source',
+    undefined,
+    {
+      isArray: true,
+    },
+  )
+  const [stage, setStage] = useQueryState<Array<DealStage>>(
+    'stage',
+    undefined,
+    {
+      isArray: true,
+    },
+  )
 
   const key = [
     'deals',
@@ -160,14 +168,7 @@ export default function DealsView() {
   }
 
   const [start, end, total] = usePaginateItem(deals)
-  const [viewMode, setKanbanMode] = useQueryState<ViewMode>('view-mode', {
-    subscribe: true,
-  })
-
-  useEffect(() => {
-    if (viewMode) return
-    setKanbanMode(ViewMode.TABULAR)
-  }, [viewMode])
+  const [viewMode] = useQueryState<ViewMode>('view-mode', ViewMode.TABULAR)
 
   return (
     <DealsViewLayout

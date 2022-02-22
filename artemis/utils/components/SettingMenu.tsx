@@ -35,11 +35,12 @@ export default function SettingMenu({ visible, setVisible }: Props) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="min-w-[500px] min-h-[150px] border rounded-md shadow-md bg-white absolute top-[150%] transform translate-x-[-95%] p-4 text-gray-500"
+        className="min-w-[500px] min-h-[150px] border rounded-md shadow-md bg-white absolute top-[120%] transform -translate-x-[80%] p-4 text-gray-500"
       >
         <Link href="/settings">
           <a className="crm-link font-semibold text-[17px] block border-b pb-2 mb-2">
             Settings
+            <span className="ml-2 text-sm fa-solid fa-arrow-up-right-from-square" />
           </a>
         </Link>
         <div className="grid grid-cols-2 gap-3">

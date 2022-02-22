@@ -33,8 +33,9 @@ export default function AccountsSidebar({
     <div className="text-gray-700 bg-gray-100 flex flex-col gap-3 p-4 rounded-md">
       <div className="flex justify-between border-b pb-2 mb-2 items-center">
         <div className="font-semibold ">Filters</div>
+
         <button onClick={applyFilter} className="crm-button-outline">
-          Apply
+          <span className="fa-solid fa-filter" />
         </button>
       </div>
 

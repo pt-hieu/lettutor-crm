@@ -20,7 +20,7 @@ export const getLeads =
   ) =>
   () =>
     axios
-      .get<Paginate<Lead>>(API + '/api/lead', {
+      .get<Paginate<Lead>>(API + '/apollo/lead', {
         headers: { authorization: 'Bearer ' + token },
         params,
       })
@@ -28,7 +28,7 @@ export const getLeads =
 
 export const getRawLeads = (token?: string) => () =>
   axios
-    .get<Pick<Lead, 'id' | 'fullName'>[]>(API + '/api/lead/raw', {
+    .get<Pick<Lead, 'id' | 'fullName'>[]>(API + '/apollo/lead/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },
@@ -37,13 +37,13 @@ export const getRawLeads = (token?: string) => () =>
 
 export const getLead = (id?: string, token?: string) => () =>
   axios
-    .get<Lead>(API + `/api/lead/${id}`, {
+    .get<Lead>(API + `/apollo/lead/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
 
 export const addLeadService = async (leadInfo: LeadAddFormData) => {
-  const { data } = await axios.post<Lead>(API + '/api/lead', leadInfo)
+  const { data } = await axios.post<Lead>(API + '/apollo/lead', leadInfo)
   return data
 }
 
@@ -52,7 +52,7 @@ export const updateLead = async (params: {
   leadInfo: LeadUpdateFromData
 }) => {
   const { id, leadInfo } = params
-  const { data } = await axios.patch<Lead>(API + `/api/lead/${id}`, leadInfo)
+  const { data } = await axios.patch<Lead>(API + `/apollo/lead/${id}`, leadInfo)
 
   return data
 }
