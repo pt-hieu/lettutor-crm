@@ -201,7 +201,6 @@ const LeadDetail = () => {
       sort: sortNote,
       shouldNotPaginate: viewAllNote,
       nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
-      limit: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
     }),
   )
 
@@ -357,7 +356,7 @@ const LeadDetail = () => {
             </div>
             {/* Notes */}
             <NoteSection
-              noteFor="Lead"
+              noteFor="lead"
               onAddNote={handleAddNote}
               onEditNote={handleEditNote}
               notes={viewAllNote ? notes || [] : notes?.items || []}
@@ -420,7 +419,6 @@ export const getServerSideProps: GetServerSideProps = async ({
             sort: 'first',
             shouldNotPaginate: false,
             nTopRecent: DEFAULT_NUM_NOTE,
-            limit: DEFAULT_NUM_NOTE,
           },
           token,
         ),

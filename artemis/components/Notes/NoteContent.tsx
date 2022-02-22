@@ -2,6 +2,7 @@ import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
 import { NoteSource } from '@utils/models/note'
 import moment from 'moment'
+import Link from 'next/link'
 import { useState } from 'react'
 import { INoteData, NoteTextBox } from './NoteAdder'
 
@@ -19,6 +20,7 @@ interface IProps {
   noteId: string
   noteSource: NoteSource
   sourceName: string
+  sourceId: string
 }
 
 export const NoteContent = ({
@@ -33,6 +35,7 @@ export const NoteContent = ({
   noteId,
   noteSource,
   sourceName,
+  sourceId,
 }: IProps) => {
   const [editMode, setEditMode] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
@@ -66,19 +69,27 @@ export const NoteContent = ({
           onSave={handleEditNote}
         />
       ) : (
-        <div className="flex flex-row relative group pr-[100px]">
+        <div className="flex flex-row relative group pr-[90px]">
           <div className="w-8 h-8 rounded-full bg-blue-300 text-center text-white leading-8">
             avt
           </div>
           <div className="flex-1 pl-4">
-            {title && <span className="font-semibold">{title}</span>}
-            <div className="w-full whitespace-pre-wrap mb-1">{note}</div>
+            {title && (
+              <span className="font-semibold whitespace-pre-wrap break-all">
+                {title}
+              </span>
+            )}
+            <div className="w-full whitespace-pre-wrap break-all mb-1">
+              {note}
+            </div>
             <div className="flex flex-row text-[12px] items-center text-gray-500">
               <span className="capitalize">{noteSource}</span>
               <span className="px-1"> - </span>
-              <span className="max-w-[120px] truncate text-blue-600">
-                {sourceName}
-              </span>
+              <Link href={`/${noteSource}s/${sourceId}`}>
+                <a className="max-w-[120px] truncate text-blue-600">
+                  {sourceName}
+                </a>
+              </Link>
               <span className="px-3 font-bold text-[16px]">•</span>
               <span>Add note</span>
               <span className="px-3 font-bold text-[16px]">•</span>

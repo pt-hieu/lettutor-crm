@@ -1,5 +1,5 @@
 import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
-import { Note } from '@utils/models/note'
+import { Note, NoteSource } from '@utils/models/note'
 import { FilterNoteType, SortNoteType } from '@utils/service/note'
 import { Select } from 'antd'
 import { useEffect, useState } from 'react'
@@ -18,7 +18,7 @@ enum Sort {
 }
 
 interface IProps {
-  noteFor: 'Contact' | 'Account' | 'Lead' | 'Deal' | 'Task'
+  noteFor: NoteSource
   hasFilter?: boolean
   onAddNote: (data: INoteData) => void
   onEditNote: (noteId: string, data: INoteData) => void
@@ -56,7 +56,7 @@ export const NoteSection = ({
   function handleChangeSelect(value: string) {
     if (Object.values(Sort).includes(value as Sort)) {
       setSort(value as Sort)
-      const filterParam = filter === Filter.All ? 'all' : 'only'
+      const filterParam = filter === Filter.All ? undefined : noteFor
       if (value === Sort.RecentFirst) {
         onChangeFilterSort({ sort: 'first', filter: filterParam })
       } else if (value === Sort.RecentLast) {
@@ -68,9 +68,9 @@ export const NoteSection = ({
       setFilter(value as Filter)
       const sortParam = sort === Sort.RecentFirst ? 'first' : 'last'
       if (value === Filter.All) {
-        onChangeFilterSort({ sort: sortParam, filter: 'all' })
+        onChangeFilterSort({ sort: sortParam, filter: undefined })
       } else if (value === Filter.Only) {
-        onChangeFilterSort({ sort: sortParam, filter: 'only' })
+        onChangeFilterSort({ sort: sortParam, filter: noteFor })
       }
     }
 
@@ -117,7 +117,9 @@ export const NoteSection = ({
             <OptGroup label="Filter">
               {Object.values(Filter).map((item) => (
                 <Option value={item} key={item}>
-                  {item === Filter.Only ? `${noteFor} ${item}` : item}
+                  <span className="capitalize">
+                    {item === Filter.Only ? `${noteFor} ${item}` : item}
+                  </span>
                 </Option>
               ))}
             </OptGroup>
@@ -155,6 +157,7 @@ export const NoteSection = ({
                 noteId={id}
                 noteSource={source}
                 sourceName={item[source]?.fullName as string}
+                sourceId={item[source]?.id as string}
               />
             )
           })}
