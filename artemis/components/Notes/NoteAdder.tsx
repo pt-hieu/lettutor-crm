@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import Input from '../../utils/components/Input'
@@ -16,6 +16,7 @@ export const noteShema = yup.object().shape({
 export interface INoteData {
   title?: string
   content: string
+  file?: File
 }
 
 interface ITextboxProps {
@@ -23,6 +24,7 @@ interface ITextboxProps {
   onSave: (data: INoteData) => void
   defaultTitle?: string
   defaultNote?: string
+  defaultFile?: File
 }
 
 const animateVariant = {
@@ -35,9 +37,15 @@ export const NoteTextBox = ({
   onSave,
   defaultTitle,
   defaultNote,
+  defaultFile,
 }: ITextboxProps) => {
   const [hasTitle, setHasTitle] = useState(!!defaultTitle)
   const [title, setTitle] = useState(defaultTitle || '')
+
+  // File
+  const [selectedFile, setSelectedFile] = useState<File | undefined>(
+    defaultFile,
+  )
 
   const {
     register,
@@ -73,8 +81,21 @@ export const NoteTextBox = ({
     if (hasTitle) {
       data.title = title
     }
+    if (selectedFile) {
+      data.file = selectedFile
+    }
     onSave(data)
   })
+
+  //File
+  const handleChangeFile = (event: ChangeEvent<HTMLInputElement>) => {
+    setSelectedFile(event.target.files ? event.target.files[0] : undefined)
+    event.target.value = ''
+  }
+
+  const handleRemoveFile = () => {
+    setSelectedFile(undefined)
+  }
 
   useEffect(() => {
     if (!title.trim() && hasTitle) {
@@ -135,16 +156,46 @@ export const NoteTextBox = ({
 
       <div className="border-b"></div>
       <div className="flex flex-row gap-2 p-2 pl-4 justify-between items-center">
-        {!hasTitle ? (
-          <div
-            className="crm-button-secondary bg-transparent cursor-pointer hover:bg-gray-100"
-            onClick={handleAddTitle}
-          >
-            <i className="fa fa-thumb-tack mr-2"></i>Add title
+        <div>
+          <label
+            className="fa fa-thumb-tack cursor-pointer hover:text-gray-600"
+            htmlFor="file"
+          />
+          <input
+            type="file"
+            name="file"
+            id="file"
+            hidden
+            onChange={handleChangeFile}
+          />
+
+          {!hasTitle && (
+            <>
+              <span className="mx-3">|</span>
+              <span
+                className="cursor-pointer hover:text-gray-600"
+                onClick={handleAddTitle}
+              >
+                Add title
+              </span>
+            </>
+          )}
+        </div>
+        {selectedFile && (
+          <div className="flex flex-1 flex-row self-center max-w-[300px] p-1 px-2 rounded bg-slate-50 justify-between items-center text-[12px]">
+            <div className="flex flex-row">
+              <span className="text-blue-600 mr-2 max-w-[180px] truncate">
+                {selectedFile.name}
+              </span>
+              <span>({formatBytes(selectedFile.size)})</span>
+            </div>
+            <i
+              className="fa fa-times-circle text-gray-500 hover:text-red-500 cursor-pointer"
+              onClick={handleRemoveFile}
+            ></i>
           </div>
-        ) : (
-          <div></div>
         )}
+
         <div className="flex flex-row gap-2">
           <button className="crm-button-secondary" onClick={onCancel}>
             Cancle
@@ -192,4 +243,16 @@ export const NoteAdder = ({ onAddNote, active = false }: INoteAdderProps) => {
       )}
     </div>
   )
+}
+
+function formatBytes(bytes: number, decimals = 2) {
+  if (bytes === 0) return '0 Bytes'
+
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }

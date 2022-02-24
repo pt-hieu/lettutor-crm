@@ -14,9 +14,9 @@ interface IProps {
   author: string
   time: Date
   setShowNoteAdder: (value: boolean) => void
-  hideEditButton?: boolean
   onEditNote: (noteId: string, data: INoteData) => void
   onDeleteNote: (noteId: string) => void
+  hideEditButton?: boolean
   noteId: string
   noteSource: NoteSource
   sourceName: string
@@ -82,6 +82,20 @@ export const NoteContent = ({
             <div className="w-full whitespace-pre-wrap break-all mb-1">
               {note}
             </div>
+            {/* File */}
+
+            <div className="w-[120px] file-container">
+              <div className="bg-white border h-[120px] flex items-center justify-center px-4 relative rounded">
+                <div className="text-blue-500 truncate">filename.csv</div>
+                <div className="hidden absolute bottom-0 w-full text-center file-controller bg-slate-100">
+                  <a className="fa fa-download" href="/filename.csv" download />
+                </div>
+              </div>
+              <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
+                filename.csv
+              </div>
+            </div>
+
             <div className="flex flex-row text-[12px] items-center text-gray-500">
               <span className="capitalize">{noteSource}</span>
               <span className="px-1"> - </span>

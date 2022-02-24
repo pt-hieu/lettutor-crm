@@ -86,6 +86,10 @@
   .placeholder-bold::placeholder {
     @apply font-semibold text-gray-500;
   }
+
+  .file-container:hover .file-controller {
+    display: block;
+  }
 }
 
 @tailwind utilities;
