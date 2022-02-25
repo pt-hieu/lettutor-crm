@@ -1,6 +1,7 @@
 import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
 import { NoteSource } from '@utils/models/note'
+import { Tooltip } from 'antd'
 import moment from 'moment'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -88,7 +89,13 @@ export const NoteContent = ({
               <div className="bg-white border h-[120px] flex items-center justify-center px-4 relative rounded">
                 <div className="text-blue-500 truncate">filename.csv</div>
                 <div className="hidden absolute bottom-0 w-full text-center file-controller bg-slate-100">
-                  <a className="fa fa-download" href="/filename.csv" download />
+                  <Tooltip title="Download file" mouseEnterDelay={1}>
+                    <a
+                      className="fa fa-download"
+                      href="/filename.csv"
+                      download
+                    />
+                  </Tooltip>
                 </div>
               </div>
               <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
