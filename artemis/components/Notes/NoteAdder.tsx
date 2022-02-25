@@ -94,6 +94,17 @@ export const NoteTextBox = ({
     const MAX_SIZE_FILE = MAX_MB_SIZE * 1024 * 1024 // 20 MB
 
     const selectedFiles = Array.from(event.target.files || [])
+    event.target.value = '' //can choose same most previous file
+
+    //Check exist empty file
+    for (let file of selectedFiles) {
+      if (!file.size) {
+        notification.error({
+          message: `The file ${file.name} is not supported`,
+        })
+        return
+      }
+    }
 
     const currentFilesLength = files?.length || 0
     const selectedFilesLength = selectedFiles?.length || 0
@@ -114,8 +125,6 @@ export const NoteTextBox = ({
       })
       return
     }
-
-    event.target.value = '' //can choose same most previous file
     setFiles([...(files || []), ...selectedFiles])
   }
 
@@ -216,6 +225,7 @@ export const NoteTextBox = ({
             <div
               key={index}
               className="flex w-[300px] p-1 px-2 rounded bg-slate-50 justify-between items-center text-[12px]"
+              title={name}
             >
               <div className="flex flex-row">
                 <span className="text-blue-600 mr-2 max-w-[180px] truncate">
