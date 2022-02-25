@@ -7,6 +7,7 @@ import {
   Patch,
   Query,
   Post,
+  Delete,
 } from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
@@ -56,5 +57,15 @@ export class TaskController {
     @Body() dto: DTO.Task.UpdateBody,
   ) {
     return this.service.update(id, dto)
+  }
+
+
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'to delete a task' })
+  deleteNote(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.service.delete(id)
   }
 }

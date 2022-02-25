@@ -134,4 +134,19 @@ export class AccountService {
       ...dto,
     })
   }
+
+  async delete(id: string) {
+    const account = await this.getAccountById({ where: { id } })
+
+    if (
+      !this.utilService.checkOwnership(account) &&
+      !this.utilService.checkRoleAction(Actions.DELETE_ACCOUNT)
+    ) {
+      throw new ForbiddenException()
+    }
+
+    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+
+    return this.accountRepo.softRemove(account)
+  }
 }

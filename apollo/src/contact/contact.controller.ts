@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   Post,
+  Delete,
 } from '@nestjs/common'
 import { ApiOperation, ApiTags, ApiQuery, ApiSecurity } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
@@ -64,5 +65,13 @@ export class ContactController {
     @Body() dto: DTO.Contact.UpdateBody,
   ) {
     return this.service.update(id, dto)
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'to soft delete a contact' })
+  softDeleteContact(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.service.delete(id)
   }
 }
