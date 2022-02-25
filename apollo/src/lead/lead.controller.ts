@@ -11,12 +11,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import {
-  ApiBody,
-  ApiOperation,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger'
+import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 import { DefineAction } from 'src/action.decorator'
@@ -98,11 +93,9 @@ export class LeadController {
     return this.service.convert(id, dto, shouldConvertToDeal, ownerId)
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'to soft delete a lead' })
-  softDeleteLead(
-    @Param('id', ParseUUIDPipe) id: string
-  ) {
-    return this.service.delete(id)
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete leads' })
+  batchDelete(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

@@ -59,7 +59,7 @@ export class DealController {
           'tasks',
           'tasks.owner',
           'notes',
-          'notes.owner'
+          'notes.owner',
         ],
       },
       true,
@@ -75,11 +75,9 @@ export class DealController {
     return this.service.updateDeal(dto, id)
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'to soft delete a deal' })
-  softDeleteDeal(
-    @Param('id', ParseUUIDPipe) id: string
-  ) {
-    return this.service.delete(id)
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete deals' })
+  batchDelete(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

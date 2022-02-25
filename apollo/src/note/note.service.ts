@@ -1,4 +1,11 @@
-import { ForbiddenException, forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
@@ -10,7 +17,8 @@ import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { FindOneOptions, Repository } from 'typeorm'
+import { note } from 'test/data'
+import { FindOneOptions, In, Repository } from 'typeorm'
 import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
 
 @Injectable()
@@ -34,11 +42,12 @@ export class NoteService {
     private readonly userService: UserService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-
-  ) { }
+  ) {}
 
   async addNote(dto: DTO.Note.AddNote) {
-    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+    await this.userService.getOneUserById({
+      where: { id: this.payloadService.data.id },
+    })
     if (dto.leadId && dto.source == NoteSource.LEAD) {
       await this.leadService.getLeadById({
         where: { id: dto.leadId },
@@ -60,7 +69,7 @@ export class NoteService {
       dto.source = NoteSource.CONTACT
       dto.accountId = contact.accountId
     }
-    
+
     if (dto.accountId && dto.source == NoteSource.ACCOUNT) {
       dto.dealId = null
     }
@@ -74,8 +83,8 @@ export class NoteService {
     await Promise.all([
       dto.contactId
         ? this.contactService.getContactById({
-          where: { id: dto.contactId },
-        })
+            where: { id: dto.contactId },
+          })
         : undefined,
       dto.accountId
         ? this.accountService.getAccountById({ where: { id: dto.accountId } })
@@ -110,33 +119,32 @@ export class NoteService {
         'deal.fullName',
       ])
 
-
     if (query.source === NoteSource.LEAD) {
       q.andWhere('note.leadId = :leadId', {
-        leadId: query.sourceId
+        leadId: query.sourceId,
       })
     }
 
     if (query.source === NoteSource.CONTACT) {
       q.andWhere('note.contactId = :contactId', {
-        contactId: query.sourceId
+        contactId: query.sourceId,
       })
     }
 
     if (query.source === NoteSource.ACCOUNT) {
       q.andWhere('note.accountId = :accountId', {
-        accountId: query.sourceId
+        accountId: query.sourceId,
       })
       if (query.filter == NoteFilter.ACCOUNT_ONLY) {
         q.andWhere('note.source = :source', {
-          source: NoteSource.ACCOUNT
+          source: NoteSource.ACCOUNT,
         })
       }
     }
 
     if (query.source === NoteSource.DEAL) {
       q.andWhere('note.dealId = :dealId', {
-        dealId: query.sourceId
+        dealId: query.sourceId,
       })
     }
 
@@ -152,7 +160,6 @@ export class NoteService {
       q.limit(query.nTopRecent)
     }
 
-
     if (query.shouldNotPaginate === true) return q.getMany()
     return paginate(q, { limit: query.nTopRecent, page: query.page })
   }
@@ -165,20 +172,19 @@ export class NoteService {
       throw new NotFoundException(`Note not found`)
     }
 
-    if (
-      !this.utilService.checkOwnership(note)
-    ) {
+    if (!this.utilService.checkOwnership(note)) {
       throw new ForbiddenException()
     }
 
     return note
   }
 
-
   async update(id: string, dto: DTO.Note.UpdateBody) {
     const note = await this.getNoteById({ where: { id } })
 
-    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
+    await this.userService.getOneUserById({
+      where: { id: this.payloadService.data.id },
+    })
 
     if (dto.leadId) {
       await this.leadService.getLeadById({
@@ -195,8 +201,8 @@ export class NoteService {
       dto.accountId
         ? (dto.dealId = null)
         : dto.dealId
-          ? (dto.accountId = null)
-          : undefined
+        ? (dto.accountId = null)
+        : undefined
 
       await Promise.all([
         dto.contactId
@@ -214,12 +220,8 @@ export class NoteService {
     return this.noteRepo.save({ ...note, ...dto })
   }
 
-
-  async delete(id: string) {
-    const note = await this.getNoteById({ where: { id } })
-
-    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
-
-    return this.noteRepo.remove(note)
+  async batchDelete(ids: string[]) {
+    const notes = await this.noteRepo.find({ where: { id: In(ids) } })
+    return this.noteRepo.remove(notes)
   }
 }

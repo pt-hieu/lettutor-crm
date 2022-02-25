@@ -56,7 +56,7 @@ export class AccountController {
           'tasks',
           'tasks.owner',
           'notes',
-          'notes.owner'
+          'notes.owner',
         ],
       },
       true,
@@ -79,11 +79,9 @@ export class AccountController {
     return this.service.updateAccount(dto, id)
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'to soft delete a account' })
-  softDeleteAccount(
-    @Param('id', ParseUUIDPipe) id: string
-  ) {
-    return this.service.delete(id)
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete accounts' })
+  batchDelete(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

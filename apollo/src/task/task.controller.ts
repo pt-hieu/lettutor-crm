@@ -59,13 +59,9 @@ export class TaskController {
     return this.service.update(id, dto)
   }
 
-
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'to delete a task' })
-  deleteNote(
-    @Param('id', ParseUUIDPipe) id: string
-  ) {
-    return this.service.delete(id)
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete tasks' })
+  deleteNote(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

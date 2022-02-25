@@ -1,3 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger'
+import { IsUUID } from 'class-validator'
+
 export * as User from './user'
 export * as Auth from './auth'
 export * as Lead from './lead'
@@ -10,3 +13,9 @@ export * as Webhook from './webhook'
 export * as Task from './task'
 export * as Note from './note'
 export * as Strapi from './strapi'
+
+export class BatchDelete {
+  @ApiProperty()
+  @IsUUID(undefined, { each: true })
+  ids: string[]
+}

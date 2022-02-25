@@ -16,7 +16,7 @@ import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { Brackets, FindOneOptions, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 import { PayloadService } from 'src/global/payload.service'
 import { Task } from './task.entity'
 
@@ -33,7 +33,7 @@ export class TaskService {
     private readonly dealService: DealService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) { }
+  ) {}
 
   async addTask(dto: DTO.Task.AddTask) {
     await this.userService.getOneUserById({ where: { id: dto.ownerId } })
@@ -69,8 +69,8 @@ export class TaskService {
       await Promise.all([
         dto.contactId
           ? this.contactService.getContactById({
-            where: { id: dto.contactId },
-          })
+              where: { id: dto.contactId },
+            })
           : undefined,
         dto.accountId
           ? this.accountService.getAccountById({ where: { id: dto.accountId } })
@@ -106,7 +106,7 @@ export class TaskService {
 
   getManyRaw() {
     return this.taskRepo.find({
-      select: ['id', 'subject']
+      select: ['id', 'subject'],
     })
   }
 
@@ -179,8 +179,8 @@ export class TaskService {
       dto.accountId
         ? (dto.dealId = null)
         : dto.dealId
-          ? (dto.accountId = null)
-          : undefined
+        ? (dto.accountId = null)
+        : undefined
 
       await Promise.all([
         dto.contactId
@@ -202,13 +202,8 @@ export class TaskService {
     await this.taskRepo.save(tasks)
   }
 
-
-
-  async delete(id: string) {
-    const task = await this.getTaskById({ where: { id } })
-
-    await this.userService.getOneUserById({ where: { id: this.payloadService.data.id } })
-
-    return this.taskRepo.remove(task)
+  async batchDelete(ids: string[]) {
+    const tasks = await this.taskRepo.find({ where: { id: In(ids) } })
+    return this.taskRepo.remove(tasks)
   }
 }

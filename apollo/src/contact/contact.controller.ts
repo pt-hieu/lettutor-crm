@@ -24,19 +24,13 @@ export class ContactController {
   constructor(
     private readonly service: ContactService,
     private readonly utilService: UtilService,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all contacts' })
   @ApiQuery({ type: DTO.Contact.GetManyQuery })
   index(@Query() query: DTO.Contact.GetManyQuery) {
     return this.service.getMany(query)
-  }
-
-  @Get('raw')
-  @ApiOperation({ summary: 'get raw all contacts' })
-  getManyRaw() {
-    return this.service.getManyRaw()
   }
 
   @Post()
@@ -46,13 +40,27 @@ export class ContactController {
     return this.service.addContact(dto)
   }
 
+  @Get('raw')
+  @ApiOperation({ summary: 'get raw all contacts' })
+  getManyRaw() {
+    return this.service.getManyRaw()
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'to get contact information by Id' })
   getContactById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getContactById(
       {
         where: { id },
-        relations: ['owner', 'account', 'deals', 'tasks', 'tasks.owner', 'notes', 'notes.owner'],
+        relations: [
+          'owner',
+          'account',
+          'deals',
+          'tasks',
+          'tasks.owner',
+          'notes',
+          'notes.owner',
+        ],
       },
       true,
     )
@@ -67,11 +75,9 @@ export class ContactController {
     return this.service.update(id, dto)
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'to soft delete a contact' })
-  softDeleteContact(
-    @Param('id', ParseUUIDPipe) id: string
-  ) {
-    return this.service.delete(id)
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete contacts' })
+  bacthDelete(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }
