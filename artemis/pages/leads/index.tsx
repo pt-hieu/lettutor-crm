@@ -9,7 +9,7 @@ import { getLeads } from '@utils/service/lead'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
 import Link from 'next/link'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -96,6 +96,8 @@ export const leadColumns: TableColumnType<Lead>[] = [
 ]
 
 export default function LeadsViews() {
+  const client = useQueryClient()
+
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -166,6 +168,7 @@ export default function LeadsViews() {
             </motion.div>
           )}
         </AnimatePresence>
+
         <div className="w-full">
           <Table
             showSorterTooltip={false}
@@ -175,6 +178,12 @@ export default function LeadsViews() {
             rowKey={(u) => u.id}
             rowSelection={{
               type: 'checkbox',
+              onChange: (ids) => {
+                client.setQueryData(
+                  'selected-leadIds',
+                  ids.map((id) => id.toString()),
+                )
+              },
             }}
             bordered
             pagination={{

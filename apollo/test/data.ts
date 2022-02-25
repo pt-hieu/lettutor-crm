@@ -172,6 +172,7 @@ export const note: Note = {
   dealId: deal.id,
   title: 'Test Note title',
   content: 'Test Note content',
+  source: "",
   createdAt: null,
   updatedAt: null,
   createdBy: null,

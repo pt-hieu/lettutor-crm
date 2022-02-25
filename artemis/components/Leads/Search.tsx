@@ -1,11 +1,13 @@
 import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
-import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Actions } from '@utils/models/role'
+import { batchDelete } from '@utils/service/lead'
+import { notification } from 'antd'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 type Props = {
   search: string | undefined
@@ -18,12 +20,34 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
   })
 
   const auth = useAuthorization()
+  const client = useQueryClient()
 
   const submit = useCallback(
     handleSubmit(({ search }) => {
       setSearch(search)
     }),
     [],
+  )
+
+  const { data: ids } = useQuery<string[]>('selected-leadIds', {
+    enabled: false,
+  })
+
+  const { mutateAsync, isLoading: isDeleting } = useMutation(
+    'delete-lead',
+    batchDelete,
+    {
+      onSuccess() {
+        notification.success({ message: 'Delete leads successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete leads unsuccessfully' })
+      },
+      onSettled() {
+        client.setQueryData('selected-leadIds', [])
+        client.invalidateQueries('leads')
+      },
+    },
   )
 
   return (
@@ -65,25 +89,21 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      {auth[Actions.Lead.CREATE_NEW_LEAD] && (
-        <ButtonAdd
-          title="Create Lead"
-          asLink
-          link="/leads/add-lead"
-          //menuItems={
-          //<>
-          //<button className={menuItemClass}>
-          //<span className="fa fa-upload mr-4" />
-          //Import Leads
-          //</button>
-          //<button className={menuItemClass}>
-          //<span className="fa fa-book mr-4" />
-          //Import Notes
-          //</button>
-          //</>
-          //}
-        />
-      )}
+
+      <div className="flex gap-2">
+        {!!ids?.length && (
+          <button
+            disabled={isDeleting}
+            onClick={() => mutateAsync(ids)}
+            className="crm-button-danger"
+          >
+            <span className="fa fa-trash mr-2" /> Delete
+          </button>
+        )}
+        {auth[Actions.Lead.CREATE_NEW_LEAD] && (
+          <ButtonAdd title="Create Lead" asLink link="/leads/add-lead" />
+        )}
+      </div>
     </div>
   )
 }
