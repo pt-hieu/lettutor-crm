@@ -16,9 +16,7 @@ import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { note } from 'test/data'
 import { FindOneOptions, In, Repository } from 'typeorm'
 import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
 
@@ -46,7 +44,7 @@ export class NoteService {
     private readonly fileService: FileService,
   ) {}
 
-  // @ts-expect-error
+  // @ts-ignore
   async addNote(dto: DTO.Note.AddNote, files?: Express.Multer.File[]) {
     await this.userService.getOneUserById({
       where: { id: this.payloadService.data.id },
