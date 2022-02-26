@@ -52,24 +52,10 @@ export class NoteService {
       where: { id: this.payloadService.data.id },
     })
 
-    const filesToAdd = []
+    let filesToAdd = []
 
     if (files && files.length > 0) {
-      let totalSize = 0
-      for (let file of files) {
-        totalSize += file.size
-        const fileToAdd = await this.fileService.uploadFile(
-          file.buffer,
-          file.originalname,
-        )
-
-        filesToAdd.push(fileToAdd)
-      }
-
-      // 20971520 = 20MB in binary
-      if (totalSize > 20971520) {
-        throw new BadRequestException('The total size of files exceeds 20MB')
-      }
+      filesToAdd = await this.fileService.uploadFile(files)
     }
 
     if (dto.leadId && dto.source == NoteSource.LEAD) {
