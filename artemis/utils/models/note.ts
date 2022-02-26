@@ -15,6 +15,7 @@ export type AddNoteDto = {
   accountId?: string
   title?: string
   content?: string
+  files?: File[]
   source?: NoteSource
 }
 
