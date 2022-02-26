@@ -11,7 +11,7 @@ import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { FindOneOptions, Repository } from 'typeorm'
+import { FindOneOptions, In, Repository } from 'typeorm'
 import { Account } from './account.entity'
 
 @Injectable()
@@ -133,5 +133,19 @@ export class AccountService {
       ...account,
       ...dto,
     })
+  }
+
+  async batchDelete(ids: string[]) {
+    const accounts = await this.accountRepo.find({ where: { id: In(ids) } })
+    for (const account of accounts) {
+      if (
+        !this.utilService.checkOwnership(account) &&
+        !this.utilService.checkRoleAction(Actions.DELETE_ACCOUNT)
+      ) {
+        throw new ForbiddenException()
+      }
+    }
+
+    return this.accountRepo.remove(accounts)
   }
 }

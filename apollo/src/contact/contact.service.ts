@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
-import { Brackets, FindOneOptions, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { UserService } from 'src/user/user.service'
@@ -134,5 +134,19 @@ export class ContactService {
       ...contact,
       ...dto,
     })
+  }
+
+   async batchDelete(ids: string[]) {
+    const contacts = await this.contactRepo.find({ where: { id: In(ids) } })
+    for (const contact of contacts) {
+      if (
+        !this.utilService.checkOwnership(contact) &&
+        !this.utilService.checkRoleAction(Actions.DELETE_ACCOUNT)
+      ) {
+        throw new ForbiddenException()
+      }
+    }
+
+    return this.contactRepo.remove(contacts)
   }
 }

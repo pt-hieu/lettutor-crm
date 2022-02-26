@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -58,7 +59,7 @@ export class DealController {
           'tasks',
           'tasks.owner',
           'notes',
-          'notes.owner'
+          'notes.owner',
         ],
       },
       true,
@@ -72,5 +73,11 @@ export class DealController {
     @Body() dto: DTO.Deal.UpdateDeal,
   ) {
     return this.service.updateDeal(dto, id)
+  }
+
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete deals' })
+  batchDelete(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

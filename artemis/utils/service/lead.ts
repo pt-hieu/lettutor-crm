@@ -65,7 +65,16 @@ export const convertLead =
       | undefined,
   ) =>
     axios
-      .post<[Account, Lead, Deal]>(API + '/api/lead/' + id + '/convert', data, {
-        params: { ownerId },
-      })
+      .post<[Account, Lead, Deal]>(
+        API + '/apollo/lead/' + id + '/convert',
+        data,
+        {
+          params: { ownerId },
+        },
+      )
       .then((res) => res.data)
+
+export const batchDelete = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/lead/batch', { data: { ids } })
+    .then((res) => res.data)

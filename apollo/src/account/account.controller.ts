@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -55,7 +56,7 @@ export class AccountController {
           'tasks',
           'tasks.owner',
           'notes',
-          'notes.owner'
+          'notes.owner',
         ],
       },
       true,
@@ -76,5 +77,11 @@ export class AccountController {
     @Body() dto: DTO.Account.UpdateAccount,
   ) {
     return this.service.updateAccount(dto, id)
+  }
+
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete accounts' })
+  batchDelete(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

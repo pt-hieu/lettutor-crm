@@ -14,7 +14,7 @@ import { ContactService } from 'src/contact/contact.service'
 import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
-import { FindOneOptions, Repository } from 'typeorm'
+import { FindOneOptions, In, Repository } from 'typeorm'
 import { Deal, DealStage } from './deal.entity'
 import { Actions } from 'src/type/action'
 import { PayloadService } from 'src/global/payload.service'
@@ -31,12 +31,11 @@ export class DealService {
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) { }
-
+  ) {}
 
   getManyRaw() {
     return this.dealRepo.find({
-      select: ['id', 'fullName']
+      select: ['id', 'fullName'],
     })
   }
 
@@ -158,5 +157,19 @@ export class DealService {
       ...deal,
       ...dto,
     })
+  }
+
+  async batchDelete(ids: string[]) {
+    const deals = await this.dealRepo.find({ where: { id: In(ids) } })
+    for (const deal of deals) {
+      if (
+        !this.utilService.checkOwnership(deal) &&
+        !this.utilService.checkRoleAction(Actions.DELETE_ACCOUNT)
+      ) {
+        throw new ForbiddenException()
+      }
+    }
+
+    return this.dealRepo.remove(deals)
   }
 }

@@ -92,3 +92,4 @@ export class UpdateAccount {
   @MaxLength(500)
   description?: string
 }
+

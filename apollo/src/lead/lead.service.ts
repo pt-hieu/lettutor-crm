@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DTO } from 'src/type'
-import { FindOneOptions, Repository } from 'typeorm'
+import { FindOneOptions, In, Repository } from 'typeorm'
 import { Lead } from './lead.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
@@ -211,5 +211,19 @@ export class LeadService {
     await this.leadRepo.softDelete({ id: lead.id })
 
     return [account, contact, deal] as const
+  }
+
+  async batchDelete(ids: string[]) {
+    const leads = await this.leadRepo.find({ where: { id: In(ids) } })
+    for (const lead of leads) {
+      if (
+        !this.utilService.checkOwnership(lead) &&
+        !this.utilService.checkRoleAction(Actions.DELETE_ACCOUNT)
+      ) {
+        throw new ForbiddenException()
+      }
+    }
+
+    return this.leadRepo.remove(leads)
   }
 }

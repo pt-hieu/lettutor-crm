@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
@@ -11,7 +21,7 @@ import { NoteService } from './note.service'
 @ApiSecurity('x-user')
 @Controller('note')
 export class NoteController {
-  constructor(private readonly service: NoteService) { }
+  constructor(private readonly service: NoteService) {}
 
   @Post()
   @DefineAction(Actions.CREATE_NEW_NOTE)
@@ -44,12 +54,9 @@ export class NoteController {
     return this.service.update(id, dto)
   }
 
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'to delete a note' })
-  deleteNote(
-    @Param('id', ParseUUIDPipe) id: string
-  ) {
-    return this.service.delete(id)
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete a note' })
+  deleteNote(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }
