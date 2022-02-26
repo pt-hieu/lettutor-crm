@@ -97,7 +97,7 @@ const ContactDetailSidebar = () => {
   ]
 
   return (
-    <>
+    <div className="relative">
       <AddTaskModal
         visible={createTaskVisible}
         handleClose={closeCreateTask}
@@ -105,7 +105,7 @@ const ContactDetailSidebar = () => {
         isLoading={isLoading}
       />
       <DetailPageSidebar data={SideBarItems} />
-    </>
+    </div>
   )
 }
 

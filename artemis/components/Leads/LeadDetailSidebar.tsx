@@ -74,7 +74,7 @@ const LeadDetailSidebar = () => {
   ]
 
   return (
-    <>
+    <div className="relative">
       <AddTaskModal
         visible={createTaskVisible}
         handleClose={closeCreateTask}
@@ -82,7 +82,7 @@ const LeadDetailSidebar = () => {
         isLoading={isLoading}
       />
       <DetailPageSidebar data={SideBarItems} />
-    </>
+    </div>
   )
 }
 
