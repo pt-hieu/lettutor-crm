@@ -26,7 +26,7 @@ interface ITextboxProps {
   onSave: (data: INoteData) => void
   defaultTitle?: string
   defaultNote?: string
-  defaultFile?: File[]
+  defaultFiles?: File[]
 }
 
 const animateVariant = {
@@ -39,7 +39,7 @@ export const NoteTextBox = ({
   onSave,
   defaultTitle,
   defaultNote,
-  defaultFile,
+  defaultFiles: defaultFile,
 }: ITextboxProps) => {
   const [hasTitle, setHasTitle] = useState(!!defaultTitle)
   const [title, setTitle] = useState(defaultTitle || '')

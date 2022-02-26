@@ -19,6 +19,10 @@ export type AddNoteDto = {
   source?: NoteSource
 }
 
+export interface FileInfo extends File {
+  id: string
+}
+
 export interface Note extends Base {
   owner: User | null
   deal: Deal
@@ -28,4 +32,5 @@ export interface Note extends Base {
   lead?: Lead
   contact?: Contact
   account?: Account
+  files: FileInfo[]
 }
