@@ -1,11 +1,13 @@
 import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
-import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Actions } from '@utils/models/role'
+import { batchDelete } from '@utils/service/task'
+import { notification } from 'antd'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 type Props = {
   search: string | undefined
@@ -24,7 +26,24 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
     [],
   )
 
+  const client = useQueryClient()
   const auth = useAuthorization()
+  const { data: ids } = useQuery<string[]>('selected-taskIds', {
+    enabled: false,
+  })
+
+  const { mutateAsync, isLoading } = useMutation('delete-tasks', batchDelete, {
+    onSuccess() {
+      client.setQueryData('selected-taskIds', [])
+      notification.success({ message: 'Delete tasks successfully' })
+    },
+    onError() {
+      notification.error({ message: 'Delete tasks unsuccessfully' })
+    },
+    onSettled() {
+      client.invalidateQueries('tasks')
+    },
+  })
 
   return (
     <div className="flex justify-between items-center p-1">
@@ -65,9 +84,23 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      {auth[Actions.Task.CREATE_NEW_TASK] && (
-        <ButtonAdd title="Create Task" asLink link="/tasks/add-task" />
-      )}
+
+      <div className="flex gap-2">
+        {!!ids?.length && (
+          <button
+            disabled={isLoading}
+            onClick={() => mutateAsync(ids)}
+            className="crm-button-danger"
+          >
+            <span className="fa fa-trash mr-2" />
+            Delete
+          </button>
+        )}
+
+        {auth[Actions.Task.CREATE_NEW_TASK] && (
+          <ButtonAdd title="Create Task" asLink link="/tasks/add-task" />
+        )}
+      </div>
     </div>
   )
 }

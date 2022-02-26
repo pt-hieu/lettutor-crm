@@ -3,7 +3,10 @@ import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership } from '@utils/hooks/useOwnership'
 import { Actions } from '@utils/models/role'
 import { Task } from '@utils/models/task'
+import { batchDelete } from '@utils/service/task'
+import { notification } from 'antd'
 import { useRouter } from 'next/router'
+import { useMutation } from 'react-query'
 
 type Props = {
   task: Task
@@ -19,6 +22,20 @@ const TaskDetailNavbar = ({ task }: Props) => {
   const auth = useAuthorization()
   const isOwner = useOwnership(task)
 
+  const { mutateAsync, isLoading: isDeleting } = useMutation(
+    'delete-task',
+    batchDelete,
+    {
+      onSuccess() {
+        router.replace('/tasks')
+        notification.success({ message: 'Delete task successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete task unsuccessfully' })
+      },
+    },
+  )
+
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-10 transform translate-y-[-16px]">
       <div className="flex justify-between items-center">
@@ -28,7 +45,18 @@ const TaskDetailNavbar = ({ task }: Props) => {
           <TraceInfo entity={task} />
         </div>
 
-        <div className="flex flex-row gap-3">
+        <div className="grid grid-cols-2 gap-3">
+          {(auth[Actions.Task.DELETE_TASK] || isOwner) && (
+            <button
+              disabled={isDeleting}
+              onClick={() => mutateAsync([id])}
+              className="crm-button-danger"
+            >
+              <span className="fa fa-trash mr-2" />
+              Delete
+            </button>
+          )}
+
           {(auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] || isOwner) && (
             <button
               className="crm-button-secondary"

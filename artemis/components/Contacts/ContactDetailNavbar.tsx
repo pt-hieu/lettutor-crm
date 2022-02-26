@@ -3,7 +3,10 @@ import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership } from '@utils/hooks/useOwnership'
 import { Contact } from '@utils/models/contact'
 import { Actions } from '@utils/models/role'
+import { batchDelete } from '@utils/service/contact'
+import { notification } from 'antd'
 import { useRouter } from 'next/router'
+import { useMutation } from 'react-query'
 
 type Props = {
   data: Contact | undefined
@@ -11,12 +14,27 @@ type Props = {
 
 const ContactDetailNavbar = ({ data }: Props) => {
   const router = useRouter()
+
   const navigateToEditPage = () => {
     router.push(`/contacts/${data?.id}/edit`)
   }
 
   const auth = useAuthorization()
   const isOwner = useOwnership(data)
+
+  const { mutateAsync, isLoading } = useMutation(
+    'delete-contacts',
+    batchDelete,
+    {
+      onSuccess() {
+        router.push('/contacts')
+        notification.success({ message: 'Delete contact successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete contact unsuccessfully' })
+      },
+    },
+  )
 
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-10 transform translate-y-[-16px]">
@@ -27,9 +45,21 @@ const ContactDetailNavbar = ({ data }: Props) => {
           <TraceInfo entity={data} />
         </div>
 
-        <div className="flex flex-row gap-3">
+        <div className="grid grid-cols-3 gap-3">
+          {(auth[Actions.Contact.DELETE_CONTACT] || isOwner) && (
+            <button
+              disabled={isLoading}
+              onClick={() => mutateAsync([data?.id || ''])}
+              className="crm-button-danger"
+            >
+              <span className="fa fa-trash mr-2" />
+              Delete
+            </button>
+          )}
+
           <button className="crm-button">Send Email</button>
-          {(auth[Actions.Contact.VIEW_AND_EDIT_ALL_CONTACT_DETAILS] || isOwner) && (
+          {(auth[Actions.Contact.VIEW_AND_EDIT_ALL_CONTACT_DETAILS] ||
+            isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

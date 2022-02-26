@@ -31,7 +31,10 @@ export const getRawAccounts = (token?: string) => () =>
     .then((res) => res.data)
 
 export const addAccount = async (contactInfo: AccountAddFormData) => {
-  const { data } = await axios.post<Account>(API + `/apollo/account`, contactInfo)
+  const { data } = await axios.post<Account>(
+    API + `/apollo/account`,
+    contactInfo,
+  )
   return data
 }
 
@@ -54,3 +57,8 @@ export const updateAccount = async (params: {
 
   return data
 }
+
+export const batchDelete = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/account/batch', { data: { ids } })
+    .then((r) => r.data)

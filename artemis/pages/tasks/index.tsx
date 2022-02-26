@@ -8,7 +8,7 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { getTasks } from '@utils/service/task'
 import { formatDate } from '@utils/libs/time'
@@ -62,6 +62,8 @@ export const taskColumns: TableColumnType<Task>[] = [
 ]
 
 export default function TasksView() {
+  const client = useQueryClient()
+
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -145,6 +147,11 @@ export default function TasksView() {
             rowKey={(u) => u.id}
             rowSelection={{
               type: 'checkbox',
+              onChange: (keys) =>
+                client.setQueryData(
+                  'selected-taskIds',
+                  keys.map((k) => k.toString()),
+                ),
             }}
             bordered
             pagination={{
