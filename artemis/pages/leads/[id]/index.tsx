@@ -330,7 +330,7 @@ const LeadDetail = () => {
         <div className="grid grid-cols-[250px,1fr]">
           <LeadDetailSidebar />
 
-          <div className="flex flex-col divide-y gap-4">
+          <div className="flex flex-col divide-y gap-4 ml-5">
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
