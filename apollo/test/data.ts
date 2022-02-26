@@ -157,7 +157,6 @@ export const task: Task = {
   deletedAt: null,
 }
 
-
 export const note: Note = {
   id: '1234',
   owner: user,
@@ -172,7 +171,8 @@ export const note: Note = {
   dealId: deal.id,
   title: 'Test Note title',
   content: 'Test Note content',
-  source: "",
+  source: '',
+  files: [],
   createdAt: null,
   updatedAt: null,
   createdBy: null,

@@ -18,6 +18,7 @@ import { ContactModule } from './contact/contact.module'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { RoleModule } from './role/role.module'
 import { HttpModule } from '@nestjs/axios'
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { HttpModule } from '@nestjs/axios'
     RoleModule,
     NoteModule,
     GlobalModule,
+    FileModule,
   ],
   providers: [
     BaseSubscriber,
