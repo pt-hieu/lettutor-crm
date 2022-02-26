@@ -3,6 +3,7 @@ import { Public } from 'src/utils/decorators/public.decorator'
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -107,5 +108,12 @@ export class UserController {
     @Body() dto: DTO.User.ActivateUser,
   ) {
     return this.service.activateUser(id, dto)
+  }
+
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete users' })
+  @DefineAction(Actions.DELETE_USER)
+  batchDeleteUser(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

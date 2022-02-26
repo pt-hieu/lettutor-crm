@@ -23,6 +23,7 @@ export const Actions = {
     VIEW_ALL_USER_DETAILS: 'Can view any user details',
     VIEW_AND_EDIT_ALL_USER_STATUS: 'Can view and edit any user status',
     CREATE_NEW_USER: 'Can create new user',
+    DELETE_USER: 'Can delete one or many users',
   } as const,
 
   [ActionScope.ROLE]: {

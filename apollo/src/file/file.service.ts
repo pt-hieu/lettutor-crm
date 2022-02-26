@@ -15,6 +15,7 @@ export class FileService {
     private fileRepo: Repository<File>,
   ) {}
 
+  // @ts-expect-error
   async uploadFile(files: Express.Multer.File[]) {
     this.checkFileConstraints(files)
 
@@ -41,6 +42,7 @@ export class FileService {
     return file
   }
 
+  // @ts-expect-error
   checkFileConstraints(files: Express.Multer.File[]) {
     let totalSize = 0
     for (let file of files) {

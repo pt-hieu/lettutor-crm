@@ -33,6 +33,7 @@ export class NoteController {
   @UseInterceptors(FilesInterceptor('files', MAX_COUNT_OF_FILES))
   addNote(
     @Body() dto: DTO.Note.AddNote,
+    // @ts-expect-error
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     return this.service.addNote(dto, files)

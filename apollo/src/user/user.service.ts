@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 import { User, UserStatus } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
@@ -210,5 +210,10 @@ export class UserService {
 
     user.status = dto.status
     return this.userRepo.save(user)
+  }
+
+  async batchDelete(ids: string[]) {
+    const users = await this.userRepo.find({ where: { id: In(ids) } })
+    return this.userRepo.remove(users)
   }
 }

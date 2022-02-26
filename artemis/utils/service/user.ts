@@ -80,3 +80,8 @@ export const invalidateAddUserToken = async (data: { userId: string }) => {
     .get(API + `/apollo/user/${userId}/invalidate`)
     .then((res) => res.data)
 }
+
+export const batchDelete = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/user/batch', { data: { ids } })
+    .then((r) => r.data)

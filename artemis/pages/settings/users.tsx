@@ -5,6 +5,7 @@ import {
   getUsers,
   updateStatus,
   invalidateAddUserToken,
+  batchDelete,
 } from '@utils/service/user'
 import { getRoles } from '@utils/service/role'
 import { getSessionToken } from '@utils/libs/getToken'
@@ -62,6 +63,8 @@ export const getServerSideProps: GetServerSideProps = async ({
 }
 
 export default function UsersSettings() {
+  const client = useQueryClient()
+
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -202,6 +205,26 @@ export default function UsersSettings() {
     })
   }
 
+  const { data: ids } = useQuery<string[]>('selected-userIds', {
+    enabled: false,
+  })
+  const { mutateAsync: deleteUserMutate, isLoading: isDeleting } = useMutation(
+    'delete-users',
+    batchDelete,
+    {
+      onSuccess() {
+        client.setQueryData('selected-userIds', [])
+        notification.success({ message: 'Delete users successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete users unsuccessfully' })
+      },
+      onSettled() {
+        client.invalidateQueries('users')
+      },
+    },
+  )
+
   return (
     <SettingsLayout title="CRM | Users">
       <div className="flex justify-between">
@@ -212,7 +235,20 @@ export default function UsersSettings() {
           onStatusChange={setStatus}
         />
 
-        {auth[Actions.User.CREATE_NEW_USER] && <ButtonAddUser />}
+        <div className="flex gap-2">
+          {!!ids?.length && auth[Actions.User.DELETE_USER] && (
+            <button
+              disabled={isDeleting}
+              onClick={() => deleteUserMutate(ids)}
+              className="crm-button-danger"
+            >
+              <span className="fa fa-trash mr-2" />
+              Delete
+            </button>
+          )}
+
+          {auth[Actions.User.CREATE_NEW_USER] && <ButtonAddUser />}
+        </div>
       </div>
 
       <div className="mt-4">
@@ -229,6 +265,7 @@ export default function UsersSettings() {
         >
           Showing from {start} to {end} of {total} results.
         </Animate>
+
         <Table
           showSorterTooltip={false}
           columns={columns}
@@ -237,6 +274,11 @@ export default function UsersSettings() {
           rowKey={(u) => u.id}
           rowSelection={{
             type: 'checkbox',
+            onChange: (keys) =>
+              client.setQueryData(
+                'selected-userIds',
+                keys.map((k) => k.toString()),
+              ),
           }}
           bordered
           pagination={{
