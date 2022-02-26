@@ -5,6 +5,7 @@ export enum Actions {
   VIEW_ALL_USER_DETAILS = 'Can view any user details',
   VIEW_AND_EDIT_ALL_USER_STATUS = 'Can view and edit any user status',
   CREATE_NEW_USER = 'Can create new user',
+  DELETE_USER = 'Can delete one or many users',
 
   EDIT_ROLE = 'Can edit any roles',
   DELETE_ROLE = 'Can delete any roles',
@@ -29,7 +30,7 @@ export enum Actions {
   VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS = 'Can view and edit any account details',
   CREATE_NEW_ACCOUNT = 'Can create new account',
   DELETE_ACCOUNT = 'Can delete any account',
-  
+
   VIEW_ALL_DEALS = 'Can view all deals',
   VIEW_ALL_DEAL_DETAILS = 'Can view any deal details',
   VIEW_AND_EDIT_ALL_DEAL_DETAILS = 'Can view and edit any deal details',
@@ -45,5 +46,5 @@ export enum Actions {
 
   VIEW_ALL_NOTES = 'Can view all notes',
   CREATE_NEW_NOTE = 'Can create new note',
-  DELETE_NOTE = 'Can delete any note'
+  DELETE_NOTE = 'Can delete any note',
 }

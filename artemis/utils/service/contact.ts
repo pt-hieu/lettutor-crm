@@ -51,6 +51,14 @@ export const updateContact = async (params: {
 }
 
 export const addContact = async (contactInfo: ContactAddFormData) => {
-  const { data } = await axios.post<Contact>(API + `/apollo/contact`, contactInfo)
+  const { data } = await axios.post<Contact>(
+    API + `/apollo/contact`,
+    contactInfo,
+  )
   return data
 }
+
+export const batchDelete = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/contact/batch', { data: { ids } })
+    .then((r) => r.data)

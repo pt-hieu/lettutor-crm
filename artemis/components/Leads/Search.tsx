@@ -38,13 +38,13 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
     batchDelete,
     {
       onSuccess() {
+        client.setQueryData('selected-leadIds', [])
         notification.success({ message: 'Delete leads successfully' })
       },
       onError() {
         notification.error({ message: 'Delete leads unsuccessfully' })
       },
       onSettled() {
-        client.setQueryData('selected-leadIds', [])
         client.invalidateQueries('leads')
       },
     },
@@ -100,6 +100,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
             <span className="fa fa-trash mr-2" /> Delete
           </button>
         )}
+
         {auth[Actions.Lead.CREATE_NEW_LEAD] && (
           <ButtonAdd title="Create Lead" asLink link="/leads/add-lead" />
         )}

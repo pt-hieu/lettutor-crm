@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { File } from './file.entity'
 
+const MAX_SIZE_OF_FILES = 20971520 // 20MB in binary
 @Injectable()
 export class FileService {
   constructor(
@@ -10,13 +15,23 @@ export class FileService {
     private fileRepo: Repository<File>,
   ) {}
 
-  async uploadFile(dataBuffer: Buffer, filename: string) {
-    const newFile = await this.fileRepo.create({
-      filename,
-      data: dataBuffer,
-    })
-    await this.fileRepo.save(newFile)
-    return newFile
+  // @ts-ignore
+  async uploadFile(files: Express.Multer.File[]) {
+    this.checkFileConstraints(files)
+
+    const filesToAdd = []
+
+    for (let file of files) {
+      const newFile = await this.fileRepo.create({
+        data: file.buffer,
+        filename: file.originalname,
+      })
+
+      await this.fileRepo.save(newFile)
+      filesToAdd.push(newFile)
+    }
+
+    return filesToAdd
   }
 
   async getFileById(id: string) {
@@ -25,5 +40,17 @@ export class FileService {
       throw new NotFoundException('File not found')
     }
     return file
+  }
+
+  // @ts-ignore
+  checkFileConstraints(files: Express.Multer.File[]) {
+    let totalSize = 0
+    for (let file of files) {
+      totalSize += file.size
+    }
+
+    if (totalSize > MAX_SIZE_OF_FILES) {
+      throw new BadRequestException('The total size of files exceeds 20MB')
+    }
   }
 }

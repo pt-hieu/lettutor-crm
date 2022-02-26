@@ -2,12 +2,14 @@ import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
 import Input from '@utils/components/Input'
 import { useQueryState } from '@utils/hooks/useQueryState'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { Switch, Tooltip } from 'antd'
+import { notification, Switch, Tooltip } from 'antd'
 import { ViewMode } from 'pages/deals'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Actions } from '@utils/models/role'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { batchDelete } from '@utils/service/deal'
 
 type Props = {
   search: string | undefined
@@ -18,6 +20,8 @@ export default function DealsSearch({
   onSearchChange: setSearch,
   search,
 }: Props) {
+  const client = useQueryClient()
+
   const { register, handleSubmit, reset } = useForm({
     defaultValues: { search },
   })
@@ -29,12 +33,34 @@ export default function DealsSearch({
     ViewMode.TABULAR,
   )
 
+  useEffect(() => {
+    if (kanbanMode === ViewMode.TABULAR) return
+    client.setQueryData('selected-dealIds', [])
+  }, [kanbanMode])
+
   const submit = useCallback(
     handleSubmit(({ search }) => {
       setSearch(search)
     }),
     [],
   )
+
+  const { data: ids } = useQuery<string[]>('selected-dealIds', {
+    enabled: false,
+  })
+
+  const { mutateAsync, isLoading } = useMutation('delete-deals', batchDelete, {
+    onSuccess() {
+      client.setQueryData('selected-dealIds', [])
+      notification.success({ message: 'Delete deals successfully' })
+    },
+    onError() {
+      notification.error({ message: 'Delete deals unsuccessfully' })
+    },
+    onSettled() {
+      client.invalidateQueries('deals')
+    },
+  })
 
   return (
     <div className="flex justify-between items-center p-1">
@@ -75,6 +101,7 @@ export default function DealsSearch({
           </button>
         </Animate>
       </form>
+
       <div className="flex gap-8 items-center">
         <Tooltip title="Toggle Kanban mode">
           <div className="flex gap-2 items-center">
@@ -94,9 +121,22 @@ export default function DealsSearch({
           </div>
         </Tooltip>
 
-        {auth[Actions.Deal.CREATE_NEW_DEAL] && (
-          <ButtonAdd title="Create Deal" asLink link="/deals/add-deal" />
-        )}
+        <div className="flex gap-2">
+          {!!ids?.length && kanbanMode !== ViewMode.KANBAN && (
+            <button
+              disabled={isLoading}
+              onClick={() => mutateAsync(ids)}
+              className="crm-button-danger"
+            >
+              <span className="fa fa-trash mr-2" />
+              Delete
+            </button>
+          )}
+
+          {auth[Actions.Deal.CREATE_NEW_DEAL] && (
+            <ButtonAdd title="Create Deal" asLink link="/deals/add-deal" />
+          )}
+        </div>
       </div>
     </div>
   )

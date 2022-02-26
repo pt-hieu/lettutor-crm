@@ -1,11 +1,13 @@
 import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
-import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Actions } from '@utils/models/role'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { batchDelete } from '@utils/service/contact'
+import { notification } from 'antd'
 
 type Props = {
   search: string | undefined
@@ -13,6 +15,9 @@ type Props = {
 }
 
 export default function Search({ onSearchChange: setSearch, search }: Props) {
+  const client = useQueryClient()
+  const auth = useAuthorization()
+
   const { register, handleSubmit, reset } = useForm({
     defaultValues: { search },
   })
@@ -24,7 +29,26 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
     [],
   )
 
-  const auth = useAuthorization()
+  const { data: ids } = useQuery<string[]>('selected-contactIds', {
+    enabled: false,
+  })
+
+  const { mutateAsync, isLoading } = useMutation(
+    'delete-contacts',
+    batchDelete,
+    {
+      onSuccess() {
+        client.setQueryData('selected-contactIds', [])
+        notification.success({ message: 'Delete contact successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete contact unsuccessfully' })
+      },
+      onSettled() {
+        client.invalidateQueries('contacts')
+      },
+    },
+  )
 
   return (
     <div className="flex justify-between items-center p-1">
@@ -66,9 +90,26 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
         </Animate>
       </form>
 
-      {auth[Actions.Contact.CREATE_NEW_CONTACT] && (
-        <ButtonAdd title="Create Contact" asLink link="/contacts/add-contact" />
-      )}
+      <div className="flex gap-2">
+        {!!ids?.length && (
+          <button
+            disabled={isLoading}
+            onClick={() => mutateAsync(ids)}
+            className="crm-button-danger"
+          >
+            <span className="fa fa-trash mr-2" />
+            Delete
+          </button>
+        )}
+
+        {auth[Actions.Contact.CREATE_NEW_CONTACT] && (
+          <ButtonAdd
+            title="Create Contact"
+            asLink
+            link="/contacts/add-contact"
+          />
+        )}
+      </div>
     </div>
   )
 }

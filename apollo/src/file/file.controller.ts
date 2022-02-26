@@ -10,6 +10,7 @@ import { ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { Readable } from 'stream'
 import { Response } from 'express'
 import { FileService } from './file.service'
+import { isBuffer } from 'util'
 
 @ApiTags('file')
 @ApiSecurity('x-api-key')
@@ -24,13 +25,13 @@ export class FileController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const file = await this.fileService.getFileById(id)
-
     const stream = Readable.from(file.data)
 
-    // response.set({
-    //   'Content-Disposition': `inline; filename="${file.filename}"`,
-    //   'Content-Type': 'image',
-    // })
+    // if (/\.(jpe?g|png|gif|bmp)$/i.test(file.filename)) {
+    //   response.set({
+    //     'Content-Type': 'image',
+    //   })
+    // }
 
     return new StreamableFile(stream)
   }

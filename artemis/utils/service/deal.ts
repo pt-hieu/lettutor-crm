@@ -54,3 +54,8 @@ export const addDeal = async (dealInfo: DealUpdateFormData) => {
   const { data } = await axios.post<Deal>(API + `/apollo/deal`, dealInfo)
   return data
 }
+
+export const batchDelete = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/deal/batch', { data: { ids } })
+    .then((r) => r.data)

@@ -3,7 +3,10 @@ import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership } from '@utils/hooks/useOwnership'
 import { Account } from '@utils/models/account'
 import { Actions } from '@utils/models/role'
+import { batchDelete } from '@utils/service/account'
+import { notification } from 'antd'
 import { useRouter } from 'next/router'
+import { useMutation } from 'react-query'
 
 type Props = {
   data: Account | undefined
@@ -20,6 +23,19 @@ const AccountDetailNavbar = ({ data }: Props) => {
   const auth = useAuthorization()
   const isOwner = useOwnership(data)
 
+  const { mutateAsync, isLoading } = useMutation(
+    'delete-accounts',
+    batchDelete,
+    {
+      onSuccess() {
+        router.push('/accounts')
+        notification.success({ message: 'Delete accounts successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete accounts unsuccessfully' })
+      },
+    },
+  )
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-10 transform translate-y-[-16px]">
       <div className="flex justify-between items-center">
@@ -29,8 +45,20 @@ const AccountDetailNavbar = ({ data }: Props) => {
           <TraceInfo entity={data} />
         </div>
 
-        <div className="flex flex-row gap-3">
-          {(auth[Actions.Account.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] || isOwner) && (
+        <div className="grid grid-cols-2 gap-3">
+          {(auth[Actions.Account.DELETE_ACCOUNT] || isOwner) && (
+            <button
+              disabled={isLoading}
+              onClick={() => mutateAsync([id || ''])}
+              className="crm-button-danger"
+            >
+              <span className="fa fa-trash mr-2" />
+              Delete
+            </button>
+          )}
+
+          {(auth[Actions.Account.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] ||
+            isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

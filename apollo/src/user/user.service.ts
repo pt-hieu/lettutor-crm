@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 import { User, UserStatus } from './user.entity'
 import { randomBytes } from 'crypto'
 import { DTO } from 'src/type'
@@ -133,6 +133,30 @@ export class UserService {
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)
   }
 
+  async invalidateAddUserToken(id: string, fromUser: string) {
+    let user = await this.userRepo.findOne(id)
+
+    if (!user) {
+      throw new NotFoundException(
+        `User you want to re-send invitation email wasn't invited yet.`,
+      )
+    }
+
+    if (user.status !== UserStatus.UNCONFIRMED) {
+      throw new BadRequestException(`User has been confirmed.`)
+    }
+
+    const newToken = randomBytes(48).toString('base64url')
+
+    await this.userRepo.save({
+      ...user,
+      passwordToken: newToken,
+      tokenExpiration: moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate(),
+    })
+
+    return this.mailService.sendAddPwdMail(fromUser, user, newToken)
+  }
+
   getManyRaw() {
     return this.userRepo.find({
       select: ['id', 'name'],
@@ -186,5 +210,10 @@ export class UserService {
 
     user.status = dto.status
     return this.userRepo.save(user)
+  }
+
+  async batchDelete(ids: string[]) {
+    const users = await this.userRepo.find({ where: { id: In(ids) } })
+    return this.userRepo.remove(users)
   }
 }

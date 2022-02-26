@@ -4,8 +4,11 @@ import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Actions } from '@utils/models/role'
+import { batchDelete } from '@utils/service/account'
+import { notification } from 'antd'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 type Props = {
   search: string | undefined
@@ -13,6 +16,9 @@ type Props = {
 }
 
 export default function Search({ onSearchChange: setSearch, search }: Props) {
+  const auth = useAuthorization()
+  const client = useQueryClient()
+
   const { register, handleSubmit, reset } = useForm({
     defaultValues: { search },
   })
@@ -24,7 +30,25 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
     [],
   )
 
-  const auth = useAuthorization()
+  const { data: ids } = useQuery<string[]>('selected-accountIds', {
+    enabled: false,
+  })
+  const { mutateAsync, isLoading } = useMutation(
+    'delete-account',
+    batchDelete,
+    {
+      onSuccess() {
+        client.setQueryData('selected-accountIds', [])
+        notification.success({ message: 'Delete account succesfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete account unsuccesfully' })
+      },
+      onSettled() {
+        client.invalidateQueries('accounts')
+      },
+    },
+  )
 
   return (
     <div className="flex justify-between items-center p-1">
@@ -65,9 +89,27 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </button>
         </Animate>
       </form>
-      {auth[Actions.Account.CREATE_NEW_ACCOUNT] && (
-        <ButtonAdd title="Create Account" asLink link="/accounts/add-account" />
-      )}
+
+      <div className="flex gap-2">
+        {!!ids?.length && (
+          <button
+            disabled={isLoading}
+            onClick={() => mutateAsync(ids || [])}
+            className="crm-button-danger"
+          >
+            <span className="fa fa-trash mr-2" />
+            Delete
+          </button>
+        )}
+
+        {auth[Actions.Account.CREATE_NEW_ACCOUNT] && (
+          <ButtonAdd
+            title="Create Account"
+            asLink
+            link="/accounts/add-account"
+          />
+        )}
+      </div>
     </div>
   )
 }

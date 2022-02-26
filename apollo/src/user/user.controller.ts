@@ -1,6 +1,17 @@
 import { DTO } from 'src/type'
 import { Public } from 'src/utils/decorators/public.decorator'
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common'
 import {
   ApiExtraModels,
   ApiOperation,
@@ -61,6 +72,16 @@ export class UserController {
     return this.service.addUser(dto, payload.name)
   }
 
+  @Get(':id/invalidate')
+  @DefineAction(Actions.IS_ADMIN)
+  @ApiOperation({ summary: 'to resend invitation add user mail' })
+  invalidateAddUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Payload() payload: JwtPayload,
+  ) {
+    return this.service.invalidateAddUserToken(id, payload.name)
+  }
+
   @Patch()
   @ApiOperation({ summary: 'to self-update user info' })
   updateUser(@Body() dto: DTO.User.UpdateUser, @Payload() payload: JwtPayload) {
@@ -87,5 +108,12 @@ export class UserController {
     @Body() dto: DTO.User.ActivateUser,
   ) {
     return this.service.activateUser(id, dto)
+  }
+
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete users' })
+  @DefineAction(Actions.DELETE_USER)
+  batchDeleteUser(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

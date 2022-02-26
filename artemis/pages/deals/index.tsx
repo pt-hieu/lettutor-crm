@@ -15,7 +15,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import { useEffect } from 'react'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -119,6 +119,8 @@ export enum ViewMode {
 }
 
 export default function DealsView() {
+  const client = useQueryClient()
+
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -198,6 +200,7 @@ export default function DealsView() {
             </motion.div>
           )}
         </AnimatePresence>
+
         <div className="w-full">
           <Animate
             shouldAnimateOnExit
@@ -225,6 +228,11 @@ export default function DealsView() {
                 rowKey={(u) => u.id}
                 rowSelection={{
                   type: 'checkbox',
+                  onChange: (keys) =>
+                    client.setQueryData(
+                      'selected-dealIds',
+                      keys.map((k) => k.toString()),
+                    ),
                 }}
                 bordered
                 pagination={{

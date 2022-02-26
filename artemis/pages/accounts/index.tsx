@@ -10,7 +10,7 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -81,6 +81,8 @@ const columns: TableColumnType<Account>[] = [
 ]
 
 export default function AccountsView() {
+  const client = useQueryClient()
+
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
@@ -136,6 +138,11 @@ export default function AccountsView() {
             rowKey={(u) => u.id}
             rowSelection={{
               type: 'checkbox',
+              onChange: (keys) =>
+                client.setQueryData(
+                  'selected-accountIds',
+                  keys.map((k) => k.toString()),
+                ),
             }}
             bordered
             pagination={{

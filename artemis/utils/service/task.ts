@@ -47,5 +47,13 @@ export const updateTask = (id: string) => (data: TaskFormData) =>
 
 export const closeTask = (id: string, ownerId: string) => () =>
   axios
-    .patch(API + '/apollo/task/' + id, { status: TaskStatus.COMPLETED, ownerId })
+    .patch(API + '/apollo/task/' + id, {
+      status: TaskStatus.COMPLETED,
+      ownerId,
+    })
     .then((res) => res.data)
+
+export const batchDelete = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/task/batch', { data: { ids } })
+    .then((r) => r.data)

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   forwardRef,
   Inject,
@@ -17,9 +16,7 @@ import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { note } from 'test/data'
 import { FindOneOptions, In, Repository } from 'typeorm'
 import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
 
@@ -47,29 +44,16 @@ export class NoteService {
     private readonly fileService: FileService,
   ) {}
 
+  // @ts-ignore
   async addNote(dto: DTO.Note.AddNote, files?: Express.Multer.File[]) {
     await this.userService.getOneUserById({
       where: { id: this.payloadService.data.id },
     })
 
-    const filesToAdd = []
+    let filesToAdd = []
 
     if (files && files.length > 0) {
-      let totalSize = 0
-      for (let file of files) {
-        totalSize += file.size
-        const fileToAdd = await this.fileService.uploadFile(
-          file.buffer,
-          file.originalname,
-        )
-
-        filesToAdd.push(fileToAdd)
-      }
-
-      // 20971520 = 20MB in binary
-      if (totalSize > 20971520) {
-        throw new BadRequestException('The total size of files exceeds 20MB')
-      }
+      filesToAdd = await this.fileService.uploadFile(files)
     }
 
     if (dto.leadId && dto.source == NoteSource.LEAD) {
