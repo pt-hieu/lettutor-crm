@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   forwardRef,
   Inject,
@@ -11,6 +12,7 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
+import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LeadService } from 'src/lead/lead.service'
@@ -42,12 +44,34 @@ export class NoteService {
     private readonly userService: UserService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
+    private readonly fileService: FileService,
   ) {}
 
-  async addNote(dto: DTO.Note.AddNote) {
+  async addNote(dto: DTO.Note.AddNote, files?: Express.Multer.File[]) {
     await this.userService.getOneUserById({
       where: { id: this.payloadService.data.id },
     })
+
+    const filesToAdd = []
+
+    if (files && files.length > 0) {
+      let totalSize = 0
+      for (let file of files) {
+        totalSize += file.size
+        const fileToAdd = await this.fileService.uploadFile(
+          file.buffer,
+          file.originalname,
+        )
+
+        filesToAdd.push(fileToAdd)
+      }
+
+      // 20971520 = 20MB in binary
+      if (totalSize > 20971520) {
+        throw new BadRequestException('The total size of files exceeds 20MB')
+      }
+    }
+
     if (dto.leadId && dto.source == NoteSource.LEAD) {
       await this.leadService.getLeadById({
         where: { id: dto.leadId },
@@ -57,7 +81,7 @@ export class NoteService {
       dto.dealId = null
       dto.ownerId = this.payloadService.data.id
       dto.source = NoteSource.LEAD
-      return this.noteRepo.save(dto)
+      return this.noteRepo.save({ ...dto, files: filesToAdd })
     }
 
     dto.leadId = null
@@ -95,7 +119,7 @@ export class NoteService {
     ])
 
     dto.ownerId = this.payloadService.data.id
-    return this.noteRepo.save(dto)
+    return this.noteRepo.save({ ...dto, files: filesToAdd })
   }
 
   getMany(query: DTO.Note.GetManyQuery) {

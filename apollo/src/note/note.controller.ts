@@ -8,7 +8,10 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common'
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
@@ -26,8 +29,12 @@ export class NoteController {
   @Post()
   @DefineAction(Actions.CREATE_NEW_NOTE)
   @ApiOperation({ summary: 'to add new note manually' })
-  addNote(@Body() dto: DTO.Note.AddNote) {
-    return this.service.addNote(dto)
+  @UseInterceptors(FilesInterceptor('files', 5))
+  addNote(
+    @Body() dto: DTO.Note.AddNote,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return this.service.addNote(dto, files)
   }
 
   @Get()
