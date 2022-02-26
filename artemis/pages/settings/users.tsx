@@ -1,7 +1,11 @@
 import Search from '@components/Settings/Search'
 import SettingsLayout from '@components/Settings/SettingsLayout'
 import Confirm from '@utils/components/Confirm'
-import { getUsers, updateStatus } from '@utils/service/user'
+import {
+  getUsers,
+  updateStatus,
+  invalidateAddUserToken,
+} from '@utils/service/user'
 import { getRoles } from '@utils/service/role'
 import { getSessionToken } from '@utils/libs/getToken'
 import { notification, Space, Table, TableColumnType } from 'antd'
@@ -94,12 +98,34 @@ export default function UsersSettings() {
     },
   })
 
+  const { mutateAsync: resendEmailMutate } = useMutation(
+    'invalidate-add-user',
+    invalidateAddUserToken,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['users'])
+        notification.success({
+          message: 'Re-send add user email successfully.',
+        })
+      },
+      onError: () => {
+        notification.error({
+          message: 'Re-send add user email unsuccessfully.',
+        })
+      },
+    },
+  )
+
   const activate = (userId: string) => () => {
     mutateAsync({ userId, status: UserStatus.ACTIVE })
   }
 
   const deactivate = (userId: string) => () => {
     mutateAsync({ userId, status: UserStatus.INACTIVE })
+  }
+
+  const resend = (userId: string) => () => {
+    resendEmailMutate({ userId })
   }
 
   const columns: TableColumnType<User>[] = [
@@ -140,7 +166,7 @@ export default function UsersSettings() {
         <>
           {record.id !== id && (
             <Space>
-              {record.status === UserStatus.ACTIVE ? (
+              {record.status === UserStatus.ACTIVE && (
                 <Confirm
                   message="Are you sure you want to deactivate this user?"
                   title="Deactivate user"
@@ -148,13 +174,25 @@ export default function UsersSettings() {
                 >
                   <button className="crm-button-danger">Deactivate</button>
                 </Confirm>
-              ) : (
+              )}
+
+              {record.status === UserStatus.INACTIVE && (
                 <Confirm
                   message="Are you sure you want to activate this user?"
                   title="Activate user"
                   onYes={activate(record.id)}
                 >
                   <button className="crm-button">Activate</button>
+                </Confirm>
+              )}
+
+              {record.status === UserStatus.UNCONFIRMED && (
+                <Confirm
+                  message="Are you sure you want to re-send invitation email?"
+                  title="Re-send invitation email"
+                  onYes={resend(record.id)}
+                >
+                  <button className="crm-button">Re-send</button>
                 </Confirm>
               )}
             </Space>

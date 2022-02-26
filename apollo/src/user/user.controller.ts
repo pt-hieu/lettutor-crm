@@ -1,6 +1,16 @@
 import { DTO } from 'src/type'
 import { Public } from 'src/utils/decorators/public.decorator'
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common'
 import {
   ApiExtraModels,
   ApiOperation,
@@ -59,6 +69,16 @@ export class UserController {
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
   addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
     return this.service.addUser(dto, payload.name)
+  }
+
+  @Get(':id/invalidate')
+  @DefineAction(Actions.IS_ADMIN)
+  @ApiOperation({ summary: 'to resend invitation add user mail' })
+  invalidateAddUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Payload() payload: JwtPayload,
+  ) {
+    return this.service.invalidateAddUserToken(id, payload.name)
   }
 
   @Patch()

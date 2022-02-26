@@ -133,6 +133,30 @@ export class UserService {
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)
   }
 
+  async invalidateAddUserToken(id: string, fromUser: string) {
+    let user = await this.userRepo.findOne(id)
+
+    if (!user) {
+      throw new NotFoundException(
+        `User you want to re-send invitation email wasn't invited yet.`,
+      )
+    }
+
+    if (user.status !== UserStatus.UNCONFIRMED) {
+      throw new BadRequestException(`User has been confirmed.`)
+    }
+
+    const newToken = randomBytes(48).toString('base64url')
+
+    await this.userRepo.save({
+      ...user,
+      passwordToken: newToken,
+      tokenExpiration: moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate(),
+    })
+
+    return this.mailService.sendAddPwdMail(fromUser, user, newToken)
+  }
+
   getManyRaw() {
     return this.userRepo.find({
       select: ['id', 'name'],
