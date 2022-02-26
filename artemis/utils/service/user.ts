@@ -73,3 +73,10 @@ export const updateStatus = async (data: {
     .patch(API + `/apollo/user/${userId}/activate`, { status })
     .then((res) => res.data)
 }
+
+export const invalidateAddUserToken = async (data: { userId: string }) => {
+  const { userId } = data
+  return axios
+    .get(API + `/apollo/user/${userId}/invalidate`)
+    .then((res) => res.data)
+}

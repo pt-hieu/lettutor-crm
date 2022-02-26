@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   forwardRef,
   Inject,
@@ -11,6 +12,7 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
+import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LeadService } from 'src/lead/lead.service'
@@ -42,12 +44,20 @@ export class NoteService {
     private readonly userService: UserService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
+    private readonly fileService: FileService,
   ) {}
 
-  async addNote(dto: DTO.Note.AddNote) {
+  async addNote(dto: DTO.Note.AddNote, files?: Express.Multer.File[]) {
     await this.userService.getOneUserById({
       where: { id: this.payloadService.data.id },
     })
+
+    let filesToAdd = []
+
+    if (files && files.length > 0) {
+      filesToAdd = await this.fileService.uploadFile(files)
+    }
+
     if (dto.leadId && dto.source == NoteSource.LEAD) {
       await this.leadService.getLeadById({
         where: { id: dto.leadId },
@@ -57,7 +67,7 @@ export class NoteService {
       dto.dealId = null
       dto.ownerId = this.payloadService.data.id
       dto.source = NoteSource.LEAD
-      return this.noteRepo.save(dto)
+      return this.noteRepo.save({ ...dto, files: filesToAdd })
     }
 
     dto.leadId = null
@@ -95,7 +105,7 @@ export class NoteService {
     ])
 
     dto.ownerId = this.payloadService.data.id
-    return this.noteRepo.save(dto)
+    return this.noteRepo.save({ ...dto, files: filesToAdd })
   }
 
   getMany(query: DTO.Note.GetManyQuery) {

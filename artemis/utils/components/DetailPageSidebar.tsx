@@ -33,7 +33,7 @@ const DetailPageSidebar = ({ data }: Props) => {
   const [currentHoveredSection, setCurrentHoveredSection] = useState<number>(-1)
 
   return (
-    <div>
+    <div className="fixed top-[165px] w-[250px]">
       {data.map((data) => (
         <div key={data.title} className="mb-10">
           <div className="px-2 font-semibold text-[17px] mb-3">

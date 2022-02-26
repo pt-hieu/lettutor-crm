@@ -2,10 +2,11 @@ import { Exclude } from 'class-transformer'
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { File } from 'src/file/file.entity'
 import { Lead } from 'src/lead/lead.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 export enum NoteSort {
   LAST = 'last',
@@ -65,7 +66,7 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   dealId: string | null
 
-  @Column({ type: 'varchar', default: "" })
+  @Column({ type: 'varchar', default: '' })
   title: string
 
   @Column({ type: 'varchar' })
@@ -73,4 +74,7 @@ export class Note extends BaseEntity {
 
   @Column({ type: 'varchar', default: null })
   source: string | null
+
+  @OneToMany(() => File, (file) => file.note)
+  files: File[]
 }

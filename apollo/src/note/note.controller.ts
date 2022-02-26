@@ -8,7 +8,10 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common'
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
@@ -16,6 +19,7 @@ import { Actions } from 'src/type/action'
 import { Public } from 'src/utils/decorators/public.decorator'
 import { NoteService } from './note.service'
 
+const MAX_COUNT_OF_FILES = 5
 @ApiTags('note')
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
@@ -26,8 +30,12 @@ export class NoteController {
   @Post()
   @DefineAction(Actions.CREATE_NEW_NOTE)
   @ApiOperation({ summary: 'to add new note manually' })
-  addNote(@Body() dto: DTO.Note.AddNote) {
-    return this.service.addNote(dto)
+  @UseInterceptors(FilesInterceptor('files', MAX_COUNT_OF_FILES))
+  addNote(
+    @Body() dto: DTO.Note.AddNote,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return this.service.addNote(dto, files)
   }
 
   @Get()
