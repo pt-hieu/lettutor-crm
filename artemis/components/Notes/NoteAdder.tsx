@@ -1,9 +1,11 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import { Tooltip } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import Input from '../../utils/components/Input'
+import { notification } from 'antd'
 
 export const noteShema = yup.object().shape({
   content: yup
@@ -16,6 +18,7 @@ export const noteShema = yup.object().shape({
 export interface INoteData {
   title?: string
   content: string
+  files?: File[]
 }
 
 interface ITextboxProps {
@@ -23,6 +26,7 @@ interface ITextboxProps {
   onSave: (data: INoteData) => void
   defaultTitle?: string
   defaultNote?: string
+  defaultFiles?: File[]
 }
 
 const animateVariant = {
@@ -35,9 +39,13 @@ export const NoteTextBox = ({
   onSave,
   defaultTitle,
   defaultNote,
+  defaultFiles: defaultFile,
 }: ITextboxProps) => {
   const [hasTitle, setHasTitle] = useState(!!defaultTitle)
   const [title, setTitle] = useState(defaultTitle || '')
+
+  // File
+  const [files, setFiles] = useState<File[] | undefined>(defaultFile)
 
   const {
     register,
@@ -73,8 +81,56 @@ export const NoteTextBox = ({
     if (hasTitle) {
       data.title = title
     }
+    if (files?.length) {
+      data.files = files
+    }
     onSave(data)
   })
+
+  //File
+  const handleSelectFiles = (event: ChangeEvent<HTMLInputElement>) => {
+    const MAX_NUM_FILE = 5
+    const MAX_MB_SIZE = 20
+    const MAX_SIZE_FILE = MAX_MB_SIZE * 1024 * 1024 // 20 MB
+
+    const selectedFiles = Array.from(event.target.files || [])
+    event.target.value = '' //can choose same most previous file
+
+    //Check exist empty file
+    for (let file of selectedFiles) {
+      if (!file.size) {
+        notification.error({
+          message: `The file ${file.name} is not supported`,
+        })
+        return
+      }
+    }
+
+    const currentFilesLength = files?.length || 0
+    const selectedFilesLength = selectedFiles?.length || 0
+
+    if (selectedFilesLength + currentFilesLength > MAX_NUM_FILE) {
+      notification.error({
+        message: `You can upload maximum ${MAX_NUM_FILE} files only`,
+      })
+      return
+    }
+
+    const currentFilesSize = files?.reduce((a, c) => a + c.size, 0) || 0
+    const selectedFilesSize = selectedFiles.reduce((a, c) => a + c.size, 0) || 0
+
+    if (selectedFilesSize + currentFilesSize > MAX_SIZE_FILE) {
+      notification.error({
+        message: `The total file size exceeds the allowed limit of ${MAX_MB_SIZE} MB`,
+      })
+      return
+    }
+    setFiles([...(files || []), ...selectedFiles])
+  }
+
+  const handleRemoveFile = (index: number) => {
+    setFiles(files?.filter((_, i) => i !== index))
+  }
 
   useEffect(() => {
     if (!title.trim() && hasTitle) {
@@ -115,7 +171,7 @@ export const NoteTextBox = ({
           name="content"
           ref={(e) => {
             ref(e)
-            noteRef.current = e // you can still assign to ref
+            noteRef.current = e
           }}
         />
         <AnimatePresence presenceAffectsLayout>
@@ -134,17 +190,57 @@ export const NoteTextBox = ({
       </div>
 
       <div className="border-b"></div>
-      <div className="flex flex-row gap-2 p-2 pl-4 justify-between items-center">
-        {!hasTitle ? (
-          <div
-            className="crm-button-secondary bg-transparent cursor-pointer hover:bg-gray-100"
-            onClick={handleAddTitle}
-          >
-            <i className="fa fa-thumb-tack mr-2"></i>Add title
-          </div>
-        ) : (
-          <div></div>
-        )}
+      <div className="flex flex-row gap-2 p-2 pl-4 justify-between items-start">
+        <div className="mt-2">
+          <Tooltip title="Upload file" mouseEnterDelay={1}>
+            <label
+              className="fa fa-thumb-tack cursor-pointer hover:text-gray-600"
+              htmlFor="file"
+            />
+          </Tooltip>
+
+          <input
+            type="file"
+            name="file"
+            id="file"
+            hidden
+            onChange={handleSelectFiles}
+            multiple
+          />
+
+          {!hasTitle && (
+            <>
+              <span className="mx-3">|</span>
+              <span
+                className="cursor-pointer hover:text-gray-600"
+                onClick={handleAddTitle}
+              >
+                Add title
+              </span>
+            </>
+          )}
+        </div>
+        <div className="flex flex-col flex-1 gap-1 items-center self-center">
+          {files?.map(({ name, size }, index) => (
+            <div
+              key={index}
+              className="flex w-[300px] p-1 px-2 rounded bg-slate-50 justify-between items-center text-[12px]"
+              title={name}
+            >
+              <div className="flex flex-row">
+                <span className="text-blue-600 mr-2 max-w-[180px] truncate">
+                  {name}
+                </span>
+                <span>({formatBytes(size)})</span>
+              </div>
+              <i
+                className="fa fa-times-circle text-gray-500 hover:text-red-500 cursor-pointer"
+                onClick={() => handleRemoveFile(index)}
+              ></i>
+            </div>
+          ))}
+        </div>
+
         <div className="flex flex-row gap-2">
           <button className="crm-button-secondary" onClick={onCancel}>
             Cancle
@@ -192,4 +288,16 @@ export const NoteAdder = ({ onAddNote, active = false }: INoteAdderProps) => {
       )}
     </div>
   )
+}
+
+function formatBytes(bytes: number, decimals = 2) {
+  if (bytes === 0) return '0 Bytes'
+
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }

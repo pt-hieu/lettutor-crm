@@ -15,7 +15,12 @@ export type AddNoteDto = {
   accountId?: string
   title?: string
   content?: string
+  files?: File[]
   source?: NoteSource
+}
+
+export interface FileInfo extends File {
+  id: string
 }
 
 export interface Note extends Base {
@@ -27,4 +32,5 @@ export interface Note extends Base {
   lead?: Lead
   contact?: Contact
   account?: Account
+  files: FileInfo[]
 }

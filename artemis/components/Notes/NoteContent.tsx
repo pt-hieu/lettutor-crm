@@ -1,6 +1,7 @@
 import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
-import { NoteSource } from '@utils/models/note'
+import { FileInfo, NoteSource } from '@utils/models/note'
+import { Tooltip } from 'antd'
 import moment from 'moment'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -14,13 +15,14 @@ interface IProps {
   author: string
   time: Date
   setShowNoteAdder: (value: boolean) => void
-  hideEditButton?: boolean
   onEditNote: (noteId: string, data: INoteData) => void
   onDeleteNote: (noteId: string) => void
+  hideEditButton?: boolean
   noteId: string
   noteSource: NoteSource
   sourceName: string
   sourceId: string
+  files?: FileInfo[]
 }
 
 export const NoteContent = ({
@@ -36,6 +38,7 @@ export const NoteContent = ({
   noteSource,
   sourceName,
   sourceId,
+  files,
 }: IProps) => {
   const [editMode, setEditMode] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
@@ -66,22 +69,46 @@ export const NoteContent = ({
           onCancel={handleCancel}
           defaultTitle={title}
           defaultNote={note}
+          defaultFiles={files}
           onSave={handleEditNote}
         />
       ) : (
-        <div className="flex flex-row relative group pr-[90px]">
+        <div className="flex flex-row relative group">
           <div className="w-8 h-8 rounded-full bg-blue-300 text-center text-white leading-8">
             avt
           </div>
           <div className="flex-1 pl-4">
             {title && (
-              <span className="font-semibold whitespace-pre-wrap break-all">
+              <div className="font-semibold whitespace-pre-wrap break-all pr-[90px]">
                 {title}
-              </span>
+              </div>
             )}
-            <div className="w-full whitespace-pre-wrap break-all mb-1">
+            <div className="w-full whitespace-pre-wrap break-all mb-1 pr-[90px]">
               {note}
             </div>
+            {/* File */}
+            <div className="flex gap-2">
+              {files?.map(({ id, name: filename }) => (
+                <div key={id} className="w-[120px] file-container">
+                  <div className="bg-white border h-[120px] flex items-center justify-center px-4 relative rounded">
+                    <div className="text-blue-500 truncate">{filename}</div>
+                    <div className="hidden absolute bottom-0 w-full text-center file-controller bg-slate-100">
+                      <Tooltip title="Download file" mouseEnterDelay={1}>
+                        <a
+                          className="fa fa-download"
+                          href="/filename.csv"
+                          download={filename}
+                        />
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
+                    {filename}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="flex flex-row text-[12px] items-center text-gray-500">
               <span className="capitalize">{noteSource}</span>
               <span className="px-1"> - </span>
