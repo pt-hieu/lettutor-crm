@@ -44,7 +44,6 @@ export class NoteService {
     private readonly fileService: FileService,
   ) {}
 
-  // @ts-ignore
   async addNote(dto: DTO.Note.AddNote, files?: Express.Multer.File[]) {
     await this.userService.getOneUserById({
       where: { id: this.payloadService.data.id },

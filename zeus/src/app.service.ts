@@ -16,6 +16,7 @@ type TPayload = {
   path: string
   req: Request
   query: any
+  files?: Array<Express.Multer.File>
 }
 
 export type TMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
@@ -40,7 +41,7 @@ export class AppService {
     )
   }
 
-  private handleApolloRequest({ req, path, query }: TPayload) {
+  private handleApolloRequest({ req, path, query, files }: TPayload) {
     path = path.slice('apollo'.length)
 
     return this.wrap(
