@@ -10,6 +10,7 @@ import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Actions } from '@utils/models/role'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { batchDelete } from '@utils/service/deal'
+import Confirm from '@utils/components/Confirm'
 
 type Props = {
   search: string | undefined
@@ -123,14 +124,15 @@ export default function DealsSearch({
 
         <div className="flex gap-2">
           {!!ids?.length && kanbanMode !== ViewMode.KANBAN && (
-            <button
-              disabled={isLoading}
-              onClick={() => mutateAsync(ids)}
-              className="crm-button-danger"
+            <Confirm
+              onYes={() => mutateAsync(ids)}
+              message={`Are you sure you want to delete ${ids.length} selected deals?`}
             >
-              <span className="fa fa-trash mr-2" />
-              Delete
-            </button>
+              <button disabled={isLoading} className="crm-button-danger">
+                <span className="fa fa-trash mr-2" />
+                Delete
+              </button>
+            </Confirm>
           )}
 
           {auth[Actions.Deal.CREATE_NEW_DEAL] && (

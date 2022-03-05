@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios'
 import { forwardRef, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountModule } from 'src/account/account.module'
@@ -9,6 +10,7 @@ import { UserModule } from 'src/user/user.module'
 import { NoteController } from './note.controller'
 import { Note } from './note.entity'
 import { NoteService } from './note.service'
+import { NoteSubscriber } from './note.subscriber'
 
 @Module({
   imports: [
@@ -19,9 +21,10 @@ import { NoteService } from './note.service'
     forwardRef(() => AccountModule),
     forwardRef(() => DealModule),
     FileModule,
+    HttpModule,
   ],
   controllers: [NoteController],
-  providers: [NoteService],
+  providers: [NoteService, NoteSubscriber],
   exports: [NoteService],
 })
 export class NoteModule {}

@@ -6,6 +6,7 @@ import { ContactService } from './contact.service'
 import { DealModule } from 'src/deal/deal.module'
 import { UserModule } from 'src/user/user.module'
 import { Contact } from './contact.entity'
+import { ContactSubscriber } from './contact.subscriber'
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { Contact } from './contact.entity'
     UserModule,
     forwardRef(() => DealModule),
   ],
-  providers: [ContactService],
+  providers: [ContactService, ContactSubscriber],
   controllers: [ContactController],
   exports: [ContactService],
 })

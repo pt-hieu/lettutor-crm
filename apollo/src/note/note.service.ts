@@ -44,16 +44,15 @@ export class NoteService {
     private readonly fileService: FileService,
   ) {}
 
-  // @ts-ignore
-  async addNote(dto: DTO.Note.AddNote, files?: Express.Multer.File[]) {
+  async addNote(dto: DTO.Note.AddNote) {
     await this.userService.getOneUserById({
       where: { id: this.payloadService.data.id },
     })
 
     let filesToAdd = []
 
-    if (files && files.length > 0) {
-      filesToAdd = await this.fileService.uploadFile(files)
+    if (dto.files && dto.files.length > 0) {
+      filesToAdd = await this.fileService.uploadFile(dto.files)
     }
 
     if (dto.leadId && dto.source == NoteSource.LEAD) {

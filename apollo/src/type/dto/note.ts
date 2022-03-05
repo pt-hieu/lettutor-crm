@@ -1,13 +1,22 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator'
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+} from 'class-validator'
 import { NoteFilter, NoteSort, NoteSource } from 'src/note/note.entity'
+import { Files } from './file'
 import { Paginate } from './paging'
 
-export class AddNote {
+export class AddNote extends Files {
+  @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  ownerId: string
+  ownerId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -37,6 +46,7 @@ export class AddNote {
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   @MaxLength(500)
   content?: string
 
@@ -45,9 +55,8 @@ export class AddNote {
     enum: NoteSource,
   })
   @IsString()
-  source?: string
+  source?: NoteSource
 }
-
 
 export class GetManyQuery extends Paginate {
   @ApiPropertyOptional()
@@ -89,7 +98,6 @@ export class GetManyQuery extends Paginate {
   @IsString()
   filter?: string
 }
-
 
 export class UpdateBody {
   @ApiPropertyOptional()

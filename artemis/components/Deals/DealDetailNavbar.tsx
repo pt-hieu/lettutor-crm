@@ -1,3 +1,4 @@
+import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership } from '@utils/hooks/useOwnership'
@@ -50,14 +51,15 @@ const DealDetailNavbar = ({ deal }: Props) => {
 
         <div className="grid grid-cols-3 gap-3">
           {(auth[Actions.Deal.DELETE_DEAL] || isOwner) && (
-            <button
-              disabled={isLoading}
-              onClick={() => mutateAsync([id || ''])}
-              className="crm-button-danger"
+            <Confirm
+              onYes={() => mutateAsync([id || ''])}
+              message="Are you sure you want to delete this deal?"
             >
-              <span className="fa fa-trash mr-2" />
-              Delete
-            </button>
+              <button disabled={isLoading} className="crm-button-danger">
+                <span className="fa fa-trash mr-2" />
+                Delete
+              </button>
+            </Confirm>
           )}
 
           {(auth[Actions.Deal.VIEW_AND_EDIT_ALL_DEAL_DETAILS] || isOwner) && (

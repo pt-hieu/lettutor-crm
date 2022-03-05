@@ -1,3 +1,4 @@
+import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership } from '@utils/hooks/useOwnership'
@@ -47,14 +48,15 @@ const AccountDetailNavbar = ({ data }: Props) => {
 
         <div className="grid grid-cols-2 gap-3">
           {(auth[Actions.Account.DELETE_ACCOUNT] || isOwner) && (
-            <button
-              disabled={isLoading}
-              onClick={() => mutateAsync([id || ''])}
-              className="crm-button-danger"
+            <Confirm
+              onYes={() => mutateAsync([id || ''])}
+              message="Are you sure you want to delete this account?"
             >
-              <span className="fa fa-trash mr-2" />
-              Delete
-            </button>
+              <button disabled={isLoading} className="crm-button-danger">
+                <span className="fa fa-trash mr-2" />
+                Delete
+              </button>
+            </Confirm>
           )}
 
           {(auth[Actions.Account.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] ||

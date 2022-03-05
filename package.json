@@ -8,7 +8,7 @@
     "athena": "cd athena && terraform",
     "tool": "cd athena && terraformer",
     "build:script": "tsc ./script.ts",
-    "up": "node ./script.js --block"
+    "up": "node ./script.js -b"
   },
   "devDependencies": {
     "@types/node": "^17.0.13",

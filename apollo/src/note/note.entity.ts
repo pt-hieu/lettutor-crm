@@ -34,7 +34,7 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   ownerId: string | null
 
-  @ManyToOne(() => Lead, (lead) => lead.notes)
+  @ManyToOne(() => Lead, (lead) => lead.notes, { onDelete: 'CASCADE' })
   @JoinColumn()
   lead: Lead
 
@@ -42,7 +42,7 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   leadId: string | null
 
-  @ManyToOne(() => Contact, (contact) => contact.notes)
+  @ManyToOne(() => Contact, (contact) => contact.notes, { onDelete: 'CASCADE' })
   @JoinColumn()
   contact: Contact
 
@@ -50,7 +50,7 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   contactId: string | null
 
-  @ManyToOne(() => Account, (account) => account.notes)
+  @ManyToOne(() => Account, (account) => account.notes, { onDelete: 'CASCADE' })
   @JoinColumn()
   account: Account
 
@@ -58,7 +58,7 @@ export class Note extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   accountId: string
 
-  @ManyToOne(() => Deal, (deal) => deal.notes)
+  @ManyToOne(() => Deal, (deal) => deal.notes, { onDelete: 'CASCADE' })
   @JoinColumn()
   deal: Deal
 
@@ -75,6 +75,9 @@ export class Note extends BaseEntity {
   @Column({ type: 'varchar', default: null })
   source: string | null
 
-  @OneToMany(() => File, (file) => file.note)
+  @OneToMany(() => File, (file) => file.note, {
+    eager: true,
+    cascade: true,
+  })
   files: File[]
 }

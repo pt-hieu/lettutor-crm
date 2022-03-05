@@ -47,6 +47,6 @@ export class Contact extends Ownerful {
   @OneToMany(() => Task, (task) => task.contact)
   tasks: Task[]
 
-  @OneToMany(() => Note, (note) => note.contact)
+  @OneToMany(() => Note, (note) => note.contact, { cascade: true })
   notes: Note[]
 }

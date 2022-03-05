@@ -61,6 +61,6 @@ export class Deal extends Ownerful {
   @OneToMany(() => Task, (task) => task.deal)
   tasks: Task[]
 
-  @OneToMany(() => Note, (note) => note.deal)
+  @OneToMany(() => Note, (note) => note.deal, { cascade: true })
   notes: Note[]
 }
