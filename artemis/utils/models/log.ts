@@ -1,6 +1,5 @@
-import { Exclude } from 'class-transformer'
-import { Ownerful } from 'src/utils/owner.entity'
-import { Column, Entity } from 'typeorm'
+import { Base } from './base'
+import { User } from './user'
 
 export type TChange = {
   name: string
@@ -22,20 +21,11 @@ export enum LogAction {
   DELETE = 'delete',
 }
 
-@Entity()
-export class Log extends Ownerful {
-  @Column()
-  source: LogSource
-
-  @Column({ type: 'uuid' })
+export interface Log extends Base {
+  owner: User | null
   entityId: string
-
-  @Column()
   entityName: string
-
-  @Column()
+  source: LogSource
   action: LogAction
-
-  @Column({ type: 'jsonb', nullable: true })
   changes: TChange[] | null
 }

@@ -42,10 +42,7 @@ export class LeadService {
   }
 
   async getMany(query: DTO.Lead.GetManyQuery) {
-    let q = this.leadRepo
-      .createQueryBuilder('l')
-      .leftJoin('l.owner', 'owner')
-      .addSelect(['owner.name', 'owner.email'])
+    let q = this.leadRepo.createQueryBuilder('l').leftJoin('l.owner', 'owner')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_LEADS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })

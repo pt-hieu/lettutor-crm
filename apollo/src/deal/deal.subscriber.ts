@@ -29,6 +29,7 @@ export class DealSubscriber implements EntitySubscriberInterface<Deal> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.entity.id,
+      entityName: event.entity.fullName,
       ownerId: this.payload.data.id,
       source: LogSource.DEAL,
       action: LogAction.CREATE,
@@ -40,6 +41,7 @@ export class DealSubscriber implements EntitySubscriberInterface<Deal> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.databaseEntity.id,
+      entityName: event.entity.fullName,
       ownerId: this.payload.data.id,
       source: LogSource.DEAL,
       action: LogAction.DELETE,
@@ -51,6 +53,7 @@ export class DealSubscriber implements EntitySubscriberInterface<Deal> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.entity.id,
+      entityName: event.entity.fullName,
       ownerId: this.payload.data.id,
       source: LogSource.DEAL,
       action: LogAction.UPDATE,

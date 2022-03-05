@@ -17,7 +17,15 @@ import { TChange } from 'src/log/log.entity'
 @Injectable()
 export class UtilService {
   public aresService: string
-  private keysToIgnore = Object.keys(Ownerful)
+  private keysToIgnore = [
+    'id',
+    'createdAt',
+    'createdById',
+    'updatedAt',
+    'updatedById',
+    'deletedAt',
+    'ownerId',
+  ]
 
   constructor(
     private readonly userService: UserService,
