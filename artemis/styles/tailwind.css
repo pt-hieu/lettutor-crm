@@ -75,6 +75,10 @@
     @apply bg-blue-600;
   }
 
+  .crm-icon-btn {
+    @apply p-2 leading-3 bg-white rounded-full text-gray-700 border cursor-pointer;
+  }
+
   * {
     font-family: 'Montserrat', sans-serif;
   }
@@ -89,6 +93,17 @@
 
   .file-container:hover .file-controller {
     display: block;
+  }
+
+  .row-dragging {
+    background: #fafafa;
+    border: 1px solid var(--antd-wave-shadow-color);
+    z-index: 999999;
+  }
+
+  .row-dragging td {
+    padding: 16px;
+    border-left: solid 0.5px #eee;
   }
 }
 

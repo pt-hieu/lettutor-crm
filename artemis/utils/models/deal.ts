@@ -51,3 +51,25 @@ export type UpdateDealDto = {
   description?: string | null
   reasonForLoss?: string | null
 }
+
+export enum DealCategory {
+  OPEN = 'Open',
+  CLOSED_LOST = 'Close Lost',
+  CLOSED_WON = 'Close Won',
+}
+
+export enum ForecastCategory {
+  PIPELINE = 'Pipeline',
+  BEST_CASE = 'Best Case',
+  COMMITED = 'Commited',
+  CLOSED = 'Closed',
+  OMMITED = 'Omitted',
+}
+
+export interface DealStageData {
+  id: string
+  name: string
+  probability: number
+  dealCategory: string
+  forecastCategory: string
+}
