@@ -1,3 +1,4 @@
+import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LogAction, LogSource } from 'src/log/log.entity'
 import {
@@ -12,7 +13,11 @@ import { Lead } from './lead.entity'
 
 @EventSubscriber()
 export class LeadSubscriber implements EntitySubscriberInterface<Lead> {
-  constructor(connection: Connection, private util: UtilService) {
+  constructor(
+    connection: Connection,
+    private util: UtilService,
+    private payload: PayloadService,
+  ) {
     connection.subscribers.push(this)
   }
 
@@ -23,6 +28,8 @@ export class LeadSubscriber implements EntitySubscriberInterface<Lead> {
   afterInsert(event: InsertEvent<Lead>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.LEAD,
       action: LogAction.CREATE,
       changes: null,
@@ -32,6 +39,8 @@ export class LeadSubscriber implements EntitySubscriberInterface<Lead> {
   afterRemove(event: RemoveEvent<Lead>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.LEAD,
       action: LogAction.DELETE,
       changes: null,
@@ -41,6 +50,8 @@ export class LeadSubscriber implements EntitySubscriberInterface<Lead> {
   afterUpdate(event: UpdateEvent<Lead>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.LEAD,
       action: LogAction.UPDATE,
       changes: this.util.compare(event.databaseEntity, event.entity),

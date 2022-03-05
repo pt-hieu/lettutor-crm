@@ -1,3 +1,4 @@
+import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LogAction, LogSource } from 'src/log/log.entity'
 import {
@@ -12,7 +13,11 @@ import { Contact } from './contact.entity'
 
 @EventSubscriber()
 export class ContactSubscriber implements EntitySubscriberInterface<Contact> {
-  constructor(connection: Connection, private util: UtilService) {
+  constructor(
+    connection: Connection,
+    private util: UtilService,
+    private payload: PayloadService,
+  ) {
     connection.subscribers.push(this)
   }
 
@@ -23,6 +28,8 @@ export class ContactSubscriber implements EntitySubscriberInterface<Contact> {
   afterInsert(event: InsertEvent<Contact>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.CONTACT,
       action: LogAction.CREATE,
       changes: null,
@@ -32,6 +39,8 @@ export class ContactSubscriber implements EntitySubscriberInterface<Contact> {
   afterRemove(event: RemoveEvent<Contact>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.CONTACT,
       action: LogAction.DELETE,
       changes: null,
@@ -41,6 +50,8 @@ export class ContactSubscriber implements EntitySubscriberInterface<Contact> {
   afterUpdate(event: UpdateEvent<Contact>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.CONTACT,
       action: LogAction.UPDATE,
       changes: this.util.compare(event.databaseEntity, event.entity),

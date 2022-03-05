@@ -19,6 +19,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 import { RoleModule } from './role/role.module'
 import { HttpModule } from '@nestjs/axios'
 import { FileModule } from './file/file.module';
+import { LogModule } from './log/log.module'
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { FileModule } from './file/file.module';
     TaskModule,
     RoleModule,
     NoteModule,
+    LogModule,
     GlobalModule,
     FileModule,
   ],

@@ -1,3 +1,4 @@
+import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LogAction, LogSource } from 'src/log/log.entity'
 import {
@@ -12,7 +13,11 @@ import { Task } from './task.entity'
 
 @EventSubscriber()
 export class TaskSubscriber implements EntitySubscriberInterface<Task> {
-  constructor(connection: Connection, private util: UtilService) {
+  constructor(
+    connection: Connection,
+    private util: UtilService,
+    private payload: PayloadService,
+  ) {
     connection.subscribers.push(this)
   }
 
@@ -23,6 +28,8 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
   afterInsert(event: InsertEvent<Task>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.TASK,
       action: LogAction.CREATE,
       changes: null,
@@ -32,6 +39,8 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
   afterRemove(event: RemoveEvent<Task>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.TASK,
       action: LogAction.DELETE,
       changes: null,
@@ -41,6 +50,8 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
   afterUpdate(event: UpdateEvent<Task>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
+      entityId: event.entity.id,
+      ownerId: this.payload.data.id,
       source: LogSource.TASK,
       action: LogAction.UPDATE,
       changes: this.util.compare(event.databaseEntity, event.entity),

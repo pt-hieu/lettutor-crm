@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/utils/base.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 import { Column, Entity } from 'typeorm'
 
 export type TChange = {
@@ -22,9 +22,12 @@ export enum LogAction {
 }
 
 @Entity()
-export class Log extends BaseEntity {
+export class Log extends Ownerful {
   @Column()
   source: LogSource
+
+  @Column({ type: 'uuid' })
+  entityId: string
 
   @Column()
   action: LogAction

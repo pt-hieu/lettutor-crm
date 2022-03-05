@@ -4,4 +4,6 @@ export class CreateLog {
   source: LogSource
   action: LogAction
   changes: TChange[] | null
+  ownerId: string
+  entityId: string
 }
