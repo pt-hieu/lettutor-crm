@@ -13,10 +13,14 @@ import { PayloadService } from './payload.service'
 
 @Injectable()
 export class UtilService {
+  public aresService: string
+
   constructor(
     private readonly userService: UserService,
     private readonly payloadService: PayloadService,
-  ) {}
+  ) {
+    this.aresService = process.env.ARES_SERVICE
+  }
 
   public wrap<T>($obs: Observable<AxiosResponse<T>>) {
     return lastValueFrom(

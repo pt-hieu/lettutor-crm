@@ -75,6 +75,9 @@ export class Note extends BaseEntity {
   @Column({ type: 'varchar', default: null })
   source: string | null
 
-  @OneToMany(() => File, (file) => file.note, { eager: true })
+  @OneToMany(() => File, (file) => file.note, {
+    eager: true,
+    cascade: true,
+  })
   files: File[]
 }

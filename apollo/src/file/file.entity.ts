@@ -5,7 +5,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 @Entity({ name: 'file' })
 export class File extends BaseEntity {
-  @ManyToOne(() => Note, (n) => n.files)
+  @ManyToOne(() => Note, (n) => n.files, {onDelete: "CASCADE"})
   @JoinColumn()
   note: Note | null
 
@@ -18,4 +18,5 @@ export class File extends BaseEntity {
 
   @Column({ type: 'varchar' })
   location: string
+
 }

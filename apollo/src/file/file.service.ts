@@ -16,22 +16,18 @@ type TFile<T extends string | Buffer> = {
 }
 @Injectable()
 export class FileService {
-  private ares: string
-
   constructor(
     @InjectRepository(File)
     private fileRepo: Repository<File>,
     private util: UtilService,
     private http: HttpService,
-  ) {
-    this.ares = process.env.ARES_SERVICE
-  }
+  ) {}
 
   async uploadFile(files: TFile<string>[]) {
     this.doValidateFiles(files)
     const uploadResult = await this.util.wrap<
       { key: string; location: string }[]
-    >(this.http.post(this.ares + '/aws/s3', files))
+    >(this.http.post(this.util.aresService + '/aws/s3', files))
 
     return this.fileRepo.save(uploadResult)
   }
