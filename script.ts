@@ -27,7 +27,9 @@ if ('then' in agrv) {
       blocks.map((choice) => `"cd ${choice} && yarn dev"`).join(' ')
   }
 
-  command += ' -n ' + blocks.join(',')
+  command += ' --names ' + blocks.join(',')
+
+  console.log(command)
 }
 
 const concurrentProc = exec(command, () => {})

@@ -25,7 +25,8 @@ else {
             'concurrently -k ' +
                 blocks.map(function (choice) { return "\"cd ".concat(choice, " && yarn dev\""); }).join(' ');
     }
-    command += ' -n ' + blocks.join(',');
+    command += ' --names ' + blocks.join(',');
+    console.log(command);
 }
 var concurrentProc = (0, child_process_1.exec)(command, function () { });
 (_a = concurrentProc === null || concurrentProc === void 0 ? void 0 : concurrentProc.stdout) === null || _a === void 0 ? void 0 : _a.pipe(process.stdout);
