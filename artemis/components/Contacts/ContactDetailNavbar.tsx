@@ -1,3 +1,4 @@
+import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership } from '@utils/hooks/useOwnership'
@@ -47,14 +48,15 @@ const ContactDetailNavbar = ({ data }: Props) => {
 
         <div className="grid grid-cols-3 gap-3">
           {(auth[Actions.Contact.DELETE_CONTACT] || isOwner) && (
-            <button
-              disabled={isLoading}
-              onClick={() => mutateAsync([data?.id || ''])}
-              className="crm-button-danger"
+            <Confirm
+              onYes={() => mutateAsync([data?.id || ''])}
+              message="Are you sure you want to delete this contact?"
             >
-              <span className="fa fa-trash mr-2" />
-              Delete
-            </button>
+              <button disabled={isLoading} className="crm-button-danger">
+                <span className="fa fa-trash mr-2" />
+                Delete
+              </button>
+            </Confirm>
           )}
 
           <button className="crm-button">Send Email</button>

@@ -1,3 +1,4 @@
+import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useModal } from '@utils/hooks/useModal'
@@ -54,14 +55,15 @@ const LeadDetailNavbar = ({ lead }: Props) => {
 
         <div className="grid grid-cols-4 gap-3">
           {(auth[Actions.Lead.DELETE_LEAD] || isOwner) && (
-            <button
-              disabled={isDeleting}
-              onClick={() => mutateAsync([id || ''])}
-              className="crm-button-danger"
+            <Confirm
+              onYes={() => mutateAsync([id || ''])}
+              message="Are you sure you want to delete this lead?"
             >
-              <span className="fa fa-trash mr-2" />
-              Delete
-            </button>
+              <button disabled={isDeleting} className="crm-button-danger">
+                <span className="fa fa-trash mr-2" />
+                Delete
+              </button>
+            </Confirm>
           )}
 
           <button className="crm-button">Send Email</button>

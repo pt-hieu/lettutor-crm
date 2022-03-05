@@ -1,5 +1,6 @@
 import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
+import Confirm from '@utils/components/Confirm'
 import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
@@ -92,14 +93,15 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
 
       <div className="flex gap-2">
         {!!ids?.length && (
-          <button
-            disabled={isLoading}
-            onClick={() => mutateAsync(ids || [])}
-            className="crm-button-danger"
+          <Confirm
+            onYes={() => mutateAsync(ids || [])}
+            message={`Are you sure you want to delete ${ids.length} selected accounts?`}
           >
-            <span className="fa fa-trash mr-2" />
-            Delete
-          </button>
+            <button disabled={isLoading} className="crm-button-danger">
+              <span className="fa fa-trash mr-2" />
+              Delete
+            </button>
+          </Confirm>
         )}
 
         {auth[Actions.Account.CREATE_NEW_ACCOUNT] && (
