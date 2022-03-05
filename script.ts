@@ -3,23 +3,31 @@ import { exec } from 'child_process'
 
 const choices = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus']
 const agrv = yargs.options({
-  block: { type: 'array', choices, required: true, default: choices },
-  init: { type: 'boolean', default: false },
+  b: { type: 'array', choices, required: true, default: choices },
+  i: { type: 'boolean', default: false },
+  s: { type: 'array', choices, required: false, default: [] },
 }).argv
 
 let command: string = ''
+
 if ('then' in agrv) {
   yargs.exit(1, new Error('Script failed'))
 } else {
-  if (agrv.init) {
+  const blocks = agrv.b.filter(
+    (choice) => !(agrv.s as string[]).includes(choice),
+  )
+
+  if (agrv.i) {
     command =
       'concurrently ' +
-      agrv.block.map((choice) => `"cd ${choice} && yarn"`).join(' ')
+      blocks.map((choice) => `"cd ${choice} && yarn"`).join(' ')
   } else {
     command =
       'concurrently -k ' +
-      agrv.block.map((choice) => `"cd ${choice} && yarn dev"`).join(' ')
+      blocks.map((choice) => `"cd ${choice} && yarn dev"`).join(' ')
   }
+
+  command += ' -n ' + blocks.join(',')
 }
 
 const concurrentProc = exec(command, () => {})
