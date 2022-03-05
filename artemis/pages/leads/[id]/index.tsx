@@ -333,6 +333,7 @@ const LeadDetail = () => {
           <div className="flex flex-col divide-y gap-4 ml-5">
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
+
               <form onSubmit={submit} className="flex flex-col gap-2">
                 {fields(
                   !auth[Actions.Lead.VIEW_AND_EDIT_ALL_LEAD_DETAILS] &&
@@ -345,6 +346,7 @@ const LeadDetail = () => {
                     <span className="inline-block text-right font-medium pt-[8px]">
                       {label}
                     </span>
+
                     <InlineEdit
                       onEditCancel={() => reset(defaultValues)}
                       onEditComplete={submit}
@@ -354,7 +356,7 @@ const LeadDetail = () => {
                 ))}
               </form>
             </div>
-            {/* Notes */}
+            
             <NoteSection
               noteFor="lead"
               onAddNote={handleAddNote}
@@ -365,6 +367,7 @@ const LeadDetail = () => {
               onChangeFilterSort={handleChangeFilterSort}
               onViewAllNote={setViewAllNote}
             />
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -372,12 +375,14 @@ const LeadDetail = () => {
               >
                 {LeadDetailSections.OpenActivities}
               </div>
+
               {openTasks && openTasks.length > 0 ? (
                 <TaskList tasks={openTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -385,6 +390,7 @@ const LeadDetail = () => {
               >
                 {LeadDetailSections.ClosedActivities}
               </div>
+
               {closedTasks && closedTasks.length > 0 ? (
                 <TaskList tasks={closedTasks} />
               ) : (

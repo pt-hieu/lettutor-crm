@@ -78,12 +78,15 @@ export const NoteTextBox = ({
       setError('content', { message: 'Title must be at most 100 characters' })
       return
     }
+
     if (hasTitle) {
       data.title = title
     }
+
     if (files?.length) {
       data.files = files
     }
+
     onSave(data)
   })
 
@@ -116,8 +119,10 @@ export const NoteTextBox = ({
       return
     }
 
-    const currentFilesSize = files?.reduce((a, c) => a + c.size, 0) || 0
-    const selectedFilesSize = selectedFiles.reduce((a, c) => a + c.size, 0) || 0
+    const currentFilesSize =
+      files?.reduce((totalSize, file) => totalSize + file.size, 0) || 0
+    const selectedFilesSize =
+      selectedFiles.reduce((totalSize, file) => totalSize + file.size, 0) || 0
 
     if (selectedFilesSize + currentFilesSize > MAX_SIZE_FILE) {
       notification.error({
@@ -125,6 +130,7 @@ export const NoteTextBox = ({
       })
       return
     }
+
     setFiles([...(files || []), ...selectedFiles])
   }
 
@@ -220,6 +226,7 @@ export const NoteTextBox = ({
             </>
           )}
         </div>
+
         <div className="flex flex-col flex-1 gap-1 items-center self-center">
           {files?.map(({ name, size }, index) => (
             <div
@@ -243,7 +250,7 @@ export const NoteTextBox = ({
 
         <div className="flex flex-row gap-2">
           <button className="crm-button-secondary" onClick={onCancel}>
-            Cancle
+            Cancel
           </button>
           <button className="crm-button" onClick={handleSave}>
             Save

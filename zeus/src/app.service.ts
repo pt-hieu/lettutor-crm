@@ -49,9 +49,9 @@ export class AppService {
   private handleApolloRequest({ req, path, query, files }: TPayload) {
     path = path.slice('apollo'.length)
 
-    const filesToSend = files.map(
+    const filesToSend = files?.map(
       (file): TFile => ({
-        name: file.filename,
+        name: file.originalname,
         buffer: file.buffer.toString('base64'),
       }),
     )

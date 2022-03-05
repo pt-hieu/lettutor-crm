@@ -62,9 +62,14 @@ export const getNotes =
       })
       .then((res) => res.data)
 
-export const deleteNote = ({ noteId }: { noteId: string }) => {
-  return axios.delete(API + `/apollo/note/${noteId}`)
-}
+export const deleteNote = ({ noteId }: { noteId: string }) =>
+  axios
+    .delete(API + `/apollo/note/batch`, {
+      data: {
+        ids: [noteId],
+      },
+    })
+    .then((r) => r.data)
 
 export const editNote = ({
   noteId,
