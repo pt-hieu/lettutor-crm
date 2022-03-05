@@ -39,7 +39,7 @@ export class LeadSubscriber implements EntitySubscriberInterface<Lead> {
   afterRemove(event: RemoveEvent<Lead>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
-      entityId: event.entity.id,
+      entityId: event.databaseEntity.id,
       ownerId: this.payload.data.id,
       source: LogSource.LEAD,
       action: LogAction.DELETE,

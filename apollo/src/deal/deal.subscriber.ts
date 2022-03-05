@@ -39,7 +39,7 @@ export class DealSubscriber implements EntitySubscriberInterface<Deal> {
   afterRemove(event: RemoveEvent<Deal>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
-      entityId: event.entity.id,
+      entityId: event.databaseEntity.id,
       ownerId: this.payload.data.id,
       source: LogSource.DEAL,
       action: LogAction.DELETE,

@@ -39,7 +39,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
   afterRemove(event: RemoveEvent<Task>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
-      entityId: event.entity.id,
+      entityId: event.databaseEntity.id,
       ownerId: this.payload.data.id,
       source: LogSource.TASK,
       action: LogAction.DELETE,

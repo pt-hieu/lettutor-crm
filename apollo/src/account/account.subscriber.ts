@@ -39,7 +39,7 @@ export class AccountSubscriber implements EntitySubscriberInterface<Account> {
   afterRemove(event: RemoveEvent<Account>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
-      entityId: event.entity.id,
+      entityId: event.databaseEntity.id,
       ownerId: this.payload.data.id,
       source: LogSource.ACCOUNT,
       action: LogAction.DELETE,

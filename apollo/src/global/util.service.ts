@@ -17,6 +17,7 @@ import { TChange } from 'src/log/log.entity'
 @Injectable()
 export class UtilService {
   public aresService: string
+  private keysToIgnore = Object.keys(Ownerful)
 
   constructor(
     private readonly userService: UserService,
@@ -45,7 +46,9 @@ export class UtilService {
   public compare(baseEntity: object, entityToCompare: object) {
     const changes: TChange[] = []
     Object.entries(baseEntity).forEach(([key, value]) => {
+      if (this.keysToIgnore.includes(key)) return
       if (baseEntity[key] === entityToCompare[key]) return
+
       changes.push({ name: key, from: value, to: entityToCompare[key] })
     })
 
