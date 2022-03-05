@@ -1,8 +1,14 @@
-import { Injectable } from '@nestjs/common'
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common'
+import { catchError, first, lastValueFrom, map, Observable } from 'rxjs'
 import { Actions } from 'src/type/action'
 import { Ownerful } from 'src/utils/owner.entity'
 import { UserService } from '../user/user.service'
 import { BaseEntity } from '../utils/base.entity'
+import type { AxiosResponse } from 'axios'
 import { PayloadService } from './payload.service'
 
 @Injectable()
@@ -11,6 +17,22 @@ export class UtilService {
     private readonly userService: UserService,
     private readonly payloadService: PayloadService,
   ) {}
+
+  public wrap<T>($obs: Observable<AxiosResponse<T>>) {
+    return lastValueFrom(
+      $obs.pipe(
+        map((res) => res.data),
+        first(),
+        catchError((e) => {
+          if (e.code) {
+            throw new InternalServerErrorException(e.code)
+          }
+
+          throw new HttpException(e.response.data, e.response.status)
+        }),
+      ),
+    )
+  }
 
   public async loadTraceInfo(entity: BaseEntity) {
     const [createdBy, updatedBy] = await Promise.allSettled([

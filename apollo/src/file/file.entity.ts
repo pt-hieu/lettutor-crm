@@ -14,9 +14,8 @@ export class File extends BaseEntity {
   noteId: string | null
 
   @Column({ type: 'varchar' })
-  filename: string
+  key: string
 
-  @Column({ type: 'bytea' })
-  @Exclude({ toPlainOnly: true })
-  data: Uint8Array
+  @Column({ type: 'varchar' })
+  location: string
 }

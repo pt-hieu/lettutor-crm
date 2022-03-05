@@ -3,7 +3,7 @@ var _a;
 exports.__esModule = true;
 var yargs = require("yargs");
 var child_process_1 = require("child_process");
-var choices = ['apollo', 'artemis', 'poseidon', 'zeus'];
+var choices = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
 var agrv = yargs.options({
     block: { type: 'array', choices: choices, required: true, "default": choices },
     init: { type: 'boolean', "default": false }

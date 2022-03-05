@@ -19,6 +19,11 @@ type TPayload = {
   files?: Array<Express.Multer.File>
 }
 
+type TFile = {
+  name: string
+  buffer: string
+}
+
 export type TMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
 
 @Injectable()
@@ -44,10 +49,20 @@ export class AppService {
   private handleApolloRequest({ req, path, query, files }: TPayload) {
     path = path.slice('apollo'.length)
 
+    const filesToSend = files.map(
+      (file): TFile => ({
+        name: file.filename,
+        buffer: file.buffer.toString('base64'),
+      }),
+    )
+
     return this.wrap(
       this.http.request({
         method: req.method as TMethod,
-        data: req.body,
+        data: {
+          ...req.body,
+          files: filesToSend,
+        },
         url: this.env.apolloService + path + '?' + stringify(query),
         headers: {
           'x-api-key': this.env.apiKey,

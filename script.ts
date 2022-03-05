@@ -1,7 +1,7 @@
 import * as yargs from 'yargs'
 import { exec } from 'child_process'
 
-const choices = ['apollo', 'artemis', 'poseidon', 'zeus']
+const choices = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus']
 const agrv = yargs.options({
   block: { type: 'array', choices, required: true, default: choices },
   init: { type: 'boolean', default: false },

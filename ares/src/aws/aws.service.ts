@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { S3 } from 'aws-sdk'
-
-type TFile = {
-  name: string
-  buffer: Buffer
-}
+import { TFile } from './dto/upload.dto'
 
 @Injectable()
 export class AwsService {
@@ -23,7 +19,7 @@ export class AwsService {
           .upload({
             Bucket: this.bucket,
             Key: `${Date.now()}-${name}`,
-            Body: buffer,
+            Body: Buffer.from(buffer, 'base64'),
           })
           .promise()
 
