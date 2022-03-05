@@ -65,6 +65,6 @@ export class Lead extends Ownerful {
   @OneToMany(() => Task, (task) => task.lead)
   tasks: Task[]
 
-  @OneToMany(() => Note, (note) => note.lead)
+  @OneToMany(() => Note, (note) => note.lead, { cascade: true })
   notes: Note[]
 }
