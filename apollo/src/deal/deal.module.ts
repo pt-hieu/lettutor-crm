@@ -8,6 +8,7 @@ import { UserModule } from 'src/user/user.module'
 import { DealController } from './deal.controller'
 import { Deal } from './deal.entity'
 import { DealService } from './deal.service'
+import { DealSubscriber } from './deal.subscriber'
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { DealService } from './deal.service'
     forwardRef(() => ContactModule),
   ],
   controllers: [DealController],
-  providers: [DealService],
+  providers: [DealService, DealSubscriber],
   exports: [DealService],
 })
 export class DealModule {}

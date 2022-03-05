@@ -8,6 +8,7 @@ import { DealModule } from 'src/deal/deal.module'
 import { UserModule } from 'src/user/user.module'
 import { ContactModule } from 'src/contact/contact.module'
 import { TaskModule } from 'src/task/task.module'
+import { LeadSubscriber } from './lead.subscriber'
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { TaskModule } from 'src/task/task.module'
     ContactModule,
     forwardRef(() => TaskModule),
   ],
-  providers: [LeadService],
+  providers: [LeadService, LeadSubscriber],
   controllers: [LeadController],
   exports: [LeadService],
 })

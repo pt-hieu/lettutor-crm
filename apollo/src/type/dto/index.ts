@@ -13,6 +13,7 @@ export * as Webhook from './webhook'
 export * as Task from './task'
 export * as Note from './note'
 export * as Strapi from './strapi'
+export * as Log from './log'
 
 export class BatchDelete {
   @ApiProperty()
