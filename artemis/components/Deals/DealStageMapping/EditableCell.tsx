@@ -1,4 +1,5 @@
 import { Form, FormInstance, Input, Select } from 'antd'
+import { Rule } from 'antd/lib/form'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { TData } from './DealStageTable'
 
@@ -40,6 +41,12 @@ export const EditableCell: React.FC<EditableCellProps> = ({
     }
   }, [editing])
 
+  useEffect(() => {
+    if (dataIndex === 'name' && !record[dataIndex]) {
+      setEditing(true)
+    }
+  }, [])
+
   const toggleEdit = () => {
     setEditing(!editing)
     form.setFieldsValue({ [dataIndex]: record[dataIndex] })
@@ -47,28 +54,47 @@ export const EditableCell: React.FC<EditableCellProps> = ({
 
   const save = async () => {
     try {
-      const values = await form.validateFields()
+      const value = form.getFieldValue(dataIndex)
+      if (value?.trim() === record[dataIndex]) return
 
-      toggleEdit()
+      const values = await form.validateFields()
       handleSave({ ...record, ...values })
     } catch (errInfo) {
       console.log('Save failed:', errInfo)
+    } finally {
+      toggleEdit()
     }
   }
 
   let childNode = children
+
+  const probabilityRules: Rule[] = [
+    {
+      required: true,
+      message: `Probability is required.`,
+    },
+    {
+      pattern: /(^100(\.0{1,2})?$)|(^([1-9]([0-9])?|0)(\.[0-9]{1,2})?$)/g,
+      message: `Probability must be in range 0-100`,
+    },
+  ]
 
   if (editable) {
     childNode = editing ? (
       <Form.Item
         style={{ margin: 0 }}
         name={dataIndex}
-        // rules={[
-        //   {
-        //     required: true,
-        //     message: `${title} is required.`,
-        //   },
-        // ]}
+        rules={
+          dataIndex === 'probability'
+            ? probabilityRules
+            : [
+                {
+                  required: true,
+                  whitespace: true,
+                  message: `${title} is required.`,
+                },
+              ]
+        }
       >
         {as === 'select' ? (
           <Select ref={inputRef} onChange={save} onBlur={save} open>
@@ -84,6 +110,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
             onPressEnter={save}
             onBlur={save}
             className="w-full"
+            maxLength={dataIndex === 'probability' ? 5 : undefined}
           />
         )}
       </Form.Item>

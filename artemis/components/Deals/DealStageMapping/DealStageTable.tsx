@@ -26,12 +26,12 @@ export interface TData extends DealStageData {
 }
 
 interface IProps {
-  data: DealStageData[]
+  dataSource: DealStageData[]
+  setDataSource: (data: TData[]) => void
 }
 
-export const DealStageTable = ({ data }: IProps) => {
-  const [dataSource, setDataSource] = useState<TData[]>(data)
-  const [count, setCount] = useState<number>(data.length)
+export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
+  const [count, setCount] = useState<number>(dataSource.length)
 
   const onSortEnd = ({
     oldIndex,
@@ -99,7 +99,7 @@ export const DealStageTable = ({ data }: IProps) => {
       isNew: true,
     }
 
-    const newDataSource = [...dataSource]
+    const newDataSource = dataSource.filter((item) => item.name)
     newDataSource.splice(index + 1, 0, newData)
 
     setDataSource(newDataSource)

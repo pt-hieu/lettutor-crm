@@ -36,7 +36,7 @@ export const SettingData: SG[] = [
     items: [
       {
         title: 'Modules and Fields',
-        link: '/settings/modules/deals/layout',
+        link: '/settings/modules',
       },
     ],
   },

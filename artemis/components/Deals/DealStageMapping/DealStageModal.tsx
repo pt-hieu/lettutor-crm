@@ -1,4 +1,3 @@
-import { yupResolver } from '@hookform/resolvers/yup'
 import Loading from '@utils/components/Loading'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import {
@@ -6,14 +5,9 @@ import {
   DealStageData,
   ForecastCategory,
 } from '@utils/models/deal'
-import { Task } from '@utils/models/task'
-import { User } from '@utils/models/user'
 import { Divider, Modal } from 'antd'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { useQuery } from 'react-query'
-import * as yup from 'yup'
-import { DealStageTable } from './DealStageTable'
+import { useState } from 'react'
+import { DealStageTable, TData } from './DealStageTable'
 
 const data: DealStageData[] = [
   {
@@ -39,74 +33,25 @@ const data: DealStageData[] = [
   },
 ]
 
-export interface TaskFormData
-  extends Pick<
-    Task,
-    'subject' | 'dueDate' | 'status' | 'priority' | 'description'
-  > {
-  ownerId: string
-}
-
 type Props = {
   visible: boolean
-  handleClose?: () => void
-  handleCreateTask?: (data: TaskFormData) => void
-  isLoading: boolean
+  handleClose: () => void
+  isLoading?: boolean
 }
 
-const taskSchema = yup.object().shape({
-  ownerId: yup.string().required('Task Owner is required.'),
-  subject: yup
-    .string()
-    .required('Subject is required.')
-    .max(100, 'Subject must be at most 100 characters.'),
-  status: yup.string().required('Status is required.'),
-  priority: yup.string().required('Priority is required.'),
-  description: yup
-    .string()
-    .max(500, 'Description must be at most 500 characters.'),
-})
-
-export const DealStageModal = ({
-  visible,
-  handleClose,
-  handleCreateTask,
-  isLoading,
-}: Props) => {
-  const [session] = useTypedSession()
-
-  const { data: taskOwners } = useQuery<User[]>(['users'], { enabled: false })
-
-  const {
-    handleSubmit,
-    register,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm<TaskFormData>({
-    resolver: yupResolver(taskSchema),
-    defaultValues: {
-      ownerId: '',
-      description: '',
-      dueDate: null,
-    },
-  })
-
-  const createTask = handleSubmit(handleCreateTask!)
+export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
+  const [dataSource, setDataSource] = useState(data)
 
   const submitModal = () => {
-    createTask()
-    reset({ ownerId: session?.user.id })
+    const validDatas = dataSource.filter((item) => isValidData(item))
+    console.log(validDatas)
+    handleClose()
   }
 
   const closeModal = () => {
-    handleClose!()
-    reset({ ownerId: session?.user.id })
+    setDataSource(data)
+    handleClose()
   }
-
-  useEffect(() => {
-    setValue('ownerId', session?.user.id || '')
-  }, [session?.user.id])
 
   return (
     <Modal
@@ -114,6 +59,7 @@ export const DealStageModal = ({
       onCancel={closeModal}
       width={1000}
       maskClosable={false}
+      destroyOnClose
       footer={
         <div className="flex w-full gap-2 justify-end">
           <button
@@ -135,9 +81,13 @@ export const DealStageModal = ({
 
       <Divider />
 
-      <div className="max-h-[400px] overflow-y-auto overflow-x-hidden crm-scrollbar">
-        <DealStageTable data={data} />
+      <div className="max-h-[400px] overflow-y-auto overflow-x-hidden crm-scrollbar pr-1">
+        <DealStageTable dataSource={dataSource} setDataSource={setDataSource} />
       </div>
     </Modal>
   )
+}
+
+function isValidData(data: TData) {
+  return data.name && data.probability
 }
