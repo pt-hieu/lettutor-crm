@@ -55,7 +55,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   const save = async () => {
     try {
       const value = form.getFieldValue(dataIndex)
-      if (value?.trim() === record[dataIndex]) return
+      if (value && value.trim() === record[dataIndex]) return
 
       const values = await form.validateFields()
       handleSave({ ...record, ...values })

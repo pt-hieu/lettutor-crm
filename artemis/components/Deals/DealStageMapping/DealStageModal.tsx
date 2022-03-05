@@ -9,7 +9,7 @@ import { Divider, Modal } from 'antd'
 import { useState } from 'react'
 import { DealStageTable, TData } from './DealStageTable'
 
-const data: DealStageData[] = [
+let data: DealStageData[] = [
   {
     id: 'abc1',
     name: 'Qualification',
@@ -44,6 +44,8 @@ export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
 
   const submitModal = () => {
     const validDatas = dataSource.filter((item) => isValidData(item))
+    data = validDatas
+    setDataSource(data)
     console.log(validDatas)
     handleClose()
   }
@@ -59,7 +61,6 @@ export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
       onCancel={closeModal}
       width={1000}
       maskClosable={false}
-      destroyOnClose
       footer={
         <div className="flex w-full gap-2 justify-end">
           <button
@@ -89,5 +90,5 @@ export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
 }
 
 function isValidData(data: TData) {
-  return data.name && data.probability
+  return !!data.name
 }

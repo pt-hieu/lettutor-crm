@@ -4,9 +4,8 @@ import {
   DealStageData,
   ForecastCategory,
 } from '@utils/models/deal'
-import { Popconfirm, Table } from 'antd'
+import { Empty, Popconfirm, Table, Tooltip } from 'antd'
 import { arrayMoveImmutable } from 'array-move'
-import { useState } from 'react'
 import {
   SortableContainer,
   SortableElement,
@@ -18,7 +17,9 @@ const DragHandle = SortableHandle(() => (
   <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
 ))
 const SortableItem = SortableElement((props: any) => <EditableRow {...props} />)
-const SortableBody = SortableContainer((props: any) => <tbody {...props} />)
+const SortableBody = SortableContainer((props: any) => (
+  <tbody ref={props.tableRef} {...props} />
+))
 
 export interface TData extends DealStageData {
   isNew?: boolean
@@ -31,8 +32,6 @@ interface IProps {
 }
 
 export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
-  const [count, setCount] = useState<number>(dataSource.length)
-
   const onSortEnd = ({
     oldIndex,
     newIndex,
@@ -54,7 +53,6 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
   const DraggableContainer = (props: any) => (
     <SortableBody
       useDragHandle
-      disableAutoscroll
       helperClass="row-dragging"
       onSortEnd={onSortEnd}
       {...props}
@@ -69,7 +67,7 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     return <SortableItem index={index} {...restProps} />
   }
 
-  const handleSaveSort = (row: TData) => {
+  const handleUpdateData = (row: TData) => {
     const newData = [...dataSource]
     const index = newData.findIndex((item) => row.id === item.id)
     const item = newData[index]
@@ -85,25 +83,28 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     setDataSource(newDataSource.filter((item) => item.id !== key))
   }
 
-  const handleAdd = (id: string) => {
-    const index = dataSource.findIndex((item) => item.id === id)
-    if (index < 0) {
-      return
-    }
+  const handleAdd = (id: string | null) => {
     const newData: TData = {
-      id: count.toString(),
+      id: new Date().toString(),
       name: '',
       probability: 0,
       dealCategory: DealCategory.OPEN,
       forecastCategory: ForecastCategory.PIPELINE,
       isNew: true,
     }
+    if (id === null) {
+      //Empty list
+      setDataSource([newData])
+    }
+    const index = dataSource.findIndex((item) => item.id === id)
+    if (index < 0) {
+      return
+    }
 
     const newDataSource = dataSource.filter((item) => item.name)
     newDataSource.splice(index + 1, 0, newData)
 
     setDataSource(newDataSource)
-    setCount((prev) => prev + 1)
   }
 
   const columns = [
@@ -179,12 +180,26 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
         editable: col.editable,
         dataIndex: col.dataIndex,
         title: col.title,
-        handleSave: handleSaveSort,
+        handleSave: handleUpdateData,
         as: col.as,
         selectSource: col.selectSource,
       }),
     }
   })
+
+  const locale = {
+    emptyText: (
+      <div className="relative">
+        <Tooltip title="Add new deal stage">
+          <i
+            className="crm-icon-btn fa fa-plus p-4 text-blue-500 hover:border-blue-500 absolute translate-y-[100%]"
+            onClick={() => handleAdd(null)}
+          />
+        </Tooltip>
+        <Empty />
+      </div>
+    ),
+  }
 
   return (
     <Table
@@ -193,6 +208,7 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
       columns={mapColumns}
       rowKey="id"
       bordered
+      locale={locale}
       components={{
         body: {
           wrapper: DraggableContainer,
