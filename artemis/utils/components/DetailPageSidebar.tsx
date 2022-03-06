@@ -1,18 +1,15 @@
-import { scroller } from 'react-scroll'
-import { Menu, Dropdown } from 'antd'
-import { DownOutlined } from '@ant-design/icons'
-import { useState } from 'react'
-
-export type SidebarChoice = {
-  label: string
-  onClick: () => void
-}
+import { Tooltip } from 'antd'
+import { MouseEventHandler, useCallback, useState } from 'react'
 
 export type SidebarStructure = {
   title: string
   options: {
     label: string
-    choices?: SidebarChoice[]
+    extend?: {
+      onClick: MouseEventHandler
+      title: string
+      icon?: string
+    }
   }[]
 }[]
 
@@ -21,16 +18,13 @@ type Props = {
 }
 
 const DetailPageSidebar = ({ data }: Props) => {
-  const scrollToSection = (value: string) => {
-    scroller.scrollTo(value, {
-      duration: 1000,
-      delay: 0,
-      smooth: 'easeInOutQuart',
-      offset: -150,
-    })
-  }
+  const scrollToSection = useCallback((value: string) => {
+    const element = document.getElementById(value)
+    const y =
+      (element?.getBoundingClientRect().top || 0) + window.pageYOffset - 150
 
-  const [currentHoveredSection, setCurrentHoveredSection] = useState<number>(-1)
+    window.scrollTo({ top: y, behavior: 'smooth' })
+  }, [])
 
   return (
     <div className="fixed top-[165px] w-[250px]">
@@ -40,40 +34,26 @@ const DetailPageSidebar = ({ data }: Props) => {
             {data.title}
           </div>
           <ul className="flex flex-col gap-2">
-            {data.options.map(({ label, choices }, index) => (
+            {data.options.map(({ label, extend }, index) => (
               <li
-                className="p-2 text-sm rounded-md hover:bg-gray-100 hover:cursor-pointer flex justify-between"
+                className="p-2 text-sm rounded-md hover:bg-gray-100 crm-transition hover:cursor-pointer flex justify-between group"
                 key={label}
                 onClick={() => scrollToSection(label)}
-                onMouseOver={() => setCurrentHoveredSection(index)}
               >
                 <div>{label}</div>
-                <div
-                  className={`${
-                    currentHoveredSection === index ? 'visible' : 'invisible'
-                  }`}
-                >
-                  {choices && (
-                    <Dropdown
-                      arrow
-                      trigger={['click']}
-                      overlay={
-                        <Menu>
-                          {choices.map(({ label, onClick }) => (
-                            <Menu.Item key={label}>
-                              <a onClick={onClick}>{label}</a>
-                            </Menu.Item>
-                          ))}
-                        </Menu>
-                      }
+                <div className="opacity-0 group-hover:opacity-100 crm-transition">
+                  {extend && (
+                    <Tooltip title={extend.title}>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        extend.onClick(e)
+                      }}
                     >
-                      <a
-                        className="ant-dropdown-link"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <DownOutlined />
-                      </a>
-                    </Dropdown>
+                      <span className={`fa ${extend.icon || 'fa-plus'}`} />
+                    </button>
+                    </Tooltip>
                   )}
                 </div>
               </li>

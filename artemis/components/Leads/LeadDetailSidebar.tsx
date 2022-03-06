@@ -63,12 +63,10 @@ const LeadDetailSidebar = () => {
         },
         {
           label: LeadDetailSections.OpenActivities,
-          choices: [
-            {
-              label: 'Task',
-              onClick: () => openCreateTask(),
-            },
-          ],
+          extend: {
+            title: 'Add A Task',
+            onClick: () => openCreateTask(),
+          },
         },
         {
           label: LeadDetailSections.ClosedActivities,

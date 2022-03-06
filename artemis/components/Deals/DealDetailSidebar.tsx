@@ -62,12 +62,10 @@ const DealDetailSidebar = () => {
         },
         {
           label: DealDetailSections.OpenActivities,
-          choices: [
-            {
-              label: 'Task',
-              onClick: () => openCreateTask(),
-            },
-          ],
+          extend: {
+            title: "Add A Task",
+            onClick: () => openCreateTask(),
+          },
         },
         {
           label: DealDetailSections.ClosedActivities,

@@ -86,12 +86,10 @@ const ContactDetailSidebar = () => {
         },
         {
           label: ContactDetailSections.OpenActivities,
-          choices: [
-            {
-              label: 'Task',
-              onClick: () => openCreateTask(),
-            },
-          ],
+          extend: {
+            title: "Add A Task",
+            onClick: () => openCreateTask(),
+          },
         },
         {
           label: ContactDetailSections.ClosedActivities,

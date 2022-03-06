@@ -66,12 +66,10 @@ const AccountDetailSidebar = () => {
         },
         {
           label: AccountDetailSections.OpenActivities,
-          choices: [
-            {
-              label: 'Task',
-              onClick: () => openCreateTask(),
-            },
-          ],
+          extend: {
+            title: "Add A Task",
+            onClick: () => openCreateTask(),
+          },
         },
         {
           label: AccountDetailSections.ClosedActivities,

@@ -79,7 +79,7 @@ export default function LogItem({ data, index }: TProps) {
             <span className="font-semibold">{owner?.name || 'A user'}</span>{' '}
             {ActionMapping[action]} the{' '}
             <span className="capitalize">{source}</span>{' '}
-            <Link href={`${source + 's/' + entityId}`}>
+            <Link href={`/${source + 's/' + entityId}`}>
               <a
                 className={`${
                   deleted ? 'pointer-events-none text-current' : ''

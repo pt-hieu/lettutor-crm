@@ -46,7 +46,7 @@
   }
 
   .crm-transition {
-    @apply transition duration-300 ease-in-out;
+    @apply transition duration-100 ease-in-out;
   }
 
   .required::after {
