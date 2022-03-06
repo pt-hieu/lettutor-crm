@@ -36,6 +36,9 @@ export class Log extends Ownerful {
   @Column()
   action: LogAction
 
+  @Column({ default: false })
+  deleted: boolean
+
   @Column({ type: 'jsonb', nullable: true })
   changes: TChange[] | null
 }

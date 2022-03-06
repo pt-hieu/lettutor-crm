@@ -25,6 +25,7 @@ export interface Log extends Base {
   owner: User | null
   entityId: string
   entityName: string
+  deleted: boolean
   source: LogSource
   action: LogAction
   changes: TChange[] | null

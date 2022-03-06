@@ -29,6 +29,10 @@ export const data: Array<Item> = [
     title: 'Tasks',
   },
   {
+    link: '/logs',
+    title: 'Logs',
+  },
+  {
     title: "Documents",
     link: "/documents",
   }

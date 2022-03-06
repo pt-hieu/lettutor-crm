@@ -3,14 +3,27 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { DTO } from 'src/type'
 import { Repository } from 'typeorm'
-import { Log } from './log.entity'
+import { Log, LogAction } from './log.entity'
 
 @Injectable()
 export class LogService {
   constructor(@InjectRepository(Log) private logRepo: Repository<Log>) {}
 
   create(dto: DTO.Log.CreateLog) {
-    return this.logRepo.save(dto)
+    return this.logRepo.save({
+      ...dto,
+      deleted: dto.action === LogAction.DELETE,
+    })
+  }
+
+  async updateDeleteEntity(id: string) {
+    const logs = await this.logRepo.find({ where: { entityId: id } })
+    return this.logRepo.save(
+      logs.map((log) => ({
+        ...log,
+        deleted: true,
+      })),
+    )
   }
 
   getMany({
@@ -24,7 +37,10 @@ export class LogService {
     source,
     to,
   }: DTO.Log.GetManyLogs) {
-    const qb = this.logRepo.createQueryBuilder('l').leftJoin('l.owner', 'owner')
+    const qb = this.logRepo
+      .createQueryBuilder('l')
+      .leftJoinAndSelect('l.owner', 'owner')
+      .orderBy('l.createdAt', 'DESC')
 
     if (owner) {
       qb.andWhere('owner.id = :id', { id: owner })
