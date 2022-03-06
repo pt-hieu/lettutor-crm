@@ -20,6 +20,7 @@ export class AwsService {
             Bucket: this.bucket,
             Key: `${Date.now()}-${name}`,
             Body: Buffer.from(buffer, 'base64'),
+            ACL: 'public-read',
           })
           .promise()
 
