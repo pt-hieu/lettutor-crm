@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common'
 import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { DefineAction } from 'src/action.decorator'
-import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { AccountService } from './account.service'
@@ -21,10 +20,7 @@ import { AccountService } from './account.service'
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 export class AccountController {
-  constructor(
-    private readonly service: AccountService,
-    private readonly utilService: UtilService,
-  ) {}
+  constructor(private readonly service: AccountService) {}
 
   @Get()
   @ApiOperation({ summary: 'view and search all accounts' })
@@ -34,7 +30,7 @@ export class AccountController {
   }
 
   @Get('/raw')
-  @ApiOperation({ summary: 'to view raw all accounts' })
+  @ApiOperation({ summary: 'to get raw accounts' })
   getManyRaw() {
     return this.service.getManyRaw()
   }

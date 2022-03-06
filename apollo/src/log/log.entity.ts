@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer'
 import { Ownerful } from 'src/utils/owner.entity'
 import { Column, Entity } from 'typeorm'
 

@@ -28,6 +28,8 @@ export default function LogItem({ data, index }: TProps) {
   } = data
 
   const formatName = useCallback((name: string) => {
+    if (name.endsWith('Id')) name = name.replace('Id', '')
+
     const result = name.replace(/([A-Z])/g, ' $1')
     const finalResult = result.charAt(0).toUpperCase() + result.slice(1)
 
@@ -42,7 +44,7 @@ export default function LogItem({ data, index }: TProps) {
           <div>
             {changes?.map((change) => (
               <div key={change.name + id + index + 'summary'}>
-                {change.to}
+                {change.toName || change.to}
               </div>
             ))}
           </div>
@@ -52,9 +54,11 @@ export default function LogItem({ data, index }: TProps) {
               <div key={change.name + change.to + id + index}>
                 <span className="font-semibold">{formatName(change.name)}</span>{' '}
                 <span className="text-gray-500">
-                  changed from '{change.from || 'Empty'}' to{' '}
+                  changed from '{change.fromName || change.from || 'Empty'}' to{' '}
                 </span>{' '}
-                <span className="font-semibold">{change.to}</span>
+                <span className="font-semibold">
+                  {change.toName || change.to}
+                </span>
               </div>
             ))}
           </div>
@@ -66,7 +70,7 @@ export default function LogItem({ data, index }: TProps) {
   )
 
   return (
-    <div className='p-3 ring-gray-200 ring-1 hover:ring-blue-600 rounded-md crm-transition'>
+    <div className="p-3 ring-gray-200 ring-1 hover:ring-blue-600 rounded-md crm-transition">
       <div className="flex items-center gap-4">
         <span className="w-10 h-10 bg-gray-300 rounded-full" />
 
@@ -86,7 +90,7 @@ export default function LogItem({ data, index }: TProps) {
             </Link>
           </div>
 
-          <span className='text-[12px]'>{formatDate(createdAt)}</span>
+          <span className="text-[12px]">{formatDate(createdAt)}</span>
         </div>
       </div>
 

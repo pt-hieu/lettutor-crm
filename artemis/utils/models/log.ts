@@ -4,7 +4,9 @@ import { User } from './user'
 export type TChange = {
   name: string
   from: string | number
+  fromName?: string
   to: string | number
+  toName?: string
 }
 
 export enum LogSource {
