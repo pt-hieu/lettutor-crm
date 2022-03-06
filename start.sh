@@ -10,6 +10,13 @@ do
       docker-compose -f docker/docker-compose.yaml create artemis
       docker-compose -f docker/docker-compose.yaml start artemis
       ;;
+    ares)
+      docker-compose -f docker/docker-compose.yaml stop ares
+      yes | docker-compose -f docker/docker-compose.yaml rm ares
+      docker-compose -f docker/docker-compose.yaml pull ares
+      docker-compose -f docker/docker-compose.yaml create ares
+      docker-compose -f docker/docker-compose.yaml start ares
+      ;;
     apollo)
       docker-compose -f docker/docker-compose.yaml stop apollo
       yes | docker-compose -f docker/docker-compose.yaml rm apollo
