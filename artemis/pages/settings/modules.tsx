@@ -1,6 +1,8 @@
 import SettingsLayout from '@components/Settings/SettingsLayout'
 import { List, Menu, Dropdown } from 'antd'
 import { MoreOutlined } from '@ant-design/icons'
+import { useState } from 'react'
+import { DealStageModal } from '@components/Deals/DealStageMapping/DealStageModal'
 
 type ModulesList = {
   name: string
@@ -11,6 +13,8 @@ type ModulesList = {
 }[]
 
 const ModulesSettings = () => {
+  const [showStageMappingModal, setShowStageMappingModal] = useState(false)
+
   const modulesList: ModulesList = [
     {
       name: 'Lead',
@@ -29,7 +33,7 @@ const ModulesSettings = () => {
       options: [
         {
           option: 'Stage-Probability Mapping',
-          handleClick: () => console.log('Open modal!'),
+          handleClick: () => setShowStageMappingModal(true),
         },
       ],
     },
@@ -37,6 +41,11 @@ const ModulesSettings = () => {
 
   return (
     <SettingsLayout title="CRM | Modules and Fields">
+      <DealStageModal
+        visible={showStageMappingModal}
+        handleClose={() => setShowStageMappingModal(false)}
+        isLoading={false}
+      />
       <div>
         <List
           size="large"
