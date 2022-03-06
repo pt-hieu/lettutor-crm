@@ -108,6 +108,7 @@ export class NoteService {
   getMany(query: DTO.Note.GetManyQuery) {
     let q = this.noteRepo
       .createQueryBuilder('note')
+      .leftJoinAndSelect('note.files', 'files')
       .leftJoin('note.owner', 'owner')
       .leftJoin('note.lead', 'lead')
       .leftJoin('note.contact', 'contact')

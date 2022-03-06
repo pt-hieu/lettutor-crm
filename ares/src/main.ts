@@ -4,9 +4,14 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import morgan from 'morgan'
 import { config } from 'aws-sdk'
 import { AppModule } from 'src/app.module'
+import { json, urlencoded } from 'body-parser'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+
+  app.use(json({ limit: '22mb' }))
+  app.use(urlencoded({ limit: '22mb', extended: true }))
+
   config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,

@@ -6,11 +6,12 @@ import { AppModule } from 'src/app.module'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
-  app.setGlobalPrefix(process.env.GLOBAL_PREFIX || 'api')
   app.use(cookieParser())
+
+  app.setGlobalPrefix(process.env.GLOBAL_PREFIX || 'api')
   app.enableCors({
     credentials: true,
-    origin: [process.env.FE_URL]
+    origin: [process.env.FE_URL],
   })
 
   await app.listen(4000)
