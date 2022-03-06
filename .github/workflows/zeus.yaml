@@ -58,3 +58,4 @@ jobs:
           
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
             cd ~/lettutor-crm && ./start.sh zeus
+          '
