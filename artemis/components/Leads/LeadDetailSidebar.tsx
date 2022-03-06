@@ -11,6 +11,7 @@ import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
 
 export enum LeadDetailSections {
   Notes = 'Notes',
+  Logs = 'Logs',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }
@@ -56,6 +57,9 @@ const LeadDetailSidebar = () => {
       options: [
         {
           label: LeadDetailSections.Notes,
+        },
+        {
+          label: LeadDetailSections.Logs,
         },
         {
           label: LeadDetailSections.OpenActivities,

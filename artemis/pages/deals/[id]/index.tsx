@@ -52,6 +52,7 @@ import {
 import { INoteData } from '@components/Notes/NoteAdder'
 import { AddNoteDto } from '@utils/models/note'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import LogSection from '@components/Logs/LogSection'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -331,6 +332,7 @@ const DealDetail = () => {
     onSuccess() {
       notification.success({ message: 'Update deal successfully' })
       client.invalidateQueries(['deal', id])
+      client.refetchQueries([id, 'detail-log'])
     },
     onError() {
       notification.error({ message: 'Update deal unsuccessfully' })
@@ -509,7 +511,7 @@ const DealDetail = () => {
                 ))}
               </form>
             </div>
-            {/* Notes */}
+
             <NoteSection
               noteFor="deal"
               onAddNote={handleAddNote}
@@ -520,6 +522,9 @@ const DealDetail = () => {
               onChangeFilterSort={handleChangeFilterSort}
               onViewAllNote={setViewAllNote}
             />
+
+            <LogSection entityId={id} title={'Logs'} />
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -533,6 +538,7 @@ const DealDetail = () => {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"

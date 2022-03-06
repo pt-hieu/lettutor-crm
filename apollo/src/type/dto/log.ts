@@ -50,4 +50,9 @@ export class GetManyLogs extends Paginate {
   @IsOptional()
   @IsUUID()
   owner?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  entity?: string
 }

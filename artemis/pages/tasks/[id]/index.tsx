@@ -23,11 +23,12 @@ import { TaskFormData, taskSchema } from '../add-task'
 import { User } from '@utils/models/user'
 import { yupResolver } from '@hookform/resolvers/yup'
 import InlineEdit from '@utils/components/InlineEdit'
-import { getRawUsers, getUsers } from '@utils/service/user'
+import { getRawUsers } from '@utils/service/user'
 import { checkActionError } from '@utils/libs/checkActions'
 import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
+import LogSection from '@components/Logs/LogSection'
 
 enum Relatives {
   LEAD = 'lead',
@@ -238,6 +239,7 @@ const TaskDetail = () => {
       onSuccess() {
         notification.success({ message: 'Update task successfully' })
         queryClient.invalidateQueries(['task', id])
+        queryClient.refetchQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Update task unsuccessfully' })
@@ -264,52 +266,61 @@ const TaskDetail = () => {
         <div className="grid grid-cols-[250px,1fr]">
           <TaskDetailSidebar />
           <div className="flex flex-col divide-y gap-4">
-            <div className="flex justify-between">
+            <div className="grid grid-cols-[8fr,2fr]">
               <div>
-                <div className="font-semibold mb-4 text-[17px]">Overview</div>
-                <div className="flex flex-col gap-2">
-                  {relatives.map(
-                    ({ relative, value }) =>
-                      task &&
-                      task[relative] && (
+                <div>
+                  <div className="font-semibold mb-4 text-[17px]">Overview</div>
+                  <div className="flex flex-col gap-2">
+                    {relatives.map(
+                      ({ relative, value }) =>
+                        task &&
+                        task[relative] && (
+                          <div
+                            key={relative}
+                            className="grid grid-cols-[250px,350px] gap-4 pb-[16px] hover:cursor-not-allowed"
+                          >
+                            <span className="inline-block text-right font-medium first-letter:uppercase">
+                              {relative}
+                            </span>
+                            <span className="inline-block pl-3">{value}</span>
+                          </div>
+                        ),
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-4 divide-y">
+                    <form onSubmit={submit} className="flex flex-col gap-2">
+                      {fields({
+                        register,
+                        errors,
+                        users: users || [],
+                        disabled:
+                          !auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] &&
+                          !isOwner,
+                      }).map(({ label, props }) => (
                         <div
-                          key={relative}
-                          className="grid grid-cols-[250px,350px] gap-4 pb-[16px] hover:cursor-not-allowed"
+                          key={label}
+                          className="grid grid-cols-[250px,350px] gap-4"
                         >
-                          <span className="inline-block text-right font-medium first-letter:uppercase">
-                            {relative}
+                          <span className="inline-block text-right font-medium pt-[8px]">
+                            {label}
                           </span>
-                          <span className="inline-block pl-3">{value}</span>
+
+                          <InlineEdit
+                            onEditCancel={() => reset(defaultValues)}
+                            onEditComplete={submit}
+                            {...props}
+                          />
                         </div>
-                      ),
-                  )}
+                      ))}
+                    </form>
+
+                    <LogSection entityId={id} title="Logs" />
+                  </div>
                 </div>
-                <form onSubmit={submit} className="flex flex-col gap-2">
-                  {fields({
-                    register,
-                    errors,
-                    users: users || [],
-                    disabled:
-                      !auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] &&
-                      !isOwner,
-                  }).map(({ label, props }) => (
-                    <div
-                      key={label}
-                      className="grid grid-cols-[250px,350px] gap-4"
-                    >
-                      <span className="inline-block text-right font-medium pt-[8px]">
-                        {label}
-                      </span>
-                      <InlineEdit
-                        onEditCancel={() => reset(defaultValues)}
-                        onEditComplete={submit}
-                        {...props}
-                      />
-                    </div>
-                  ))}
-                </form>
               </div>
-              <div>
+
+              <div className='ml-auto'>
                 {isCompleted ? (
                   <Tooltip title="Completed">
                     <span className="crm-button bg-green-600 hover:bg-green-500">

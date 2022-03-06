@@ -45,6 +45,7 @@ import {
 import { INoteData } from '@components/Notes/NoteAdder'
 import { AddNoteDto } from '@utils/models/note'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import LogSection from '@components/Logs/LogSection'
 
 type AccountInfo = {
   label: string
@@ -195,6 +196,7 @@ const AccountDetail = () => {
     onSuccess() {
       notification.success({ message: 'Update account successfully' })
       client.invalidateQueries(['account', id])
+      client.refetchQueries([id, 'detail-log'])
     },
     onError() {
       notification.error({ message: 'Update account unsuccessfully' })
@@ -312,6 +314,7 @@ const AccountDetail = () => {
                     <span className="inline-block text-right font-medium pt-[8px]">
                       {label}
                     </span>
+
                     <InlineEdit
                       onEditCancel={cancel}
                       onEditComplete={submit}
@@ -321,7 +324,7 @@ const AccountDetail = () => {
                 ))}
               </form>
             </div>
-            {/* Notes */}
+
             <NoteSection
               noteFor="account"
               onAddNote={handleAddNote}
@@ -333,6 +336,7 @@ const AccountDetail = () => {
               onViewAllNote={setViewAllNote}
               hasFilter
             />
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -353,6 +357,9 @@ const AccountDetail = () => {
                 ),
               )}
             </div>
+
+            <LogSection title={AccountDetailSections.Logs} entityId={id} />
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -366,6 +373,7 @@ const AccountDetail = () => {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -373,6 +381,7 @@ const AccountDetail = () => {
               >
                 {AccountDetailSections.ClosedActivities}
               </div>
+
               {closedTasks && closedTasks.length > 0 ? (
                 <TaskList tasks={closedTasks} />
               ) : (

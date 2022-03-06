@@ -41,9 +41,9 @@ export default function LogItem({ data, index }: TProps) {
         <>
           <div>
             {changes?.map((change) => (
-              <span key={change.name + id + index + 'summary'}>
+              <div key={change.name + id + index + 'summary'}>
                 {change.to}
-              </span>
+              </div>
             ))}
           </div>
 

@@ -36,6 +36,7 @@ export class LogService {
     shouldNotPaginate,
     source,
     to,
+    entity,
   }: DTO.Log.GetManyLogs) {
     const qb = this.logRepo
       .createQueryBuilder('l')
@@ -44,6 +45,10 @@ export class LogService {
 
     if (owner) {
       qb.andWhere('owner.id = :id', { id: owner })
+    }
+
+    if (entity) {
+      qb.andWhere('l.entityId = :id', { id: entity })
     }
 
     if (action) {

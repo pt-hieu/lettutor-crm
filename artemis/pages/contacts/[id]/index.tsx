@@ -2,6 +2,7 @@ import ContactDetailNavbar from '@components/Contacts/ContactDetailNavbar'
 import ContactDetailSidebar, {
   ContactDetailSections,
 } from '@components/Contacts/ContactDetailSidebar'
+import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -246,6 +247,7 @@ const ContactDetail = () => {
     onSuccess() {
       notification.success({ message: 'Update contact successfully' })
       client.invalidateQueries(['contact', id])
+      client.refetchQueries([id, 'detail-log'])
     },
     onError() {
       notification.error({ message: 'Update contact unsuccessfully' })
@@ -376,7 +378,7 @@ const ContactDetail = () => {
                 ))}
               </form>
             </div>
-            {/* Notes */}
+
             <NoteSection
               noteFor="contact"
               onAddNote={handleAddNote}
@@ -387,6 +389,7 @@ const ContactDetail = () => {
               onChangeFilterSort={handleChangeFilterSort}
               onViewAllNote={setViewAllNote}
             />
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -407,6 +410,9 @@ const ContactDetail = () => {
                 ),
               )}
             </div>
+
+            <LogSection entityId={id} title={ContactDetailSections.Logs} />
+
             <div className="pt-4">
               <div
                 className="font-semibold mb-4 text-[17px]"

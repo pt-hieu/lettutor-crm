@@ -1,3 +1,4 @@
+import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -242,6 +243,7 @@ const LeadDetail = () => {
     onSuccess() {
       notification.success({ message: 'Update lead successfully' })
       client.invalidateQueries(['lead', id])
+      client.refetchQueries([id, 'detail-log'])
     },
     onError() {
       notification.error({ message: 'Update lead unsuccessfully' })
@@ -356,7 +358,7 @@ const LeadDetail = () => {
                 ))}
               </form>
             </div>
-            
+
             <NoteSection
               noteFor="lead"
               onAddNote={handleAddNote}
@@ -367,6 +369,8 @@ const LeadDetail = () => {
               onChangeFilterSort={handleChangeFilterSort}
               onViewAllNote={setViewAllNote}
             />
+
+            <LogSection entityId={id} title={LeadDetailSections.Logs} />
 
             <div className="pt-4">
               <div

@@ -13,6 +13,7 @@ import { getContact } from '@utils/service/contact'
 export enum ContactDetailSections {
   Notes = 'Notes',
   Deals = 'Deals',
+  Logs = 'Logs',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }
@@ -79,6 +80,9 @@ const ContactDetailSidebar = () => {
         },
         {
           label: ContactDetailSections.Deals,
+        },
+        {
+          label: ContactDetailSections.Logs,
         },
         {
           label: ContactDetailSections.OpenActivities,

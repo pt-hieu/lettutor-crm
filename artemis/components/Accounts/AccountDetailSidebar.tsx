@@ -11,6 +11,7 @@ import { notification } from 'antd'
 export enum AccountDetailSections {
   Notes = 'Notes',
   Deals = 'Deals',
+  Logs = 'Logs',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }
@@ -59,6 +60,9 @@ const AccountDetailSidebar = () => {
         },
         {
           label: AccountDetailSections.Deals,
+        },
+        {
+          label: AccountDetailSections.Logs,
         },
         {
           label: AccountDetailSections.OpenActivities,
