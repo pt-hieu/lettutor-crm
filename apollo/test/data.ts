@@ -172,7 +172,7 @@ export const note: Note = {
   title: 'Test Note title',
   content: 'Test Note content',
   source: '',
-  files: [],
+  attachments: [],
   createdAt: null,
   updatedAt: null,
   createdBy: null,

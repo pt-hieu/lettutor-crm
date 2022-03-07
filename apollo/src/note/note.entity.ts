@@ -79,5 +79,5 @@ export class Note extends BaseEntity {
     eager: true,
     cascade: true,
   })
-  files: File[]
+  attachments: File[]
 }

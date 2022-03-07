@@ -1,8 +1,8 @@
 import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
-import { FileInfo, Note, NoteSource } from '@utils/models/note'
+import { Note, NoteSource } from '@utils/models/note'
 import { FilterNoteType, SortNoteType } from '@utils/service/note'
 import { Select } from 'antd'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { INoteData, NoteAdder } from './NoteAdder'
 import { NoteContent } from './NoteContent'
 const { Option, OptGroup } = Select
@@ -142,17 +142,7 @@ export const NoteSection = ({
 
         <div className="mb-2 flex flex-col gap-4">
           {notes.map((item) => {
-            const {
-              createdAt,
-              owner,
-              content,
-              title,
-              id,
-              source,
-              files = [
-                { id: '1', name: 'filename.csv', size: 2000 } as FileInfo,
-              ],
-            } = item
+            const { createdAt, owner, content, title, id, source, attachments } = item
             return (
               <NoteContent
                 key={id}
@@ -168,7 +158,7 @@ export const NoteSection = ({
                 noteSource={source}
                 sourceName={item[source]?.fullName as string}
                 sourceId={item[source]?.id as string}
-                files={files}
+                files={attachments}
               />
             )
           })}

@@ -1,11 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Tooltip } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
-import Input from '../../utils/components/Input'
+import Input from '@utils/components/Input'
 import { notification } from 'antd'
+import { Attachments } from '@utils/models/note'
 
 export const noteShema = yup.object().shape({
   content: yup
@@ -15,10 +16,15 @@ export const noteShema = yup.object().shape({
     .max(500, 'Note must be at most 500 characters'),
 })
 
+const MAX_NUM_FILE = 5
+const MAX_MB_SIZE = 20
+const MAX_SIZE_FILE = MAX_MB_SIZE * 1024 * 1024 // 20 MB
+
 export interface INoteData {
   title?: string
   content: string
   files?: File[]
+  attachments: any[]
 }
 
 interface ITextboxProps {
@@ -26,7 +32,7 @@ interface ITextboxProps {
   onSave: (data: INoteData) => void
   defaultTitle?: string
   defaultNote?: string
-  defaultFiles?: File[]
+  defaultFiles?: Attachments[]
 }
 
 const animateVariant = {
@@ -36,16 +42,18 @@ const animateVariant = {
 
 export const NoteTextBox = ({
   onCancel,
-  onSave,
+  onSave: saveNote,
   defaultTitle,
   defaultNote,
   defaultFiles: defaultFile,
 }: ITextboxProps) => {
   const [hasTitle, setHasTitle] = useState(!!defaultTitle)
   const [title, setTitle] = useState(defaultTitle || '')
+  const [attachments, setAttachments] = useState<Attachments[]>(
+    defaultFile || [],
+  )
 
-  // File
-  const [files, setFiles] = useState<File[] | undefined>(defaultFile)
+  const [files, setFiles] = useState<File[]>([])
 
   const {
     register,
@@ -63,41 +71,40 @@ export const NoteTextBox = ({
   const noteRef = useRef<any>(null)
   const { ref, ...rest } = register('content')
 
-  const handleAddTitle = () => {
+  const turnOnTitle = useCallback(() => {
     setHasTitle(true)
-  }
+  }, [])
 
   const handleTitleInputBlur = () => {
     if (title.trim()) return
+
     setHasTitle(false)
     setTitle('')
   }
 
-  const handleSave = handleSubmit((data) => {
-    if (title.length > 100) {
-      setError('content', { message: 'Title must be at most 100 characters' })
-      return
-    }
+  const submitNote = useCallback(
+    handleSubmit((data) => {
+      if (title.length > 100) {
+        setError('content', { message: 'Title must be at most 100 characters' })
+        return
+      }
 
-    if (hasTitle) {
-      data.title = title
-    }
+      if (hasTitle) {
+        data.title = title
+      }
 
-    if (files?.length) {
+      data.attachments = attachments
       data.files = files
-    }
 
-    onSave(data)
-  })
+      saveNote(data)
+    }),
+    [saveNote, title, files, attachments],
+  )
 
   //File
   const handleSelectFiles = (event: ChangeEvent<HTMLInputElement>) => {
-    const MAX_NUM_FILE = 5
-    const MAX_MB_SIZE = 20
-    const MAX_SIZE_FILE = MAX_MB_SIZE * 1024 * 1024 // 20 MB
-
     const selectedFiles = Array.from(event.target.files || [])
-    event.target.value = '' //can choose same most previous file
+    event.target.value = ''
 
     //Check exist empty file
     for (let file of selectedFiles) {
@@ -105,38 +112,49 @@ export const NoteTextBox = ({
         notification.error({
           message: `The file ${file.name} is not supported`,
         })
+
         return
       }
     }
 
-    const currentFilesLength = files?.length || 0
-    const selectedFilesLength = selectedFiles?.length || 0
+    const currentFilesLength = attachments.length
+    const selectedFilesLength = selectedFiles.length
 
     if (selectedFilesLength + currentFilesLength > MAX_NUM_FILE) {
       notification.error({
         message: `You can upload maximum ${MAX_NUM_FILE} files only`,
       })
+
       return
     }
 
     const currentFilesSize =
-      files?.reduce((totalSize, file) => totalSize + file.size, 0) || 0
-    const selectedFilesSize =
-      selectedFiles.reduce((totalSize, file) => totalSize + file.size, 0) || 0
+      attachments.reduce((totalSize, file) => totalSize + file.size, 0) +
+      files.reduce((size, file) => size + file.size, 0)
+
+    const selectedFilesSize = selectedFiles.reduce(
+      (totalSize, file) => totalSize + file.size,
+      0,
+    )
 
     if (selectedFilesSize + currentFilesSize > MAX_SIZE_FILE) {
       notification.error({
         message: `The total file size exceeds the allowed limit of ${MAX_MB_SIZE} MB`,
       })
+
       return
     }
 
-    setFiles([...(files || []), ...selectedFiles])
+    setFiles([...files, ...selectedFiles])
   }
 
-  const handleRemoveFile = (index: number) => {
-    setFiles(files?.filter((_, i) => i !== index))
-  }
+  const removeAttachment = useCallback((index: number) => {
+    setAttachments((attachments) => attachments?.filter((_, i) => i !== index))
+  }, [])
+
+  const removeFile = useCallback((index: number) => {
+    setFiles((files) => files.filter((_, i) => i !== index))
+  }, [])
 
   useEffect(() => {
     if (!title.trim() && hasTitle) {
@@ -170,6 +188,7 @@ export const NoteTextBox = ({
             </motion.div>
           )}
         </AnimatePresence>
+
         <textarea
           placeholder="Add a note"
           className="border-transparent focus:border-transparent focus:ring-0 w-full min-h-[40px] pl-2 pt-1"
@@ -180,6 +199,7 @@ export const NoteTextBox = ({
             noteRef.current = e
           }}
         />
+
         <AnimatePresence presenceAffectsLayout>
           {errors.content && (
             <motion.div
@@ -219,7 +239,7 @@ export const NoteTextBox = ({
               <span className="mx-3">|</span>
               <span
                 className="cursor-pointer hover:text-gray-600"
-                onClick={handleAddTitle}
+                onClick={turnOnTitle}
               >
                 Add title
               </span>
@@ -228,23 +248,24 @@ export const NoteTextBox = ({
         </div>
 
         <div className="flex flex-col flex-1 gap-1 items-center self-center">
-          {files?.map(({ name, size }, index) => (
-            <div
-              key={index}
-              className="flex w-[300px] p-1 px-2 rounded bg-slate-50 justify-between items-center text-[12px]"
-              title={name}
-            >
-              <div className="flex flex-row">
-                <span className="text-blue-600 mr-2 max-w-[180px] truncate">
-                  {name}
-                </span>
-                <span>({formatBytes(size)})</span>
-              </div>
-              <i
-                className="fa fa-times-circle text-gray-500 hover:text-red-500 cursor-pointer"
-                onClick={() => handleRemoveFile(index)}
-              ></i>
-            </div>
+          {attachments.map(({ key, size }, index) => (
+            <FileAttachment
+              index={index}
+              name={key}
+              size={size}
+              key={key}
+              onRemoveFile={removeAttachment}
+            />
+          ))}
+
+          {files.map(({ size, name }, index) => (
+            <FileAttachment
+              key={name}
+              onRemoveFile={removeFile}
+              size={size}
+              name={name}
+              index={index}
+            />
           ))}
         </div>
 
@@ -252,7 +273,8 @@ export const NoteTextBox = ({
           <button className="crm-button-secondary" onClick={onCancel}>
             Cancel
           </button>
-          <button className="crm-button" onClick={handleSave}>
+
+          <button className="crm-button" onClick={submitNote}>
             Save
           </button>
         </div>
@@ -307,4 +329,38 @@ function formatBytes(bytes: number, decimals = 2) {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+}
+
+type AttachmentProps = {
+  index: number
+  name: string
+  size: number
+  onRemoveFile: (index: number) => void
+}
+
+function FileAttachment({
+  index,
+  name,
+  size,
+  onRemoveFile: removeFile,
+}: AttachmentProps) {
+  return (
+    <div
+      key={index}
+      className="flex w-[300px] p-1 px-2 rounded bg-slate-50 justify-between items-center text-[12px]"
+      title={name}
+    >
+      <div className="flex flex-row">
+        <span className="text-blue-600 mr-2 max-w-[180px] truncate">
+          {name}
+        </span>
+        <span>({formatBytes(size)})</span>
+      </div>
+
+      <i
+        className="fa fa-times-circle text-gray-500 hover:text-red-500 cursor-pointer"
+        onClick={() => removeFile(index)}
+      />
+    </div>
+  )
 }

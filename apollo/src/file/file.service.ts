@@ -9,7 +9,9 @@ import { UtilService } from 'src/global/util.service'
 import { Repository } from 'typeorm'
 import { File } from './file.entity'
 
-const MAX_SIZE_OF_FILES = 20971520 // 20MB in binary
+/** 20MB in bytes */
+const MAX_SIZE_OF_FILES = 20971520
+
 type TFile<T extends string | Buffer> = {
   name: string
   buffer: T
@@ -25,8 +27,9 @@ export class FileService {
 
   async uploadFile(files: TFile<string>[]) {
     this.doValidateFiles(files)
+
     const uploadResult = await this.util.wrap<
-      { key: string; location: string }[]
+      { key: string; location: string; size: number }[]
     >(this.http.post(this.util.aresService + '/aws/s3', files))
 
     return this.fileRepo.save(uploadResult)

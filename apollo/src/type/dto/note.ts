@@ -1,4 +1,8 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import {
+  ApiPreconditionFailedResponse,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import {
   IsNotEmpty,
@@ -99,7 +103,7 @@ export class GetManyQuery extends Paginate {
   filter?: string
 }
 
-export class UpdateBody {
+export class UpdateBody extends Files {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
@@ -129,5 +133,9 @@ export class UpdateBody {
   @ApiProperty()
   @IsString()
   @MaxLength(500)
-  content?: string
+  content: string
+
+  @ApiProperty()
+  @IsUUID(undefined, { each: true })
+  attachments: string[]
 }

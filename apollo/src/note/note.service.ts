@@ -8,15 +8,14 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
-import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
+import { File } from 'src/file/file.entity'
 import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
-import { UserService } from 'src/user/user.service'
 import { FindOneOptions, In, Repository } from 'typeorm'
 import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
 
@@ -26,89 +25,72 @@ export class NoteService {
     @InjectRepository(Note)
     private noteRepo: Repository<Note>,
 
+    @InjectRepository(File)
+    private fileRepo: Repository<File>,
+
     @Inject(forwardRef(() => LeadService))
     private readonly leadService: LeadService,
 
     @Inject(forwardRef(() => ContactService))
     private readonly contactService: ContactService,
 
-    @Inject(forwardRef(() => AccountService))
-    private readonly accountService: AccountService,
-
     @Inject(forwardRef(() => DealService))
     private readonly dealService: DealService,
 
-    private readonly userService: UserService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
     private readonly fileService: FileService,
   ) {}
 
   async addNote(dto: DTO.Note.AddNote) {
-    await this.userService.getOneUserById({
-      where: { id: this.payloadService.data.id },
-    })
-
-    let filesToAdd = []
-
+    let filesToAdd: File[] = []
     if (dto.files && dto.files.length > 0) {
-      filesToAdd = await this.fileService.uploadFile(dto.files)
+      filesToAdd  = await this.fileService.uploadFile(dto.files)
     }
 
-    if (dto.leadId && dto.source == NoteSource.LEAD) {
-      await this.leadService.getLeadById({
-        where: { id: dto.leadId },
-      })
+    delete dto.files
+
+    if (dto.leadId && dto.source === NoteSource.LEAD) {
       dto.accountId = null
       dto.contactId = null
       dto.dealId = null
       dto.ownerId = this.payloadService.data.id
       dto.source = NoteSource.LEAD
-      return this.noteRepo.save({ ...dto, files: filesToAdd })
+
+      return this.noteRepo.save({ ...dto, attachments: filesToAdd })
     }
 
     dto.leadId = null
 
-    if (dto.contactId && dto.source == NoteSource.CONTACT) {
+    if (dto.contactId && dto.source === NoteSource.CONTACT) {
       const contact = await this.contactService.getContactById({
         where: { id: dto.contactId },
       })
+
       dto.source = NoteSource.CONTACT
       dto.accountId = contact.accountId
     }
 
-    if (dto.accountId && dto.source == NoteSource.ACCOUNT) {
+    if (dto.accountId && dto.source === NoteSource.ACCOUNT) {
       dto.dealId = null
     }
-    if (dto.dealId && dto.source == NoteSource.DEAL) {
+
+    if (dto.dealId && dto.source === NoteSource.DEAL) {
       const deal = await this.dealService.getDealById({
         where: { id: dto.dealId },
       })
+
       dto.accountId = deal.accountId
     }
 
-    await Promise.all([
-      dto.contactId
-        ? this.contactService.getContactById({
-            where: { id: dto.contactId },
-          })
-        : undefined,
-      dto.accountId
-        ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-        : undefined,
-      dto.dealId
-        ? this.dealService.getDealById({ where: { id: dto.dealId } })
-        : undefined,
-    ])
-
     dto.ownerId = this.payloadService.data.id
-    return this.noteRepo.save({ ...dto, files: filesToAdd })
+    return this.noteRepo.save({ ...dto, attachments: filesToAdd })
   }
 
   getMany(query: DTO.Note.GetManyQuery) {
     let q = this.noteRepo
       .createQueryBuilder('note')
-      .leftJoinAndSelect('note.files', 'files')
+      .leftJoinAndSelect('note.attachments', 'attachments')
       .leftJoin('note.owner', 'owner')
       .leftJoin('note.lead', 'lead')
       .leftJoin('note.contact', 'contact')
@@ -143,7 +125,7 @@ export class NoteService {
       q.andWhere('note.accountId = :accountId', {
         accountId: query.sourceId,
       })
-      if (query.filter == NoteFilter.ACCOUNT_ONLY) {
+      if (query.filter === NoteFilter.ACCOUNT_ONLY) {
         q.andWhere('note.source = :source', {
           source: NoteSource.ACCOUNT,
         })
@@ -188,20 +170,34 @@ export class NoteService {
   }
 
   async update(id: string, dto: DTO.Note.UpdateBody) {
-    const note = await this.getNoteById({ where: { id } })
+    let note = await this.getNoteById({ where: { id } })
 
-    await this.userService.getOneUserById({
-      where: { id: this.payloadService.data.id },
-    })
+    let filesToAdd: File[] = []
+    if (dto.files && dto.files.length > 0) {
+      filesToAdd = await this.fileService.uploadFile(dto.files)
+    }
+
+    const filesToDelete = note.attachments.filter((file) =>
+      !dto.attachments.includes(file.id),
+    )
+
+    await this.fileRepo.remove(filesToDelete)
+    note = await this.getNoteById({ where: { id } })
 
     if (dto.leadId) {
       await this.leadService.getLeadById({
         where: { id: dto.leadId },
       })
+
       dto.contactId = null
       dto.accountId = null
       dto.dealId = null
-      return this.noteRepo.save({ ...note, ...dto })
+
+      return this.noteRepo.save({
+        ...note,
+        ...dto,
+        attachments: [...note.attachments, ...filesToAdd],
+      })
     }
 
     if (dto.contactId || dto.accountId || dto.dealId) {
@@ -211,21 +207,13 @@ export class NoteService {
         : dto.dealId
         ? (dto.accountId = null)
         : undefined
-
-      await Promise.all([
-        dto.contactId
-          ? this.contactService.getContactById({ where: { id: dto.contactId } })
-          : undefined,
-        dto.accountId
-          ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-          : undefined,
-        dto.dealId
-          ? this.dealService.getDealById({ where: { id: dto.dealId } })
-          : undefined,
-      ])
     }
 
-    return this.noteRepo.save({ ...note, ...dto })
+    return this.noteRepo.save({
+      ...note,
+      ...dto,
+      attachments: [...note.attachments, ...filesToAdd],
+    })
   }
 
   async batchDelete(ids: string[]) {

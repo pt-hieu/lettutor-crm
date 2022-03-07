@@ -1,6 +1,6 @@
 import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
-import { FileInfo, NoteSource } from '@utils/models/note'
+import { Attachments, NoteSource } from '@utils/models/note'
 import { Tooltip } from 'antd'
 import moment from 'moment'
 import Link from 'next/link'
@@ -20,7 +20,7 @@ interface IProps {
   noteSource: NoteSource
   sourceName: string
   sourceId: string
-  files?: FileInfo[]
+  files?: Attachments[]
 }
 
 export const NoteContent = ({
@@ -75,33 +75,38 @@ export const NoteContent = ({
           <div className="w-8 h-8 rounded-full bg-blue-300 text-center text-white leading-8">
             avt
           </div>
+
           <div className="flex-1 pl-4">
             {title && (
               <div className="font-semibold whitespace-pre-wrap break-all pr-[90px]">
                 {title}
               </div>
             )}
+
             <div className="w-full whitespace-pre-wrap break-all mb-1 pr-[90px]">
               {note}
             </div>
-            {/* File */}
+            
             <div className="flex gap-2">
-              {files?.map(({ id, name: filename }) => (
+              {files?.map(({ id, key, location }) => (
                 <div key={id} className="w-[120px] file-container">
                   <div className="bg-white border h-[120px] flex items-center justify-center px-4 relative rounded">
-                    <div className="text-blue-500 truncate">{filename}</div>
+                    <div className="text-blue-500 truncate">{key}</div>
                     <div className="hidden absolute bottom-0 w-full text-center file-controller bg-slate-100">
                       <Tooltip title="Download file" mouseEnterDelay={1}>
                         <a
                           className="fa fa-download"
-                          href="/filename.csv"
-                          download={filename}
+                          href={location}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download={key}
                         />
                       </Tooltip>
                     </div>
                   </div>
+
                   <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
-                    {filename}
+                    {key}
                   </div>
                 </div>
               ))}
@@ -115,9 +120,11 @@ export const NoteContent = ({
                   {sourceName}
                 </a>
               </Link>
+
               <span className="px-3 font-bold text-[16px]">•</span>
               <span>Add note</span>
               <span className="px-3 font-bold text-[16px]">•</span>
+
               <span>
                 <i className="fa fa-clock mr-1"></i>
                 <span>
@@ -126,6 +133,7 @@ export const NoteContent = ({
               </span>
             </div>
           </div>
+
           <div className="absolute hidden top-2 right-0 group-hover:flex flex-row gap-3">
             {!hideEditButton && (
               <i
@@ -140,6 +148,7 @@ export const NoteContent = ({
           </div>
         </div>
       )}
+
       <Confirm
         visible={confirm}
         close={closeConfirm}

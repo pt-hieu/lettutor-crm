@@ -6,8 +6,8 @@ export interface Base {
   createdAt: Date
   createdById: string | null
   updatedById: string | null
-  createdBy: User
-  updatedBy: User
+  createdBy: User | null
+  updatedBy: User | null
 }
 
 

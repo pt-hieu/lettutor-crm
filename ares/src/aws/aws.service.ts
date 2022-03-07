@@ -15,18 +15,27 @@ export class AwsService {
   async uploadFile(dto: Array<UploadFiles>) {
     return Promise.all(
       dto.map(async ({ buffer, name }) => {
-        const uploadResult = await this.s3
+        const [extension] = name.split('.').slice(-1)
+        name = name.replace(extension, '')
+
+        const uploadResult: S3.ManagedUpload.SendData = await this.s3
           .upload({
             Bucket: this.bucket,
-            Key: `${Date.now()}-${name}`,
+            Key: `${name}-${Date.now()}.${extension}`,
             Body: Buffer.from(buffer, 'base64'),
             ACL: 'public-read',
           })
           .promise()
 
+        const size = await this.s3
+          .headObject({ Bucket: this.bucket, Key: uploadResult.Key })
+          .promise()
+          .then((r) => r.ContentLength)
+
         return {
           key: uploadResult.Key,
           location: uploadResult.Location,
+          size,
         }
       }),
     )
