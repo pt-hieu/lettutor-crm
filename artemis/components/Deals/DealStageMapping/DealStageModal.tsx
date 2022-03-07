@@ -1,5 +1,4 @@
 import Loading from '@utils/components/Loading'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
 import {
   DealCategory,
   DealStageData,
@@ -45,8 +44,8 @@ export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
   const submitModal = () => {
     const validDatas = dataSource.filter((item) => isValidData(item))
     data = validDatas
+
     setDataSource(data)
-    console.log(validDatas)
     handleClose()
   }
 
@@ -70,6 +69,7 @@ export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
           >
             <Loading on={isLoading}>Submit</Loading>
           </button>
+
           <button onClick={closeModal} className="crm-button-outline">
             Cancel
           </button>

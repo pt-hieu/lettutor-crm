@@ -1,41 +1,11 @@
-import Animate from './Animate'
 import Link from 'next/link'
 import { SettingData } from '@utils/data/setting-data'
-import useGlobalDate from '@utils/hooks/useGlobalDate'
-import { useEffect } from 'react'
 
-type Props = {
-  visible: boolean
-  setVisible: (v: boolean) => void
-}
-
-export default function SettingMenu({ visible, setVisible }: Props) {
-  const { effect } = useGlobalDate({
-    callback: () => {
-      setVisible(false)
-    },
-  })
-
-  useEffect(() => {
-    if (!visible) return
-    effect()
-  }, [visible])
-
+export default function SettingMenu() {
   return (
-    <Animate
-      shouldAnimateOnExit
-      presenceProps={{ exitBeforeEnter: true }}
-      on={visible}
-      transition={{ duration: 0.17 }}
-      animation={{
-        start: { opacity: 0 },
-        animate: { opacity: 1 },
-        end: { opacity: 0 },
-      }}
-    >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="min-w-[500px] min-h-[150px] border rounded-md shadow-md bg-white absolute top-[120%] transform -translate-x-[80%] p-4 text-gray-500"
+        className="min-w-[500px] min-h-[150px] border rounded-md shadow-md bg-white p-4 text-gray-500"
       >
         <Link href="/settings">
           <a className="crm-link font-semibold text-[17px] block border-b pb-2 mb-2">
@@ -58,6 +28,5 @@ export default function SettingMenu({ visible, setVisible }: Props) {
           ))}
         </div>
       </div>
-    </Animate>
   )
 }
