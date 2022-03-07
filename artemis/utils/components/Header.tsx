@@ -127,7 +127,10 @@ export default function Header() {
             </div>
           }
         >
-          <Avatar src={`https://avatars.dicebear.com/api/bottts/${seed}.svg`} />
+          <Avatar
+            className="cursor-pointer"
+            src={`https://avatars.dicebear.com/api/bottts/${seed}.svg`}
+          />
         </Dropdown>
 
         <Confirm

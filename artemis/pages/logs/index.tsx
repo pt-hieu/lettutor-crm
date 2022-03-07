@@ -1,5 +1,6 @@
 import LogItem from '@components/Logs/LogItem'
 import Layout from '@utils/components/Layout'
+import Paginate from '@utils/components/Paginate'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
 import { LogAction, LogSource } from '@utils/models/log'
@@ -61,8 +62,19 @@ export default function LogPage() {
   return (
     <Layout title="CRM | Log" requireLogin>
       <div className="grid grid-cols-[3fr,7fr] gap-4 crm-container">
-        <div></div>
-        <div className='flex flex-col gap-4'>
+        <div>
+          {/* @ts-ignore */}
+          <Paginate
+            currentPage={Number(page || 1)}
+            showQuickJump
+            showJumpToHead
+            pageSize={limit || 10}
+            totalPage={logs?.meta.totalPages}
+            onPageChange={setPage}
+          />
+        </div>
+
+        <div className="flex flex-col gap-4">
           {logs?.items.map((log, index) => (
             <LogItem key={log.id} data={log} index={index} />
           ))}
