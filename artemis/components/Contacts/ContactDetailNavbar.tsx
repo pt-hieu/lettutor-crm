@@ -66,7 +66,7 @@ const ContactDetailNavbar = ({ data }: Props) => {
               className="crm-button-secondary"
               onClick={navigateToEditPage}
             >
-              Edit
+              <span className="fa fa-edit mr-2" /> Edit
             </button>
           )}
         </div>

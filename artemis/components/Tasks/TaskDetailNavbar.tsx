@@ -64,7 +64,7 @@ const TaskDetailNavbar = ({ task }: Props) => {
               className="crm-button-secondary"
               onClick={navigateToEditPage}
             >
-              Edit
+              <span className="fa fa-edit mr-2" /> Edit
             </button>
           )}
         </div>

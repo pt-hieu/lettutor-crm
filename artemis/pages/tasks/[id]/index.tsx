@@ -320,7 +320,7 @@ const TaskDetail = () => {
                 </div>
               </div>
 
-              <div className='ml-auto'>
+              <div className="ml-auto">
                 {isCompleted ? (
                   <Tooltip title="Completed">
                     <span className="crm-button bg-green-600 hover:bg-green-500">
@@ -336,7 +336,10 @@ const TaskDetail = () => {
                         title="Warning closing task"
                         onYes={confirmCloseTask}
                       >
-                        <button className="crm-button">Close Task</button>
+                        <button className="crm-button">
+                          <span className="fa fa-check mr-2" />
+                          Close Task
+                        </button>
                       </Confirm>
                     )}
                   </>

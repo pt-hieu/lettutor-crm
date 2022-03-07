@@ -1,7 +1,7 @@
 import { formatDate } from '@utils/libs/time'
 import { Log, LogAction } from '@utils/models/log'
 import Link from 'next/link'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { memo, ReactNode, useCallback, useMemo } from 'react'
 
 type TProps = {
   data: Log
@@ -14,7 +14,7 @@ const ActionMapping: Record<LogAction, string> = {
   [LogAction.DELETE]: 'deleted',
 }
 
-export default function LogItem({ data, index }: TProps) {
+export default memo(function LogItem({ data, index }: TProps) {
   const {
     owner,
     action,
@@ -97,4 +97,4 @@ export default function LogItem({ data, index }: TProps) {
       <div className="pl-14 mt-4">{renderLogContent[action]}</div>
     </div>
   )
-}
+})
