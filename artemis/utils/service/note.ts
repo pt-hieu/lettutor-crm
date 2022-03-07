@@ -3,7 +3,6 @@ import { API } from 'environment'
 import axios from 'axios'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import { INoteData } from '@components/Notes/NoteAdder'
-import fileDownload from 'js-file-download'
 
 export type SortNoteType = 'last' | 'first'
 export type FilterNoteType = undefined | NoteSource
@@ -81,16 +80,3 @@ export const editNote = ({
   return axios.patch(API + `/apollo/note/${noteId}`, { ...dataInfo })
 }
 
-export const downloadFile = (
-  fileInfo: { id: string; name: string },
-  token?: string,
-) => {
-  axios
-    .get(API + `/apollo/file/${fileInfo.id}`, {
-      headers: { authorization: 'Bearer ' + token },
-      responseType: 'blob',
-    })
-    .then((res) => {
-      fileDownload(res.data, fileInfo.name)
-    })
-}

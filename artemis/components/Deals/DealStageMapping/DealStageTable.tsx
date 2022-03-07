@@ -1,4 +1,3 @@
-import { MenuOutlined } from '@ant-design/icons'
 import {
   DealCategory,
   DealStageData,
@@ -14,8 +13,9 @@ import {
 import { EditableCell, EditableRow } from './EditableCell'
 
 const DragHandle = SortableHandle(() => (
-  <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
+  <span className="fa fa-bars cursor-grab" />
 ))
+
 const SortableItem = SortableElement((props: any) => <EditableRow {...props} />)
 const SortableBody = SortableContainer((props: any) => (
   <tbody ref={props.tableRef} {...props} />

@@ -54,6 +54,7 @@ export default function Index() {
           isLoading={tasksLoading}
           tableWidth={800}
         />
+
         <ViewBoard
           title="Today's Leads"
           columns={leadColumns}
@@ -62,6 +63,7 @@ export default function Index() {
           data={leads}
           isLoading={leadsLoading}
         />
+
         <ViewBoard
           title="Deals Closing This Month "
           columns={dealColumns}
