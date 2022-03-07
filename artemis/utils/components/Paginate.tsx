@@ -10,6 +10,7 @@ type Props = {
   onLimitChange?: (l: number) => void
   showQuickJump?: boolean
   showJumpToHead?: boolean
+  containerClassName?: string
 }
 
 const utilClassName =
@@ -23,6 +24,7 @@ export default function Paginate({
   onPageChange: changePage,
   showJumpToHead,
   showQuickJump,
+  containerClassName
 }: Props) {
   const { register, watch } = useForm<{ page: number }>()
   const page = watch('page')
@@ -32,7 +34,7 @@ export default function Paginate({
   }, [page])
 
   return (
-    <div className='flex'>
+    <div className={`flex ${containerClassName}`}>
       {showQuickJump && (
         <form noValidate className="mr-4 inline-block">
           <Input

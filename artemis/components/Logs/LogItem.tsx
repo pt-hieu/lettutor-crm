@@ -1,11 +1,14 @@
 import { formatDate } from '@utils/libs/time'
 import { Log, LogAction } from '@utils/models/log'
+import { Tooltip } from 'antd'
 import Link from 'next/link'
 import { memo, ReactNode, useCallback, useMemo } from 'react'
 
 type TProps = {
   data: Log
   index: number
+  onEntitySelected?: (v: string) => void
+  onPropertySelected?: (v: string) => void
 }
 
 const ActionMapping: Record<LogAction, string> = {
@@ -14,7 +17,12 @@ const ActionMapping: Record<LogAction, string> = {
   [LogAction.DELETE]: 'deleted',
 }
 
-export default memo(function LogItem({ data, index }: TProps) {
+export default memo(function LogItem({
+  data,
+  index,
+  onEntitySelected: selectEntity,
+  onPropertySelected: selectProperty,
+}: TProps) {
   const {
     owner,
     action,
@@ -52,7 +60,16 @@ export default memo(function LogItem({ data, index }: TProps) {
           <div className="mt-2">
             {changes?.map((change) => (
               <div key={change.name + change.to + id + index}>
-                <span className="font-semibold">{formatName(change.name)}</span>{' '}
+                <Tooltip title="View log of this property">
+                  <button
+                    onClick={() =>
+                      selectProperty && selectProperty(change.name)
+                    }
+                    className="font-semibold hover:text-blue-600"
+                  >
+                    {formatName(change.name)}
+                  </button>
+                </Tooltip>{' '}
                 <span className="text-gray-500">
                   changed from '{change.fromName || change.from || 'Empty'}' to{' '}
                 </span>{' '}
@@ -87,7 +104,13 @@ export default memo(function LogItem({ data, index }: TProps) {
               >
                 {entityName}
               </a>
-            </Link>
+            </Link>{' '}
+            <Tooltip title="View log of this entity">
+              <button
+                onClick={() => selectEntity && selectEntity(entityId)}
+                className="fa fa-filter text-gray-500"
+              />
+            </Tooltip>
           </div>
 
           <span className="text-[12px]">{formatDate(createdAt)}</span>

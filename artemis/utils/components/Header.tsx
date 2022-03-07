@@ -1,14 +1,13 @@
 import { Avatar } from 'antd'
-import { MouseEvent, useCallback, useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import Confirm from './Confirm'
 import { signOut } from 'next-auth/client'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useModal } from '@utils/hooks/useModal'
 import { data } from '@utils/data/header-data'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import SettingMenu from './SettingMenu'
-import useGlobalDate from '@utils/hooks/useGlobalDate'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import Dropdown from './Dropdown'
 
@@ -18,38 +17,10 @@ export const menuItemClass =
 export default function Header() {
   const [seed] = useState(Math.random())
   const { pathname } = useRouter()
-  const [visible, setVisible] = useState(false)
   const [confirm, openConfirm, closeConfirm] = useModal()
 
   const [session] = useTypedSession()
   const splitPath = useMemo(() => pathname.split('/'), [pathname])
-
-  const { effect } = useGlobalDate({
-    callback: () => {
-      setVisible(false)
-    },
-  })
-
-  useEffect(() => {
-    if (!visible) return
-    effect()
-  }, [visible])
-
-  const toggle = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    setVisible((v) => !v)
-  }, [])
-
-  useEffect(() => {
-    const close = () => {
-      setVisible(false)
-    }
-
-    document.addEventListener('click', close)
-    return () => {
-      document.removeEventListener('click', close)
-    }
-  }, [])
 
   return (
     <header className="z-[100] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">

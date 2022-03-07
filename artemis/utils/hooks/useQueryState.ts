@@ -1,12 +1,12 @@
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useDebugValue, useEffect, useMemo, useRef, useState } from 'react'
 import { stringifyUrl } from 'query-string'
 
 export type TUseQueryStateOptions = {
   isArray?: boolean
 }
 
-export const useQueryState = <T extends string | string[] | number>(
+export const useQueryState = <T extends string | string[] | number | Date>(
   /**The name of the query on the url */
   name: string,
   /**The default value which is given to the hook `setState`.
@@ -19,6 +19,7 @@ export const useQueryState = <T extends string | string[] | number>(
 
   const { query, pathname, asPath, replace } = useRouter()
   const [state, setState] = useState<T>()
+  useDebugValue(state)
 
   const hookedSetState = useCallback((value: T | undefined) => {
     shouldUpdateUrl.current = true
