@@ -46,6 +46,7 @@ import { INoteData } from '@components/Notes/NoteAdder'
 import { AddNoteDto } from '@utils/models/note'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import LogSection from '@components/Logs/LogSection'
+import { LogSource } from '@utils/models/log'
 
 type AccountInfo = {
   label: string
@@ -358,7 +359,11 @@ const AccountDetail = () => {
               )}
             </div>
 
-            <LogSection title={AccountDetailSections.Logs} entityId={id} />
+            <LogSection
+              source={LogSource.ACCOUNT}
+              title={AccountDetailSections.Logs}
+              entityId={id}
+            />
 
             <div className="pt-4">
               <div

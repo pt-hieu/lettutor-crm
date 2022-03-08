@@ -53,6 +53,7 @@ import { INoteData } from '@components/Notes/NoteAdder'
 import { AddNoteDto } from '@utils/models/note'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import LogSection from '@components/Logs/LogSection'
+import { LogSource } from '@utils/models/log'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -523,7 +524,7 @@ const DealDetail = () => {
               onViewAllNote={setViewAllNote}
             />
 
-            <LogSection entityId={id} title={'Logs'} />
+            <LogSection source={LogSource.DEAL} entityId={id} title={'Logs'} />
 
             <div className="pt-4">
               <div

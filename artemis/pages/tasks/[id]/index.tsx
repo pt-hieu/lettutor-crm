@@ -29,6 +29,7 @@ import { Actions } from '@utils/models/role'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 import LogSection from '@components/Logs/LogSection'
+import { LogSource } from '@utils/models/log'
 
 enum Relatives {
   LEAD = 'lead',
@@ -315,7 +316,11 @@ const TaskDetail = () => {
                       ))}
                     </form>
 
-                    <LogSection entityId={id} title="Logs" />
+                    <LogSection
+                      source={LogSource.TASK}
+                      entityId={id}
+                      title="Logs"
+                    />
                   </div>
                 </div>
               </div>

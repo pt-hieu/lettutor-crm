@@ -20,6 +20,7 @@ import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { LeadSource } from '@utils/models/lead'
+import { LogSource } from '@utils/models/log'
 import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
@@ -411,7 +412,11 @@ const ContactDetail = () => {
               )}
             </div>
 
-            <LogSection entityId={id} title={ContactDetailSections.Logs} />
+            <LogSection
+              source={LogSource.CONTACT}
+              entityId={id}
+              title={ContactDetailSections.Logs}
+            />
 
             <div className="pt-4">
               <div

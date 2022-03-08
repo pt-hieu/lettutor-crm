@@ -16,16 +16,21 @@ type FormData = {
 }
 
 type Props = {
-  onSourceChange: (s: LogSource) => void
-  onActionChange: (a: LogAction) => void
-  onOwnerChange: (o: string) => void
-  onFromChange: (f: string) => void
-  onToChange: (t: string) => void
+  onSourceChange?: (s: LogSource) => void
+  onActionChange?: (a: LogAction) => void
+  onOwnerChange?: (o: string) => void
+  onFromChange?: (f: string) => void
+  onToChange?: (t: string) => void
+
   defaultValues: Partial<FormData>
+  containerClassName?: string
+  stopPropagateOnClick?: boolean
 }
 
 export default function LogFilter({
   defaultValues,
+  containerClassName,
+  stopPropagateOnClick,
   onActionChange: changeAction,
   onFromChange: changeFrom,
   onOwnerChange: changeOwner,
@@ -43,7 +48,7 @@ export default function LogFilter({
   useEffect(() => {
     const subs = watch(() =>
       handleSubmit((data) => {
-        const maps: Record<keyof FormData, (v: any) => void> = {
+        const maps: Record<keyof FormData, ((v: any) => void) | undefined> = {
           action: changeAction,
           from: changeFrom,
           owner: changeOwner,
@@ -54,7 +59,9 @@ export default function LogFilter({
         unstable_batchedUpdates(() => {
           Object.entries(data).forEach(([key, value]: [unknown, unknown]) => {
             if (value === defaultValues[key as keyof FormData]) return
-            maps[key as keyof FormData](value || undefined)
+            if (!maps[key as keyof FormData]) return
+
+            maps[key as keyof FormData]!(value || undefined)
           })
         })
       })(),
@@ -71,7 +78,10 @@ export default function LogFilter({
   const [entity, setEntity] = useQueryState('entity')
 
   return (
-    <div>
+    <div
+      onClick={(e) => stopPropagateOnClick && e.stopPropagation()}
+      className={containerClassName}
+    >
       <form className="mb-4">
         <div className="mb-4 grid grid-cols-2 gap-4">
           <div>
@@ -85,6 +95,7 @@ export default function LogFilter({
                 ...register('source'),
                 id: 'source',
                 className: 'w-full',
+                disabled: !changeSource,
                 children: (
                   <>
                     <option value="">All</option>
@@ -110,6 +121,7 @@ export default function LogFilter({
                 ...register('action'),
                 id: 'action',
                 className: 'w-full',
+                disabled: !changeAction,
                 children: (
                   <>
                     <option value="">All</option>
@@ -136,6 +148,7 @@ export default function LogFilter({
               ...register('owner'),
               id: 'owner',
               className: 'w-full',
+              disabled: !changeOwner,
               children: (
                 <>
                   <option value="">All</option>
@@ -160,6 +173,7 @@ export default function LogFilter({
               ...register('from'),
               id: 'from',
               type: 'date',
+              disabled: !changeFrom,
               className: 'w-full',
             }}
           />
@@ -175,6 +189,7 @@ export default function LogFilter({
               ...register('to'),
               id: 'to',
               type: 'date',
+              disabled: !changeTo,
               className: 'w-full',
             }}
           />

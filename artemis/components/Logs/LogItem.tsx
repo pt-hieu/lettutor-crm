@@ -105,12 +105,14 @@ export default memo(function LogItem({
                 {entityName}
               </a>
             </Link>{' '}
-            <Tooltip title="View log of this entity">
-              <button
-                onClick={() => selectEntity && selectEntity(entityId)}
-                className="fa fa-filter text-gray-500"
-              />
-            </Tooltip>
+            {selectEntity && (
+              <Tooltip title="View log of this entity">
+                <button
+                  onClick={() => selectEntity(entityId)}
+                  className="fa fa-filter text-gray-500"
+                />
+              </Tooltip>
+            )}
           </div>
 
           <span className="text-[12px]">{formatDate(createdAt)}</span>

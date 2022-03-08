@@ -44,11 +44,11 @@ export class LogService {
       .orderBy('l.createdAt', 'DESC')
 
     if (owner) {
-      qb.andWhere('owner.id = :id', { id: owner })
+      qb.andWhere('l.ownerId = :owner', { owner })
     }
 
     if (entity) {
-      qb.andWhere('l.entityId = :id', { id: entity })
+      qb.andWhere('l.entityId = :entity', { entity })
     }
 
     if (action) {

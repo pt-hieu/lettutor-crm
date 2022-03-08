@@ -24,14 +24,23 @@ export default function Paginate({
   onPageChange: changePage,
   showJumpToHead,
   showQuickJump,
-  containerClassName
+  containerClassName,
 }: Props) {
-  const { register, watch } = useForm<{ page: number }>()
-  const page = watch('page')
+  const { register, watch, handleSubmit } = useForm<{ page: number }>({
+    defaultValues: {
+      page: currentPage,
+    },
+  })
 
   useEffect(() => {
-    changePage && changePage(page)
-  }, [page])
+    const subs = watch(() => {
+      handleSubmit((data) => {
+        changePage && changePage(data.page)
+      })()
+    })
+
+    return subs.unsubscribe
+  }, [watch, changePage])
 
   return (
     <div className={`flex ${containerClassName}`}>

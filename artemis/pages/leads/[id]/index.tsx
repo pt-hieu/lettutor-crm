@@ -13,6 +13,7 @@ import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
+import { LogSource } from '@utils/models/log'
 import { AddNoteDto, Note } from '@utils/models/note'
 import { Paginate } from '@utils/models/paging'
 import { Actions } from '@utils/models/role'
@@ -370,7 +371,11 @@ const LeadDetail = () => {
               onViewAllNote={setViewAllNote}
             />
 
-            <LogSection entityId={id} title={LeadDetailSections.Logs} />
+            <LogSection
+              entityId={id}
+              source={LogSource.LEAD}
+              title={LeadDetailSections.Logs}
+            />
 
             <div className="pt-4">
               <div
