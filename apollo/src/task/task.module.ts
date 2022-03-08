@@ -19,7 +19,7 @@ import { TaskSubscriber } from './task.subscriber'
     UserModule,
     forwardRef(() => DealModule),
     forwardRef(() => LeadModule),
-    ContactModule,
+    forwardRef(() => ContactModule),
   ],
   providers: [TaskService, TaskSubscriber],
   controllers: [TaskController],

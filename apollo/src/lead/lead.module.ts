@@ -18,7 +18,7 @@ import { LeadSubscriber } from './lead.subscriber'
     AccountModule,
     UserModule,
     forwardRef(() => DealModule),
-    ContactModule,
+    forwardRef(() => ContactModule),
     forwardRef(() => TaskModule),
   ],
   providers: [LeadService, LeadSubscriber],
