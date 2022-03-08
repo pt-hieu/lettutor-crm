@@ -4,9 +4,12 @@ import DetailPageSidebar, {
 import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
 import { useRouter } from 'next/router'
 import { useModal } from '@utils/hooks/useModal'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { addTask } from '@utils/service/task'
 import { notification } from 'antd'
+import { useMemo } from 'react'
+import { getAccount } from '@utils/service/account'
+import { TaskStatus } from '@utils/models/task'
 
 export enum AccountDetailSections {
   Notes = 'Notes',
@@ -20,12 +23,12 @@ const AccountDetailSidebar = () => {
   const router = useRouter()
   const accountId = router.query.id as string
 
+  const client = useQueryClient()
   const [createTaskVisible, openCreateTask, closeCreateTask] = useModal()
 
-  const queryClient = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      queryClient.invalidateQueries(['account', accountId])
+      client.invalidateQueries(['account', accountId])
       notification.success({
         message: 'Add task successfully.',
       })
@@ -35,7 +38,25 @@ const AccountDetailSidebar = () => {
     },
   })
 
-  const createTask = async (formData: TaskFormData) => {
+  const { data: account } = useQuery(
+    ['account', accountId],
+    getAccount(accountId),
+    { enabled: false },
+  )
+
+  const { open, close } = useMemo(
+    () => ({
+      open: account?.tasksToDisplay.filter(
+        (task) => task.status !== TaskStatus.COMPLETED,
+      ).length,
+      close: account?.tasksToDisplay.filter(
+        (task) => task.status === TaskStatus.COMPLETED,
+      ).length,
+    }),
+    [account],
+  )
+
+  const createTask = (formData: TaskFormData) => {
     if (!formData.dueDate) {
       formData.dueDate = null
     }
@@ -65,14 +86,34 @@ const AccountDetailSidebar = () => {
           label: AccountDetailSections.Logs,
         },
         {
-          label: AccountDetailSections.OpenActivities,
+          id: AccountDetailSections.OpenActivities,
+          label: (
+            <span>
+              {AccountDetailSections.OpenActivities}
+              {!!open && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {open}
+                </span>
+              )}
+            </span>
+          ),
           extend: {
-            title: "Add A Task",
+            title: 'Add A Task',
             onClick: () => openCreateTask(),
           },
         },
         {
-          label: AccountDetailSections.ClosedActivities,
+          id: AccountDetailSections.ClosedActivities,
+          label: (
+            <span>
+              {AccountDetailSections.ClosedActivities}
+              {!!close && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {close}
+                </span>
+              )}
+            </span>
+          ),
         },
       ],
     },
@@ -86,6 +127,7 @@ const AccountDetailSidebar = () => {
         handleCreateTask={createTask}
         isLoading={isLoading}
       />
+
       <DetailPageSidebar data={SideBarItems} />
     </div>
   )

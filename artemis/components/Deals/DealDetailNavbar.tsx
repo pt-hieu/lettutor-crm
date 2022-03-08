@@ -49,7 +49,7 @@ const DealDetailNavbar = ({ deal }: Props) => {
           <TraceInfo entity={deal} />
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {(auth[Actions.Deal.DELETE_DEAL] || isOwner) && (
             <Confirm
               onYes={() => mutateAsync([id || ''])}

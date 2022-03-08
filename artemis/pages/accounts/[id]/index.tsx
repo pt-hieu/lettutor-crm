@@ -374,7 +374,7 @@ const AccountDetail = () => {
               </div>
 
               {openTasks && openTasks.length > 0 ? (
-                <TaskList tasks={openTasks} />
+                <TaskList source='account' tasks={openTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
@@ -389,7 +389,7 @@ const AccountDetail = () => {
               </div>
 
               {closedTasks && closedTasks.length > 0 ? (
-                <TaskList tasks={closedTasks} />
+                <TaskList source='account' tasks={closedTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}

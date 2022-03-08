@@ -9,6 +9,8 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useRouter } from 'next/router'
 import { Contact } from '@utils/models/contact'
 import { getContact } from '@utils/service/contact'
+import { useMemo } from 'react'
+import { TaskStatus } from '@utils/models/task'
 
 export enum ContactDetailSections {
   Notes = 'Notes',
@@ -23,9 +25,10 @@ const ContactDetailSidebar = () => {
   const contactId = router.query.id as string
 
   const [createTaskVisible, openCreateTask, closeCreateTask] = useModal()
-  const { data: contact } = useQuery<Contact>(
+  const { data: contact } = useQuery(
     ['contact', contactId],
     getContact(contactId),
+    { enabled: false },
   )
 
   const queryClient = useQueryClient()
@@ -71,6 +74,18 @@ const ContactDetailSidebar = () => {
     closeCreateTask()
   }
 
+  const { open, close } = useMemo(
+    () => ({
+      open: contact?.tasks.filter(
+        (task) => task.status !== TaskStatus.COMPLETED,
+      ).length,
+      close: contact?.tasks.filter(
+        (task) => task.status === TaskStatus.COMPLETED,
+      ).length,
+    }),
+    [contact],
+  )
+
   const SideBarItems: SidebarStructure = [
     {
       title: 'Related List',
@@ -85,14 +100,34 @@ const ContactDetailSidebar = () => {
           label: ContactDetailSections.Logs,
         },
         {
-          label: ContactDetailSections.OpenActivities,
+          id: ContactDetailSections.OpenActivities,
+          label: (
+            <span>
+              {ContactDetailSections.OpenActivities}
+              {!!open && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {open}
+                </span>
+              )}
+            </span>
+          ),
           extend: {
-            title: "Add A Task",
+            title: 'Add A Task',
             onClick: () => openCreateTask(),
           },
         },
         {
-          label: ContactDetailSections.ClosedActivities,
+          id: ContactDetailSections.ClosedActivities,
+          label: (
+            <span>
+              {ContactDetailSections.ClosedActivities}
+              {!!close && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {close}
+                </span>
+              )}
+            </span>
+          ),
         },
       ],
     },

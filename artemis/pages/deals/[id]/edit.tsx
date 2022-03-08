@@ -51,7 +51,7 @@ export const EditDealSchema = yup.object().shape({
     .typeError('Amount must be a number.')
     .nullable(true)
     .transform((v, o) => (o === '' ? null : v)),
-  closingDate: yup.date().required('Closing Date is required.'),
+  closingDate: yup.date().required('Closing Date is required.').typeError('Closing Date is not valid'),
   stage: yup.string().required('Stage is required.'),
   source: yup.string().required('Lead Source is required.'),
   contactId: yup.string(),

@@ -426,7 +426,7 @@ const ContactDetail = () => {
                 {ContactDetailSections.OpenActivities}
               </div>
               {openTasks && openTasks.length > 0 ? (
-                <TaskList tasks={openTasks} />
+                <TaskList source="contact" tasks={openTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
@@ -439,7 +439,7 @@ const ContactDetail = () => {
                 {ContactDetailSections.ClosedActivities}
               </div>
               {closedTasks && closedTasks.length > 0 ? (
-                <TaskList tasks={closedTasks} />
+                <TaskList source="contact" tasks={closedTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}

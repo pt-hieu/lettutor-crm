@@ -4,9 +4,12 @@ import DetailPageSidebar, {
 import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
 import { useRouter } from 'next/router'
 import { useModal } from '@utils/hooks/useModal'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { addTask } from '@utils/service/task'
 import { notification } from 'antd'
+import { getDeal } from '@utils/service/deal'
+import { useMemo } from 'react'
+import { TaskStatus } from '@utils/models/task'
 
 export enum DealDetailSections {
   Notes = 'Notes',
@@ -50,6 +53,22 @@ const DealDetailSidebar = () => {
     closeCreateTask()
   }
 
+  const { data: account } = useQuery(['deal', dealId], getDeal(dealId), {
+    enabled: false,
+  })
+
+  const { open, close } = useMemo(
+    () => ({
+      open: account?.tasks.filter(
+        (task) => task.status !== TaskStatus.COMPLETED,
+      ).length,
+      close: account?.tasks.filter(
+        (task) => task.status === TaskStatus.COMPLETED,
+      ).length,
+    }),
+    [account],
+  )
+
   const SideBarItems: SidebarStructure = [
     {
       title: 'Related List',
@@ -61,14 +80,34 @@ const DealDetailSidebar = () => {
           label: DealDetailSections.Logs,
         },
         {
-          label: DealDetailSections.OpenActivities,
+          id: DealDetailSections.OpenActivities,
+          label: (
+            <span>
+              {DealDetailSections.OpenActivities}
+              {!!open && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {open}
+                </span>
+              )}
+            </span>
+          ),
           extend: {
-            title: "Add A Task",
+            title: 'Add A Task',
             onClick: () => openCreateTask(),
           },
         },
         {
-          label: DealDetailSections.ClosedActivities,
+          id: DealDetailSections.ClosedActivities,
+          label: (
+            <span>
+              {DealDetailSections.ClosedActivities}
+              {!!close && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {close}
+                </span>
+              )}
+            </span>
+          ),
         },
       ],
     },

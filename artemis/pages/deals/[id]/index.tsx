@@ -534,7 +534,7 @@ const DealDetail = () => {
                 {RelatedList.OpenActivities}
               </div>
               {openTasks && openTasks.length > 0 ? (
-                <TaskList tasks={openTasks} />
+                <TaskList source='deal' tasks={openTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
@@ -548,7 +548,7 @@ const DealDetail = () => {
                 {RelatedList.ClosedActivities}
               </div>
               {closedTasks && closedTasks.length > 0 ? (
-                <TaskList tasks={closedTasks} />
+                <TaskList source='deal' tasks={closedTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}

@@ -5,9 +5,12 @@ import { addTask } from '@utils/service/task'
 import DetailPageSidebar, {
   SidebarStructure,
 } from '@utils/components/DetailPageSidebar'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useRouter } from 'next/router'
 import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
+import { getLead } from '@utils/service/lead'
+import { useMemo } from 'react'
+import { TaskStatus } from '@utils/models/task'
 
 export enum LeadDetailSections {
   Notes = 'Notes',
@@ -51,6 +54,20 @@ const LeadDetailSidebar = () => {
 
   const [createTaskVisible, openCreateTask, closeCreateTask] = useModal()
 
+  const { data: lead } = useQuery(['lead', leadId], getLead(leadId), {
+    enabled: false,
+  })
+
+  const { open, close } = useMemo(
+    () => ({
+      open: lead?.tasks.filter((task) => task.status !== TaskStatus.COMPLETED)
+        .length,
+      close: lead?.tasks.filter((task) => task.status === TaskStatus.COMPLETED)
+        .length,
+    }),
+    [lead],
+  )
+
   const SideBarItems: SidebarStructure = [
     {
       title: 'Related List',
@@ -62,14 +79,34 @@ const LeadDetailSidebar = () => {
           label: LeadDetailSections.Logs,
         },
         {
-          label: LeadDetailSections.OpenActivities,
+          id: LeadDetailSections.OpenActivities,
+          label: (
+            <span>
+              {LeadDetailSections.OpenActivities}
+              {!!open && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {open}
+                </span>
+              )}
+            </span>
+          ),
           extend: {
             title: 'Add A Task',
             onClick: () => openCreateTask(),
           },
         },
         {
-          label: LeadDetailSections.ClosedActivities,
+          id: LeadDetailSections.ClosedActivities,
+          label: (
+            <span>
+              {LeadDetailSections.ClosedActivities}
+              {!!close && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {close}
+                </span>
+              )}
+            </span>
+          ),
         },
       ],
     },

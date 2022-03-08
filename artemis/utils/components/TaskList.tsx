@@ -14,16 +14,18 @@ import Confirm from './Confirm'
 type TaskProps = Pick<
   Task,
   'id' | 'subject' | 'dueDate' | 'owner' | 'status' | 'priority'
->
+> & {
+  source: string
+}
 
 function TaskInfo(props: TaskProps) {
-  const { id, subject, dueDate, owner, status, priority } = props
+  const { id, subject, dueDate, owner, status, priority, source } = props
 
   const client = useQueryClient()
   const [session] = useTypedSession()
 
   const { query } = useRouter()
-  const accountId = query.id as string
+  const entityId = query.id as string
 
   const auth = useAuthorization()
   const isOwner = useOwnership(props as unknown as Task)
@@ -33,7 +35,7 @@ function TaskInfo(props: TaskProps) {
     closeTask(id, session?.user.id!),
     {
       onSuccess: () => {
-        client.invalidateQueries(['account', accountId])
+        client.invalidateQueries([source, entityId])
         notification.success({
           message: 'Close task successfully.',
         })
@@ -99,16 +101,17 @@ function TaskInfo(props: TaskProps) {
 
 type ListProps = {
   tasks: Task[]
+  source: string
 }
 
-export default function TaskList({ tasks }: ListProps) {
+export default function TaskList({ tasks, source }: ListProps) {
   return (
     <>
       <h3 className="font-semibold text-[16px] flex gap-4 items-center text-gray-700">
         <i className="fa fa-tasks" />
         <span>Tasks</span>
 
-        <span className="bg-blue-500 px-2 text-white rounded-sm">
+        <span className="bg-blue-600 px-2 text-white rounded-md">
           {tasks.length}
         </span>
       </h3>
@@ -116,6 +119,7 @@ export default function TaskList({ tasks }: ListProps) {
       <div className="flex flex-col gap-2 mt-3">
         {tasks.map(({ id, subject, dueDate, owner, status, priority }) => (
           <TaskInfo
+            source={source}
             key={id}
             id={id}
             subject={subject}
