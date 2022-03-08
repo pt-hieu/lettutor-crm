@@ -8,7 +8,9 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
+
 import { NoteFilter, NoteSort, NoteSource } from 'src/note/note.entity'
+
 import { TransformParams } from '../util'
 import { Files } from './file'
 import { Paginate } from './paging'

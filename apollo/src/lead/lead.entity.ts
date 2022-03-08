@@ -1,10 +1,11 @@
 import { Exclude } from 'class-transformer'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
+
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { Ownerful } from 'src/utils/owner.entity'
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 export enum LeadStatus {
   NONE = 'None',

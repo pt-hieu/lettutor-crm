@@ -1,11 +1,12 @@
 import { Exclude } from 'class-transformer'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
+
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { Ownerful } from 'src/utils/owner.entity'
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 @Entity({ name: 'contact' })
 export class Contact extends Ownerful {

@@ -5,21 +5,23 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { DTO } from 'src/type'
-import { FindOneOptions, In, Repository } from 'typeorm'
-import { Lead } from './lead.entity'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { FindOneOptions, In, Repository } from 'typeorm'
+
 import { AccountService } from 'src/account/account.service'
-import { DealService } from 'src/deal/deal.service'
-import { Deal } from 'src/deal/deal.entity'
-import { UserService } from 'src/user/user.service'
-import { UtilService } from 'src/global/util.service'
 import { ContactService } from 'src/contact/contact.service'
-import { User } from 'src/user/user.entity'
+import { Deal } from 'src/deal/deal.entity'
+import { DealService } from 'src/deal/deal.service'
+import { PayloadService } from 'src/global/payload.service'
+import { UtilService } from 'src/global/util.service'
 import { Task } from 'src/task/task.entity'
 import { TaskService } from 'src/task/task.service'
-import { PayloadService } from 'src/global/payload.service'
+import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
+import { User } from 'src/user/user.entity'
+import { UserService } from 'src/user/user.service'
+
+import { Lead } from './lead.entity'
 
 @Injectable()
 export class LeadService {
@@ -42,7 +44,10 @@ export class LeadService {
   }
 
   async getMany(query: DTO.Lead.GetManyQuery) {
-    let q = this.leadRepo.createQueryBuilder('l').leftJoin('l.owner', 'owner')
+    let q = this.leadRepo
+      .createQueryBuilder('l')
+      .leftJoin('l.owner', 'owner')
+      .orderBy('l.createdAt', 'DESC')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_LEADS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })

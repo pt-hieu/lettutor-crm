@@ -1,23 +1,25 @@
 import {
   ForbiddenException,
-  forwardRef,
   Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { FindOneOptions, In, Repository } from 'typeorm'
+
 import { AccountService } from 'src/account/account.service'
-import { UtilService } from 'src/global/util.service'
 import { ContactService } from 'src/contact/contact.service'
+import { PayloadService } from 'src/global/payload.service'
+import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
-import { UserService } from 'src/user/user.service'
-import { FindOneOptions, In, Repository } from 'typeorm'
-import { Deal, DealStage } from './deal.entity'
 import { Actions } from 'src/type/action'
-import { PayloadService } from 'src/global/payload.service'
+import { UserService } from 'src/user/user.service'
+
+import { Deal, DealStage } from './deal.entity'
 
 @Injectable()
 export class DealService {
@@ -56,6 +58,7 @@ export class DealService {
         'tasks.dueDate',
         'tasks.id',
       ])
+      .orderBy('d.createdAt', 'DESC')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_DEALS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })

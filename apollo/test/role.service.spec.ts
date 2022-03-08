@@ -3,9 +3,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
+import { Repository } from 'typeorm'
+
 import { Role } from 'src/role/role.entity'
 import { DTO } from 'src/type'
-import { Repository } from 'typeorm'
 
 import { RoleService } from '../src/role/role.service'
 import { role } from './data'

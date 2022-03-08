@@ -9,7 +9,9 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
+
 import { TaskPriority, TaskStatus } from 'src/task/task.entity'
+
 import { Paginate } from './paging'
 
 export class AddTask {

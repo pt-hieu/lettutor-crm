@@ -1,10 +1,12 @@
-import { Actions } from 'src/type/action'
 import {
   Connection,
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
 } from 'typeorm'
+
+import { Actions } from 'src/type/action'
+
 import { Role } from './role.entity'
 
 export enum DefaultRoleName {

@@ -1,13 +1,15 @@
 import {
   BadRequestException,
-  UnprocessableEntityException,
   Injectable,
+  UnprocessableEntityException,
 } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
-import { DTO } from 'src/type'
 import { Not, Repository } from 'typeorm'
+
+import { DTO } from 'src/type'
+
 import { Role } from './role.entity'
 import { RoleActionMapping } from './role.subscriber'
 

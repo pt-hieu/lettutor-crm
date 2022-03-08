@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+
 import { JwtPayload } from '../utils/interface'
 
 @Injectable()
@@ -12,5 +13,5 @@ export class PayloadService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() { }
+  constructor() {}
 }

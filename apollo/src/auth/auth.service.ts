@@ -1,13 +1,14 @@
-import { User, UserStatus } from 'src/user/user.entity'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
 import { compare, hash } from 'bcrypt'
-import { DTO } from 'src/type'
 import { Response } from 'express'
-import { JwtPayload } from 'src/utils/interface'
-import { Actions } from 'src/type/action'
+import { Repository } from 'typeorm'
+
 import { Role } from 'src/role/role.entity'
+import { DTO } from 'src/type'
+import { Actions } from 'src/type/action'
+import { User, UserStatus } from 'src/user/user.entity'
+import { JwtPayload } from 'src/utils/interface'
 
 const ADMINISTRATIVE_ROLE_NAME = 'Admin'
 
@@ -48,7 +49,8 @@ export class AuthService {
 
     if (!user) throw new BadRequestException('Email or password is wrong')
 
-    if (user.status != UserStatus.ACTIVE) throw new BadRequestException('Inactive Account')
+    if (user.status != UserStatus.ACTIVE)
+      throw new BadRequestException('Inactive Account')
 
     if (!(await compare(dto.password, user.password)))
       throw new BadRequestException('Email or password is wrong')

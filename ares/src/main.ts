@@ -4,6 +4,7 @@ import { config } from 'aws-sdk'
 import { json, urlencoded } from 'body-parser'
 import 'dotenv/config.js'
 import morgan from 'morgan'
+
 import { AppModule } from 'src/app.module'
 
 async function bootstrap() {

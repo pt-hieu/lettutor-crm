@@ -1,13 +1,15 @@
-import { forwardRef, Module } from '@nestjs/common'
-import { LeadService } from './lead.service'
-import { LeadController } from './lead.controller'
+import { Module, forwardRef } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Lead } from './lead.entity'
+
 import { AccountModule } from 'src/account/account.module'
-import { DealModule } from 'src/deal/deal.module'
-import { UserModule } from 'src/user/user.module'
 import { ContactModule } from 'src/contact/contact.module'
+import { DealModule } from 'src/deal/deal.module'
 import { TaskModule } from 'src/task/task.module'
+import { UserModule } from 'src/user/user.module'
+
+import { LeadController } from './lead.controller'
+import { Lead } from './lead.entity'
+import { LeadService } from './lead.service'
 import { LeadSubscriber } from './lead.subscriber'
 
 @Module({

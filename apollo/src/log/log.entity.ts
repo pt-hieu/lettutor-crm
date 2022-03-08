@@ -1,5 +1,6 @@
-import { Ownerful } from 'src/utils/owner.entity'
 import { Column, Entity } from 'typeorm'
+
+import { Ownerful } from 'src/utils/owner.entity'
 
 export type TChange = {
   name: string

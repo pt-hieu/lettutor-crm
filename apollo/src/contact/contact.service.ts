@@ -5,15 +5,17 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { DTO } from 'src/type'
-import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
+
 import { AccountService } from 'src/account/account.service'
-import { UserService } from 'src/user/user.service'
-import { UtilService } from 'src/global/util.service'
-import { Contact } from './contact.entity'
 import { PayloadService } from 'src/global/payload.service'
+import { UtilService } from 'src/global/util.service'
+import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
+import { UserService } from 'src/user/user.service'
+
+import { Contact } from './contact.entity'
 
 @Injectable()
 export class ContactService {
@@ -43,6 +45,7 @@ export class ContactService {
         'account.fullName',
         'account.description',
       ])
+      .orderBy('lc.createdAt', 'DESC')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_CONTACTS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
@@ -136,7 +139,7 @@ export class ContactService {
     })
   }
 
-   async batchDelete(ids: string[]) {
+  async batchDelete(ids: string[]) {
     const contacts = await this.contactRepo.find({ where: { id: In(ids) } })
     for (const contact of contacts) {
       if (

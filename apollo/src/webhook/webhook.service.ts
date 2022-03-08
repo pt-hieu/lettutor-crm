@@ -2,10 +2,11 @@ import { HttpService } from '@nestjs/axios'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { lastValueFrom, map } from 'rxjs'
+import { Repository } from 'typeorm'
+
 import { Lead, LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
-import { Repository } from 'typeorm'
 
 const ApiVersion = process.env.FACEBOOK_API_VERSION || 'v12.0'
 

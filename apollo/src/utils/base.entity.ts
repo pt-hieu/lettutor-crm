@@ -1,12 +1,13 @@
 import { Exclude } from 'class-transformer'
-import { User } from 'src/user/user.entity'
 import {
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   Column,
+  CreateDateColumn,
   DeleteDateColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
+
+import { User } from 'src/user/user.entity'
 
 export abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')

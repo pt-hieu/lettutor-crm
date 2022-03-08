@@ -4,16 +4,18 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
-import { User, UserStatus } from './user.entity'
-import { randomBytes } from 'crypto'
-import { DTO } from 'src/type'
-import moment from 'moment'
-import { MailService } from 'src/mail/mail.service'
 import { compare, hash } from 'bcrypt'
-import { JwtPayload } from 'src/utils/interface'
+import { randomBytes } from 'crypto'
+import moment from 'moment'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
+
+import { MailService } from 'src/mail/mail.service'
 import { Role } from 'src/role/role.entity'
+import { DTO } from 'src/type'
+import { JwtPayload } from 'src/utils/interface'
+
+import { User, UserStatus } from './user.entity'
 
 const PWD_TOKEN_EXPIRATION = 5 //in days
 
@@ -175,6 +177,7 @@ export class UserService {
       .createQueryBuilder('u')
       .addSelect(['u.id', 'u.name', 'u.email', 'u.status'])
       .leftJoinAndSelect('u.roles', 'roles')
+      .orderBy('u.createdBy', 'DESC')
 
     if (role) {
       q = q.where('roles.name=:role', { role })

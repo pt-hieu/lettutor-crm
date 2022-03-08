@@ -1,9 +1,10 @@
+import { Column, Entity, OneToMany } from 'typeorm'
+
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { Ownerful } from 'src/utils/owner.entity'
-import { Column, Entity, OneToMany } from 'typeorm'
 
 export enum AccountType {
   NONE = 'None',

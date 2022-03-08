@@ -1,16 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsEmail,
-  IsNotEmpty,
-  IsString,
-  Matches,
-  IsOptional,
   IsEnum,
-  MaxLength,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
   IsUUID,
+  Matches,
+  MaxLength,
 } from 'class-validator'
-import { Paginate } from './paging'
+
 import { UserStatus } from 'src/user/user.entity'
+
+import { Paginate } from './paging'
 
 export class ResetPwd {
   @ApiProperty()

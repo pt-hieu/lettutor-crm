@@ -1,11 +1,13 @@
 import { HttpService } from '@nestjs/axios'
-import { UtilService } from 'src/global/util.service'
 import {
-  EventSubscriber,
-  EntitySubscriberInterface,
   Connection,
+  EntitySubscriberInterface,
+  EventSubscriber,
   RemoveEvent,
 } from 'typeorm'
+
+import { UtilService } from 'src/global/util.service'
+
 import { Note } from './note.entity'
 
 @EventSubscriber()
@@ -25,7 +27,7 @@ export class NoteSubscriber implements EntitySubscriberInterface<Note> {
   beforeRemove(event: RemoveEvent<Note>): void | Promise<any> {
     if (!event.entity) return
     if (!event.entity.attachments.length) return
-    
+
     return this.util.wrap(
       this.http.delete(this.util.aresService + '/aws/s3', {
         data: {

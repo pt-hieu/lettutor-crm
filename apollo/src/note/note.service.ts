@@ -1,13 +1,15 @@
 import {
   ForbiddenException,
-  forwardRef,
   Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { FindOneOptions, In, Repository } from 'typeorm'
+
 import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
 import { File } from 'src/file/file.entity'
@@ -15,7 +17,7 @@ import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
-import { FindOneOptions, In, Repository } from 'typeorm'
+
 import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
 
 @Injectable()

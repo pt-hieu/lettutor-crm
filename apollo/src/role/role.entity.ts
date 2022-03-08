@@ -1,6 +1,3 @@
-import { Actions } from 'src/type/action'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
 import {
   Column,
   Entity,
@@ -9,6 +6,10 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm'
+
+import { Actions } from 'src/type/action'
+import { User } from 'src/user/user.entity'
+import { BaseEntity } from 'src/utils/base.entity'
 
 @Entity()
 export class Role extends BaseEntity {

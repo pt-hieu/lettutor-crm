@@ -11,7 +11,9 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
+
 import { LeadSource, LeadStatus } from 'src/lead/lead.entity'
+
 import { Paginate } from './paging'
 
 export class AddLead {

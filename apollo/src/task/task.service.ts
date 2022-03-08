@@ -1,23 +1,25 @@
 import {
   ForbiddenException,
-  forwardRef,
   Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
+
 import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
 import { DealService } from 'src/deal/deal.service'
-import { LeadService } from 'src/lead/lead.service'
+import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
+import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
-import { PayloadService } from 'src/global/payload.service'
+
 import { Task } from './task.entity'
 
 @Injectable()
@@ -124,6 +126,7 @@ export class TaskService {
         'account.fullName',
         'deal.fullName',
       ])
+      .orderBy('t.createdBy', 'DESC')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
       q.andWhere('owner.id = :ownerId', {

@@ -9,10 +9,18 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger'
+
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
+
 import { RoleService } from './role.service'
 
 @Controller('role')

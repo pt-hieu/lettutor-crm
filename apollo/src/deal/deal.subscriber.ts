@@ -1,14 +1,16 @@
-import { PayloadService } from 'src/global/payload.service'
-import { UtilService } from 'src/global/util.service'
-import { LogAction, LogSource } from 'src/log/log.entity'
 import {
-  EventSubscriber,
-  EntitySubscriberInterface,
   Connection,
+  EntitySubscriberInterface,
+  EventSubscriber,
   InsertEvent,
   RemoveEvent,
   UpdateEvent,
 } from 'typeorm'
+
+import { PayloadService } from 'src/global/payload.service'
+import { UtilService } from 'src/global/util.service'
+import { LogAction, LogSource } from 'src/log/log.entity'
+
 import { Deal } from './deal.entity'
 
 @EventSubscriber()

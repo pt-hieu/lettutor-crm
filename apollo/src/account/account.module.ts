@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common'
-import { AccountService } from './account.service'
-import { AccountController } from './account.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Account } from './account.entity'
+
 import { UserModule } from 'src/user/user.module'
+
+import { AccountController } from './account.controller'
+import { Account } from './account.entity'
+import { AccountService } from './account.service'
 import { AccountSubscriber } from './account.subscriber'
 
 @Module({

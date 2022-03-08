@@ -3,7 +3,8 @@
   "trailingComma": "all",
   "semi": false,
   "bracketSpacing": true,
-  "importOrder": ["<THIRD_PARTY_MODULES>", "^[./]"],
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^src/(.*)$", "^[./]"],
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  "importOrderSortSpecifiers": true,
+  "importOrderParserPlugins": ["decorators-legacy", "typescript", "jsx"]
 }

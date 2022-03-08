@@ -5,6 +5,7 @@ import { json, urlencoded } from 'body-parser'
 import { registerSchema } from 'class-validator'
 import 'dotenv/config.js'
 import morgan from 'morgan'
+
 import { AppModule } from 'src/app.module'
 
 import { TransformInterceptor } from './transform.interceptor'

@@ -1,4 +1,5 @@
 import { ValidationSchema } from 'class-validator'
+
 import { DealStage } from 'src/deal/deal.entity'
 
 export const ConvertToDealSchema: ValidationSchema = {

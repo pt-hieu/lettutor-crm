@@ -1,15 +1,16 @@
 import { HttpService } from '@nestjs/axios'
-import type { AxiosResponse } from 'axios'
 import {
   HttpException,
-  ServiceUnavailableException,
   Injectable,
   InternalServerErrorException,
+  ServiceUnavailableException,
 } from '@nestjs/common'
+import type { AxiosResponse } from 'axios'
 import { Request } from 'express'
-import { catchError, first, lastValueFrom, map, Observable } from 'rxjs'
-import { EnvService } from './env.service'
 import { stringify } from 'querystring'
+import { Observable, catchError, first, lastValueFrom, map } from 'rxjs'
+
+import { EnvService } from './env.service'
 import { ParsedResponses, StrapiEntity, StrapiResponse } from './model'
 
 type TPayload = {

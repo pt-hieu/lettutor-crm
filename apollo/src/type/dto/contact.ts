@@ -1,15 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
+  IsEmail,
   IsEnum,
+  IsMobilePhone,
+  IsNotEmpty,
   IsOptional,
   IsString,
-  IsEmail,
   IsUUID,
-  IsNotEmpty,
   MaxLength,
-  IsMobilePhone,
 } from 'class-validator'
+
 import { LeadSource } from 'src/lead/lead.entity'
+
 import { Paginate } from './paging'
 
 export class GetManyQuery extends Paginate {

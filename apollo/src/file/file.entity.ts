@@ -1,7 +1,8 @@
 import { Exclude } from 'class-transformer'
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+
 import { Note } from 'src/note/note.entity'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 @Entity({ name: 'file' })
 export class File extends BaseEntity {

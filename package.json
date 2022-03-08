@@ -9,7 +9,7 @@
     "tool": "cd athena && terraformer",
     "build:script": "tsc ./script.ts",
     "up": "node ./script.js -b",
-    "format": "prettier --write artemis/**/*.{ts,tsx}"
+    "format": "prettier --write {artemis,apollo,zeus,ares}/**/*.{ts,tsx}"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",

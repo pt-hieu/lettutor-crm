@@ -1,8 +1,10 @@
-import { DTO } from 'src/type'
-import { Public } from 'src/utils/decorators/public.decorator'
 import { Body, Controller, Post, Response as Res } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { Response } from 'express'
+
+import { DTO } from 'src/type'
+import { Public } from 'src/utils/decorators/public.decorator'
+
 import { AuthService } from './auth.service'
 
 @Controller('auth')

@@ -2,19 +2,20 @@ import {
   All,
   Body,
   Controller,
+  ForbiddenException,
   Header,
+  Headers,
   Param,
   Post,
   Query,
-  Headers,
   Req,
   Sse,
-  ForbiddenException,
-  UseInterceptors,
   UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common'
 import { AnyFilesInterceptor } from '@nestjs/platform-express'
 import { Request } from 'express'
+
 import { AppService } from './app.service'
 import { EnvService } from './env.service'
 import { EventsService } from './events.service'
@@ -50,7 +51,7 @@ export class AppController {
     @Param('path') path: string,
     @Req() req: Request,
     @Query() query: object,
-    @UploadedFiles() files: Array<Express.Multer.File>
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     if (req.method === 'OPTION' || req.method === 'option') {
       return 'ok'

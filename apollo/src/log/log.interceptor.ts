@@ -1,19 +1,21 @@
 import {
-  NestInterceptor,
+  CallHandler,
   ExecutionContext,
   Injectable,
-  CallHandler,
+  NestInterceptor,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { isUUID } from 'class-validator'
 import { Pagination } from 'nestjs-typeorm-paginate'
 import { map } from 'rxjs/operators'
+import { Repository } from 'typeorm'
+
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Lead } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
-import { Repository } from 'typeorm'
+
 import { Log } from './log.entity'
 
 @Injectable()

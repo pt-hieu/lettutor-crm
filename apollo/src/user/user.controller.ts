@@ -1,5 +1,3 @@
-import { DTO } from 'src/type'
-import { Public } from 'src/utils/decorators/public.decorator'
 import {
   Body,
   Controller,
@@ -18,11 +16,15 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger'
-import { UserService } from './user.service'
-import { Payload } from 'src/utils/decorators/payload.decorator'
-import { JwtPayload } from 'src/utils/interface'
+
 import { DefineAction } from 'src/action.decorator'
+import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
+import { Payload } from 'src/utils/decorators/payload.decorator'
+import { Public } from 'src/utils/decorators/public.decorator'
+import { JwtPayload } from 'src/utils/interface'
+
+import { UserService } from './user.service'
 
 @ApiTags('user')
 @ApiSecurity('x-api-key')

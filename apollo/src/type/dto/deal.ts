@@ -10,9 +10,11 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
+import { Double } from 'typeorm'
+
 import { DealStage } from 'src/deal/deal.entity'
 import { LeadSource } from 'src/lead/lead.entity'
-import { Double } from 'typeorm'
+
 import { Paginate } from './paging'
 
 export class AddDeal {

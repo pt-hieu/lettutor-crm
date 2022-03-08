@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
-import { DTO } from 'src/type'
 import { Repository } from 'typeorm'
+
+import { DTO } from 'src/type'
+
 import { Log, LogAction } from './log.entity'
 
 @Injectable()

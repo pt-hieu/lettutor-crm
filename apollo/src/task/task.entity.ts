@@ -1,10 +1,11 @@
 import { Exclude } from 'class-transformer'
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Lead } from 'src/lead/lead.entity'
 import { Ownerful } from 'src/utils/owner.entity'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 export enum TaskPriority {
   HIGH = 'High',

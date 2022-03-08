@@ -14,9 +14,11 @@ import {
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
+
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
+
 import { LeadService } from './lead.service'
 
 @ApiTags('lead')

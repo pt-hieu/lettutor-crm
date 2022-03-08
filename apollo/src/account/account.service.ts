@@ -6,12 +6,14 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { FindOneOptions, In, Repository } from 'typeorm'
+
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
-import { FindOneOptions, In, Repository } from 'typeorm'
+
 import { Account } from './account.entity'
 
 @Injectable()
@@ -95,6 +97,7 @@ export class AccountService {
       .createQueryBuilder('acc')
       .leftJoin('acc.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
+      .orderBy('acc.createdBy', 'DESC')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })

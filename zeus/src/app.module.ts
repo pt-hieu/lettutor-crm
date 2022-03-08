@@ -1,14 +1,15 @@
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
+import { APP_GUARD } from '@nestjs/core'
+import { JwtModule } from '@nestjs/jwt'
+import { PassportModule } from '@nestjs/passport'
+
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { EnvService } from './env.service'
-import { JwtModule } from '@nestjs/jwt'
-import { PassportModule } from '@nestjs/passport'
-import { JwtStrategy } from './jwt.strategy'
-import { APP_GUARD } from '@nestjs/core'
-import { JwtAuthGuard } from './jwt.guard'
 import { EventsService } from './events.service'
+import { JwtAuthGuard } from './jwt.guard'
+import { JwtStrategy } from './jwt.strategy'
 
 @Module({
   imports: [
