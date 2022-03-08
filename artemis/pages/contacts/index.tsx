@@ -1,6 +1,7 @@
 import Search from '@components/Contacts/Search'
 import ContactsSidebar from '@components/Contacts/Sidebar'
 import ContactsViewLayout from '@components/Contacts/ViewLayout'
+import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
@@ -110,7 +111,7 @@ export default function ContactsView() {
     },
   )
 
-  const { data: leads, isLoading } = useQuery(
+  const { data: contacts, isLoading } = useQuery(
     ['contacts', page || 1, limit || 10, search || '', source || []],
     getContacts({ limit, page, search, source }),
   )
@@ -125,7 +126,7 @@ export default function ContactsView() {
     setSource(sources)
   }
 
-  const [start, end, total] = usePaginateItem(leads)
+  const [start, end, total] = usePaginateItem(contacts)
 
   return (
     <ContactsViewLayout
@@ -150,12 +151,13 @@ export default function ContactsView() {
             </motion.div>
           )}
         </AnimatePresence>
-        <div className="w-full">
+
+        <div className="w-full flex flex-col gap-4">
           <Table
             showSorterTooltip={false}
             columns={columns}
             loading={isLoading}
-            dataSource={leads?.items}
+            dataSource={contacts?.items}
             rowKey={(u) => u.id}
             rowSelection={{
               type: 'checkbox',
@@ -166,16 +168,17 @@ export default function ContactsView() {
                 ),
             }}
             bordered
-            pagination={{
-              current: page,
-              pageSize: limit,
-              total: leads?.meta.totalItems,
-              defaultPageSize: 10,
-              onChange: (page, limit) => {
-                setPage(page)
-                setLimit(limit || 10)
-              },
-            }}
+            pagination={false}
+          />
+
+          <Paginate
+            containerClassName="self-end"
+            pageSize={limit || 10}
+            currentPage={page || 1}
+            totalPage={contacts?.meta.totalPages}
+            onPageChange={setPage}
+            showJumpToHead
+            showQuickJump
           />
         </div>
       </div>

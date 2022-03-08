@@ -27,6 +27,7 @@ import { Actions, Role } from '@utils/models/role'
 import { checkActionError } from '@utils/libs/checkActions'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import Paginate from '@utils/components/Paginate'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -266,31 +267,35 @@ export default function UsersSettings() {
           Showing from {start} to {end} of {total} results.
         </Animate>
 
-        <Table
-          showSorterTooltip={false}
-          columns={columns}
-          loading={isLoading}
-          dataSource={users?.items}
-          rowKey={(u) => u.id}
-          rowSelection={{
-            type: 'checkbox',
-            onChange: (keys) =>
-              client.setQueryData(
-                'selected-userIds',
-                keys.map((k) => k.toString()),
-              ),
-          }}
-          bordered
-          pagination={{
-            current: page,
-            total: users?.meta.totalItems,
-            defaultPageSize: 10,
-            onChange: (page, limit) => {
-              setPage(page)
-              setLimit(limit || 10)
-            },
-          }}
-        />
+        <div className="w-full flex flex-col gap-4">
+          <Table
+            showSorterTooltip={false}
+            columns={columns}
+            loading={isLoading}
+            dataSource={users?.items}
+            rowKey={(u) => u.id}
+            rowSelection={{
+              type: 'checkbox',
+              onChange: (keys) =>
+                client.setQueryData(
+                  'selected-userIds',
+                  keys.map((k) => k.toString()),
+                ),
+            }}
+            bordered
+            pagination={false}
+          />
+
+          <Paginate
+            containerClassName="self-end"
+            pageSize={limit || 10}
+            currentPage={page || 1}
+            totalPage={users?.meta.totalPages}
+            onPageChange={setPage}
+            showJumpToHead
+            showQuickJump
+          />
+        </div>
       </div>
     </SettingsLayout>
   )

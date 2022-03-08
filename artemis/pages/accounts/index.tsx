@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
+import Paginate from '@utils/components/Paginate'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -129,7 +130,8 @@ export default function AccountsView() {
             </motion.div>
           )}
         </AnimatePresence>
-        <div className="w-full">
+
+        <div className="w-full flex flex-col gap-4">
           <Table
             showSorterTooltip={false}
             columns={columns}
@@ -145,16 +147,17 @@ export default function AccountsView() {
                 ),
             }}
             bordered
-            pagination={{
-              current: page,
-              pageSize: limit,
-              total: accounts?.meta.totalItems,
-              defaultPageSize: 10,
-              onChange: (page, limit) => {
-                setPage(page)
-                setLimit(limit || 10)
-              },
-            }}
+            pagination={false}
+          />
+
+          <Paginate
+            containerClassName="self-end"
+            pageSize={limit || 10}
+            currentPage={page || 1}
+            totalPage={accounts?.meta.totalPages}
+            onPageChange={setPage}
+            showJumpToHead
+            showQuickJump
           />
         </div>
       </div>

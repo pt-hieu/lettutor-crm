@@ -3,6 +3,7 @@ import DealsSearch from '@components/Deals/Search'
 import DealsSidebar from '@components/Deals/Sidebar'
 import DealsViewLayout from '@components/Deals/ViewLayout'
 import Animate from '@utils/components/Animate'
+import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
@@ -220,32 +221,35 @@ export default function DealsView() {
               <KanbanView queryKey={key} data={deals} />
             )}
             {(viewMode === ViewMode.TABULAR || viewMode === undefined) && (
-              <Table
-                showSorterTooltip={false}
-                columns={dealColumns}
-                loading={isLoading}
-                dataSource={deals?.items}
-                rowKey={(u) => u.id}
-                rowSelection={{
-                  type: 'checkbox',
-                  onChange: (keys) =>
-                    client.setQueryData(
-                      'selected-dealIds',
-                      keys.map((k) => k.toString()),
-                    ),
-                }}
-                bordered
-                pagination={{
-                  current: page,
-                  pageSize: limit,
-                  total: deals?.meta.totalItems,
-                  defaultPageSize: 10,
-                  onChange: (page, limit) => {
-                    setPage(page)
-                    setLimit(limit || 10)
-                  },
-                }}
-              />
+              <div className="w-full flex flex-col gap-4">
+                <Table
+                  showSorterTooltip={false}
+                  columns={dealColumns}
+                  loading={isLoading}
+                  dataSource={deals?.items}
+                  rowKey={(u) => u.id}
+                  rowSelection={{
+                    type: 'checkbox',
+                    onChange: (keys) =>
+                      client.setQueryData(
+                        'selected-dealIds',
+                        keys.map((k) => k.toString()),
+                      ),
+                  }}
+                  bordered
+                  pagination={false}
+                />
+
+                <Paginate
+                  containerClassName="self-end"
+                  pageSize={limit || 10}
+                  currentPage={page || 1}
+                  totalPage={deals?.meta.totalPages}
+                  onPageChange={setPage}
+                  showJumpToHead
+                  showQuickJump
+                />
+              </div>
             )}
           </Animate>
         </div>
