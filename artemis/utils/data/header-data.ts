@@ -33,7 +33,7 @@ export const data: Array<Item> = [
     title: 'Logs',
   },
   {
-    title: "Documents",
-    link: "/documents",
-  }
+    title: 'Documents',
+    link: '/documents',
+  },
 ]

@@ -1,18 +1,19 @@
-import Layout from '@utils/components/Layout'
-import { asyncTryCatch } from '@utils/libs/functionalTryCatch'
+import { notification } from 'antd'
 import axios from 'axios'
-import { GetServerSideProps } from 'next'
 import { API } from 'environment'
+import { AnimatePresence, motion } from 'framer-motion'
+import { GetServerSideProps } from 'next'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
-import { requestResetEmail, updatePassword } from '@utils/service/user'
-import { notification } from 'antd'
-import Link from 'next/link'
-import Loading from '@utils/components/Loading'
+
 import Input from '@utils/components/Input'
-import { motion, AnimatePresence } from 'framer-motion'
+import Layout from '@utils/components/Layout'
+import Loading from '@utils/components/Loading'
+import { asyncTryCatch } from '@utils/libs/functionalTryCatch'
+import { requestResetEmail, updatePassword } from '@utils/service/user'
 
 interface Props {
   isValidToken?: boolean

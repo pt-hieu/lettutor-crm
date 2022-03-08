@@ -1,3 +1,6 @@
+import { Empty, Pagination, Table, TableColumnType } from 'antd'
+import { useEffect, useState } from 'react'
+
 import Loading from '@utils/components/Loading'
 import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
@@ -5,8 +8,6 @@ import { Deal } from '@utils/models/deal'
 import { Lead } from '@utils/models/lead'
 import { Paginate as TPaginate } from '@utils/models/paging'
 import { Task } from '@utils/models/task'
-import { Empty, Pagination, Table, TableColumnType } from 'antd'
-import { useEffect, useState } from 'react'
 
 const LIMIT_ITEMS = 10
 

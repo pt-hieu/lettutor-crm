@@ -1,17 +1,19 @@
+import { Table, TableColumnType } from 'antd'
+import { AnimatePresence, motion } from 'framer-motion'
+import { GetServerSideProps } from 'next'
+import Link from 'next/link'
+import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
+
 import LeadsViewLayout from '@components/Leads/LeadsViewLayout'
 import Search from '@components/Leads/Search'
 import LeadSidebar from '@components/Leads/Sidebar'
+
+import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { getLeads } from '@utils/service/lead'
-import { Table, TableColumnType } from 'antd'
-import { AnimatePresence, motion } from 'framer-motion'
-import { GetServerSideProps } from 'next'
-import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
-import Link from 'next/link'
-import Paginate from '@utils/components/Paginate'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,

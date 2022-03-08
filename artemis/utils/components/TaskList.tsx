@@ -1,14 +1,16 @@
+import { notification } from 'antd'
+import moment from 'moment'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useMutation, useQueryClient } from 'react-query'
+
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership } from '@utils/hooks/useOwnership'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { Actions } from '@utils/models/role'
 import { Task, TaskStatus } from '@utils/models/task'
 import { closeTask } from '@utils/service/task'
-import { notification } from 'antd'
-import moment from 'moment'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useMutation, useQueryClient } from 'react-query'
+
 import Confirm from './Confirm'
 
 type TaskProps = Pick<

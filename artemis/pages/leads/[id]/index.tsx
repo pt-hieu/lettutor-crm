@@ -1,7 +1,25 @@
+import { yupResolver } from '@hookform/resolvers/yup'
+import { notification } from 'antd'
+import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
+import LeadDetailSidebar, {
+  LeadDetailSections,
+} from 'components/Leads/LeadDetailSidebar'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FieldErrors, UseFormRegister, useForm } from 'react-hook-form'
+import {
+  QueryClient,
+  dehydrate,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from 'react-query'
+
 import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
-import { yupResolver } from '@hookform/resolvers/yup'
+
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
@@ -21,30 +39,15 @@ import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getLead, updateLead } from '@utils/service/lead'
 import {
+  SortNoteType,
   addNote,
   deleteNote,
   editNote,
   getNotes,
-  SortNoteType,
 } from '@utils/service/note'
 import { getRawUsers } from '@utils/service/user'
-import { notification } from 'antd'
-import LeadDetailNavbar from 'components/Leads/LeadDetailNavbar'
-import LeadDetailSidebar, {
-  LeadDetailSections,
-} from 'components/Leads/LeadDetailSidebar'
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
-import {
-  dehydrate,
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from 'react-query'
-import { editLeadSchema, LeadUpdateFromData } from './edit'
+
+import { LeadUpdateFromData, editLeadSchema } from './edit'
 
 type LeadInfo = {
   label: string

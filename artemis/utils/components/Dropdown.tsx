@@ -1,13 +1,8 @@
-import { useModal } from '@utils/hooks/useModal'
 import { AnimatePresence, motion } from 'framer-motion'
-import {
-  ReactNode,
-  useCallback,
-  useRef,
-  MouseEvent,
-  useEffect,
-} from 'react'
-import { useHoverDirty, useClickAway } from 'react-use'
+import { MouseEvent, ReactNode, useCallback, useEffect, useRef } from 'react'
+import { useClickAway, useHoverDirty } from 'react-use'
+
+import { useModal } from '@utils/hooks/useModal'
 
 type Props = {
   children: ReactNode
@@ -51,7 +46,7 @@ export default function Dropdown({
 
   return (
     <div ref={ref} className="relative" onClick={openPopup}>
-      <div >{children}</div>
+      <div>{children}</div>
 
       <AnimatePresence exitBeforeEnter>
         {popup && (

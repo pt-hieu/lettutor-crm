@@ -1,7 +1,8 @@
-import { IDocument, IDocumentCategory } from '@utils/models/document'
-import { Paginate } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
+
+import { IDocument, IDocumentCategory } from '@utils/models/document'
+import { Paginate } from '@utils/models/paging'
 
 export const getDocuments = (token?: string) => () =>
   axios

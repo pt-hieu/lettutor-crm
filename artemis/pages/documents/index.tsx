@@ -1,13 +1,14 @@
-import Layout from '@utils/components/Layout'
-import { useQueryState } from '@utils/hooks/useQueryState'
-import { getDocumentCategories, getDocuments } from '@utils/service/document'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+import { QueryClient, dehydrate, useQuery } from 'react-query'
 import remarkGfm from 'remark-gfm'
+
+import Layout from '@utils/components/Layout'
+import { useQueryState } from '@utils/hooks/useQueryState'
+import { getDocumentCategories, getDocuments } from '@utils/service/document'
 
 export const getStaticProps: GetStaticProps = async () => {
   const client = new QueryClient()

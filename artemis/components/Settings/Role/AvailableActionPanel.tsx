@@ -1,7 +1,9 @@
-import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
-import { Actions, ActionScope, Role } from '@utils/models/role'
 import { useMemo } from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
+
+import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
+import { ActionScope, Actions, Role } from '@utils/models/role'
+
 import Action from './Action'
 
 type Props = {
@@ -52,8 +54,10 @@ export default function AvailableActionPanel({ data, disabled }: Props) {
               if (!actions.length) return null
               return (
                 <div key={scope}>
-                  <div className='font-semibold mb-3 pl-[24px] text-[17px]'>{scope}</div>
-                  <div className='flex flex-col gap-2'>
+                  <div className="font-semibold mb-3 pl-[24px] text-[17px]">
+                    {scope}
+                  </div>
+                  <div className="flex flex-col gap-2">
                     {actions.map((action, index) => (
                       <Draggable
                         draggableId={action}

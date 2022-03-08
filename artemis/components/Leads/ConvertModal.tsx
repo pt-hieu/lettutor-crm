@@ -1,10 +1,6 @@
-import Animate from '@utils/components/Animate'
-import Input from '@utils/components/Input'
-import Loading from '@utils/components/Loading'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { Divider, Modal, Switch, notification } from 'antd'
 import Link from 'next/link'
-import { Lead } from '@utils/models/lead'
-import { convertLead } from '@utils/service/lead'
-import { Divider, Modal, notification, Switch } from 'antd'
 import { useRouter } from 'next/router'
 import {
   ReactNode,
@@ -16,10 +12,15 @@ import {
 } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
-import { Deal, DealStage } from '@utils/models/deal'
 import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
+
+import Animate from '@utils/components/Animate'
+import Input from '@utils/components/Input'
+import Loading from '@utils/components/Loading'
 import { useInput } from '@utils/hooks/useInput'
+import { Deal, DealStage } from '@utils/models/deal'
+import { Lead } from '@utils/models/lead'
+import { convertLead } from '@utils/service/lead'
 import { getRawUsers } from '@utils/service/user'
 
 interface Props {

@@ -1,3 +1,7 @@
+import { notification } from 'antd'
+import { useRouter } from 'next/router'
+import { useMutation } from 'react-query'
+
 import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
@@ -5,9 +9,6 @@ import { useOwnership } from '@utils/hooks/useOwnership'
 import { Contact } from '@utils/models/contact'
 import { Actions } from '@utils/models/role'
 import { batchDelete } from '@utils/service/contact'
-import { notification } from 'antd'
-import { useRouter } from 'next/router'
-import { useMutation } from 'react-query'
 
 type Props = {
   data: Contact | undefined

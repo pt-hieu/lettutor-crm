@@ -1,8 +1,10 @@
-import Input, { Props as InputProps } from './Input'
 import { useEffect, useState } from 'react'
-import Animate from './Animate'
 import { UseFormReset } from 'react-hook-form'
+
 import useGlobalDate from '@utils/hooks/useGlobalDate'
+
+import Animate from './Animate'
+import Input, { Props as InputProps } from './Input'
 
 type Props<T> = {
   onEditComplete: (e: any) => void

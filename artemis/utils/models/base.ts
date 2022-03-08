@@ -1,4 +1,4 @@
-import { User } from "./user";
+import { User } from './user'
 
 export interface Base {
   id: string
@@ -9,7 +9,6 @@ export interface Base {
   createdBy: User | null
   updatedBy: User | null
 }
-
 
 export interface StrapiBase {
   id: string

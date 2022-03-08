@@ -1,5 +1,6 @@
-import { GlobalState } from '@utils/GlobalStateKey'
 import { useQuery } from 'react-query'
+
+import { GlobalState } from '@utils/GlobalStateKey'
 
 export type UseAuthorizationReturnType = Partial<Record<string, boolean>>
 

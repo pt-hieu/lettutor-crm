@@ -1,6 +1,7 @@
-import { JwtPayload } from '@utils/models/payload'
-import { Actions, ActionValues } from '@utils/models/role'
 import { getSession } from 'next-auth/client'
+
+import { JwtPayload } from '@utils/models/payload'
+import { ActionValues, Actions } from '@utils/models/role'
 
 export async function checkActionError(req: any, ...actions: ActionValues[]) {
   const session = (await getSession({ req })) as { user: JwtPayload }

@@ -1,11 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import Tooltip from '@utils/components/Tooltip'
+import { notification } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
+
 import Input from '@utils/components/Input'
-import { notification } from 'antd'
+import Tooltip from '@utils/components/Tooltip'
 import { Attachments } from '@utils/models/note'
 
 export const noteShema = yup.object().shape({

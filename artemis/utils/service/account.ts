@@ -1,9 +1,10 @@
-import { AccountType, Account } from '@utils/models/account'
-import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
-import { AccountAddFormData } from 'pages/accounts/add-account'
 import { AccountUpdateFormData } from 'pages/accounts/[id]/edit'
+import { AccountAddFormData } from 'pages/accounts/add-account'
+
+import { Account, AccountType } from '@utils/models/account'
+import { Paginate, PagingQuery } from '@utils/models/paging'
 
 export const getAccounts =
   (

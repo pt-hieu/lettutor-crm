@@ -1,30 +1,32 @@
-import Input from '@utils/components/Input'
-import { useModal } from '@utils/hooks/useModal'
-import { getSessionToken } from '@utils/libs/getToken'
-import { LeadSource } from '@utils/models/lead'
-import { getRawUsers, getUsers } from '@utils/service/user'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useForm } from 'react-hook-form'
-import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
-import { User } from '@utils/models/user'
-import Layout from '@utils/components/Layout'
-import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { DealUpdateData, Field } from '@utils/data/update-deal-data'
-import { getDeal, updateDeal } from '@utils/service/deal'
-import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
-import { getContacts, getRawContacts } from '@utils/service/contact'
-import { getAccounts, getRawAccounts } from '@utils/service/account'
-import { Contact } from '@utils/models/contact'
-import { Account } from '@utils/models/account'
-import { investigate } from '@utils/libs/investigate'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { QueryClient, dehydrate, useMutation, useQuery } from 'react-query'
+import * as yup from 'yup'
+
 import ConfirmReasonForLoss from '@components/Deals/ConfirmReasonForLoss'
-import { checkActionError } from '@utils/libs/checkActions'
-import { Actions } from '@utils/models/role'
+
+import Input from '@utils/components/Input'
+import Layout from '@utils/components/Layout'
+import { DealUpdateData, Field } from '@utils/data/update-deal-data'
+import { useModal } from '@utils/hooks/useModal'
 import { useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { checkActionError } from '@utils/libs/checkActions'
+import { getSessionToken } from '@utils/libs/getToken'
+import { investigate } from '@utils/libs/investigate'
+import { Account } from '@utils/models/account'
+import { Contact } from '@utils/models/contact'
+import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
+import { LeadSource } from '@utils/models/lead'
+import { Actions } from '@utils/models/role'
+import { User } from '@utils/models/user'
+import { getAccounts, getRawAccounts } from '@utils/service/account'
+import { getContacts, getRawContacts } from '@utils/service/contact'
+import { getDeal, updateDeal } from '@utils/service/deal'
+import { getRawUsers, getUsers } from '@utils/service/user'
 
 export type DealUpdateFormData = {
   ownerId: string
@@ -51,7 +53,10 @@ export const EditDealSchema = yup.object().shape({
     .typeError('Amount must be a number.')
     .nullable(true)
     .transform((v, o) => (o === '' ? null : v)),
-  closingDate: yup.date().required('Closing Date is required.').typeError('Closing Date is not valid'),
+  closingDate: yup
+    .date()
+    .required('Closing Date is required.')
+    .typeError('Closing Date is not valid'),
   stage: yup.string().required('Stage is required.'),
   source: yup.string().required('Lead Source is required.'),
   contactId: yup.string(),

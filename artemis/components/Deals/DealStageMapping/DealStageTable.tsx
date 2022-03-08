@@ -1,9 +1,3 @@
-import Tooltip from '@utils/components/Tooltip'
-import {
-  DealCategory,
-  DealStageData,
-  ForecastCategory,
-} from '@utils/models/deal'
 import { Empty, Popconfirm, Table } from 'antd'
 import { arrayMoveImmutable } from 'array-move'
 import {
@@ -11,6 +5,14 @@ import {
   SortableElement,
   SortableHandle,
 } from 'react-sortable-hoc'
+
+import Tooltip from '@utils/components/Tooltip'
+import {
+  DealCategory,
+  DealStageData,
+  ForecastCategory,
+} from '@utils/models/deal'
+
 import { EditableCell, EditableRow } from './EditableCell'
 
 const DragHandle = SortableHandle(() => (

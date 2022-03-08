@@ -1,5 +1,6 @@
-import Input from '@utils/components/Input'
 import { useFormContext } from 'react-hook-form'
+
+import Input from '@utils/components/Input'
 
 type Props = {
   type: 'checkbox' | 'radio'

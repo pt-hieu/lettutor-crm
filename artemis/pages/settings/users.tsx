@@ -1,33 +1,35 @@
-import Search from '@components/Settings/Search'
-import SettingsLayout from '@components/Settings/SettingsLayout'
-import Confirm from '@utils/components/Confirm'
-import {
-  getUsers,
-  updateStatus,
-  invalidateAddUserToken,
-  batchDelete,
-} from '@utils/service/user'
-import { getRoles } from '@utils/service/role'
-import { getSessionToken } from '@utils/libs/getToken'
-import { notification, Space, Table, TableColumnType } from 'antd'
+import { Space, Table, TableColumnType, notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import {
-  dehydrate,
   QueryClient,
+  dehydrate,
   useMutation,
   useQuery,
   useQueryClient,
 } from 'react-query'
-import { User, UserStatus } from '@utils/models/user'
-import { useQueryState } from '@utils/hooks/useQueryState'
+
 import ButtonAddUser from '@components/Settings/ButtonAddUser'
-import { usePaginateItem } from '@utils/hooks/usePaginateItem'
+import Search from '@components/Settings/Search'
+import SettingsLayout from '@components/Settings/SettingsLayout'
+
 import Animate from '@utils/components/Animate'
-import { Actions, Role } from '@utils/models/role'
-import { checkActionError } from '@utils/libs/checkActions'
-import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
+import Confirm from '@utils/components/Confirm'
 import Paginate from '@utils/components/Paginate'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { usePaginateItem } from '@utils/hooks/usePaginateItem'
+import { useQueryState } from '@utils/hooks/useQueryState'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { checkActionError } from '@utils/libs/checkActions'
+import { getSessionToken } from '@utils/libs/getToken'
+import { Actions, Role } from '@utils/models/role'
+import { User, UserStatus } from '@utils/models/user'
+import { getRoles } from '@utils/service/role'
+import {
+  batchDelete,
+  getUsers,
+  invalidateAddUserToken,
+  updateStatus,
+} from '@utils/service/user'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,

@@ -1,5 +1,6 @@
-import Layout from '@utils/components/Layout'
 import { ReactNode } from 'react'
+
+import Layout from '@utils/components/Layout'
 
 interface Props {
   children: ReactNode

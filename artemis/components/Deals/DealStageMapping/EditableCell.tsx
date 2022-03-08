@@ -1,6 +1,7 @@
 import { Form, FormInstance, Input, Select } from 'antd'
 import { Rule } from 'antd/lib/form'
 import React, { useContext, useEffect, useRef, useState } from 'react'
+
 import { TData } from './DealStageTable'
 
 const { Option } = Select

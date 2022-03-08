@@ -25,7 +25,10 @@ export default function Menu({
   )
 
   return (
-    <div onClick={handleContainerClick} className={`py-2 border rounded-md bg-white ${className || ''}`}>
+    <div
+      onClick={handleContainerClick}
+      className={`py-2 border rounded-md bg-white ${className || ''}`}
+    >
       {items.map(({ key, action, title }) => (
         <button
           className="px-5 py-2 font-semibold text-sm text-gray-700 hover:bg-gray-200 w-full"

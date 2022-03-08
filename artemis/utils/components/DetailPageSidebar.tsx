@@ -1,4 +1,5 @@
 import { MouseEventHandler, ReactNode, useCallback } from 'react'
+
 import Tooltip from './Tooltip'
 
 export type SidebarStructure = {

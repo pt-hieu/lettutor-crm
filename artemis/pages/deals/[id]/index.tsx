@@ -1,4 +1,25 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import { notification } from 'antd'
+import DealDetailNavbar from 'components/Deals/DealDetailNavbar'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FieldErrors, UseFormRegister, useForm } from 'react-hook-form'
+import {
+  QueryClient,
+  dehydrate,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from 'react-query'
+
+import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
+import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
+import DealDetailSidebar from '@components/Deals/DealDetailSidebar'
+import LogSection from '@components/Logs/LogSection'
+import { INoteData } from '@components/Notes/NoteAdder'
+import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
+
 import DetailPageSidebar, {
   SidebarStructure,
 } from '@utils/components/DetailPageSidebar'
@@ -6,54 +27,35 @@ import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useModal } from '@utils/hooks/useModal'
+import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
 import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
+import { LogSource } from '@utils/models/log'
+import { AddNoteDto } from '@utils/models/note'
+import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccounts, getRawAccounts } from '@utils/service/account'
 import { getContacts, getRawContacts } from '@utils/service/contact'
 import { getDeal, updateDeal } from '@utils/service/deal'
-import { getRawUsers, getUsers } from '@utils/service/user'
-import { notification } from 'antd'
-import DealDetailNavbar from 'components/Deals/DealDetailNavbar'
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
-import { useModal } from '@utils/hooks/useModal'
 import {
-  dehydrate,
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from 'react-query'
-import { DealUpdateFormData, EditDealSchema } from './edit'
-import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
-import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
-import { checkActionError } from '@utils/libs/checkActions'
-import { Actions } from '@utils/models/role'
-import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
-import DealDetailSidebar from '@components/Deals/DealDetailSidebar'
-
-import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
-import {
+  SortNoteType,
   addNote,
   deleteNote,
   editNote,
   getNotes,
-  SortNoteType,
 } from '@utils/service/note'
-import { INoteData } from '@components/Notes/NoteAdder'
-import { AddNoteDto } from '@utils/models/note'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
-import LogSection from '@components/Logs/LogSection'
-import { LogSource } from '@utils/models/log'
+import { getRawUsers, getUsers } from '@utils/service/user'
+
+import { DealUpdateFormData, EditDealSchema } from './edit'
 
 enum RelatedList {
   OpenActivities = 'Open Activities',
@@ -534,7 +536,7 @@ const DealDetail = () => {
                 {RelatedList.OpenActivities}
               </div>
               {openTasks && openTasks.length > 0 ? (
-                <TaskList source='deal' tasks={openTasks} />
+                <TaskList source="deal" tasks={openTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
@@ -548,7 +550,7 @@ const DealDetail = () => {
                 {RelatedList.ClosedActivities}
               </div>
               {closedTasks && closedTasks.length > 0 ? (
-                <TaskList source='deal' tasks={closedTasks} />
+                <TaskList source="deal" tasks={closedTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}

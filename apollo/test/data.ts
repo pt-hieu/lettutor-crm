@@ -1,12 +1,12 @@
 import { Account, AccountType } from 'src/account/account.entity'
+import { Contact } from 'src/contact/contact.entity'
 import { Deal, DealStage } from 'src/deal/deal.entity'
 import { Lead, LeadSource, LeadStatus } from 'src/lead/lead.entity'
+import { Note } from 'src/note/note.entity'
+import { Role } from 'src/role/role.entity'
+import { Task, TaskPriority, TaskStatus } from 'src/task/task.entity'
 import { Actions } from 'src/type/action'
 import { User, UserStatus } from 'src/user/user.entity'
-import { Task, TaskPriority, TaskStatus } from 'src/task/task.entity'
-import { Contact } from 'src/contact/contact.entity'
-import { Role } from 'src/role/role.entity'
-import { Note } from 'src/note/note.entity'
 
 export const role: Role = {
   actions: [Actions.IS_ADMIN],

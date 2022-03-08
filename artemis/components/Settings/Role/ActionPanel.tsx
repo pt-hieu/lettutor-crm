@@ -1,7 +1,9 @@
-import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
-import { Actions, ActionScope, Role } from '@utils/models/role'
-import Action from './Action'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
+
+import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
+import { ActionScope, Actions, Role } from '@utils/models/role'
+
+import Action from './Action'
 
 type Props = {
   role?: Role

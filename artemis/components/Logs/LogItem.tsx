@@ -1,8 +1,9 @@
+import Link from 'next/link'
+import { ReactNode, memo, useCallback, useMemo } from 'react'
+
 import Tooltip from '@utils/components/Tooltip'
 import { formatDate } from '@utils/libs/time'
 import { Log, LogAction } from '@utils/models/log'
-import Link from 'next/link'
-import { memo, ReactNode, useCallback, useMemo } from 'react'
 
 type TProps = {
   data: Log

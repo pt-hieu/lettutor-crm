@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+
 /* eslint-disable @typescript-eslint/ban-types */
-import { Repository, SelectQueryBuilder, Connection } from 'typeorm'
+import { Connection, Repository, SelectQueryBuilder } from 'typeorm'
 
 // @ts-ignore
 export const mockConnection: MockType<Connection> = {

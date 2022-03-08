@@ -1,16 +1,16 @@
-import { useModal } from '@utils/hooks/useModal'
 import { notification } from 'antd'
-import { addTask } from '@utils/service/task'
+import { useRouter } from 'next/router'
+import { useMemo } from 'react'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
+import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
 import DetailPageSidebar, {
   SidebarStructure,
 } from '@utils/components/DetailPageSidebar'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { useRouter } from 'next/router'
-import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
-import { getLead } from '@utils/service/lead'
-import { useMemo } from 'react'
+import { useModal } from '@utils/hooks/useModal'
 import { TaskStatus } from '@utils/models/task'
+import { getLead } from '@utils/service/lead'
+import { addTask } from '@utils/service/task'
 
 export enum LeadDetailSections {
   Notes = 'Notes',

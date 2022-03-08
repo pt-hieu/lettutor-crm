@@ -1,9 +1,10 @@
-import { Deal, DealStage } from '@utils/models/deal'
-import { LeadSource } from '@utils/models/lead'
-import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
 import { DealUpdateFormData } from 'pages/deals/[id]/edit'
+
+import { Deal, DealStage } from '@utils/models/deal'
+import { LeadSource } from '@utils/models/lead'
+import { Paginate, PagingQuery } from '@utils/models/paging'
 
 export const getDeals =
   (

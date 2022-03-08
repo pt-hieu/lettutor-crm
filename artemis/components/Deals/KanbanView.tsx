@@ -1,22 +1,24 @@
-import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
-import { Paginate } from '@utils/models/paging'
 import { notification } from 'antd'
 import moment from 'moment'
-import { useCallback, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useCallback, useMemo, useState } from 'react'
 import {
+  DragDropContext,
   Draggable,
   Droppable,
-  DragDropContext,
   OnDragEndResponder,
 } from 'react-beautiful-dnd'
-import { Task } from '@utils/models/task'
 import { useMutation, useQueryClient } from 'react-query'
-import { updateDeal } from '@utils/service/deal'
-import { useModal } from '@utils/hooks/useModal'
-import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
+
 import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
+import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
+
 import Tooltip from '@utils/components/Tooltip'
+import { useModal } from '@utils/hooks/useModal'
+import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
+import { Paginate } from '@utils/models/paging'
+import { Task } from '@utils/models/task'
+import { updateDeal } from '@utils/service/deal'
 
 type Props = {
   data: Paginate<Deal> | undefined

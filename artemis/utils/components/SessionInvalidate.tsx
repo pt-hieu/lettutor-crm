@@ -1,10 +1,12 @@
+import { signOut } from 'next-auth/client'
+import { useCallback, useEffect, useRef } from 'react'
+
 import { useModal } from '@utils/hooks/useModal'
 import { useSubscription } from '@utils/hooks/useSubscription'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { OpCode } from '@utils/models/subscription'
-import { useCallback, useEffect, useRef } from 'react'
+
 import Confirm from './Confirm'
-import { signOut } from 'next-auth/client'
 
 const LOG_OUT_TIMEOUT = 3000
 

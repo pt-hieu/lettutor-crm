@@ -1,7 +1,8 @@
-import MultipleQuery from '@utils/components/MultipleQuery'
-import { LeadSource, LeadStatus } from '@utils/models/lead'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+
+import MultipleQuery from '@utils/components/MultipleQuery'
+import { LeadSource, LeadStatus } from '@utils/models/lead'
 
 type FormData = {
   status: Array<LeadStatus>

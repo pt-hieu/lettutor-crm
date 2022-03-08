@@ -1,9 +1,11 @@
-import SettingsLayout from '@components/Settings/SettingsLayout'
 import { List } from 'antd'
+
 import { DealStageModal } from '@components/Deals/DealStageMapping/DealStageModal'
+import SettingsLayout from '@components/Settings/SettingsLayout'
+
+import Dropdown from '@utils/components/Dropdown'
 import Menu from '@utils/components/Menu'
 import { useModal } from '@utils/hooks/useModal'
-import Dropdown from '@utils/components/Dropdown'
 
 type ModulesList = {
   name: string

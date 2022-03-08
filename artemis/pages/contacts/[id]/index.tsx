@@ -1,3 +1,17 @@
+import { yupResolver } from '@hookform/resolvers/yup'
+import { notification } from 'antd'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FieldErrors, UseFormRegister, useForm } from 'react-hook-form'
+import {
+  QueryClient,
+  dehydrate,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from 'react-query'
+
 import ContactDetailNavbar from '@components/Contacts/ContactDetailNavbar'
 import ContactDetailSidebar, {
   ContactDetailSections,
@@ -5,7 +19,7 @@ import ContactDetailSidebar, {
 import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
-import { yupResolver } from '@hookform/resolvers/yup'
+
 import DealInfo from '@utils/components/DealInfo'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
@@ -28,25 +42,14 @@ import { User } from '@utils/models/user'
 import { getRawAccounts } from '@utils/service/account'
 import { getContact, updateContact } from '@utils/service/contact'
 import {
+  SortNoteType,
   addNote,
   deleteNote,
   editNote,
   getNotes,
-  SortNoteType,
 } from '@utils/service/note'
 import { getRawUsers } from '@utils/service/user'
-import { notification } from 'antd'
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
-import {
-  dehydrate,
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from 'react-query'
+
 import { ContactAddFormData } from '../add-contact'
 import { editContactSchema } from './edit'
 

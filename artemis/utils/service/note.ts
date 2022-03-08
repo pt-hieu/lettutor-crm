@@ -1,8 +1,10 @@
-import { AddNoteDto, Note, NoteSource } from '@utils/models/note'
-import { API } from 'environment'
 import axios from 'axios'
-import { Paginate, PagingQuery } from '@utils/models/paging'
+import { API } from 'environment'
+
 import { INoteData } from '@components/Notes/NoteAdder'
+
+import { AddNoteDto, Note, NoteSource } from '@utils/models/note'
+import { Paginate, PagingQuery } from '@utils/models/paging'
 
 export type SortNoteType = 'last' | 'first'
 export type FilterNoteType = undefined | NoteSource
@@ -79,4 +81,3 @@ export const editNote = ({
 }) => {
   return axios.patch(API + `/apollo/note/${noteId}`, { ...dataInfo })
 }
-

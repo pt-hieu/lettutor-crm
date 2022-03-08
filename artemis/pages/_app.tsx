@@ -1,16 +1,18 @@
-import { AppProps } from 'next/app'
-import { Provider as NextAuthProvider } from 'next-auth/client'
-import '../styles/tailwind.css'
-import '../styles/global.scss'
-import '../styles/markdown.css'
+import { notification } from 'antd'
 import 'antd/dist/antd.css'
+import axios from 'axios'
+import { Provider as NextAuthProvider } from 'next-auth/client'
+import { AppProps } from 'next/app'
+import Head from 'next/head'
+import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Hydrate } from 'react-query/hydration'
-import { useState } from 'react'
-import axios from 'axios'
-import { notification } from 'antd'
+
 import OpenGraph from '@utils/components/OpenGraph'
-import Head from 'next/head'
+
+import '../styles/global.scss'
+import '../styles/markdown.css'
+import '../styles/tailwind.css'
 
 axios.defaults.withCredentials = true
 

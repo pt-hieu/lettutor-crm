@@ -1,4 +1,5 @@
 import { LeadSource } from '@utils/models/lead'
+
 import { SectionTemplate } from './update-lead-data'
 
 type UpdateContactTemplate = SectionTemplate[]

@@ -1,4 +1,4 @@
-import { ActionValues } from "@utils/models/role"
+import { ActionValues } from '@utils/models/role'
 
 type Props = {
   data: ActionValues

@@ -1,5 +1,6 @@
-import Layout from '@utils/components/Layout'
 import Link from 'next/link'
+
+import Layout from '@utils/components/Layout'
 
 export default function NotFound() {
   return (

@@ -1,8 +1,3 @@
-import Input from '@utils/components/Input'
-import Layout from '@utils/components/Layout'
-import Loading from '@utils/components/Loading'
-import { asyncTryCatch } from '@utils/libs/functionalTryCatch'
-import { updatePassword } from '@utils/service/user'
 import { notification } from 'antd'
 import axios from 'axios'
 import { API } from 'environment'
@@ -13,6 +8,13 @@ import { useRouter } from 'next/router'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
+
+import Input from '@utils/components/Input'
+import Layout from '@utils/components/Layout'
+import Loading from '@utils/components/Loading'
+import { asyncTryCatch } from '@utils/libs/functionalTryCatch'
+import { updatePassword } from '@utils/service/user'
+
 import { requireRule } from './change-password'
 import { passwordReg } from './reset-password'
 

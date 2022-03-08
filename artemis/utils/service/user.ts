@@ -1,7 +1,8 @@
-import { Paginate, PagingQuery } from '@utils/models/paging'
-import { User, UserStatus } from '@utils/models/user'
 import axios from 'axios'
 import { API } from 'environment'
+
+import { Paginate, PagingQuery } from '@utils/models/paging'
+import { User, UserStatus } from '@utils/models/user'
 
 export const requestResetEmail = (data: { email: string }) =>
   axios.post(API + '/apollo/user/reset-password', data)

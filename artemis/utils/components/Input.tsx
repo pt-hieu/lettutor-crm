@@ -1,11 +1,11 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   DetailedHTMLProps,
   InputHTMLAttributes,
-  forwardRef,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
+  forwardRef,
 } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 type InputProps = DetailedHTMLProps<
   InputHTMLAttributes<HTMLInputElement>,

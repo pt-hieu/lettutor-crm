@@ -1,13 +1,14 @@
-import 'dotenv/config.js'
-import { NestFactory } from '@nestjs/core'
-import { AppModule } from 'src/app.module'
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
-import { TransformInterceptor } from './transform.interceptor'
-import morgan from 'morgan'
-import { registerSchema } from 'class-validator'
-import { ConvertToDealSchema } from './utils/ValidateSchema/ConvertToDeal.schema'
+import { NestFactory } from '@nestjs/core'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
+import { registerSchema } from 'class-validator'
+import 'dotenv/config.js'
+import morgan from 'morgan'
+import { AppModule } from 'src/app.module'
+
+import { TransformInterceptor } from './transform.interceptor'
+import { ConvertToDealSchema } from './utils/ValidateSchema/ConvertToDeal.schema'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)

@@ -1,4 +1,5 @@
 import { SetMetadata } from '@nestjs/common'
+
 import { Actions } from './type/action'
 
 export const KEY = 'actions'

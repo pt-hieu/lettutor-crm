@@ -1,13 +1,13 @@
-import { Modal, Divider } from 'antd'
+import { Divider, Modal } from 'antd'
 import React, {
-  useState,
   Children,
-  cloneElement,
-  SyntheticEvent,
   ReactElement,
   ReactNode,
-  useEffect,
+  SyntheticEvent,
+  cloneElement,
   useCallback,
+  useEffect,
+  useState,
 } from 'react'
 
 type Props = {
@@ -95,7 +95,7 @@ const Confirm = ({
       >
         <div onClick={stopPropagation}>
           <h4 className="font-medium text-xl">{title || 'Warning'}</h4>
-          <div className='mt-2' >{message}</div>
+          <div className="mt-2">{message}</div>
         </div>
       </Modal>
     </>

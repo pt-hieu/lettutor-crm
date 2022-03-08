@@ -1,11 +1,12 @@
+import axios from 'axios'
+import { API } from 'environment'
+import { LeadUpdateFromData } from 'pages/leads/[id]/edit'
+import { LeadAddFormData } from 'pages/leads/add-lead'
+
 import { Account } from '@utils/models/account'
 import { Deal } from '@utils/models/deal'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
-import axios from 'axios'
-import { API } from 'environment'
-import { LeadAddFormData } from 'pages/leads/add-lead'
-import { LeadUpdateFromData } from 'pages/leads/[id]/edit'
 
 export const getLeads =
   (

@@ -1,5 +1,6 @@
-import { memo, ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, memo, useEffect, useRef } from 'react'
 import { useHoverDirty } from 'react-use'
+
 import Animate from './Animate'
 
 type Props = {

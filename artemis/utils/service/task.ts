@@ -1,8 +1,9 @@
+import axios from 'axios'
+import { API } from 'environment'
+import { TaskFormData } from 'pages/tasks/add-task'
+
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
-import { API } from 'environment'
-import axios from 'axios'
-import { TaskFormData } from 'pages/tasks/add-task'
 
 export const getTasks =
   (

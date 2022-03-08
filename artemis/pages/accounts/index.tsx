@@ -1,17 +1,19 @@
-import Search from '@components/Accounts/Search'
-import AccountsSidebar from '@components/Accounts/Sidebar'
-import AccountsViewLayout from '@components/Accounts/AccountsViewLayout'
-import { usePaginateItem } from '@utils/hooks/usePaginateItem'
-import { useQueryState } from '@utils/hooks/useQueryState'
-import { getSessionToken } from '@utils/libs/getToken'
-import { AccountType, Account } from '@utils/models/account'
-import { getAccounts } from '@utils/service/account'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
-import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
+import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
+
+import AccountsViewLayout from '@components/Accounts/AccountsViewLayout'
+import Search from '@components/Accounts/Search'
+import AccountsSidebar from '@components/Accounts/Sidebar'
+
 import Paginate from '@utils/components/Paginate'
+import { usePaginateItem } from '@utils/hooks/usePaginateItem'
+import { useQueryState } from '@utils/hooks/useQueryState'
+import { getSessionToken } from '@utils/libs/getToken'
+import { Account, AccountType } from '@utils/models/account'
+import { getAccounts } from '@utils/service/account'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,

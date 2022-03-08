@@ -1,18 +1,20 @@
-import Search from '@components/Tasks/Search'
-import TasksSidebar from '@components/Tasks/Sidebar'
-import TasksViewLayout from '@components/Tasks/TasksViewLayout'
-import { usePaginateItem } from '@utils/hooks/usePaginateItem'
-import { useQueryState } from '@utils/hooks/useQueryState'
-import { getSessionToken } from '@utils/libs/getToken'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
-import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
+import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
+
+import Search from '@components/Tasks/Search'
+import TasksSidebar from '@components/Tasks/Sidebar'
+import TasksViewLayout from '@components/Tasks/TasksViewLayout'
+
+import Paginate from '@utils/components/Paginate'
+import { usePaginateItem } from '@utils/hooks/usePaginateItem'
+import { useQueryState } from '@utils/hooks/useQueryState'
+import { getSessionToken } from '@utils/libs/getToken'
+import { formatDate } from '@utils/libs/time'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { getTasks } from '@utils/service/task'
-import { formatDate } from '@utils/libs/time'
-import Paginate from '@utils/components/Paginate'
 
 export const taskColumns: TableColumnType<Task>[] = [
   {

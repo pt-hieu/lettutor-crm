@@ -1,13 +1,14 @@
-import Input from '@utils/components/Input'
-import { Actions, Role } from '@utils/models/role'
-import { Divider, Modal, notification } from 'antd'
-import { useForm } from 'react-hook-form'
-import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useMutation, useQueryClient } from 'react-query'
-import { createRole } from '@utils/service/role'
+import { Divider, Modal, notification } from 'antd'
 import { useCallback } from 'react'
+import { useForm } from 'react-hook-form'
+import { useMutation, useQueryClient } from 'react-query'
+import * as yup from 'yup'
+
+import Input from '@utils/components/Input'
 import Loading from '@utils/components/Loading'
+import { Actions, Role } from '@utils/models/role'
+import { createRole } from '@utils/service/role'
 
 type Props = {
   visible: boolean

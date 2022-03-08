@@ -1,6 +1,7 @@
-import Layout from '@utils/components/Layout'
-import { SettingData, SG } from '@utils/data/setting-data'
 import Link from 'next/link'
+
+import Layout from '@utils/components/Layout'
+import { SG, SettingData } from '@utils/data/setting-data'
 
 export default function Settings() {
   return (

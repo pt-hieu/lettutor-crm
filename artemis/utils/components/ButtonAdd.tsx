@@ -1,13 +1,14 @@
-import { useOnClickOutside } from '@utils/hooks/useOnClickOutSide'
+import Link from 'next/link'
 import React, {
+  MouseEventHandler,
   ReactNode,
   useCallback,
+  useMemo,
   useRef,
   useState,
-  useMemo,
-  MouseEventHandler,
 } from 'react'
-import Link from 'next/link'
+
+import { useOnClickOutside } from '@utils/hooks/useOnClickOutSide'
 
 type Props = {
   title: string

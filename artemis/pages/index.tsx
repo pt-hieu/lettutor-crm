@@ -1,14 +1,17 @@
+import moment from 'moment'
+import { GetServerSideProps } from 'next'
+import { useState } from 'react'
+import { QueryClient, dehydrate, useQuery } from 'react-query'
+
 import { ViewBoard } from '@components/Home/ViewBoard'
+
 import Layout from '@utils/components/Layout'
 import { getSessionToken } from '@utils/libs/getToken'
 import { TaskStatus } from '@utils/models/task'
 import { getDeals } from '@utils/service/deal'
 import { getLeads } from '@utils/service/lead'
 import { getTasks } from '@utils/service/task'
-import moment from 'moment'
-import { GetServerSideProps } from 'next'
-import { useState } from 'react'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+
 import { dealColumns } from './deals'
 import { leadColumns } from './leads'
 import { taskColumns } from './tasks'

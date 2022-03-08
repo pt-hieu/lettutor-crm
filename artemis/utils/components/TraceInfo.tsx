@@ -1,7 +1,9 @@
-import Link from 'next/link'
-import { Base } from '@utils/models/base'
 import moment from 'moment'
+import Link from 'next/link'
 import { DetailedHTMLProps, HTMLAttributes, useState } from 'react'
+
+import { Base } from '@utils/models/base'
+
 import Animate from './Animate'
 
 type Props = {

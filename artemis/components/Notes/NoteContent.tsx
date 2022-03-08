@@ -1,10 +1,12 @@
+import moment from 'moment'
+import Link from 'next/link'
+import { useState } from 'react'
+
 import Confirm from '@utils/components/Confirm'
 import Tooltip from '@utils/components/Tooltip'
 import { useModal } from '@utils/hooks/useModal'
 import { Attachments, NoteSource } from '@utils/models/note'
-import moment from 'moment'
-import Link from 'next/link'
-import { useState } from 'react'
+
 import { INoteData, NoteTextBox } from './NoteAdder'
 
 interface IProps {
@@ -86,7 +88,7 @@ export const NoteContent = ({
             <div className="w-full whitespace-pre-wrap break-all mb-1 pr-[90px]">
               {note}
             </div>
-            
+
             <div className="flex gap-2">
               {files?.map(({ id, key, location }) => (
                 <div key={id} className="w-[120px] file-container">

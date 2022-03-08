@@ -8,7 +8,7 @@ const TaskDetailSidebar = () => {
       title: 'Related List',
       options: [
         {
-          label: "Logs",
+          label: 'Logs',
         },
       ],
     },

@@ -1,9 +1,10 @@
-import { Contact } from '@utils/models/contact'
-import { LeadSource } from '@utils/models/lead'
-import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
 import { ContactAddFormData } from 'pages/contacts/add-contact'
+
+import { Contact } from '@utils/models/contact'
+import { LeadSource } from '@utils/models/lead'
+import { Paginate, PagingQuery } from '@utils/models/paging'
 
 export const getContacts =
   (

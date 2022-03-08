@@ -1,17 +1,18 @@
-import Animate from '@utils/components/Animate'
-import ButtonAdd from '@utils/components/ButtonAdd'
-import Input from '@utils/components/Input'
-import { useQueryState } from '@utils/hooks/useQueryState'
+import { Switch, notification } from 'antd'
+import { ViewMode } from 'pages/deals'
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { notification, Switch } from 'antd'
-import { ViewMode } from 'pages/deals'
-import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { Actions } from '@utils/models/role'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { batchDelete } from '@utils/service/deal'
+
+import Animate from '@utils/components/Animate'
+import ButtonAdd from '@utils/components/ButtonAdd'
 import Confirm from '@utils/components/Confirm'
+import Input from '@utils/components/Input'
 import Tooltip from '@utils/components/Tooltip'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useQueryState } from '@utils/hooks/useQueryState'
+import { Actions } from '@utils/models/role'
+import { batchDelete } from '@utils/service/deal'
 
 type Props = {
   search: string | undefined

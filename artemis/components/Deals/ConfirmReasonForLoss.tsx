@@ -1,10 +1,11 @@
-import { Modal } from 'antd'
-import Input from '@utils/components/Input'
-import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { Modal } from 'antd'
 import { useForm } from 'react-hook-form'
-import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
+import * as yup from 'yup'
+
+import Input from '@utils/components/Input'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
 
 type Props = {
   deal: Deal

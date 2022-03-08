@@ -1,7 +1,8 @@
-import MultipleQuery from '@utils/components/MultipleQuery'
-import { AccountType } from '@utils/models/account'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+
+import MultipleQuery from '@utils/components/MultipleQuery'
+import { AccountType } from '@utils/models/account'
 
 type FormData = {
   type: Array<AccountType>

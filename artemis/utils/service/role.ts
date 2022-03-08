@@ -1,7 +1,8 @@
-import { PagingQuery } from '@utils/models/paging'
-import { Role } from '@utils/models/role'
 import axios from 'axios'
 import { API } from 'environment'
+
+import { PagingQuery } from '@utils/models/paging'
+import { Role } from '@utils/models/role'
 
 export const getRoles =
   <T>(params: {} & PagingQuery, token?: string) =>

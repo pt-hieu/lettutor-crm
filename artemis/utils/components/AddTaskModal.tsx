@@ -1,13 +1,14 @@
-import { Modal, Divider } from 'antd'
-import Loading from '@utils/components/Loading'
-import Input from '@utils/components/Input'
-import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
-import * as yup from 'yup'
-import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { Divider, Modal } from 'antd'
 import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useQuery } from 'react-query'
+import * as yup from 'yup'
+
+import Input from '@utils/components/Input'
+import Loading from '@utils/components/Loading'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 
 export interface TaskFormData

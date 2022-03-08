@@ -1,8 +1,8 @@
 import {
-  motion,
   AnimatePresence,
   AnimatePresenceProps,
   Transition,
+  motion,
 } from 'framer-motion'
 import {
   CSSProperties,

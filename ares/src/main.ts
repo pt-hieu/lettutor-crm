@@ -1,10 +1,10 @@
-import 'dotenv/config.js'
 import { NestFactory } from '@nestjs/core'
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
-import morgan from 'morgan'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { config } from 'aws-sdk'
-import { AppModule } from 'src/app.module'
 import { json, urlencoded } from 'body-parser'
+import 'dotenv/config.js'
+import morgan from 'morgan'
+import { AppModule } from 'src/app.module'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)

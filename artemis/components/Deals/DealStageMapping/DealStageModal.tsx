@@ -1,11 +1,13 @@
+import { Divider, Modal } from 'antd'
+import { useState } from 'react'
+
 import Loading from '@utils/components/Loading'
 import {
   DealCategory,
   DealStageData,
   ForecastCategory,
 } from '@utils/models/deal'
-import { Divider, Modal } from 'antd'
-import { useState } from 'react'
+
 import { DealStageTable, TData } from './DealStageTable'
 
 let data: DealStageData[] = [

@@ -1,15 +1,17 @@
 import { Avatar } from 'antd'
-import { useState, useMemo } from 'react'
-import Confirm from './Confirm'
-import { signOut } from 'next-auth/client'
 import { motion } from 'framer-motion'
-import { useModal } from '@utils/hooks/useModal'
-import { data } from '@utils/data/header-data'
+import { signOut } from 'next-auth/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import SettingMenu from './SettingMenu'
+import { useMemo, useState } from 'react'
+
+import { data } from '@utils/data/header-data'
+import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+
+import Confirm from './Confirm'
 import Dropdown from './Dropdown'
+import SettingMenu from './SettingMenu'
 
 export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'

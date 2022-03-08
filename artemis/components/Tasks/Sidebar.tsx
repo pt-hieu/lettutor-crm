@@ -1,7 +1,8 @@
-import MultipleQuery from '@utils/components/MultipleQuery'
-import { TaskPriority, TaskStatus } from '@utils/models/task'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+
+import MultipleQuery from '@utils/components/MultipleQuery'
+import { TaskPriority, TaskStatus } from '@utils/models/task'
 
 type FormData = {
   status: Array<TaskStatus>

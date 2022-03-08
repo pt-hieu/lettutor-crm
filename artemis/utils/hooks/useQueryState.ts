@@ -1,6 +1,13 @@
 import { useRouter } from 'next/router'
-import { useCallback, useDebugValue, useEffect, useMemo, useRef, useState } from 'react'
 import { stringifyUrl } from 'query-string'
+import {
+  useCallback,
+  useDebugValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 export type TUseQueryStateOptions = {
   isArray?: boolean
@@ -79,7 +86,7 @@ export const useQueryState = <T extends string | string[] | number | Date>(
     if (hasEffectRun.current) return
 
     hasEffectRun.current = true
-    shouldUpdateUrl.current= true
+    shouldUpdateUrl.current = true
 
     if (query[name]) {
       let value = query[name]

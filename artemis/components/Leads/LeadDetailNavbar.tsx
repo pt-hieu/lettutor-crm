@@ -1,3 +1,7 @@
+import { notification } from 'antd'
+import { useRouter } from 'next/router'
+import { useMutation } from 'react-query'
+
 import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
@@ -6,9 +10,7 @@ import { useOwnership } from '@utils/hooks/useOwnership'
 import { Lead } from '@utils/models/lead'
 import { Actions } from '@utils/models/role'
 import { batchDelete } from '@utils/service/lead'
-import { notification } from 'antd'
-import { useRouter } from 'next/router'
-import { useMutation } from 'react-query'
+
 import ConvertModal from './ConvertModal'
 
 type Props = {
@@ -68,7 +70,8 @@ const LeadDetailNavbar = ({ lead }: Props) => {
 
           <button disabled className="crm-button">
             <span className="fa fa-envelope mr-2" />
-            Send Email</button>
+            Send Email
+          </button>
 
           {(auth[Actions.Lead.VIEW_AND_EDIT_ALL_LEAD_DETAILS] || isOwner) && (
             <button

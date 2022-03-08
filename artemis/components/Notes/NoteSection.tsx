@@ -1,10 +1,14 @@
-import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
-import { Note, NoteSource } from '@utils/models/note'
-import { FilterNoteType, SortNoteType } from '@utils/service/note'
 import { Select } from 'antd'
 import { useState } from 'react'
+
+import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
+
+import { Note, NoteSource } from '@utils/models/note'
+import { FilterNoteType, SortNoteType } from '@utils/service/note'
+
 import { INoteData, NoteAdder } from './NoteAdder'
 import { NoteContent } from './NoteContent'
+
 const { Option, OptGroup } = Select
 
 enum Filter {
@@ -142,7 +146,15 @@ export const NoteSection = ({
 
         <div className="mb-2 flex flex-col gap-4">
           {notes.map((item) => {
-            const { createdAt, owner, content, title, id, source, attachments } = item
+            const {
+              createdAt,
+              owner,
+              content,
+              title,
+              id,
+              source,
+              attachments,
+            } = item
             return (
               <NoteContent
                 key={id}

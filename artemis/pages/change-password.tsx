@@ -1,12 +1,14 @@
+import { notification } from 'antd'
+import { signOut } from 'next-auth/client'
+import { useCallback } from 'react'
+import { RegisterOptions, useForm } from 'react-hook-form'
+import { useMutation } from 'react-query'
+
 import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
 import { changePassword } from '@utils/service/user'
-import { notification } from 'antd'
-import { signOut } from 'next-auth/client'
-import { useCallback } from 'react'
-import { useForm, RegisterOptions } from 'react-hook-form'
-import { useMutation } from 'react-query'
+
 import { passwordReg } from './reset-password'
 
 interface FormData {

@@ -1,6 +1,13 @@
+import { Table, TableColumnType } from 'antd'
+import { AnimatePresence, motion } from 'framer-motion'
+import { GetServerSideProps } from 'next'
+import Link from 'next/link'
+import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
+
 import Search from '@components/Contacts/Search'
 import ContactsSidebar from '@components/Contacts/Sidebar'
 import ContactsViewLayout from '@components/Contacts/ViewLayout'
+
 import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
@@ -8,11 +15,6 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { Contact } from '@utils/models/contact'
 import { LeadSource } from '@utils/models/lead'
 import { getContacts } from '@utils/service/contact'
-import { Table, TableColumnType } from 'antd'
-import { AnimatePresence, motion } from 'framer-motion'
-import { GetServerSideProps } from 'next'
-import Link from 'next/link'
-import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,

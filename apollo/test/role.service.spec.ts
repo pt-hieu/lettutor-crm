@@ -1,14 +1,15 @@
-import { Role } from 'src/role/role.entity'
-import { Repository } from 'typeorm'
-import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
-import { RoleService } from '../src/role/role.service'
-import { Test, TestingModule } from '@nestjs/testing'
-import { EventEmitterModule } from '@nestjs/event-emitter'
-import { getRepositoryToken } from '@nestjs/typeorm'
-import { role } from './data'
-import { DTO } from 'src/type'
 import { BadRequestException } from '@nestjs/common'
+import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Test, TestingModule } from '@nestjs/testing'
+import { getRepositoryToken } from '@nestjs/typeorm'
 import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
+import { Role } from 'src/role/role.entity'
+import { DTO } from 'src/type'
+import { Repository } from 'typeorm'
+
+import { RoleService } from '../src/role/role.service'
+import { role } from './data'
+import { MockType, mockQueryBuilder, repositoryMockFactory } from './utils'
 
 describe('role service', () => {
   let roleRepo: MockType<Repository<Role>>

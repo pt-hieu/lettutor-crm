@@ -1,4 +1,11 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import { notification } from 'antd'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { QueryClient, dehydrate, useMutation, useQuery } from 'react-query'
+
 import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import { DealUpdateData, Field } from '@utils/data/update-deal-data'
@@ -15,12 +22,7 @@ import { getRawAccounts } from '@utils/service/account'
 import { getRawContacts } from '@utils/service/contact'
 import { addDeal } from '@utils/service/deal'
 import { getRawUsers } from '@utils/service/user'
-import { notification } from 'antd'
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { dehydrate, QueryClient, useMutation, useQuery } from 'react-query'
+
 import { DealUpdateFormData, EditDealSchema } from './[id]/edit'
 
 const AddDeal = () => {

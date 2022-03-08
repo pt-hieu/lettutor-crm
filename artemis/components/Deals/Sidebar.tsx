@@ -1,8 +1,9 @@
+import { useCallback } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+
 import MultipleQuery from '@utils/components/MultipleQuery'
 import { DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
-import { useCallback } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
 
 type FormData = {
   source: Array<LeadSource>

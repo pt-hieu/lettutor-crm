@@ -1,8 +1,25 @@
+import { yupResolver } from '@hookform/resolvers/yup'
+import { notification } from 'antd'
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import {
+  QueryClient,
+  dehydrate,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from 'react-query'
+
 import AccountDetailNavbar from '@components/Accounts/AccountDetailNavbar'
 import AccountDetailSidebar, {
   AccountDetailSections,
 } from '@components/Accounts/AccountDetailSidebar'
-import { yupResolver } from '@hookform/resolvers/yup'
+import LogSection from '@components/Logs/LogSection'
+import { INoteData } from '@components/Notes/NoteAdder'
+import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
+
 import DealInfo from '@utils/components/DealInfo'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
@@ -10,43 +27,29 @@ import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useServerSideOwnership } from '@utils/hooks/useOwnership'
+import { useOwnership } from '@utils/hooks/useOwnership'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account, AccountType } from '@utils/models/account'
+import { LogSource } from '@utils/models/log'
+import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccount, updateAccount } from '@utils/service/account'
-import { getRawUsers, getUsers } from '@utils/service/user'
-import { notification } from 'antd'
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import {
-  dehydrate,
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from 'react-query'
-import { AccountUpdateFormData, editAccountSchema } from './edit'
-import { useOwnership } from '@utils/hooks/useOwnership'
-import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
-import {
+  FilterNoteType,
+  SortNoteType,
   addNote,
   deleteNote,
   editNote,
-  FilterNoteType,
   getNotes,
-  SortNoteType,
 } from '@utils/service/note'
-import { INoteData } from '@components/Notes/NoteAdder'
-import { AddNoteDto } from '@utils/models/note'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
-import LogSection from '@components/Logs/LogSection'
-import { LogSource } from '@utils/models/log'
+import { getRawUsers } from '@utils/service/user'
+
+import { AccountUpdateFormData, editAccountSchema } from './edit'
 
 type AccountInfo = {
   label: string
@@ -374,7 +377,7 @@ const AccountDetail = () => {
               </div>
 
               {openTasks && openTasks.length > 0 ? (
-                <TaskList source='account' tasks={openTasks} />
+                <TaskList source="account" tasks={openTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
@@ -389,7 +392,7 @@ const AccountDetail = () => {
               </div>
 
               {closedTasks && closedTasks.length > 0 ? (
-                <TaskList source='account' tasks={closedTasks} />
+                <TaskList source="account" tasks={closedTasks} />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}

@@ -1,7 +1,8 @@
-import { Log, LogAction, LogSource } from '@utils/models/log'
-import { Paginate, PagingQuery } from '@utils/models/paging'
 import axios from 'axios'
 import { API } from 'environment'
+
+import { Log, LogAction, LogSource } from '@utils/models/log'
+import { Paginate, PagingQuery } from '@utils/models/paging'
 
 export const getLogs =
   (

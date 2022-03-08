@@ -1,7 +1,15 @@
+import { Table, TableColumnType } from 'antd'
+import { AnimatePresence, motion } from 'framer-motion'
+import { GetServerSideProps } from 'next'
+import Link from 'next/link'
+import { useEffect } from 'react'
+import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
+
 import KanbanView from '@components/Deals/KanbanView'
 import DealsSearch from '@components/Deals/Search'
 import DealsSidebar from '@components/Deals/Sidebar'
 import DealsViewLayout from '@components/Deals/ViewLayout'
+
 import Animate from '@utils/components/Animate'
 import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
@@ -11,12 +19,6 @@ import { formatDate } from '@utils/libs/time'
 import { Deal, DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { getDeals } from '@utils/service/deal'
-import { Table, TableColumnType } from 'antd'
-import { AnimatePresence, motion } from 'framer-motion'
-import { GetServerSideProps } from 'next'
-import Link from 'next/link'
-import { useEffect } from 'react'
-import { dehydrate, QueryClient, useQuery, useQueryClient } from 'react-query'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
