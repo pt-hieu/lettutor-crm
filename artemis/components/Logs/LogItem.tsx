@@ -60,12 +60,18 @@ export default memo(function LogItem({
           <div className="mt-2">
             {changes?.map((change) => (
               <div key={change.name + change.to + id + index}>
-                <Tooltip title="View log of this property">
+                <Tooltip
+                  disabled={!selectProperty}
+                  title="View log of this property"
+                >
                   <button
                     onClick={() =>
                       selectProperty && selectProperty(change.name)
                     }
-                    className="font-semibold hover:text-blue-600"
+                    disabled={!selectProperty}
+                    className={`font-semibold ${
+                      selectProperty ? 'hover:text-blue-600' : ''
+                    }`}
                   >
                     {formatName(change.name)}
                   </button>
