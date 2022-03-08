@@ -23,7 +23,7 @@ export default function Header() {
   const splitPath = useMemo(() => pathname.split('/'), [pathname])
 
   return (
-    <header className="z-[100] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
+    <header className="z-[1000] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
       <div className="flex">
         <Link href="/">
           <a className="font-semibold text-xl !text-blue-600 crm-link">

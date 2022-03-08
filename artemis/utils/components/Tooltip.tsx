@@ -51,7 +51,7 @@ export default memo(function Tooltip({
   }, [isHover])
 
   return (
-    <div className="inline-block relative z-[999]" ref={containerRef}>
+    <div className="inline-block relative z-[998]" ref={containerRef}>
       {children}
 
       <Animate

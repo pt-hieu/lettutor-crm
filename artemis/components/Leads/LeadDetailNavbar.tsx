@@ -43,7 +43,7 @@ const LeadDetailNavbar = ({ lead }: Props) => {
   )
 
   return (
-    <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-10 transform translate-y-[-16px]">
+    <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px]">
       <ConvertModal visible={convert} close={closeConvert} />
 
       <div className="flex justify-between items-center">

@@ -36,7 +36,7 @@ const DealDetailNavbar = ({ deal }: Props) => {
   })
 
   return (
-    <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-10 transform translate-y-[-16px]">
+    <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px]">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <span className="font-semibold">{`${fullName}`}</span>
