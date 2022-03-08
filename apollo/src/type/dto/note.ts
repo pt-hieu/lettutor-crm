@@ -1,9 +1,5 @@
-import {
-  ApiPreconditionFailedResponse,
-  ApiProperty,
-  ApiPropertyOptional,
-} from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Transform, Type } from 'class-transformer'
 import {
   IsNotEmpty,
   IsNumber,
@@ -13,10 +9,22 @@ import {
   MaxLength,
 } from 'class-validator'
 import { NoteFilter, NoteSort, NoteSource } from 'src/note/note.entity'
+import { TransformParams } from '../util'
 import { Files } from './file'
 import { Paginate } from './paging'
 
-export class AddNote extends Files {
+interface IAddNote {
+  ownerId?: string
+  leadId?: string
+  contactId?: string
+  accountId?: string
+  dealId?: string
+  title?: string
+  content: string
+  source?: NoteSource
+}
+
+export class AddNote extends Files implements IAddNote {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
@@ -25,21 +33,50 @@ export class AddNote extends Files {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['leadId']>) => {
+      if (obj.source !== NoteSource.LEAD) return null
+      return value
+    },
+  )
   leadId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['contactId']>) => {
+      if (obj.source === NoteSource.LEAD && obj.leadId) return null
+      return value
+    },
+  )
   contactId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['accountId']>) => {
+      if (obj.source === NoteSource.LEAD && obj.leadId) return null
+      return value
+    },
+  )
   accountId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['dealId']>) => {
+      if (
+        (obj.source === NoteSource.LEAD && obj.leadId) ||
+        (obj.source === NoteSource.ACCOUNT && obj.accountId)
+      )
+        return null
+
+      return value
+    },
+  )
   dealId?: string
 
   @ApiPropertyOptional()
@@ -52,7 +89,7 @@ export class AddNote extends Files {
   @IsString()
   @IsNotEmpty()
   @MaxLength(500)
-  content?: string
+  content: string
 
   @ApiPropertyOptional({
     type: NoteSource,
@@ -100,28 +137,62 @@ export class GetManyQuery extends Paginate {
   })
   @IsOptional()
   @IsString()
-  filter?: string
+  filter?: NoteFilter
 }
 
-export class UpdateBody extends Files {
+interface IUpdateBody extends Omit<IAddNote, 'source' | 'ownerId'> {}
+
+export class UpdateBody extends Files implements IUpdateBody {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({
+      value,
+      obj,
+    }: TransformParams<IUpdateBody, IUpdateBody['contactId']>) => {
+      if (obj.leadId) return null
+      return value
+    },
+  )
   contactId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({ value, obj }: TransformParams<IUpdateBody, IUpdateBody['leadId']>) => {
+      if (obj.accountId || obj.contactId || obj.dealId) return null
+      return value
+    },
+  )
   leadId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({
+      value,
+      obj,
+    }: TransformParams<IUpdateBody, IUpdateBody['accountId']>) => {
+      if (obj.leadId) return null
+      if (obj.dealId) return null
+      return value
+    },
+  )
   accountId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({ value, obj }: TransformParams<IUpdateBody, IUpdateBody['dealId']>) => {
+      if (obj.leadId) return null
+      if (obj.accountId) return null
+      return value
+    },
+  )
   dealId?: string
 
   @ApiPropertyOptional()

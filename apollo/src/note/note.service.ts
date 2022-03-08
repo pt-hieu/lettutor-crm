@@ -14,7 +14,6 @@ import { File } from 'src/file/file.entity'
 import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
-import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
 import { FindOneOptions, In, Repository } from 'typeorm'
 import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
@@ -27,9 +26,6 @@ export class NoteService {
 
     @InjectRepository(File)
     private fileRepo: Repository<File>,
-
-    @Inject(forwardRef(() => LeadService))
-    private readonly leadService: LeadService,
 
     @Inject(forwardRef(() => ContactService))
     private readonly contactService: ContactService,
@@ -45,22 +41,10 @@ export class NoteService {
   async addNote(dto: DTO.Note.AddNote) {
     let filesToAdd: File[] = []
     if (dto.files && dto.files.length > 0) {
-      filesToAdd  = await this.fileService.uploadFile(dto.files)
+      filesToAdd = await this.fileService.uploadFile(dto.files)
     }
 
     delete dto.files
-
-    if (dto.leadId && dto.source === NoteSource.LEAD) {
-      dto.accountId = null
-      dto.contactId = null
-      dto.dealId = null
-      dto.ownerId = this.payloadService.data.id
-      dto.source = NoteSource.LEAD
-
-      return this.noteRepo.save({ ...dto, attachments: filesToAdd })
-    }
-
-    dto.leadId = null
 
     if (dto.contactId && dto.source === NoteSource.CONTACT) {
       const contact = await this.contactService.getContactById({
@@ -69,10 +53,6 @@ export class NoteService {
 
       dto.source = NoteSource.CONTACT
       dto.accountId = contact.accountId
-    }
-
-    if (dto.accountId && dto.source === NoteSource.ACCOUNT) {
-      dto.dealId = null
     }
 
     if (dto.dealId && dto.source === NoteSource.DEAL) {
@@ -177,37 +157,12 @@ export class NoteService {
       filesToAdd = await this.fileService.uploadFile(dto.files)
     }
 
-    const filesToDelete = note.attachments.filter((file) =>
-      !dto.attachments.includes(file.id),
+    const filesToDelete = note.attachments.filter(
+      (file) => !dto.attachments.includes(file.id),
     )
 
     await this.fileRepo.remove(filesToDelete)
     note = await this.getNoteById({ where: { id } })
-
-    if (dto.leadId) {
-      await this.leadService.getLeadById({
-        where: { id: dto.leadId },
-      })
-
-      dto.contactId = null
-      dto.accountId = null
-      dto.dealId = null
-
-      return this.noteRepo.save({
-        ...note,
-        ...dto,
-        attachments: [...note.attachments, ...filesToAdd],
-      })
-    }
-
-    if (dto.contactId || dto.accountId || dto.dealId) {
-      dto.leadId = null
-      dto.accountId
-        ? (dto.dealId = null)
-        : dto.dealId
-        ? (dto.accountId = null)
-        : undefined
-    }
 
     return this.noteRepo.save({
       ...note,

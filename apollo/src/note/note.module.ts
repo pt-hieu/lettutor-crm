@@ -5,7 +5,6 @@ import { ContactModule } from 'src/contact/contact.module'
 import { DealModule } from 'src/deal/deal.module'
 import { File } from 'src/file/file.entity'
 import { FileModule } from 'src/file/file.module'
-import { LeadModule } from 'src/lead/lead.module'
 import { NoteController } from './note.controller'
 import { Note } from './note.entity'
 import { NoteService } from './note.service'
@@ -14,7 +13,6 @@ import { NoteSubscriber } from './note.subscriber'
 @Module({
   imports: [
     TypeOrmModule.forFeature([Note, File]),
-    forwardRef(() => LeadModule),
     forwardRef(() => ContactModule),
     forwardRef(() => DealModule),
     FileModule,
