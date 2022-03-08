@@ -1,5 +1,5 @@
 import { useModal } from '@utils/hooks/useModal'
-import { Modal, notification, Tooltip } from 'antd'
+import { Modal, notification } from 'antd'
 import { useForm } from 'react-hook-form'
 import Input from './Input'
 import * as yup from 'yup'
@@ -8,6 +8,7 @@ import { useCallback, useEffect } from 'react'
 import { useMutation } from 'react-query'
 import { createBug } from '@utils/service/bug'
 import Loading from './Loading'
+import Tooltip from './Tooltip'
 
 export type BugSubmitPayload = {
   email: string
@@ -71,8 +72,7 @@ export default function BugReporter() {
   return (
     <div className="fixed bottom-5 right-[100px] z-[1000]">
       <Tooltip
-        title={<div className="text-center">Found a bug?</div>}
-        placement="left"
+        title="Found a bug?"
       >
         <button
           onClick={open}

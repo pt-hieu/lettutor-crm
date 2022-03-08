@@ -1,6 +1,6 @@
 import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
 import { Paginate } from '@utils/models/paging'
-import { notification, Tooltip } from 'antd'
+import { notification } from 'antd'
 import moment from 'moment'
 import { useCallback, useMemo, useState } from 'react'
 import Link from 'next/link'
@@ -16,6 +16,7 @@ import { updateDeal } from '@utils/service/deal'
 import { useModal } from '@utils/hooks/useModal'
 import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
 import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
+import Tooltip from '@utils/components/Tooltip'
 
 type Props = {
   data: Paginate<Deal> | undefined
@@ -244,7 +245,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                               </a>
                             </Link>
 
-                            <Tooltip title="Owner" placement="right">
+                            <Tooltip title="Owner">
                               {owner && (
                                 <span>
                                   {owner?.name}
@@ -253,7 +254,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                               )}
                             </Tooltip>
 
-                            <Tooltip title="Account" placement="right">
+                            <Tooltip title="Account">
                               {account && (
                                 <span>
                                   {account?.fullName}
@@ -262,7 +263,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                               )}
                             </Tooltip>
 
-                            <Tooltip title="Contact" placement="right">
+                            <Tooltip title="Contact">
                               {contact && (
                                 <span>
                                   {contact?.fullName}
@@ -271,7 +272,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                               )}
                             </Tooltip>
 
-                            <Tooltip title="Amount" placement="right">
+                            <Tooltip title="Amount">
                               {amount && (
                                 <span>
                                   {amount && `$${amount}`}
@@ -283,10 +284,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                             <div className="my-2 border-b" />
 
                             <div className="flex justify-between">
-                              <Tooltip
-                                title="Closing Date"
-                                placement={'bottom'}
-                              >
+                              <Tooltip title="Closing Date">
                                 <span className="text-red-500">
                                   {moment(closingDate).format('DD/MM/YYYY')}
                                 </span>
@@ -301,7 +299,6 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                                       title={`${moment(task.dueDate).format(
                                         'MMMM DD',
                                       )} - ${task.subject}`}
-                                      placement={'bottom'}
                                     >
                                       <div>
                                         <Link href={`/tasks/${task.id}`}>

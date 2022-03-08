@@ -1,5 +1,5 @@
-import { Tooltip } from 'antd'
 import { MouseEventHandler, useCallback, useState } from 'react'
+import Tooltip from './Tooltip'
 
 export type SidebarStructure = {
   title: string

@@ -1,6 +1,6 @@
+import Tooltip from '@utils/components/Tooltip'
 import { formatDate } from '@utils/libs/time'
 import { Log, LogAction } from '@utils/models/log'
-import { Tooltip } from 'antd'
 import Link from 'next/link'
 import { memo, ReactNode, useCallback, useMemo } from 'react'
 
@@ -109,7 +109,7 @@ export default memo(function LogItem({
               <Tooltip title="View log of this entity">
                 <button
                   onClick={() => selectEntity(entityId)}
-                  className="fa fa-filter text-gray-500"
+                  className="fa fa-circle-notch text-gray-500 inline-block ml-1"
                 />
               </Tooltip>
             )}

@@ -15,7 +15,7 @@ import {
   useQuery,
   useQueryClient,
 } from 'react-query'
-import { notification, Tooltip } from 'antd'
+import { notification} from 'antd'
 import Confirm from '@utils/components/Confirm'
 import { Props } from '@utils/components/Input'
 import { FieldErrors, useForm, UseFormRegister } from 'react-hook-form'
@@ -30,6 +30,7 @@ import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
 import LogSection from '@components/Logs/LogSection'
 import { LogSource } from '@utils/models/log'
+import Tooltip from '@utils/components/Tooltip'
 
 enum Relatives {
   LEAD = 'lead',

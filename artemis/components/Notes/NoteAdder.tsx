@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Tooltip } from 'antd'
+import Tooltip from '@utils/components/Tooltip'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -218,7 +218,7 @@ export const NoteTextBox = ({
       <div className="border-b"></div>
       <div className="flex flex-row gap-2 p-2 pl-4 justify-between items-start">
         <div className="mt-2">
-          <Tooltip title="Upload file" mouseEnterDelay={1}>
+          <Tooltip title="Upload file">
             <label
               className="fa fa-thumb-tack cursor-pointer hover:text-gray-600"
               htmlFor="file"

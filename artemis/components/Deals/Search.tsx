@@ -4,13 +4,14 @@ import Input from '@utils/components/Input'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { notification, Switch, Tooltip } from 'antd'
+import { notification, Switch } from 'antd'
 import { ViewMode } from 'pages/deals'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Actions } from '@utils/models/role'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { batchDelete } from '@utils/service/deal'
 import Confirm from '@utils/components/Confirm'
+import Tooltip from '@utils/components/Tooltip'
 
 type Props = {
   search: string | undefined

@@ -1,4 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 import {
   IsDate,
   IsEnum,
@@ -31,13 +32,15 @@ export class GetManyLogs extends Paginate {
   action?: LogAction
 
   @ApiPropertyOptional({ type: Date })
-  @IsOptional()
   @IsDate()
+  @IsOptional()
+  @Type(() => Date)
   from?: Date
 
   @ApiPropertyOptional({ type: Date })
   @IsDate()
   @IsOptional()
+  @Type(() => Date)
   to?: Date
 
   @ApiPropertyOptional()

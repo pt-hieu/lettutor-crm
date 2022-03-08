@@ -1,9 +1,10 @@
+import Tooltip from '@utils/components/Tooltip'
 import {
   DealCategory,
   DealStageData,
   ForecastCategory,
 } from '@utils/models/deal'
-import { Empty, Popconfirm, Table, Tooltip } from 'antd'
+import { Empty, Popconfirm, Table } from 'antd'
 import { arrayMoveImmutable } from 'array-move'
 import {
   SortableContainer,
