@@ -7,8 +7,8 @@
     "db": "docker exec -it postgres psql -U postgres",
     "athena": "cd athena && terraform",
     "tool": "cd athena && terraformer",
-    "build:script": "tsc ./script.ts",
-    "up": "node ./script.js -b",
+    "build:script": "tsc ./script.ts --esModuleInterop",
+    "crm": "node ./script.js",
     "format": "prettier --write {artemis,apollo,zeus,ares}/**/*.{ts,tsx}"
   },
   "devDependencies": {

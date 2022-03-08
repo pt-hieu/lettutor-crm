@@ -1,36 +1,115 @@
-import * as yargs from 'yargs'
 import { exec } from 'child_process'
+import { hideBin } from 'yargs/helpers'
+import yargs from 'yargs/yargs'
 
-const choices = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus']
-const agrv = yargs.options({
-  b: { type: 'array', choices, required: true, default: choices },
-  i: { type: 'boolean', default: false },
-  s: { type: 'array', choices, required: false, default: [] },
-}).argv
-
-let command: string = ''
-
-if ('then' in agrv) {
-  yargs.exit(1, new Error('Script failed'))
-} else {
-  const blocks = agrv.b.filter(
-    (choice) => !(agrv.s as string[]).includes(choice),
-  )
-
-  if (agrv.i) {
-    command =
-      'concurrently ' +
-      blocks.map((choice) => `"cd ${choice} && yarn"`).join(' ')
-  } else {
-    command =
-      'concurrently -k ' +
-      blocks.map((choice) => `"cd ${choice} && yarn dev"`).join(' ')
-  }
-
-  command += ' --names ' + blocks.join(',')
-
+function run(command: string) {
   console.log(command)
+
+  const concurrentProc = exec(command, () => {})
+  concurrentProc?.stdout?.pipe(process.stdout)
 }
 
-const concurrentProc = exec(command, () => {})
-concurrentProc?.stdout?.pipe(process.stdout)
+const services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus']
+yargs(hideBin(process.argv))
+  .command(
+    'add <service> <dependency..>',
+    'Install dependencies',
+    (y) => {
+      return y
+        .positional('service', {
+          choices: services,
+          demandOption: true,
+        })
+        .positional('dependency', {
+          array: true,
+          demandOption: true,
+        })
+        .options({
+          D: {
+            boolean: true,
+            default: false,
+            description: 'Add to devDependency',
+          },
+        })
+    },
+    (agrv) => {
+      const command = `cd ${agrv.service} && yarn add${
+        agrv.D ? ' -D ' : ' '
+      }${agrv.dependency.join(' ')}`
+
+      run(command)
+    },
+  )
+  .command(
+    'remove <service> <dependency..>',
+    'Uninstall dependencies',
+    (y) => {
+      return y
+        .positional('service', {
+          choices: services,
+          demandOption: true,
+        })
+        .positional('dependency', {
+          array: true,
+          demandOption: true,
+        })
+    },
+    (agrv) => {
+      const command = `cd ${agrv.service} && yarn remove ${agrv.dependency.join(
+        ' ',
+      )}`
+
+      run(command)
+    },
+  )
+  .command(
+    'init [services..]',
+    'Init dependencies at CRM services',
+    (y) => {
+      return y.positional('services', {
+        choices: services,
+        array: true,
+        default: services,
+        demandOption: false,
+      })
+    },
+    (agrv) => {
+      const command = `concurrently ${agrv.services
+        .map((service) => `"cd ${service}" && yarn`)
+        .join(' ')} --names ${agrv.services.join(',')}`
+
+      run(command)
+    },
+  )
+  .command(
+    'dev [services..]',
+    'Run CRM services in local environment',
+    (y) => {
+      return y
+        .positional('services', {
+          demandOption: false,
+          default: services,
+          choices: services,
+          array: true,
+        })
+        .option('ignore', {
+          alias: 'I',
+          type: 'string',
+          array: true,
+          choices: services,
+          default: [],
+          demandOption: false,
+        })
+    },
+    (agrv) => {
+      const servicesToRun = agrv.services.filter(
+        (service) => !(agrv.ignore as string[]).includes(service),
+      )
+      const command = `concurrently -k ${servicesToRun
+        .map((service) => `"cd ${service} && yarn dev"`)
+        .join(' ')} --names ${servicesToRun.join(',')}`
+
+      run(command)
+    },
+  )
+  .parse()
