@@ -62,6 +62,10 @@
     @apply px-[60px] py-4;
   }
 
+  .crm-self-container {
+    @apply -mx-[60px] px-[60px];
+  }
+
   .crm-scrollbar {
     scrollbar-color: rgba(37, 99, 235, 1) white;
     scrollbar-width: thin;

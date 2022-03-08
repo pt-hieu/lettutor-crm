@@ -38,7 +38,7 @@ const TaskDetailNavbar = ({ task }: Props) => {
   )
 
   return (
-    <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px]">
+    <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px] crm-self-container">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <i className="fas fa-tasks mr-2 text-slate-500 text-lg"></i>
