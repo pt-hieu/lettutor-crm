@@ -83,7 +83,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'dev [services..]',
-    'Run CRM services in local environment',
+    'Run CRM services in local environment, default to run all services',
     (y) => {
       return y
         .positional('services', {
@@ -92,18 +92,19 @@ yargs(hideBin(process.argv))
           choices: services,
           array: true,
         })
-        .option('ignore', {
-          alias: 'I',
+        .option('skip', {
+          alias: 'S',
           type: 'string',
           array: true,
           choices: services,
           default: [],
           demandOption: false,
+          description: 'CRM services to skip',
         })
     },
     (agrv) => {
       const servicesToRun = agrv.services.filter(
-        (service) => !(agrv.ignore as string[]).includes(service),
+        (service) => !(agrv.skip as string[]).includes(service),
       )
       const command = `concurrently -k ${servicesToRun
         .map((service) => `"cd ${service} && yarn dev"`)

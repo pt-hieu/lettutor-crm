@@ -62,7 +62,7 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
         .join(' '), " --names ").concat(agrv.services.join(','));
     run(command);
 })
-    .command('dev [services..]', 'Run CRM services in local environment', function (y) {
+    .command('dev [services..]', 'Run CRM services in local environment, default to run all services', function (y) {
     return y
         .positional('services', {
         demandOption: false,
@@ -70,16 +70,17 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
         choices: services,
         array: true
     })
-        .option('ignore', {
-        alias: 'I',
+        .option('skip', {
+        alias: 'S',
         type: 'string',
         array: true,
         choices: services,
         "default": [],
-        demandOption: false
+        demandOption: false,
+        description: 'CRM services to skip'
     });
 }, function (agrv) {
-    var servicesToRun = agrv.services.filter(function (service) { return !agrv.ignore.includes(service); });
+    var servicesToRun = agrv.services.filter(function (service) { return !agrv.skip.includes(service); });
     var command = "concurrently -k ".concat(servicesToRun
         .map(function (service) { return "\"cd ".concat(service, " && yarn dev\""); })
         .join(' '), " --names ").concat(servicesToRun.join(','));
