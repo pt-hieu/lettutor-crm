@@ -214,6 +214,6 @@ export class UserService {
 
   async batchDelete(ids: string[]) {
     const users = await this.userRepo.find({ where: { id: In(ids) } })
-    return this.userRepo.remove(users)
+    return this.userRepo.softRemove(users)
   }
 }

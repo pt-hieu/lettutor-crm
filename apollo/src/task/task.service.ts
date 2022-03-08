@@ -204,6 +204,6 @@ export class TaskService {
 
   async batchDelete(ids: string[]) {
     const tasks = await this.taskRepo.find({ where: { id: In(ids) } })
-    return this.taskRepo.remove(tasks)
+    return this.taskRepo.softRemove(tasks)
   }
 }

@@ -66,13 +66,9 @@ const LeadDetailNavbar = ({ lead }: Props) => {
             </Confirm>
           )}
 
-          <button className="crm-button">Send Email</button>
-
-          {(auth[Actions.Lead.VIEW_AND_CONVERT_LEAD_DETAILS] || isOwner) && (
-            <button onClick={openConvert} className="crm-button-secondary">
-              Convert
-            </button>
-          )}
+          <button disabled className="crm-button">
+            <span className="fa fa-envelope mr-2" />
+            Send Email</button>
 
           {(auth[Actions.Lead.VIEW_AND_EDIT_ALL_LEAD_DETAILS] || isOwner) && (
             <button
@@ -80,6 +76,13 @@ const LeadDetailNavbar = ({ lead }: Props) => {
               onClick={navigateToEditPage}
             >
               <span className="fa fa-edit mr-2" /> Edit
+            </button>
+          )}
+
+          {(auth[Actions.Lead.VIEW_AND_CONVERT_LEAD_DETAILS] || isOwner) && (
+            <button onClick={openConvert} className="crm-button-secondary">
+              <span className="fa fa-arrow-right mr-2" />
+              Convert
             </button>
           )}
         </div>

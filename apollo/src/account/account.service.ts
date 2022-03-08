@@ -146,6 +146,6 @@ export class AccountService {
       }
     }
 
-    return this.accountRepo.remove(accounts)
+    return this.accountRepo.softRemove(accounts)
   }
 }

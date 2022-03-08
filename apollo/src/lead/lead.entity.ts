@@ -62,7 +62,7 @@ export class Lead extends Ownerful {
   @Column({ type: 'varchar', nullable: true, default: null })
   socialAccount: string | null
 
-  @OneToMany(() => Task, (task) => task.lead)
+  @OneToMany(() => Task, (task) => task.lead, { cascade: true })
   tasks: Task[]
 
   @OneToMany(() => Note, (note) => note.lead, { cascade: true })

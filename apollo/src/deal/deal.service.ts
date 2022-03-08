@@ -170,6 +170,6 @@ export class DealService {
       }
     }
 
-    return this.dealRepo.remove(deals)
+    return this.dealRepo.softRemove(deals)
   }
 }

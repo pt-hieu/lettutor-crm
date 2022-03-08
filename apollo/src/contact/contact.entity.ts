@@ -44,7 +44,7 @@ export class Contact extends Ownerful {
   @Column({ type: 'varchar', nullable: true, default: null })
   socialAccount: string | null
 
-  @OneToMany(() => Task, (task) => task.contact)
+  @OneToMany(() => Task, (task) => task.contact, { cascade: true })
   tasks: Task[]
 
   @OneToMany(() => Note, (note) => note.contact, { cascade: true })

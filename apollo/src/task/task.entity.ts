@@ -24,11 +24,11 @@ export enum TaskStatus {
 
 @Entity({ name: 'task' })
 export class Task extends Ownerful {
-  @ManyToOne(() => Lead, (lead) => lead.tasks)
+  @ManyToOne(() => Lead, (lead) => lead.tasks, { onDelete: 'CASCADE' })
   @JoinColumn()
   lead: Lead
 
-  @ManyToOne(() => Contact, (contact) => contact.tasks)
+  @ManyToOne(() => Contact, (contact) => contact.tasks, { onDelete: 'CASCADE' })
   @JoinColumn()
   contact: Contact
 
@@ -40,7 +40,7 @@ export class Task extends Ownerful {
   @Exclude({ toPlainOnly: true })
   leadId: string | null
 
-  @ManyToOne(() => Account, (account) => account.tasks)
+  @ManyToOne(() => Account, (account) => account.tasks, { onDelete: 'CASCADE' })
   @JoinColumn()
   account: Account
 
@@ -48,7 +48,7 @@ export class Task extends Ownerful {
   @Exclude({ toPlainOnly: true })
   accountId: string
 
-  @ManyToOne(() => Deal, (deal) => deal.tasks)
+  @ManyToOne(() => Deal, (deal) => deal.tasks, { onDelete: 'CASCADE' })
   @JoinColumn()
   deal: Deal
 

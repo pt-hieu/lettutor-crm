@@ -38,23 +38,23 @@ export class User extends BaseEntity {
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
   status: UserStatus
 
-  @OneToMany(() => Lead, (lead) => lead.owner)
+  @OneToMany(() => Lead, (lead) => lead.owner, { cascade: true })
   @Exclude({ toPlainOnly: true })
   leads: Lead[]
 
-  @OneToMany(() => Contact, (contact) => contact.owner)
+  @OneToMany(() => Contact, (contact) => contact.owner, { cascade: true })
   @Exclude({ toPlainOnly: true })
   contacts: Contact[]
 
-  @OneToMany(() => Deal, (deal) => deal.owner)
+  @OneToMany(() => Deal, (deal) => deal.owner, { cascade: true })
   @Exclude({ toPlainOnly: true })
   deals: Deal[]
 
-  @OneToMany(() => Account, (account) => account.owner)
+  @OneToMany(() => Account, (account) => account.owner, { cascade: true })
   @Exclude({ toPlainOnly: true })
   accounts: Account[]
 
-  @OneToMany(() => Task, (task) => task.owner)
+  @OneToMany(() => Task, (task) => task.owner, { cascade: true })
   @Exclude({ toPlainOnly: true })
   tasks: Task[]
 

@@ -58,7 +58,7 @@ export class Deal extends Ownerful {
   @Column({ type: 'varchar', nullable: true, default: 10 })
   description: string | null
 
-  @OneToMany(() => Task, (task) => task.deal)
+  @OneToMany(() => Task, (task) => task.deal, { cascade: true })
   tasks: Task[]
 
   @OneToMany(() => Note, (note) => note.deal, { cascade: true })

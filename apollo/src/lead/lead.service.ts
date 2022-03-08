@@ -221,6 +221,6 @@ export class LeadService {
       }
     }
 
-    return this.leadRepo.remove(leads)
+    return this.leadRepo.softRemove(leads)
   }
 }

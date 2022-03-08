@@ -147,6 +147,6 @@ export class ContactService {
       }
     }
 
-    return this.contactRepo.remove(contacts)
+    return this.contactRepo.softRemove(contacts)
   }
 }
