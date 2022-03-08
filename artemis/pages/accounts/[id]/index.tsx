@@ -372,6 +372,7 @@ const AccountDetail = () => {
               >
                 {AccountDetailSections.OpenActivities}
               </div>
+
               {openTasks && openTasks.length > 0 ? (
                 <TaskList tasks={openTasks} />
               ) : (
