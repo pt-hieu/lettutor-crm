@@ -18,8 +18,7 @@ WORKDIR /app
 
 ENV NODE_ENV dev
 
-COPY --from=builder /app/package.json .
-COPY --from=builder /app/script.js .
+COPY --from=builder /app/package.json /app/script.js /app/deps.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
 COPY --from=builder /app/ares/dist ./ares/dist
