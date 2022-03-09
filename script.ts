@@ -1,5 +1,8 @@
+import deps from './deps.json'
+import packageJson from './package.json'
 import chalk from 'chalk'
 import { exec } from 'child_process'
+import fs from 'fs'
 import { hideBin } from 'yargs/helpers'
 import yargs from 'yargs/yargs'
 
@@ -12,7 +15,11 @@ function capitalize(str: string) {
   return str.charAt(0).toLocaleUpperCase() + str.slice(1)
 }
 
-const services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus']
+function keys<T = object>(o: T): Array<keyof T> {
+  return Object.keys(o) as any
+}
+
+const services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'] as const
 yargs(hideBin(process.argv))
   .command(
     'add <service> <dependency..>',
@@ -36,9 +43,21 @@ yargs(hideBin(process.argv))
         })
     },
     (agrv) => {
-      const command = `cd ${agrv.service} && yarn add${
-        agrv.D ? ' -D ' : ' '
-      }${agrv.dependency.join(' ')}`
+      const command = `yarn add${agrv.D ? ' -D ' : ' '}${agrv.dependency.join(
+        ' ',
+      )}`
+
+      const depsToSave = { ...deps } as Record<
+        typeof services[number],
+        string[]
+      >
+
+      depsToSave[agrv.service] = depsToSave[agrv.service].concat(
+        agrv.dependency as string[],
+      )
+      depsToSave[agrv.service] = [...new Set(depsToSave[agrv.service])]
+
+      fs.writeFileSync('deps.json', JSON.stringify(depsToSave, undefined, 2))
 
       console.log(
         chalk.green(
@@ -66,9 +85,18 @@ yargs(hideBin(process.argv))
         })
     },
     (agrv) => {
-      const command = `cd ${agrv.service} && yarn remove ${agrv.dependency.join(
-        ' ',
-      )}`
+      const command = `yarn remove ${agrv.dependency.join(' ')}`
+
+      const depsToSave = { ...deps } as Record<
+        typeof services[number],
+        string[]
+      >
+
+      depsToSave[agrv.service] = depsToSave[agrv.service].filter(
+        (deps) => !(agrv.dependency as string[]).includes(deps),
+      )
+
+      fs.writeFileSync('deps.json', JSON.stringify(depsToSave, undefined, 2))
 
       console.log(
         chalk.green(
@@ -82,26 +110,105 @@ yargs(hideBin(process.argv))
     },
   )
   .command(
-    'init [services..]',
-    'Init dependencies at CRM services',
+    'localize <service>',
+    'Localize dependencies for a specific CRM service',
     (y) => {
-      return y.positional('services', {
+      return y.positional('service', {
         choices: services,
-        array: true,
-        default: services,
-        demandOption: false,
+        demandOption: true,
       })
     },
     (agrv) => {
-      const command = `concurrently ${agrv.services
-        .map((service) => `"cd ${service}" && yarn`)
-        .join(' ')} --names ${agrv.services.join(',')}`
+      const depsToFilter = { ...deps } as Record<
+        typeof services[number],
+        string[]
+      >
+
+      const packageJsonToSave = { ...packageJson }
+      keys(packageJsonToSave.dependencies).forEach((key) => {
+        if (depsToFilter[agrv.service].includes(key)) return
+        delete packageJsonToSave.dependencies[key]
+      })
+
+      keys(packageJsonToSave.devDependencies).forEach((key) => {
+        if (depsToFilter[agrv.service].includes(key)) return
+        delete packageJsonToSave.devDependencies[key]
+      })
 
       console.log(
         chalk.green(
-          `\n[CRM] Initializing dependencies in ${chalk.bold(
-            agrv.services.map((s) => capitalize(s)).join(', '),
+          `\n[CRM] Localizing dependencies in ${chalk.bold(
+            capitalize(agrv.service),
           )}\n`,
+        ),
+      )
+
+      fs.writeFileSync(
+        'package.json',
+        JSON.stringify(packageJsonToSave, undefined, 2),
+      )
+    },
+  )
+  .command(
+    'build <service>',
+    'Build CRM service',
+    (y) => {
+      return y
+        .positional('service', {
+          demandOption: true,
+          choices: services,
+        })
+        .option('dev', {
+          alias: 'D',
+          boolean: true,
+          defaul: false,
+          demandOption: false,
+          description: 'Build using dev environment',
+        })
+    },
+    (agrv) => {
+      const command = `cd ${agrv.service} && npm run build${
+        agrv.dev ? ':dev' : ''
+      }`
+
+      console.log(
+        chalk.green(
+          `\n[CRM] Building ${capitalize(agrv.service)}${
+            agrv.dev ? ' targeting dev environment' : ''
+          }\n`,
+        ),
+      )
+
+      run(command)
+    },
+  )
+  .command(
+    'start <service>',
+    'Start CRM service',
+    (y) => {
+      return y
+        .positional('service', {
+          demandOption: true,
+          choices: services,
+        })
+        .option('dev', {
+          alias: 'D',
+          boolean: true,
+          defaul: false,
+          demandOption: false,
+          description: 'Start using dev environment',
+        })
+    },
+    (agrv) => {
+      const command = `cd ${agrv.service} && npm run start${
+        agrv.dev ? ':dev' : ''
+      }`
+
+      console.log(
+        chalk.green(
+          `\n[CRM] Starting ${capitalize(agrv.service)}${
+            agrv.dev ? ' targeting dev environment' : ''
+          }\n`,
         ),
       )
 

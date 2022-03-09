@@ -1,15 +1,17 @@
 FROM node:14-alpine AS builder
 RUN apk add --no-cache libc6-compat
-
 WORKDIR /app
 
-COPY ./package.json ./yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package.json yarn.lock script.js deps.json ./
 
-COPY ./ ./
+RUN npm install chalk@^4.1.2 && npm install yargs
+RUN yarn crm localize artemis
+
+RUN yarn install --frozen-lockfile
+COPY ./artemis ./artemis
 
 RUN npm install -g typescript
-RUN yarn build:dev && yarn --production --ignore-scripts --prefer-offline
+RUN yarn crm build artemis -D && yarn --production --ignore-scripts --prefer-offline
 
 FROM node:alpine AS runner
 WORKDIR /app
@@ -19,14 +21,17 @@ ENV NODE_ENV development
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/script.js .
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.env ./.env
-COPY --from=builder /app/.env.development ./.env.development
+
+COPY --from=builder /app/artemis/public ./artemis/public
+COPY --from=builder --chown=nextjs:nodejs /app/artemis/.next ./artemis/.next
+COPY --from=builder /app/artemis/package.json ./artemis/package.json
+COPY --from=builder /app/artemis/.env ./artemis/.env
+COPY --from=builder /app/artemis/.env.development ./artemis/.env.development
 
 USER nextjs
 
 EXPOSE 3000
-CMD ["yarn", "start:dev"]
+CMD ["npm", "run", "crm", "start", "artemis", "-D"]
