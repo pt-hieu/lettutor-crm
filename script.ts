@@ -1,12 +1,15 @@
+import chalk from 'chalk'
 import { exec } from 'child_process'
 import { hideBin } from 'yargs/helpers'
 import yargs from 'yargs/yargs'
 
 function run(command: string) {
-  console.log(command)
-
   const concurrentProc = exec(command, () => {})
   concurrentProc?.stdout?.pipe(process.stdout)
+}
+
+function capitalize(str: string) {
+  return str.charAt(0).toLocaleUpperCase() + str.slice(1)
 }
 
 const services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus']
@@ -28,7 +31,7 @@ yargs(hideBin(process.argv))
           D: {
             boolean: true,
             default: false,
-            description: 'Add to devDependency',
+            description: 'Add to devDependencies',
           },
         })
     },
@@ -36,6 +39,14 @@ yargs(hideBin(process.argv))
       const command = `cd ${agrv.service} && yarn add${
         agrv.D ? ' -D ' : ' '
       }${agrv.dependency.join(' ')}`
+
+      console.log(
+        chalk.green(
+          `\n[CRM] Adding ${chalk.bold(agrv.dependency.join(', '))} to ${
+            agrv.D ? 'devDependencies' : 'dependencies'
+          } of ${chalk.bold(capitalize(agrv.service))}\n`,
+        ),
+      )
 
       run(command)
     },
@@ -59,6 +70,14 @@ yargs(hideBin(process.argv))
         ' ',
       )}`
 
+      console.log(
+        chalk.green(
+          `\n[CRM] Removing ${chalk.bold(agrv.dependency.join(', '))} in ${
+            agrv.D ? 'devDependencies' : 'dependencies'
+          } of ${chalk.bold(capitalize(agrv.service))}\n`,
+        ),
+      )
+
       run(command)
     },
   )
@@ -77,6 +96,14 @@ yargs(hideBin(process.argv))
       const command = `concurrently ${agrv.services
         .map((service) => `"cd ${service}" && yarn`)
         .join(' ')} --names ${agrv.services.join(',')}`
+
+      console.log(
+        chalk.green(
+          `\n[CRM] Initializing dependencies in ${chalk.bold(
+            agrv.services.map((s) => capitalize(s)).join(', '),
+          )}\n`,
+        ),
+      )
 
       run(command)
     },
@@ -109,6 +136,20 @@ yargs(hideBin(process.argv))
       const command = `concurrently -k ${servicesToRun
         .map((service) => `"cd ${service} && yarn dev"`)
         .join(' ')} --names ${servicesToRun.join(',')}`
+
+      console.log(
+        chalk.green(
+          `\n[CRM] Starting ${chalk.bold(
+            servicesToRun.map((s) => capitalize(s)).join(', '),
+          )}${
+            agrv.skip.length
+              ? `, skipping ${chalk.bold(
+                  (agrv.skip as string[]).map((s) => capitalize(s)).join(', '),
+                )}`
+              : ''
+          }\n`,
+        ),
+      )
 
       run(command)
     },
