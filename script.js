@@ -88,7 +88,7 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
 }, function (agrv) {
     var servicesToRun = agrv.services.filter(function (service) { return !agrv.skip.includes(service); });
     var command = "concurrently -k ".concat(servicesToRun
-        .map(function (service) { return "\"cd ".concat(service, " && yarn dev\""); })
+        .map(function (service) { return "\"cd ".concat(service, " && npm run dev\""); })
         .join(' '), " --names ").concat(servicesToRun.join(','));
     console.log(chalk_1["default"].green("\n[CRM] Starting ".concat(chalk_1["default"].bold(servicesToRun.map(function (s) { return capitalize(s); }).join(', '))).concat(agrv.skip.length
         ? ", skipping ".concat(chalk_1["default"].bold(agrv.skip.map(function (s) { return capitalize(s); }).join(', ')))

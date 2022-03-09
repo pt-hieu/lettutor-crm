@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { compare, hash } from 'bcrypt'
+import { compare, hash } from 'bcryptjs'
 import { Response } from 'express'
 import { Repository } from 'typeorm'
 

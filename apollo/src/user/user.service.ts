@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { compare, hash } from 'bcrypt'
+import { compare, hash } from 'bcryptjs'
 import { randomBytes } from 'crypto'
 import moment from 'moment'
 import { paginate } from 'nestjs-typeorm-paginate'

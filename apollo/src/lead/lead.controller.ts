@@ -12,7 +12,7 @@ import {
   Query,
 } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
-import { plainToClass } from 'class-transformer'
+import { plainToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 
 import { DefineAction } from 'src/action.decorator'
@@ -81,7 +81,7 @@ export class LeadController {
     let dto: DTO.Deal.ConvertToDeal
 
     if (shouldConvertToDeal) {
-      dto = plainToClass(DTO.Deal.ConvertToDeal, body, {
+      dto = plainToInstance(DTO.Deal.ConvertToDeal, body, {
         ignoreDecorators: false,
       })
 

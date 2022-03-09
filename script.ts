@@ -134,7 +134,7 @@ yargs(hideBin(process.argv))
         (service) => !(agrv.skip as string[]).includes(service),
       )
       const command = `concurrently -k ${servicesToRun
-        .map((service) => `"cd ${service} && yarn dev"`)
+        .map((service) => `"cd ${service} && npm run dev"`)
         .join(' ')} --names ${servicesToRun.join(',')}`
 
       console.log(
