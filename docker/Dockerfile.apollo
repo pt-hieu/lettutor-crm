@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock script.js deps.json ./
 
-RUN npm install chalk@^4.1.2 && npm install yargs
+RUN npm install chalk@^4.1.2 --force && npm install yargs --force
 RUN yarn crm localize apollo
 
 RUN yarn install --frozen-lockfile
