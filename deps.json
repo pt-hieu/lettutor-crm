@@ -41,7 +41,9 @@
     "ts-loader",
     "ts-node",
     "tsconfig-paths",
-    "typescript"
+    "typescript",
+    "yagrs",
+    "chalk"
   ],
   "ares": [
     "@nestjs/common",
@@ -66,7 +68,9 @@
     "ts-loader",
     "ts-node",
     "tsconfig-paths",
-    "typescript"
+    "typescript",
+    "yagrs",
+    "chalk"
   ],
   "artemis": [
     "@hookform/resolvers",
@@ -105,7 +109,9 @@
     "postcss",
     "sass",
     "tailwindcss",
-    "typescript"
+    "typescript",
+    "yagrs",
+    "chalk"
   ],
   "zeus": [
     "@nestjs/axios",
@@ -133,7 +139,9 @@
     "ts-loader",
     "ts-node",
     "tsconfig-paths",
-    "typescript"
+    "typescript",
+    "yagrs",
+    "chalk"
   ],
   "hades": [
     "pg",
@@ -148,6 +156,8 @@
     "@strapi/plugin-users-permissions",
     "@strapi/provider-upload-aws-s3",
     "@strapi/strapi",
-    "pg"
+    "pg",
+    "yagrs",
+    "chalk"
   ]
 }
