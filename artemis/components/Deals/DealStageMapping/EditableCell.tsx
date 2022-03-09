@@ -56,8 +56,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   const save = async () => {
     try {
       const value = form.getFieldValue(dataIndex)
-      if (value && value.trim() === record[dataIndex]) return
-
+      if (value && String(value).trim() === String(record[dataIndex])) return
       const values = await form.validateFields()
       handleSave({ ...record, ...values })
     } catch (errInfo) {
@@ -94,6 +93,10 @@ export const EditableCell: React.FC<EditableCellProps> = ({
                   whitespace: true,
                   message: `${title} is required.`,
                 },
+                {
+                  max: 100,
+                  message: `${title} must be at most 100 characters.`,
+                },
               ]
         }
       >
@@ -110,7 +113,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
             ref={inputRef}
             onPressEnter={save}
             onBlur={save}
-            className="w-full"
+            className="w-full max-h-[32px]"
             maxLength={dataIndex === 'probability' ? 5 : undefined}
           />
         )}

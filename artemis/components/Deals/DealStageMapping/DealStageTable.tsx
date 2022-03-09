@@ -27,10 +27,11 @@ const SortableBody = SortableContainer((props: any) => (
 export interface TData extends DealStageData {
   isNew?: boolean
   isDeleted?: boolean
+  isUpdated?: boolean
 }
 
 interface IProps {
-  dataSource: DealStageData[]
+  dataSource: TData[]
   setDataSource: (data: TData[]) => void
 }
 
@@ -47,8 +48,8 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
         [].concat(dataSource as any),
         oldIndex,
         newIndex,
-      ).filter((el) => !!el)
-      console.log('Sorted items: ', newData)
+      ).filter((el) => !!el) as TData[]
+
       setDataSource(newData)
     }
   }
@@ -77,13 +78,17 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     newData.splice(index, 1, {
       ...item,
       ...row,
+      isUpdated: true,
     })
     setDataSource(newData)
   }
 
   const handleDelete = (key: React.Key) => {
-    const newDataSource = [...dataSource]
-    setDataSource(newDataSource.filter((item) => item.id !== key))
+    const newData = [...dataSource]
+    const index = newData.findIndex((item) => item.id === key)
+    if (index < 0) return
+    newData[index].isDeleted = true
+    setDataSource(newData)
   }
 
   const handleAdd = (id: string | null) => {
@@ -100,9 +105,8 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
       setDataSource([newData])
     }
     const index = dataSource.findIndex((item) => item.id === id)
-    if (index < 0) {
-      return
-    }
+
+    if (index < 0) return
 
     const newDataSource = dataSource.filter((item) => item.name)
     newDataSource.splice(index + 1, 0, newData)
@@ -207,7 +211,7 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
   return (
     <Table
       pagination={false}
-      dataSource={dataSource}
+      dataSource={dataSource.filter((item) => !item.isDeleted)}
       columns={mapColumns}
       rowKey="id"
       bordered

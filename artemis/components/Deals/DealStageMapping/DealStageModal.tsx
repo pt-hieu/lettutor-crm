@@ -1,5 +1,6 @@
-import { Divider, Modal } from 'antd'
+import { Divider, Modal, notification } from 'antd'
 import { useState } from 'react'
+import { useMutation } from 'react-query'
 
 import Loading from '@utils/components/Loading'
 import {
@@ -7,6 +8,7 @@ import {
   DealStageData,
   ForecastCategory,
 } from '@utils/models/deal'
+import { updateDealStage } from '@utils/service/deal'
 
 import { DealStageTable, TData } from './DealStageTable'
 
@@ -43,11 +45,21 @@ type Props = {
 export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
   const [dataSource, setDataSource] = useState(data)
 
+  const { mutateAsync } = useMutation('update-deal-stage', updateDealStage, {
+    onSuccess: () => {
+      notification.success({ message: 'Update deal stage successfully' })
+    },
+    onError: () => {
+      notification.error({ message: 'Update deal stage unsuccessfully' })
+    },
+  })
+
   const submitModal = () => {
-    const validDatas = dataSource.filter((item) => isValidData(item))
+    const validDatas = dataSource.filter(isValidData).map(formatData)
     data = validDatas
 
     setDataSource(data)
+    mutateAsync(validDatas)
     handleClose()
   }
 
@@ -92,5 +104,18 @@ export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
 }
 
 function isValidData(data: TData) {
-  return !!data.name
+  return !!data.name && !(data.isDeleted && data.isNew)
+}
+
+function formatData(data: TData) {
+  if (data.isDeleted) {
+    delete data.isNew
+    delete data.isUpdated
+  }
+
+  if (data.isNew) {
+    delete data.isUpdated
+  }
+
+  return data
 }
