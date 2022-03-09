@@ -3,14 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
+var chalk_1 = __importDefault(require("chalk"));
 var child_process_1 = require("child_process");
 var helpers_1 = require("yargs/helpers");
 var yargs_1 = __importDefault(require("yargs/yargs"));
 function run(command) {
     var _a;
-    console.log(command);
     var concurrentProc = (0, child_process_1.exec)(command, function () { });
     (_a = concurrentProc === null || concurrentProc === void 0 ? void 0 : concurrentProc.stdout) === null || _a === void 0 ? void 0 : _a.pipe(process.stdout);
+}
+function capitalize(str) {
+    return str.charAt(0).toLocaleUpperCase() + str.slice(1);
 }
 var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
 (0, yargs_1["default"])((0, helpers_1.hideBin)(process.argv))
@@ -28,11 +31,12 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
         D: {
             boolean: true,
             "default": false,
-            description: 'Add to devDependency'
+            description: 'Add to devDependencies'
         }
     });
 }, function (agrv) {
     var command = "cd ".concat(agrv.service, " && yarn add").concat(agrv.D ? ' -D ' : ' ').concat(agrv.dependency.join(' '));
+    console.log(chalk_1["default"].green("\n[CRM] Adding ".concat(chalk_1["default"].bold(agrv.dependency.join(', ')), " to ").concat(agrv.D ? 'devDependencies' : 'dependencies', " of ").concat(chalk_1["default"].bold(capitalize(agrv.service)), "\n")));
     run(command);
 })
     .command('remove <service> <dependency..>', 'Uninstall dependencies', function (y) {
@@ -47,6 +51,7 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
     });
 }, function (agrv) {
     var command = "cd ".concat(agrv.service, " && yarn remove ").concat(agrv.dependency.join(' '));
+    console.log(chalk_1["default"].green("\n[CRM] Removing ".concat(chalk_1["default"].bold(agrv.dependency.join(', ')), " in ").concat(agrv.D ? 'devDependencies' : 'dependencies', " of ").concat(chalk_1["default"].bold(capitalize(agrv.service)), "\n")));
     run(command);
 })
     .command('init [services..]', 'Init dependencies at CRM services', function (y) {
@@ -60,6 +65,7 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
     var command = "concurrently ".concat(agrv.services
         .map(function (service) { return "\"cd ".concat(service, "\" && yarn"); })
         .join(' '), " --names ").concat(agrv.services.join(','));
+    console.log(chalk_1["default"].green("\n[CRM] Initializing dependencies in ".concat(chalk_1["default"].bold(agrv.services.join(', ')), "\n")));
     run(command);
 })
     .command('dev [services..]', 'Run CRM services in local environment, default to run all services', function (y) {
@@ -84,6 +90,9 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
     var command = "concurrently -k ".concat(servicesToRun
         .map(function (service) { return "\"cd ".concat(service, " && yarn dev\""); })
         .join(' '), " --names ").concat(servicesToRun.join(','));
+    console.log(chalk_1["default"].green("\n[CRM] Starting ".concat(chalk_1["default"].bold(servicesToRun.join(', '))).concat(agrv.skip.length
+        ? ", skipping ".concat(chalk_1["default"].bold(agrv.skip.join(', ')))
+        : '', "\n")));
     run(command);
 })
     .parse();
