@@ -100,7 +100,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./apollo
+          context: ./
           file: ./docker/Dockerfile.apollo
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:apollo
@@ -134,7 +134,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./ares
+          context: ./
           file: ./docker/Dockerfile.ares
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:ares
@@ -168,7 +168,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./artemis
+          context: ./
           file: ./docker/Dockerfile.artemis
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:artemis
@@ -202,7 +202,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./poseidon
+          context: ./
           file: ./docker/Dockerfile.poseidon
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:poseidon
@@ -242,7 +242,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./zeus
+          context: ./
           file: ./docker/Dockerfile.zeus
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:zeus
