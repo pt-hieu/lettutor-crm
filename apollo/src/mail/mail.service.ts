@@ -7,13 +7,14 @@ import { User } from 'src/user/user.entity'
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  sendResetPwdMail(target: User, token: string) {
+  async sendResetPwdMail(target: User, token: string) {
     const link = process.env.FE_URL + '/reset-password?token=' + token
 
     return this.mailerService.sendMail({
       to: target.email,
       subject: 'CRM - Password Reset',
-      html: 'Click the following link to reset your password: ' + link,
+      template: 'reset-password',
+      context: { link },
     })
   }
 

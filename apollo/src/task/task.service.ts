@@ -126,7 +126,7 @@ export class TaskService {
         'account.fullName',
         'deal.fullName',
       ])
-      .orderBy('t.createdBy', 'DESC')
+      .orderBy('t.createdAt', 'DESC')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
       q.andWhere('owner.id = :ownerId', {
