@@ -33,4 +33,4 @@ COPY --from=builder /app/artemis/.env.development ./artemis/.env.development
 USER nextjs
 
 EXPOSE 3000
-CMD ["npm", "run", "crm", "start", "artemis", "-D"]
+ENTRYPOINT  ["npm", "run", "crm", "start", "artemis", "-D"]
