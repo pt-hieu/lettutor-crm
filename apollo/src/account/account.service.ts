@@ -97,7 +97,7 @@ export class AccountService {
       .createQueryBuilder('acc')
       .leftJoin('acc.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
-      .orderBy('acc.createdBy', 'DESC')
+      .orderBy('acc.createdAt', 'DESC')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
       q.andWhere('owner.id = :id', { id: this.payloadService.data.id })
