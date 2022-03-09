@@ -1,10 +1,10 @@
-FROM node:14-alpine AS builder
+FROM node:alpine AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json yarn.lock script.js deps.json ./
 
-RUN npm install chalk@^4.1.2 && npm install yargs
+RUN npm install chalk@^4.1.2 --force && npm install yargs --force
 RUN yarn crm localize apollo
 
 RUN yarn install --frozen-lockfile
@@ -18,8 +18,7 @@ WORKDIR /app
 
 ENV NODE_ENV dev
 
-COPY --from=builder /app/package.json .
-COPY --from=builder /app/script.js .
+COPY --from=builder /app/package.json /app/script.js /app/deps.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
 COPY --from=builder /app/apollo/dist ./apollo/dist
@@ -38,4 +37,4 @@ ENV API_GATEWAY http://zeus:4000
 ENV ARES_SERVICE http://ares:9000
 
 EXPOSE 8000
-CMD ["npm", "run", "crm", "start", "apollo"]
+ENTRYPOINT ["npm", "run", "crm", "start", "apollo"]

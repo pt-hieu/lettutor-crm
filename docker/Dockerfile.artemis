@@ -21,8 +21,7 @@ ENV NODE_ENV development
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 
-COPY --from=builder /app/package.json .
-COPY --from=builder /app/script.js .
+COPY --from=builder /app/package.json /app/script.js /app/deps.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
 COPY --from=builder /app/artemis/public ./artemis/public
@@ -34,4 +33,4 @@ COPY --from=builder /app/artemis/.env.development ./artemis/.env.development
 USER nextjs
 
 EXPOSE 3000
-CMD ["npm", "run", "crm", "start", "artemis", "-D"]
+ENTRYPOINT  ["npm", "run", "crm", "start", "artemis", "-D"]
