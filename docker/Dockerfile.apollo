@@ -37,4 +37,4 @@ ENV API_GATEWAY http://zeus:4000
 ENV ARES_SERVICE http://ares:9000
 
 EXPOSE 8000
-CMD ["npm", "run", "crm", "start", "apollo"]
+ENTRYPOINT ["npm", "run", "crm", "start", "apollo"]
