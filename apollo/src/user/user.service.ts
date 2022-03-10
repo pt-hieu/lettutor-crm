@@ -177,7 +177,7 @@ export class UserService {
       .createQueryBuilder('u')
       .addSelect(['u.id', 'u.name', 'u.email', 'u.status'])
       .leftJoinAndSelect('u.roles', 'roles')
-      .orderBy('u.createdBy', 'DESC')
+      .orderBy('u.createdAt', 'DESC')
 
     if (role) {
       q = q.where('roles.name=:role', { role })

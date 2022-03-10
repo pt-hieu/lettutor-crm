@@ -56,14 +56,17 @@ export default function Header() {
       </div>
 
       <div className="flex gap-3 items-center relative z-20">
-        <div className="relative">
-          <Dropdown triggerOnHover={false} overlay={<SettingMenu />}>
-            <button className="text-blue-600 border border-blue-600 px-2 py-1.5 rounded-md">
-              <span className="fa fa-cog mr-2" />
-              Settings
-            </button>
-          </Dropdown>
+        <div className='font-medium mr-4'>
+          Press <kbd className="p-1 border rounded-md">Ctrl</kbd> +{' '}
+          <kbd className="p-1 border rounded-md">/</kbd> to open search box
         </div>
+
+        <Dropdown triggerOnHover={false} overlay={<SettingMenu />}>
+          <button className="text-blue-600 border border-blue-600 px-2 py-1.5 rounded-md">
+            <span className="fa fa-cog mr-2" />
+            Settings
+          </button>
+        </Dropdown>
 
         <span>|</span>
 

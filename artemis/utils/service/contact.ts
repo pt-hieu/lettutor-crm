@@ -24,7 +24,7 @@ export const getContacts =
 
 export const getRawContacts = (token?: string) => () =>
   axios
-    .get<Pick<Contact, 'id' | 'fullName'>>(API + '/apollo/contact/raw', {
+    .get<Pick<Contact, 'id' | 'fullName'>[]>(API + '/apollo/contact/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },
