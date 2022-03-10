@@ -5,6 +5,7 @@ services:
     image: ghcr.io/pt-hieu/lettutor-crm:artemis
     ports:
       - '3000:3000'
+    command: npm run crm start artemis -D
 
   postgres:
     container_name: postgres
