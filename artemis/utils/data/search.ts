@@ -14,6 +14,7 @@ export enum Module {
 export type Command = {
   content: string
   action: string
+  module?: Module
 }
 
 export const commands: Command[] = [
@@ -32,10 +33,12 @@ export const commands: Command[] = [
   {
     content: 'Edit this lead',
     action: '/leads/[]/edit',
+    module: Module.LEAD,
   },
   {
     content: 'Delete this lead',
     action: 'cmd:delete-lead',
+    module: Module.LEAD,
   },
   {
     content: 'View contacts',
@@ -48,10 +51,12 @@ export const commands: Command[] = [
   {
     content: 'Edit this contact',
     action: '/contacts/[]/edit',
+    module: Module.CONTACT,
   },
   {
     content: 'Delete this contact',
     action: 'cmd:delete-contact',
+    module: Module.CONTACT,
   },
   {
     content: 'View accounts',
@@ -64,10 +69,12 @@ export const commands: Command[] = [
   {
     content: 'Edit this accounts',
     action: '/accounts/[]/edit',
+    module: Module.ACCOUNT,
   },
   {
     content: 'Delete this account',
     action: 'cmd:delete-account',
+    module: Module.ACCOUNT,
   },
   {
     content: 'View deals',
@@ -80,10 +87,12 @@ export const commands: Command[] = [
   {
     content: 'Edit this deals',
     action: '/deals/[]/edit',
+    module: Module.DEAL,
   },
   {
     content: 'Delete this deal',
     action: 'cmd:delete-deal',
+    module: Module.DEAL,
   },
   {
     content: 'View tasks',
@@ -96,9 +105,11 @@ export const commands: Command[] = [
   {
     content: 'Edit this task',
     action: '/tasks/[]/edit',
+    module: Module.TASK,
   },
   {
     content: 'Delete this task',
     action: 'cmd:delete-task',
+    module: Module.TASK,
   },
 ]
