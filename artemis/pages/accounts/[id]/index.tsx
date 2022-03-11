@@ -315,7 +315,7 @@ const AccountDetail = () => {
               <form onSubmit={submit} className="flex flex-col gap-4">
                 {accountInfo.map(({ label, props }) => (
                   <div key={label} className="grid grid-cols-[250px,1fr] gap-4">
-                    <span className="inline-block text-right font-medium pt-[8px]">
+                    <span className="inline-block text-right font-medium pt-[10px]">
                       {label}
                     </span>
 

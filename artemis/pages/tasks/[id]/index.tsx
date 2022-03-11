@@ -307,7 +307,7 @@ const TaskDetail = () => {
                           key={label}
                           className="grid grid-cols-[250px,350px] gap-4"
                         >
-                          <span className="inline-block text-right font-medium pt-[8px]">
+                          <span className="inline-block text-right font-medium pt-[10px]">
                             {label}
                           </span>
 
