@@ -13,16 +13,23 @@
 | athena   | Terraform   |
 
 # Script Instruction
-> Run `yarn r` to start all the components in the codebase concurrently   
-> Use flag `--init` to install dependencies instead of running in development environment   
-> If you want to run some specific components, run `yarn r --block <component names>` .e.g `yarn r --block apollo artemis` to run only apollo and artemis in the concurrent mode
-
 ```bash
-$ node ./script.js --block --help
+$ node ./script.js --help
+script.js [command]
+
+Commands:
+  script.js add <service> <dependency..>    Install dependencies
+  script.js remove <service>                Uninstall dependencies
+  <dependency..>
+  script.js localize <service>              Localize dependencies for a specific
+                                            CRM service
+  script.js build <service>                 Build CRM service
+  script.js start <service>                 Start CRM service
+  script.js dev [services..]                Run CRM services in local
+                                            environment, default to run all
+                                            services
+
 Options:
   --help     Show help                                                 [boolean]
   --version  Show version number                                       [boolean]
-  --block[array] [required] [choices: "apollo", "artemis", "poseidon"] [default:
-                                                ["apollo","artemis","poseidon"]]
-  --init                                              [boolean] [default: false]
 ```
