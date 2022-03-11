@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import Confirm from '@utils/components/Confirm'
-import Tooltip from '@utils/components/Tooltip'
 import { useModal } from '@utils/hooks/useModal'
 import { Attachments, NoteSource } from '@utils/models/note'
 
+import File from './File'
 import { INoteData, NoteTextBox } from './NoteAdder'
 
 interface IProps {
@@ -91,32 +91,14 @@ export const NoteContent = ({
 
             <div className="flex gap-2">
               {files?.map(({ id, key, location }) => (
-                <div key={id} className="w-[120px] file-container">
-                  <div className="bg-white border h-[120px] flex items-center justify-center px-4 relative rounded">
-                    <div className="text-blue-500 truncate">{key}</div>
-                    <div className="hidden absolute bottom-0 w-full text-center file-controller bg-slate-100">
-                      <Tooltip title="Download file">
-                        <a
-                          className="fa fa-download"
-                          href={location}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download={key}
-                        />
-                      </Tooltip>
-                    </div>
-                  </div>
-
-                  <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
-                    {key}
-                  </div>
-                </div>
+                <File key={id} filename={key} location={location} />
               ))}
             </div>
 
             <div className="flex flex-row text-[12px] items-center text-gray-500">
               <span className="capitalize">{noteSource}</span>
               <span className="px-1"> - </span>
+
               <Link href={`/${noteSource}s/${sourceId}`}>
                 <a className="max-w-[120px] truncate text-blue-600">
                   {sourceName}

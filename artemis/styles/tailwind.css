@@ -95,10 +95,6 @@
     @apply font-semibold text-gray-500;
   }
 
-  .file-container:hover .file-controller {
-    display: block;
-  }
-
   .row-dragging {
     background: #fafafa;
     border: 1px solid var(--antd-wave-shadow-color);

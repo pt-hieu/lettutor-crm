@@ -282,7 +282,6 @@ function CommandComponent({
 }) {
   const { query, pathname } = useRouter()
   const client = useQueryClient()
-  console.log(pathname)
 
   const isNotAvailable = useMemo(
     () =>

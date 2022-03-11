@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { ReactNode, useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FieldErrors, UseFormRegister, useForm } from 'react-hook-form'
 import {
   QueryClient,
@@ -331,7 +331,7 @@ const TaskDetail = () => {
 
               <div className="ml-auto">
                 {isCompleted ? (
-                  <Tooltip title="Completed">
+                  <Tooltip offset={146} title="Completed">
                     <span className="crm-button bg-green-600 hover:bg-green-500">
                       <span className="fa fa-check" />
                     </span>
