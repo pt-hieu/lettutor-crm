@@ -1,10 +1,12 @@
 import { notification } from 'antd'
 import { useRouter } from 'next/router'
+import { useRef } from 'react'
 import { useMutation } from 'react-query'
 
 import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useCommand } from '@utils/hooks/useCommand'
 import { useOwnership } from '@utils/hooks/useOwnership'
 import { Contact } from '@utils/models/contact'
 import { Actions } from '@utils/models/role'
@@ -25,7 +27,7 @@ const ContactDetailNavbar = ({ data }: Props) => {
   const isOwner = useOwnership(data)
 
   const { mutateAsync, isLoading } = useMutation(
-    'delete-contacts',
+    'delete-contact',
     batchDelete,
     {
       onSuccess() {
@@ -37,6 +39,11 @@ const ContactDetailNavbar = ({ data }: Props) => {
       },
     },
   )
+
+  const deleteButtonRef = useRef<HTMLButtonElement>(null)
+  useCommand('cmd:delete-contact', () => {
+    deleteButtonRef.current?.click()
+  })
 
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px] crm-self-container">
@@ -53,7 +60,11 @@ const ContactDetailNavbar = ({ data }: Props) => {
               onYes={() => mutateAsync([data?.id || ''])}
               message="Are you sure you want to delete this contact?"
             >
-              <button disabled={isLoading} className="crm-button-danger">
+              <button
+                ref={deleteButtonRef}
+                disabled={isLoading}
+                className="crm-button-danger"
+              >
                 <span className="fa fa-trash mr-2" />
                 Delete
               </button>

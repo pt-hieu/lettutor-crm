@@ -41,6 +41,11 @@ export const commands: Command[] = [
     module: Module.LEAD,
   },
   {
+    content: 'Convert this lead',
+    action: 'cmd:convert-lead',
+    module: Module.LEAD,
+  },
+  {
     content: 'View contacts',
     action: '/contacts',
   },

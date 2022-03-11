@@ -51,6 +51,11 @@ const LeadDetailNavbar = ({ lead }: Props) => {
     deleteButtonRef.current?.click()
   })
 
+  const convertBtnRef = useRef<HTMLButtonElement>(null)
+  useCommand('cmd:convert-lead', () => {
+    convertBtnRef.current?.click()
+  })
+
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px] crm-self-container">
       <ConvertModal visible={convert} close={closeConvert} />
@@ -94,7 +99,11 @@ const LeadDetailNavbar = ({ lead }: Props) => {
           )}
 
           {(auth[Actions.Lead.VIEW_AND_CONVERT_LEAD_DETAILS] || isOwner) && (
-            <button onClick={openConvert} className="crm-button-secondary">
+            <button
+              ref={convertBtnRef}
+              onClick={openConvert}
+              className="crm-button-secondary"
+            >
               <span className="fa fa-arrow-right mr-2" />
               Convert
             </button>
