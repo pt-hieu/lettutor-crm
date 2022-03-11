@@ -177,11 +177,12 @@ const fields =
         label: 'Description',
         props: {
           error: errors.description?.message,
+          as: 'textarea',
           props: {
-            type: 'text',
             id: 'desc',
             disabled,
             ...register('description'),
+            cols: 40,
           },
         },
       },

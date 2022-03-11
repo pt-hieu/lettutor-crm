@@ -185,11 +185,12 @@ const AccountDetail = () => {
       label: 'Description',
       props: {
         error: errors.description?.message,
+        as: "textarea",
         props: {
           disabled,
           ...register('description'),
-          type: 'text',
           id: 'desc',
+          cols: 40
         },
       },
     },

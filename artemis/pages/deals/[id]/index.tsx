@@ -260,11 +260,12 @@ const fields =
         label: 'Description',
         props: {
           error: errors.description?.message,
+          as: "textarea",
           props: {
             disabled,
-            type: 'text',
             id: 'desc',
             ...register('description'),
+            cols: 40
           },
         },
       },
