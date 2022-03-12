@@ -138,15 +138,19 @@ export const NoteContent = ({
 
           <div className="absolute hidden top-2 right-0 group-hover:flex flex-row gap-3">
             {!hideEditButton && (
-              <i
-                className={`fa fa-pencil hover:border-blue-500 crm-icon-btn`}
+              <button
+                className="crm-icon-btn hover:border-blue-500"
                 onClick={handleEditMode}
-              />
+              >
+                <i className="fa fa-pencil" />
+              </button>
             )}
-            <i
-              className={`fa fa-trash hover:border-red-500 hover:text-red-500 crm-icon-btn`}
+            <button
+              className="crm-icon-btn hover:border-red-500 hover:text-red-500"
               onClick={openConfirm}
-            />
+            >
+              <i className="fa fa-trash" />
+            </button>
           </div>
         </div>
       )}

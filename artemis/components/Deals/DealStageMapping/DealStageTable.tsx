@@ -103,7 +103,9 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     if (id === null) {
       //Empty list
       setDataSource([newData])
+      return
     }
+
     const index = dataSource.findIndex((item) => item.id === id)
 
     if (index < 0) return
@@ -164,13 +166,17 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
               title="Sure to delete?"
               onConfirm={() => handleDelete(record.id)}
             >
-              <i className="crm-icon-btn fa fa-trash hover:text-red-500 hover:border-red-500" />
+              <button className="crm-icon-btn hover:text-red-500 hover:border-red-500">
+                <i className="fa fa-trash" />
+              </button>
             </Popconfirm>
 
-            <i
-              className="crm-icon-btn fa fa-plus hover:text-blue-500 hover:border-blue-500"
+            <button
+              className="crm-icon-btn hover:text-blue-500 hover:border-blue-500"
               onClick={() => handleAdd(record.id)}
-            />
+            >
+              <i className="fa fa-plus" />
+            </button>
           </div>
         ) : undefined,
     },
@@ -198,10 +204,12 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     emptyText: (
       <div className="relative">
         <Tooltip title="Add new deal stage">
-          <i
-            className="crm-icon-btn fa fa-plus p-4 text-blue-500 hover:border-blue-500 absolute translate-y-[100%]"
+          <button
+            className="crm-icon-btn w-10 text-blue-500 hover:border-blue-500 absolute translate-y-[100%]"
             onClick={() => handleAdd(null)}
-          />
+          >
+            <i className="fa fa-plus" onClick={() => handleAdd(null)} />
+          </button>
         </Tooltip>
         <Empty />
       </div>
