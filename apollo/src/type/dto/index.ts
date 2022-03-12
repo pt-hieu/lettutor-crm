@@ -14,6 +14,7 @@ export * as Task from './task'
 export * as Note from './note'
 export * as Strapi from './strapi'
 export * as Log from './log'
+export * as DealStage from './deal-stage'
 
 export class BatchDelete {
   @ApiProperty()

@@ -12,7 +12,7 @@ import {
 } from 'class-validator'
 import { Double } from 'typeorm'
 
-import { DealStage } from 'src/deal/deal.entity'
+import { DealStageCategory } from 'src/deal-stage/deal-stage.entity'
 import { LeadSource } from 'src/lead/lead.entity'
 
 import { Paginate } from './paging'
@@ -47,14 +47,9 @@ export class AddDeal {
   @Type(() => Date)
   closingDate: Date
 
-  @ApiPropertyOptional({
-    type: DealStage,
-    enum: DealStage,
-    enumName: 'DealStage',
-  })
-  @IsOptional()
-  @IsEnum(DealStage)
-  stage?: DealStage
+  @ApiProperty()
+  @IsUUID()
+  stageId: string
 
   @ApiPropertyOptional({
     type: LeadSource,
@@ -94,14 +89,9 @@ export class ConvertToDeal {
   @Type(() => Date)
   closingDate: Date
 
-  @ApiPropertyOptional({
-    type: DealStage,
-    enum: DealStage,
-    enumName: 'DealStage',
-  })
-  @IsOptional()
-  @IsEnum(DealStage)
-  stage?: DealStage
+  @ApiProperty()
+  @IsUUID()
+  stageId: string
 }
 
 export class GetManyQuery extends Paginate {
@@ -110,10 +100,14 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   search?: string
 
-  @ApiPropertyOptional({ type: DealStage, enum: DealStage, isArray: true })
+  @ApiPropertyOptional({
+    type: DealStageCategory,
+    enum: DealStageCategory,
+    isArray: true,
+  })
   @IsOptional()
-  @IsEnum(DealStage, { each: true })
-  stage?: DealStage[]
+  @IsEnum(DealStageCategory, { each: true })
+  stageCategory?: DealStageCategory[]
 
   @ApiPropertyOptional({ type: LeadSource, enum: LeadSource, isArray: true })
   @IsOptional()
@@ -166,13 +160,9 @@ export class UpdateDeal {
   @Type(() => Date)
   closingDate?: Date
 
-  @ApiProperty({
-    type: DealStage,
-    enum: DealStage,
-    enumName: 'DealStage',
-  })
-  @IsEnum(DealStage)
-  stage?: DealStage
+  @ApiProperty()
+  @IsUUID()
+  stageId: string
 
   @ApiPropertyOptional({
     type: LeadSource,
