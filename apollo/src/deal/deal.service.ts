@@ -12,7 +12,7 @@ import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
-import { StageCategory } from 'src/deal-stage/deal-stage.entity'
+import { DealStageCategory } from 'src/deal-stage/deal-stage.entity'
 import { DealStageService } from 'src/deal-stage/deal-stage.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
@@ -154,7 +154,7 @@ export class DealService {
       throw new ForbiddenException()
     }
 
-    if (stage.category === StageCategory.CLOSE_LOST && dto.reasonForLoss) {
+    if (stage.category === DealStageCategory.CLOSE_LOST && dto.reasonForLoss) {
       const note: DTO.Note.AddNote = new DTO.Note.AddNote()
       note.ownerId = dto.ownerId
       note.dealId = id

@@ -49,5 +49,5 @@ export enum Actions {
   DELETE_NOTE = 'Can delete any note',
 
   VIEW_ALL_DEAL_STAGES = 'Can view all deal stages',
-  CREATE_DELETE_UPDATE_ARRANGE_DEAL_STAGE = 'Can create delete update arrange deal stage',
+  MODIFY_ALL_DEAL_STAGES = 'Can modify all deal stages',
 }
