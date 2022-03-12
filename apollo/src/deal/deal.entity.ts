@@ -4,6 +4,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { LeadSource } from 'src/lead/lead.entity'
+import { Log } from 'src/log/log.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { Ownerful } from 'src/utils/owner.entity'
@@ -64,4 +65,7 @@ export class Deal extends Ownerful {
 
   @OneToMany(() => Note, (note) => note.deal, { cascade: true })
   notes: Note[]
+
+  @OneToMany(() => Log, (log) => log.deal, { cascade: true })
+  logs: Log[]
 }

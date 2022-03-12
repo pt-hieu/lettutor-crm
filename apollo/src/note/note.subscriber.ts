@@ -3,10 +3,14 @@ import {
   Connection,
   EntitySubscriberInterface,
   EventSubscriber,
+  InsertEvent,
   RemoveEvent,
+  UpdateEvent,
 } from 'typeorm'
 
+import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
+import { LogAction, LogSource } from 'src/log/log.entity'
 
 import { Note } from './note.entity'
 
@@ -16,6 +20,7 @@ export class NoteSubscriber implements EntitySubscriberInterface<Note> {
     connection: Connection,
     private http: HttpService,
     private util: UtilService,
+    private payload: PayloadService,
   ) {
     connection.subscribers.push(this)
   }
@@ -35,5 +40,41 @@ export class NoteSubscriber implements EntitySubscriberInterface<Note> {
         },
       }),
     )
+  }
+
+  afterInsert(event: InsertEvent<Note>): void | Promise<any> {
+    if (!event.entity) return
+    return this.util.emitLog({
+      entityId: event.entity.id,
+      entityName: event.entity.title,
+      ownerId: this.payload.data.id,
+      source: LogSource.NOTE,
+      action: LogAction.CREATE,
+      changes: null,
+    })
+  }
+
+  afterRemove(event: RemoveEvent<Note>): void | Promise<any> {
+    if (!event.entity) return
+    return this.util.emitLog({
+      entityId: event.databaseEntity.id,
+      entityName: event.entity.title,
+      ownerId: this.payload.data.id,
+      source: LogSource.NOTE,
+      action: LogAction.DELETE,
+      changes: null,
+    })
+  }
+
+  afterUpdate(event: UpdateEvent<Note>): void | Promise<any> {
+    if (!event.entity) return
+    return this.util.emitLog({
+      entityId: event.entity.id,
+      entityName: event.entity.subject,
+      ownerId: this.payload.data.id,
+      source: LogSource.NOTE,
+      action: LogAction.UPDATE,
+      changes: this.util.compare(event.databaseEntity, event.entity),
+    })
   }
 }
