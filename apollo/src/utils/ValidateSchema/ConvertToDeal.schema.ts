@@ -31,5 +31,13 @@ export const ConvertToDealSchema: ValidationSchema = {
         type: 'isDate',
       },
     ],
+    stageId: [
+      {
+        type: 'isUUID',
+      },
+      {
+        type: 'isRequired',
+      },
+    ],
   },
 }
