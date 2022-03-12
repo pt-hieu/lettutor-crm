@@ -16,6 +16,7 @@ import { File } from 'src/file/file.entity'
 import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
+import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
 import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
@@ -34,6 +35,9 @@ export class NoteService {
 
     @Inject(forwardRef(() => DealService))
     private readonly dealService: DealService,
+
+    @Inject(forwardRef(() => TaskService))
+    private readonly taskService: TaskService,
 
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
@@ -65,12 +69,23 @@ export class NoteService {
       dto.accountId = deal.accountId
     }
 
+    if (dto.taskId && dto.source === NoteSource.TASK) {
+      const task = await this.taskService.getTaskById({
+        where: { id: dto.taskId },
+      })
+
+      dto.leadId = task.leadId
+      dto.contactId = task.contactId
+      dto.accountId = task.accountId
+      dto.dealId = task.dealId
+    }
+
     dto.ownerId = this.payloadService.data.id
     return this.noteRepo.save({ ...dto, attachments: filesToAdd })
   }
 
   getMany(query: DTO.Note.GetManyQuery) {
-    let q = this.noteRepo
+    const q = this.noteRepo
       .createQueryBuilder('note')
       .leftJoinAndSelect('note.attachments', 'attachments')
       .leftJoin('note.owner', 'owner')
@@ -78,6 +93,7 @@ export class NoteService {
       .leftJoin('note.contact', 'contact')
       .leftJoin('note.account', 'account')
       .leftJoin('note.deal', 'deal')
+      .leftJoin('note.task', 'task')
       .addSelect([
         'owner.name',
         'owner.email',
@@ -89,6 +105,8 @@ export class NoteService {
         'account.fullName',
         'deal.id',
         'deal.fullName',
+        'task.id',
+        'task.subject',
       ])
 
     if (query.source === NoteSource.LEAD) {
@@ -117,6 +135,12 @@ export class NoteService {
     if (query.source === NoteSource.DEAL) {
       q.andWhere('note.dealId = :dealId', {
         dealId: query.sourceId,
+      })
+    }
+
+    if (query.source === NoteSource.TASK) {
+      q.andWhere('note.taskId = :taskId', {
+        taskId: query.sourceId,
       })
     }
 

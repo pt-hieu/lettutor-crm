@@ -6,6 +6,7 @@ import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { File } from 'src/file/file.entity'
 import { Lead } from 'src/lead/lead.entity'
+import { Task } from 'src/task/task.entity'
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 
@@ -23,6 +24,7 @@ export enum NoteSource {
   CONTACT = 'contact',
   ACCOUNT = 'account',
   DEAL = 'deal',
+  TASK = 'task',
 }
 
 @Entity({ name: 'note' })
@@ -66,6 +68,14 @@ export class Note extends BaseEntity {
   @Column({ type: 'uuid', nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   dealId: string | null
+
+  @ManyToOne(() => Task, (task) => task.notes, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  task: Task
+
+  @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
+  taskId: string | null
 
   @Column({ type: 'varchar', default: '' })
   title: string

@@ -1,17 +1,51 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Repository } from 'typeorm'
 
+import { NoteService } from 'src/note/note.service'
+import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
-import { Log, LogAction } from './log.entity'
+import { Log, LogAction, LogSource } from './log.entity'
 
 @Injectable()
 export class LogService {
-  constructor(@InjectRepository(Log) private logRepo: Repository<Log>) {}
+  constructor(
+    @InjectRepository(Log) private logRepo: Repository<Log>,
 
-  create(dto: DTO.Log.CreateLog) {
+    @Inject(forwardRef(() => TaskService))
+    private readonly taskService: TaskService,
+    private readonly noteService: NoteService,
+  ) {}
+
+  async create(dto: DTO.Log.CreateLog) {
+    if (dto.source === LogSource.TASK) {
+      const task = await this.taskService.getTaskById({
+        where: { id: dto.entityId },
+      })
+
+      dto.taskId = null
+      dto.leadId = task.leadId
+      dto.contactId = task.contactId
+      dto.accountId = task.accountId
+      dto.dealId = task.dealId
+    }
+
+    console.log(dto)
+
+    if (dto.source === LogSource.NOTE) {
+      const note = await this.noteService.getNoteById({
+        where: { id: dto.entityId },
+      })
+
+      dto.taskId = note.taskId
+      dto.leadId = note.leadId
+      dto.contactId = note.contactId
+      dto.accountId = note.accountId
+      dto.dealId = note.dealId
+    }
+
     return this.logRepo.save({
       ...dto,
       deleted: dto.action === LogAction.DELETE,
@@ -50,7 +84,14 @@ export class LogService {
     }
 
     if (entity) {
-      qb.andWhere('l.entityId = :entity', { entity })
+      qb.andWhere((q) => {
+        q.where('l.entityId = :entity', { entity })
+          .orWhere('l.leadId = :entity', { entity })
+          .orWhere('l.contactId = :entity', { entity })
+          .orWhere('l.dealId = :entity', { entity })
+          .orWhere('l.accountId = :entity', { entity })
+          .orWhere('l.taskId = :entity', { entity })
+      })
     }
 
     if (action) {
