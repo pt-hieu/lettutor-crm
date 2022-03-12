@@ -1,15 +1,21 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Repository } from 'typeorm'
 
+import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
 import { Log, LogAction } from './log.entity'
 
 @Injectable()
 export class LogService {
-  constructor(@InjectRepository(Log) private logRepo: Repository<Log>) {}
+  constructor(
+    @InjectRepository(Log) private logRepo: Repository<Log>,
+
+    @Inject(forwardRef(() => TaskService))
+    private readonly taskService: TaskService,
+  ) {}
 
   create(dto: DTO.Log.CreateLog) {
     return this.logRepo.save({
