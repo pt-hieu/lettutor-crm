@@ -58,18 +58,15 @@ export enum DealCategory {
   CLOSED_WON = 'Close Won',
 }
 
-export enum ForecastCategory {
-  PIPELINE = 'Pipeline',
-  BEST_CASE = 'Best Case',
-  COMMITED = 'Commited',
-  CLOSED = 'Closed',
-  OMMITED = 'Omitted',
-}
-
 export interface DealStageData {
   id: string
   name: string
   probability: number
-  dealCategory: string
-  forecastCategory: string
+  dealCategory: DealCategory
+}
+
+export enum DealStageAction {
+  ADD = 'Add',
+  DELETE = 'Delete',
+  UPDATE = 'Update',
 }

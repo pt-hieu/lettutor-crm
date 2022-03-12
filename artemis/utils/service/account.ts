@@ -24,7 +24,7 @@ export const getAccounts =
 
 export const getRawAccounts = (token?: string) => () =>
   axios
-    .get<Pick<Account, 'id' | 'fullName'>>(API + '/apollo/account/raw', {
+    .get<Pick<Account, 'id' | 'fullName'>[]>(API + '/apollo/account/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },

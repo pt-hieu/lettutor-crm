@@ -81,7 +81,7 @@ export default memo(function LogItem({
                   changed from '{change.fromName || change.from || 'Empty'}' to{' '}
                 </span>{' '}
                 <span className="font-semibold">
-                  {change.toName || change.to}
+                  {change.toName || change.to || "'Empty'"}
                 </span>
               </div>
             ))}

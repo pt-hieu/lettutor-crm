@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FieldErrors, UseFormRegister, useForm } from 'react-hook-form'
 import {
   QueryClient,
@@ -160,10 +160,11 @@ const fields = ({
     label: 'Description',
     props: {
       error: errors.description?.message,
+      as: 'textarea',
       props: {
         disabled,
-        type: 'text',
         id: 'desc',
+        cols: 40,
         ...register('description'),
       },
     },
@@ -397,7 +398,7 @@ const TaskDetail = () => {
                           key={label}
                           className="grid grid-cols-[250px,350px] gap-4"
                         >
-                          <span className="inline-block text-right font-medium pt-[8px]">
+                          <span className="inline-block text-right font-medium pt-[10px]">
                             {label}
                           </span>
 
@@ -432,7 +433,7 @@ const TaskDetail = () => {
 
               <div className="ml-auto">
                 {isCompleted ? (
-                  <Tooltip title="Completed">
+                  <Tooltip offset={146} title="Completed">
                     <span className="crm-button bg-green-600 hover:bg-green-500">
                       <span className="fa fa-check" />
                     </span>

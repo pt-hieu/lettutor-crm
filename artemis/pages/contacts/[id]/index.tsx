@@ -183,11 +183,12 @@ const fields = (
     label: 'Description',
     props: {
       error: errors.description?.message,
+      as: 'textarea',
       props: {
         disabled,
-        type: 'text',
         id: 'desc',
         ...register('description'),
+        cols: 40,
       },
     },
   },
@@ -354,7 +355,7 @@ const ContactDetail = () => {
         <div className="grid grid-cols-[250px,1fr]">
           <ContactDetailSidebar />
 
-          <div className="flex flex-col divide-y gap-4 ml-5">
+          <div className="flex flex-col gap-4 ml-5">
             <div>
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
               <form onSubmit={submit} className="flex flex-col gap-2">
@@ -370,7 +371,7 @@ const ContactDetail = () => {
                     key={label}
                     className="grid grid-cols-[250px,350px] gap-4"
                   >
-                    <span className="inline-block text-right font-medium pt-[8px]">
+                    <span className="inline-block text-right font-medium pt-[10px]">
                       {label}
                     </span>
                     <InlineEdit
@@ -394,13 +395,14 @@ const ContactDetail = () => {
               onViewAllNote={setViewAllNote}
             />
 
-            <div className="pt-4">
+            <div className="p-4 border rounded-md">
               <div
                 className="font-semibold mb-4 text-[17px]"
                 id={ContactDetailSections.Deals}
               >
                 {ContactDetailSections.Deals}
               </div>
+
               {contact?.deals?.map(
                 ({ id, fullName, amount, stage, closingDate }) => (
                   <DealInfo
@@ -421,7 +423,7 @@ const ContactDetail = () => {
               title={ContactDetailSections.Logs}
             />
 
-            <div className="pt-4">
+            <div className="p-4 rounded-md border">
               <div
                 className="font-semibold mb-4 text-[17px]"
                 id={ContactDetailSections.OpenActivities}
@@ -434,7 +436,8 @@ const ContactDetail = () => {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
-            <div className="pt-4">
+
+            <div className="p-4 rounded-md border">
               <div
                 className="font-semibold mb-4 text-[17px]"
                 id={ContactDetailSections.ClosedActivities}

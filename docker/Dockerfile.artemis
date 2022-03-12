@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock script.js deps.json ./
 
-RUN npm install chalk@^4.1.2 && npm install yargs
+RUN npm install chalk@^4.1.2 --no-package-lock && npm install yargs --no-package-lock
 RUN yarn crm localize artemis
 
 RUN yarn install --frozen-lockfile
@@ -31,6 +31,7 @@ COPY --from=builder /app/artemis/.env ./artemis/.env
 COPY --from=builder /app/artemis/.env.development ./artemis/.env.development
 
 USER nextjs
-
 EXPOSE 3000
-ENTRYPOINT  ["npm", "run", "crm", "start", "artemis", "-D"]
+
+ENTRYPOINT ["npm", "run", "crm", "start", "artemis"]
+CMD [ "--", "--dev" ]

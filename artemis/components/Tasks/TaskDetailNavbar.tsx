@@ -1,10 +1,12 @@
 import { notification } from 'antd'
 import { useRouter } from 'next/router'
+import { useRef } from 'react'
 import { useMutation } from 'react-query'
 
 import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useCommand } from '@utils/hooks/useCommand'
 import { useOwnership } from '@utils/hooks/useOwnership'
 import { Actions } from '@utils/models/role'
 import { Task } from '@utils/models/task'
@@ -38,6 +40,11 @@ const TaskDetailNavbar = ({ task }: Props) => {
     },
   )
 
+  const deleteButtonRef = useRef<HTMLButtonElement>(null)
+  useCommand('cmd:delete-task', () => {
+    deleteButtonRef.current?.click()
+  })
+
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px] crm-self-container">
       <div className="flex justify-between items-center">
@@ -53,7 +60,11 @@ const TaskDetailNavbar = ({ task }: Props) => {
               onYes={() => mutateAsync([id])}
               message="Are you sure you want to delete this task?"
             >
-              <button disabled={isDeleting} className="crm-button-danger">
+              <button
+                ref={deleteButtonRef}
+                disabled={isDeleting}
+                className="crm-button-danger"
+              >
                 <span className="fa fa-trash mr-2" />
                 Delete
               </button>

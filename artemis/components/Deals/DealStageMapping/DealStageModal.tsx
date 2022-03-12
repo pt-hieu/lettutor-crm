@@ -5,8 +5,8 @@ import { useMutation } from 'react-query'
 import Loading from '@utils/components/Loading'
 import {
   DealCategory,
+  DealStageAction,
   DealStageData,
-  ForecastCategory,
 } from '@utils/models/deal'
 import { updateDealStage } from '@utils/service/deal'
 
@@ -18,21 +18,18 @@ let data: DealStageData[] = [
     name: 'Qualification',
     probability: 32,
     dealCategory: DealCategory.CLOSED_LOST,
-    forecastCategory: ForecastCategory.BEST_CASE,
   },
   {
     id: 'abc2',
     name: 'Needs Analysis',
     probability: 62,
     dealCategory: DealCategory.CLOSED_WON,
-    forecastCategory: ForecastCategory.PIPELINE,
   },
   {
     id: 'abc3',
     name: 'Identify Decision Makers',
     probability: 62,
     dealCategory: DealCategory.OPEN,
-    forecastCategory: ForecastCategory.OMMITED,
   },
 ]
 
@@ -72,7 +69,7 @@ export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
     <Modal
       visible={visible}
       onCancel={closeModal}
-      width={1000}
+      width={900}
       maskClosable={false}
       footer={
         <div className="flex w-full gap-2 justify-end">
@@ -108,13 +105,19 @@ function isValidData(data: TData) {
 }
 
 function formatData(data: TData) {
-  if (data.isDeleted) {
-    delete data.isNew
+  if (data.isUpdated) {
+    data.action = DealStageAction.UPDATE
     delete data.isUpdated
   }
 
   if (data.isNew) {
-    delete data.isUpdated
+    data.action = DealStageAction.ADD
+    delete data.isNew
+  }
+
+  if (data.isDeleted) {
+    data.action = DealStageAction.DELETE
+    delete data.isDeleted
   }
 
   return data

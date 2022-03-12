@@ -43,7 +43,7 @@ export default function LogSection({ title, entityId, source }: TProps) {
   }, [page, action, source, from, to, owner])
 
   return (
-    <div className="pt-4">
+    <div className="p-4 border rounded-md">
       <div className="mb-4 flex justify-between">
         <div className="font-semibold text-[17px]" id={title}>
           {title}

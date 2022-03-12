@@ -1,10 +1,12 @@
 import { notification } from 'antd'
 import { useRouter } from 'next/router'
-import { useMutation, useQueryClient } from 'react-query'
+import { useRef } from 'react'
+import { useMutation } from 'react-query'
 
 import Confirm from '@utils/components/Confirm'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useCommand } from '@utils/hooks/useCommand'
 import { useOwnership } from '@utils/hooks/useOwnership'
 import { Deal } from '@utils/models/deal'
 import { Actions } from '@utils/models/role'
@@ -20,7 +22,6 @@ const DealDetailNavbar = ({ deal }: Props) => {
   const router = useRouter()
   const auth = useAuthorization()
   const isOwner = useOwnership(deal)
-  const client = useQueryClient()
 
   const navigateToEditPage = () => {
     router.push(`/deals/${id}/edit`)
@@ -34,6 +35,11 @@ const DealDetailNavbar = ({ deal }: Props) => {
     onError() {
       notification.error({ message: 'Delete deal unsuccessfully' })
     },
+  })
+
+  const deleteButtonRef = useRef<HTMLButtonElement>(null)
+  useCommand('cmd:delete-deal', () => {
+    deleteButtonRef.current?.click()
   })
 
   return (
@@ -56,7 +62,11 @@ const DealDetailNavbar = ({ deal }: Props) => {
               onYes={() => mutateAsync([id || ''])}
               message="Are you sure you want to delete this deal?"
             >
-              <button disabled={isLoading} className="crm-button-danger">
+              <button
+                ref={deleteButtonRef}
+                disabled={isLoading}
+                className="crm-button-danger"
+              >
                 <span className="fa fa-trash mr-2" />
                 Delete
               </button>

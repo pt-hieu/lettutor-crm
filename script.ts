@@ -8,7 +8,9 @@ import yargs from 'yargs/yargs'
 
 function run(command: string) {
   const concurrentProc = exec(command, () => {})
+
   concurrentProc?.stdout?.pipe(process.stdout)
+  concurrentProc?.stderr?.pipe(process.stdout)
 }
 
 function capitalize(str: string) {

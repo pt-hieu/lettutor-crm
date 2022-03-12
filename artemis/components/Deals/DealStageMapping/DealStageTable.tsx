@@ -9,8 +9,8 @@ import {
 import Tooltip from '@utils/components/Tooltip'
 import {
   DealCategory,
+  DealStageAction,
   DealStageData,
-  ForecastCategory,
 } from '@utils/models/deal'
 
 import { EditableCell, EditableRow } from './EditableCell'
@@ -28,6 +28,7 @@ export interface TData extends DealStageData {
   isNew?: boolean
   isDeleted?: boolean
   isUpdated?: boolean
+  action?: DealStageAction
 }
 
 interface IProps {
@@ -97,7 +98,6 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
       name: '',
       probability: 0,
       dealCategory: DealCategory.OPEN,
-      forecastCategory: ForecastCategory.PIPELINE,
       isNew: true,
     }
     if (id === null) {
@@ -127,15 +127,15 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     {
       title: 'Stage Name',
       dataIndex: 'name',
-      width: 280,
-      className: 'min-w-[280px] max-w-[280px]',
+      width: 300,
+      className: 'min-w-[300px] max-w-[300px]',
       editable: true,
     },
     {
       title: 'Probability (%)',
       dataIndex: 'probability',
-      width: 140,
-      className: 'w-[140px]',
+      width: 180,
+      className: 'w-[180px]',
       editable: true,
     },
     {
@@ -146,15 +146,6 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
       editable: true,
       as: 'select',
       selectSource: Object.values(DealCategory),
-    },
-    {
-      title: 'Forecast Category',
-      dataIndex: 'forecastCategory',
-      width: 180,
-      className: 'w-[180px]',
-      editable: true,
-      as: 'select',
-      selectSource: Object.values(ForecastCategory),
     },
     {
       title: 'Operation',

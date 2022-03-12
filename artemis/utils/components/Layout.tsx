@@ -3,8 +3,10 @@ import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import { ReactNode, useEffect } from 'react'
 import { useQueryClient } from 'react-query'
+import { useKey } from 'react-use'
 
 import { GlobalState } from '@utils/GlobalStateKey'
+import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { Actions } from '@utils/models/role'
 
@@ -12,6 +14,7 @@ import BugReporter from './BugReporter'
 import Footer from './Footer'
 import Header from './Header'
 import { OG } from './OpenGraph'
+import Search from './Search'
 import SessionInvalidate from './SessionInvalidate'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })
@@ -23,6 +26,7 @@ type Props = {
   children: ReactNode
   footer?: boolean
   og?: Partial<OG>
+  disableSearch?: boolean
 } & (
   | { requireLogin: true; header?: boolean }
   | { requireLogin?: false; header: false }
@@ -37,9 +41,23 @@ function Layout({
   og,
   description,
   keywords,
+  disableSearch,
 }: Props) {
   const [session] = useTypedSession()
   const client = useQueryClient()
+
+  const [search, openSearch, closeSearch] = useModal()
+  useKey(
+    '/',
+    (event) => {
+      if (disableSearch) return
+      if (!event.ctrlKey) return
+
+      openSearch()
+    },
+    { event: 'keydown' },
+    [disableSearch],
+  )
 
   useEffect(() => {
     const auth = Object.values(Actions)
@@ -104,6 +122,7 @@ function Layout({
       </Head>
 
       <SessionInvalidate />
+      {!disableSearch && <Search close={closeSearch} visible={search} />}
 
       {process.env.NODE_ENV === 'production' && <BugReporter />}
       {requireLogin && <RequireLogin />}

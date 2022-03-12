@@ -105,7 +105,7 @@ export const NoteSection = ({
   )
 
   return (
-    <div className="pt-4">
+    <div className="p-4 border rounded-md">
       <div
         className="font-semibold mb-4 max-w-[720px] flex flex-row justify-between"
         id={LeadDetailSections.Notes}
