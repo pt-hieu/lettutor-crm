@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AccountModule } from 'src/account/account.module'
 import { ContactModule } from 'src/contact/contact.module'
+import { DealStageModule } from 'src/deal-stage/deal-stage.module'
 import { LeadModule } from 'src/lead/lead.module'
 import { NoteModule } from 'src/note/note.module'
 import { UserModule } from 'src/user/user.module'
@@ -17,6 +18,7 @@ import { DealSubscriber } from './deal.subscriber'
     TypeOrmModule.forFeature([Deal]),
     AccountModule,
     UserModule,
+    DealStageModule,
     forwardRef(() => NoteModule),
     forwardRef(() => LeadModule),
     forwardRef(() => ContactModule),
