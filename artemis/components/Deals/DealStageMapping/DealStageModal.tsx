@@ -1,6 +1,6 @@
 import { Divider, Modal, notification } from 'antd'
-import { useState } from 'react'
-import { useMutation } from 'react-query'
+import { useEffect, useState } from 'react'
+import { useMutation, useQuery } from 'react-query'
 
 import Loading from '@utils/components/Loading'
 import {
@@ -8,30 +8,30 @@ import {
   DealStageAction,
   DealStageData,
 } from '@utils/models/deal'
-import { updateDealStage } from '@utils/service/deal'
+import { getDealStages, updateDealStage } from '@utils/service/deal'
 
 import { DealStageTable, TData } from './DealStageTable'
 
-let data: DealStageData[] = [
-  {
-    id: 'abc1',
-    name: 'Qualification',
-    probability: 32,
-    dealCategory: DealCategory.CLOSED_LOST,
-  },
-  {
-    id: 'abc2',
-    name: 'Needs Analysis',
-    probability: 62,
-    dealCategory: DealCategory.CLOSED_WON,
-  },
-  {
-    id: 'abc3',
-    name: 'Identify Decision Makers',
-    probability: 62,
-    dealCategory: DealCategory.OPEN,
-  },
-]
+// let data: DealStageData[] = [
+//   {
+//     id: 'abc1',
+//     name: 'Qualification',
+//     probability: 32,
+//     dealCategory: DealCategory.CLOSED_LOST,
+//   },
+//   {
+//     id: 'abc2',
+//     name: 'Needs Analysis',
+//     probability: 62,
+//     dealCategory: DealCategory.CLOSED_WON,
+//   },
+//   {
+//     id: 'abc3',
+//     name: 'Identify Decision Makers',
+//     probability: 62,
+//     dealCategory: DealCategory.OPEN,
+//   },
+// ]
 
 type Props = {
   visible: boolean
@@ -40,7 +40,12 @@ type Props = {
 }
 
 export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
-  const [dataSource, setDataSource] = useState(data)
+  const { data } = useQuery('deal-stages', () => getDealStages())
+  const [dataSource, setDataSource] = useState<TData[]>([])
+
+  useEffect(() => {
+    setDataSource(data || [])
+  }, [visible])
 
   const { mutateAsync } = useMutation('update-deal-stage', updateDealStage, {
     onSuccess: () => {
@@ -53,15 +58,11 @@ export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
 
   const submitModal = () => {
     const validDatas = dataSource.filter(isValidData).map(formatData)
-    data = validDatas
-
-    setDataSource(data)
     mutateAsync(validDatas)
     handleClose()
   }
 
   const closeModal = () => {
-    setDataSource(data)
     handleClose()
   }
 

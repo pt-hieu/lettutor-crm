@@ -97,7 +97,7 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
       id: new Date().toString(),
       name: '',
       probability: 0,
-      dealCategory: DealCategory.OPEN,
+      category: DealCategory.OPEN,
       isNew: true,
     }
     if (id === null) {
@@ -140,7 +140,7 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     },
     {
       title: 'Deal category',
-      dataIndex: 'dealCategory',
+      dataIndex: 'category',
       width: 180,
       className: 'w-[180px]',
       editable: true,

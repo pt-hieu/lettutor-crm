@@ -1,4 +1,6 @@
 import { List } from 'antd'
+import { GetServerSideProps } from 'next'
+import { QueryClient, dehydrate } from 'react-query'
 
 import { DealStageModal } from '@components/Deals/DealStageMapping/DealStageModal'
 import SettingsLayout from '@components/Settings/SettingsLayout'
@@ -6,6 +8,8 @@ import SettingsLayout from '@components/Settings/SettingsLayout'
 import Dropdown from '@utils/components/Dropdown'
 import Menu from '@utils/components/Menu'
 import { useModal } from '@utils/hooks/useModal'
+import { getSessionToken } from '@utils/libs/getToken'
+import { getDealStages } from '@utils/service/deal'
 
 type ModulesList = {
   name: string
@@ -91,3 +95,20 @@ const ModulesSettings = () => {
 }
 
 export default ModulesSettings
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const client = new QueryClient()
+  const token = getSessionToken(req.cookies)
+
+  if (token) {
+    await Promise.all([
+      client.prefetchQuery('deal-stages', () => getDealStages(token)),
+    ])
+  }
+
+  return {
+    props: {
+      dehydratedState: dehydrate(client),
+    },
+  }
+}

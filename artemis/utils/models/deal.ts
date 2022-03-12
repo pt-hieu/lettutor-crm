@@ -62,7 +62,7 @@ export interface DealStageData {
   id: string
   name: string
   probability: number
-  dealCategory: DealCategory
+  category: DealCategory
 }
 
 export enum DealStageAction {
