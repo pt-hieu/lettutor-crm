@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
+  Allow,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -20,14 +21,14 @@ export enum DealStageAction {
   UPDATE = 'Update',
 }
 
-export class DeleteDealStage {
+export class BatchDelete {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID()
-  id?: string
+  @IsUUID(undefined, { each: true })
+  ids: string[]
 }
 
-export class ModifyDealStage extends DeleteDealStage {
+export class ModifyDealStage extends BatchDelete {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -52,4 +53,10 @@ export class ModifyDealStage extends DeleteDealStage {
   action?: DealStageAction
 
   order: number
+}
+
+export class ExposeDto {
+  @ApiProperty()
+  @Allow()
+  items: [ModifyDealStage]
 }
