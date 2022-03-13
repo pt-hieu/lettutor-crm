@@ -5,7 +5,6 @@ import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Lead } from 'src/lead/lead.entity'
-import { Log } from 'src/log/log.entity'
 import { Note } from 'src/note/note.entity'
 import { Ownerful } from 'src/utils/owner.entity'
 
@@ -76,7 +75,4 @@ export class Task extends Ownerful {
 
   @OneToMany(() => Note, (note) => note.task, { cascade: true })
   notes: Note[]
-
-  @OneToMany(() => Log, (log) => log.task, { cascade: true })
-  logs: Log[]
 }

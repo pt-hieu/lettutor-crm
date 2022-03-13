@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Repository } from 'typeorm'
 
-import { NoteService } from 'src/note/note.service'
+import { AccountService } from 'src/account/account.service'
+import { ContactService } from 'src/contact/contact.service'
+import { DealService } from 'src/deal/deal.service'
+import { LeadService } from 'src/lead/lead.service'
 import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
@@ -16,36 +19,13 @@ export class LogService {
 
     @Inject(forwardRef(() => TaskService))
     private readonly taskService: TaskService,
-    private readonly noteService: NoteService,
+    private readonly accountService: AccountService,
+    private readonly contactService: ContactService,
+    private readonly leadService: LeadService,
+    private readonly dealService: DealService,
   ) {}
 
   async create(dto: DTO.Log.CreateLog) {
-    if (dto.source === LogSource.TASK) {
-      const task = await this.taskService.getTaskById({
-        where: { id: dto.entityId },
-      })
-
-      dto.taskId = null
-      dto.leadId = task.leadId
-      dto.contactId = task.contactId
-      dto.accountId = task.accountId
-      dto.dealId = task.dealId
-    }
-
-    console.log(dto)
-
-    if (dto.source === LogSource.NOTE) {
-      const note = await this.noteService.getNoteById({
-        where: { id: dto.entityId },
-      })
-
-      dto.taskId = note.taskId
-      dto.leadId = note.leadId
-      dto.contactId = note.contactId
-      dto.accountId = note.accountId
-      dto.dealId = note.dealId
-    }
-
     return this.logRepo.save({
       ...dto,
       deleted: dto.action === LogAction.DELETE,
@@ -62,7 +42,7 @@ export class LogService {
     )
   }
 
-  getMany({
+  async getMany({
     limit,
     page,
     action,
@@ -84,23 +64,92 @@ export class LogService {
     }
 
     if (entity) {
-      qb.andWhere((q) => {
-        q.where('l.entityId = :entity', { entity })
-          .orWhere('l.leadId = :entity', { entity })
-          .orWhere('l.contactId = :entity', { entity })
-          .orWhere('l.dealId = :entity', { entity })
-          .orWhere('l.accountId = :entity', { entity })
-          .orWhere('l.taskId = :entity', { entity })
-      })
+      const entities = []
+      entities.push(entity)
+
+      if (source === LogSource.ACCOUNT) {
+        const account = await this.accountService.getAccountById({
+          where: {
+            id: entity,
+          },
+        })
+
+        if (account.tasks) {
+          account.tasks.forEach((task) => entities.push(task.id))
+        }
+        if (account.notes) {
+          account.notes.forEach((note) => entities.push(note.id))
+        }
+      }
+
+      if (source === LogSource.CONTACT) {
+        const contact = await this.contactService.getContactById({
+          where: {
+            id: entity,
+          },
+        })
+
+        if (contact.tasks) {
+          contact.tasks.forEach((task) => entities.push(task.id))
+        }
+        if (contact.notes) {
+          contact.notes.forEach((note) => entities.push(note.id))
+        }
+      }
+
+      if (source === LogSource.DEAL) {
+        const deal = await this.dealService.getDealById({
+          where: {
+            id: entity,
+          },
+        })
+
+        if (deal.tasks) {
+          deal.tasks.forEach((task) => entities.push(task.id))
+        }
+        if (deal.notes) {
+          deal.notes.forEach((note) => entities.push(note.id))
+        }
+      }
+
+      if (source === LogSource.LEAD) {
+        const lead = await this.leadService.getLeadById({
+          where: {
+            id: entity,
+          },
+          relations: ['tasks', 'notes'],
+        })
+
+        if (lead.tasks) {
+          lead.tasks.forEach((task) => entities.push(task.id))
+        }
+        if (lead.notes) {
+          lead.notes.forEach((note) => entities.push(note.id))
+        }
+      }
+
+      if (source === LogSource.TASK) {
+        const task = await this.taskService.getTaskById({
+          where: {
+            id: entity,
+          },
+        })
+
+        if (task.notes) {
+          task.notes.forEach((note) => entities.push(note.id))
+        }
+      }
+
+      qb.andWhere('l.entityId in (:...entities)', { entities })
     }
 
     if (action) {
       qb.andWhere('l.action = :action', { action })
     }
 
-    if (source) {
-      qb.andWhere('l.source = :source', { source })
-    }
+    // if (source) {
+    //   qb.andWhere('l.source = :source', { source })
+    // }
 
     if (from) {
       qb.andWhere('l.createdAt > :from', { from: from.toISOString() })

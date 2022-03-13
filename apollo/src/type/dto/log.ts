@@ -20,11 +20,6 @@ export class CreateLog {
   ownerId: string
   entityId: string
   entityName: string
-  taskId?: string | null
-  leadId?: string | null
-  contactId?: string | null
-  accountId?: string | null
-  dealId?: string | null
 }
 
 export class GetManyLogs extends Paginate {
