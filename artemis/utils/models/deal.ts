@@ -30,12 +30,13 @@ export interface Deal extends Base {
   fullName: string
   amount: number | null
   closingDate: Date
-  stage: DealStage
+  stage: DealStageData
   source: LeadSource
   probability: number
   description: string | null
   tasks: Task[]
   notes: Note[]
+  stageId?: string
 }
 
 export type UpdateDealDto = {
@@ -58,18 +59,15 @@ export enum DealCategory {
   CLOSED_WON = 'Close Won',
 }
 
-export enum ForecastCategory {
-  PIPELINE = 'Pipeline',
-  BEST_CASE = 'Best Case',
-  COMMITED = 'Commited',
-  CLOSED = 'Closed',
-  OMMITED = 'Omitted',
-}
-
 export interface DealStageData {
-  id: string
+  id?: string
   name: string
   probability: number
-  dealCategory: string
-  forecastCategory: string
+  category: DealCategory
+}
+
+export enum DealStageAction {
+  ADD = 'Add',
+  DELETE = 'Delete',
+  UPDATE = 'Update',
 }

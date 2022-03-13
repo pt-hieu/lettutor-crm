@@ -3,9 +3,10 @@ import { Base } from './base'
 import { Contact } from './contact'
 import { Deal } from './deal'
 import { Lead } from './lead'
+import { Task } from './task'
 import { User } from './user'
 
-export type NoteSource = 'lead' | 'contact' | 'account' | 'deal'
+export type NoteSource = 'lead' | 'contact' | 'account' | 'deal' | 'task'
 
 export type AddNoteDto = {
   ownerId: string
@@ -13,6 +14,7 @@ export type AddNoteDto = {
   leadId?: string
   contactId?: string
   accountId?: string
+  taskId?: string
   title?: string
   content?: string
   files?: File[]
@@ -34,5 +36,6 @@ export interface Note extends Base {
   lead?: Lead
   contact?: Contact
   account?: Account
+  task?: Task
   attachments: Attachments[]
 }

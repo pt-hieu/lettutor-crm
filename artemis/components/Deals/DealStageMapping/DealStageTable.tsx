@@ -9,8 +9,8 @@ import {
 import Tooltip from '@utils/components/Tooltip'
 import {
   DealCategory,
+  DealStageAction,
   DealStageData,
-  ForecastCategory,
 } from '@utils/models/deal'
 
 import { EditableCell, EditableRow } from './EditableCell'
@@ -27,14 +27,21 @@ const SortableBody = SortableContainer((props: any) => (
 export interface TData extends DealStageData {
   isNew?: boolean
   isDeleted?: boolean
+  isUpdated?: boolean
+  action?: DealStageAction
 }
 
 interface IProps {
-  dataSource: DealStageData[]
+  dataSource: TData[]
   setDataSource: (data: TData[]) => void
+  isLoading: boolean
 }
 
-export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
+export const DealStageTable = ({
+  dataSource,
+  setDataSource,
+  isLoading,
+}: IProps) => {
   const onSortEnd = ({
     oldIndex,
     newIndex,
@@ -47,8 +54,8 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
         [].concat(dataSource as any),
         oldIndex,
         newIndex,
-      ).filter((el) => !!el)
-      console.log('Sorted items: ', newData)
+      ).filter((el) => !!el) as TData[]
+
       setDataSource(newData)
     }
   }
@@ -77,13 +84,17 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     newData.splice(index, 1, {
       ...item,
       ...row,
+      isUpdated: true,
     })
     setDataSource(newData)
   }
 
   const handleDelete = (key: React.Key) => {
-    const newDataSource = [...dataSource]
-    setDataSource(newDataSource.filter((item) => item.id !== key))
+    const newData = [...dataSource]
+    const index = newData.findIndex((item) => item.id === key)
+    if (index < 0) return
+    newData[index].isDeleted = true
+    setDataSource(newData)
   }
 
   const handleAdd = (id: string | null) => {
@@ -91,18 +102,18 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
       id: new Date().toString(),
       name: '',
       probability: 0,
-      dealCategory: DealCategory.OPEN,
-      forecastCategory: ForecastCategory.PIPELINE,
+      category: DealCategory.OPEN,
       isNew: true,
     }
     if (id === null) {
       //Empty list
       setDataSource([newData])
-    }
-    const index = dataSource.findIndex((item) => item.id === id)
-    if (index < 0) {
       return
     }
+
+    const index = dataSource.findIndex((item) => item.id === id)
+
+    if (index < 0) return
 
     const newDataSource = dataSource.filter((item) => item.name)
     newDataSource.splice(index + 1, 0, newData)
@@ -121,34 +132,25 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     {
       title: 'Stage Name',
       dataIndex: 'name',
-      width: 280,
-      className: 'min-w-[280px] max-w-[280px]',
+      width: 300,
+      className: 'min-w-[300px] max-w-[300px]',
       editable: true,
     },
     {
       title: 'Probability (%)',
       dataIndex: 'probability',
-      width: 140,
-      className: 'w-[140px]',
+      width: 180,
+      className: 'w-[180px]',
       editable: true,
     },
     {
       title: 'Deal category',
-      dataIndex: 'dealCategory',
+      dataIndex: 'category',
       width: 180,
       className: 'w-[180px]',
       editable: true,
       as: 'select',
       selectSource: Object.values(DealCategory),
-    },
-    {
-      title: 'Forecast Category',
-      dataIndex: 'forecastCategory',
-      width: 180,
-      className: 'w-[180px]',
-      editable: true,
-      as: 'select',
-      selectSource: Object.values(ForecastCategory),
     },
     {
       title: 'Operation',
@@ -158,15 +160,19 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
           <div className="flex gap-2">
             <Popconfirm
               title="Sure to delete?"
-              onConfirm={() => handleDelete(record.id)}
+              onConfirm={() => handleDelete(record.id as string)}
             >
-              <i className="crm-icon-btn fa fa-trash hover:text-red-500 hover:border-red-500" />
+              <button className="crm-icon-btn hover:text-red-500 hover:border-red-500">
+                <i className="fa fa-trash" />
+              </button>
             </Popconfirm>
 
-            <i
-              className="crm-icon-btn fa fa-plus hover:text-blue-500 hover:border-blue-500"
-              onClick={() => handleAdd(record.id)}
-            />
+            <button
+              className="crm-icon-btn hover:text-blue-500 hover:border-blue-500"
+              onClick={() => handleAdd(record.id as string)}
+            >
+              <i className="fa fa-plus" />
+            </button>
           </div>
         ) : undefined,
     },
@@ -194,10 +200,12 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
     emptyText: (
       <div className="relative">
         <Tooltip title="Add new deal stage">
-          <i
-            className="crm-icon-btn fa fa-plus p-4 text-blue-500 hover:border-blue-500 absolute translate-y-[100%]"
+          <button
+            className="crm-icon-btn w-10 text-blue-500 hover:border-blue-500 absolute translate-y-[100%]"
             onClick={() => handleAdd(null)}
-          />
+          >
+            <i className="fa fa-plus" onClick={() => handleAdd(null)} />
+          </button>
         </Tooltip>
         <Empty />
       </div>
@@ -207,11 +215,12 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
   return (
     <Table
       pagination={false}
-      dataSource={dataSource}
+      dataSource={dataSource.filter((item) => !item.isDeleted)}
       columns={mapColumns}
       rowKey="id"
       bordered
       locale={locale}
+      loading={isLoading}
       components={{
         body: {
           wrapper: DraggableContainer,
