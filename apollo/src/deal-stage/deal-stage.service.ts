@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -12,7 +11,7 @@ import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 import { DealStageAction } from 'src/type/dto/deal-stage'
 
-import { DealStage, DealStageCategory } from './deal-stage.entity'
+import { DealStage, DealStageType } from './deal-stage.entity'
 
 @Injectable()
 export class DealStageService {
@@ -42,40 +41,45 @@ export class DealStageService {
   }
 
   async modifyDealStage(dtos: DTO.DealStage.ModifyDealStage[]) {
-    this.doValidateStages(dtos)
+    this.validateStages(dtos)
 
     let order = 1
-
-    const updateAction = async (dto: DTO.DealStage.ModifyDealStage) => {
-      await this.updateDealStage({
-        ...dto,
-        order,
-      })
-    }
-
-    const actions = {
-      Add: async (dto: DTO.DealStage.ModifyDealStage) => {
-        await this.addDealStage({
+    const actionMappings: Record<
+      DealStageAction,
+      (v: DTO.DealStage.ModifyDealStage) => Promise<DealStage | DealStage[]>
+    > = {
+      [DealStageAction.ADD]: (dto) => {
+        return this.addDealStage({
           ...dto,
           order,
         })
       },
-      Update: updateAction,
-      undefined: updateAction,
-      Delete: async (dto: DTO.DealStage.ModifyDealStage) => {
+      [DealStageAction.UPDATE]: (dto) => {
+        return this.updateDealStage({
+          ...dto,
+          order,
+        })
+      },
+      [DealStageAction.DELETE]: (dto) => {
         order--
-        await this.batchDelete([dto.id])
+        return this.batchDelete([dto.id])
       },
     }
 
-    for (const dto of dtos) {
-      actions[dto.action](dto)
-      order++
-    }
+    return await Promise.all(
+      dtos.map(async (dto) => {
+        const result = await actionMappings[
+          dto.action || DealStageAction.DELETE
+        ](dto)
+        order++
+
+        return result
+      }),
+    )
   }
 
-  async addDealStage(dto: DTO.DealStage.ModifyDealStage) {
-    await this.dealStageRepo.save(dto)
+  addDealStage(dto: DTO.DealStage.ModifyDealStage) {
+    return this.dealStageRepo.save(dto)
   }
 
   async updateDealStage(dto: DTO.DealStage.ModifyDealStage) {
@@ -88,29 +92,19 @@ export class DealStageService {
     return this.dealStageRepo.softRemove(stages)
   }
 
-  doValidateStages(dtos: DTO.DealStage.ModifyDealStage[]) {
-    let countOpen = 0
-    let countCloseWon = 0
-    let countCloseLost = 0
-
-    for (const dto of dtos) {
-      if (dto.action === DealStageAction.DELETE) {
-        continue
-      }
-
-      if (dto.category === DealStageCategory.OPEN) {
-        countOpen++
-      } else if (dto.category === DealStageCategory.CLOSE_WON) {
-        countCloseWon++
-      } else if (dto.category === DealStageCategory.CLOSE_LOST) {
-        countCloseLost++
-      }
+  private validateStages(dtos: DTO.DealStage.ModifyDealStage[]) {
+    const counts: Record<DealStageType, number> = {
+      [DealStageType.CLOSE_LOST]: 0,
+      [DealStageType.CLOSE_WON]: 0,
+      [DealStageType.OPEN]: 0,
     }
 
-    if (countOpen >= 1 && countCloseLost >= 1 && countCloseWon >= 1) {
-      return
-    }
+    dtos.forEach((dto) => {
+      if (dto.action === DealStageAction.DELETE) return
+      counts[dto.type]++
+    })
 
+    if (Object.values(counts).reduce((sum, count) => sum + count) >= 3) return
     throw new BadRequestException(
       'Deal stage must has at least 1 "Open", 1 "Close Won" and 1 "Close Lost" category',
     )

@@ -13,7 +13,7 @@ import {
 } from 'class-validator'
 import { Double } from 'typeorm'
 
-import { DealStageCategory } from 'src/deal-stage/deal-stage.entity'
+import { DealStageType } from 'src/deal-stage/deal-stage.entity'
 
 export enum DealStageAction {
   ADD = 'Add',
@@ -34,16 +34,14 @@ export class ModifyDealStage {
   name: string
 
   @ApiProperty({ type: Double })
-  @IsNotEmpty()
   @IsNumber()
   @Min(0)
   @Max(100)
   probability: number
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsEnum(DealStageCategory)
-  category: DealStageCategory
+  @IsEnum(DealStageType)
+  type: DealStageType
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -56,5 +54,5 @@ export class ModifyDealStage {
 export class ExposeDto {
   @ApiProperty()
   @Allow()
-  items: [ModifyDealStage]
+  items: ModifyDealStage[]
 }
