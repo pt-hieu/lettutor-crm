@@ -201,10 +201,6 @@ const EditDeal = () => {
       data.contactId = null
     }
 
-    if (data.stage) {
-      data.stageId = data.stage
-    }
-
     // const isMarkDealAsClosedLoss =
     //   (deal?.stage !== DealStage.CLOSED_LOST &&
     //     data.stage === DealStage.CLOSED_LOST) ||
