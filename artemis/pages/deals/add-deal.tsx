@@ -14,13 +14,13 @@ import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
-import { DealStageData } from '@utils/models/deal'
+import { DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
 import { getRawAccounts } from '@utils/service/account'
 import { getRawContacts } from '@utils/service/contact'
-import { addDeal, getDealStages } from '@utils/service/deal'
+import { addDeal } from '@utils/service/deal'
 import { getRawUsers } from '@utils/service/user'
 
 import { DealUpdateFormData, EditDealSchema } from './[id]/edit'
@@ -42,10 +42,6 @@ const AddDeal = () => {
     enabled: false,
   })
 
-  const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
-    enabled: false,
-  })
-
   const ownerOptions = owners?.map((owner) => ({
     value: owner.id,
     option: owner.name,
@@ -61,13 +57,7 @@ const AddDeal = () => {
     option: contact.fullName,
   }))
 
-  const dealStageOptions = dealStages?.map((dealStage) => ({
-    value: dealStage.id,
-    option: dealStage.name,
-  }))
-
   contactOptions?.unshift({ value: 'None', option: 'None' })
-  dealStageOptions?.unshift({ value: '', option: 'None' })
 
   const selectChildren = {
     ownerId: ownerOptions?.map((option) => (
@@ -81,11 +71,6 @@ const AddDeal = () => {
       </option>
     )),
     contactId: contactOptions?.map((option) => (
-      <option key={option.value} value={option.value}>
-        {option.option}
-      </option>
-    )),
-    stageId: dealStageOptions?.map((option) => (
       <option key={option.value} value={option.value}>
         {option.option}
       </option>
@@ -114,6 +99,7 @@ const AddDeal = () => {
     resolver: yupResolver(EditDealSchema),
     defaultValues: {
       ownerId: '',
+      stage: DealStage.QUALIFICATION,
       source: LeadSource.NONE,
       contactId: 'None',
     },
@@ -236,7 +222,6 @@ export const getServerSideProps: GetServerSideProps = async ({
       client.prefetchQuery(['users'], getRawUsers(token)),
       client.prefetchQuery(['contacts'], getRawContacts(token)),
       client.prefetchQuery(['accounts'], getRawAccounts(token)),
-      client.prefetchQuery(['deal-stages'], getDealStages(token)),
     ])
   }
 

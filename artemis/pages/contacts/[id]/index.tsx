@@ -291,7 +291,6 @@ const ContactDetail = () => {
     {
       onSuccess() {
         client.invalidateQueries(['contact', id, 'notes'])
-        client.invalidateQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Add note unsuccessfully' })

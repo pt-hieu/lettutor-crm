@@ -2,8 +2,6 @@ import axios from 'axios'
 import { API } from 'environment'
 import { DealUpdateFormData } from 'pages/deals/[id]/edit'
 
-import { TData } from '@components/Deals/DealStageMapping/DealStageTable'
-
 import { Deal, DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
@@ -62,18 +60,3 @@ export const batchDelete = (ids: string[]) =>
   axios
     .delete(API + '/apollo/deal/batch', { data: { ids } })
     .then((r) => r.data)
-
-export const getDealStages = (token?: string) => async () => {
-  const { data } = await axios.get<TData[]>(API + '/apollo/deal-stage', {
-    headers: { authorization: `Bearer ${token}` },
-  })
-
-  return data
-}
-
-export const updateDealStage = async (datas: TData[]) => {
-  const { data } = await axios.post(API + `/apollo/deal-stage`, {
-    items: datas,
-  })
-  return data
-}
