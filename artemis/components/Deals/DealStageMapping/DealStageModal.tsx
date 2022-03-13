@@ -1,12 +1,38 @@
-import { Divider, Modal, notification } from 'antd'
-import { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { Divider, Modal } from 'antd'
+import { useState } from 'react'
 
 import Loading from '@utils/components/Loading'
-import { DealCategory, DealStageAction } from '@utils/models/deal'
-import { getDealStages, updateDealStage } from '@utils/service/deal'
+import {
+  DealCategory,
+  DealStageData,
+  ForecastCategory,
+} from '@utils/models/deal'
 
 import { DealStageTable, TData } from './DealStageTable'
+
+let data: DealStageData[] = [
+  {
+    id: 'abc1',
+    name: 'Qualification',
+    probability: 32,
+    dealCategory: DealCategory.CLOSED_LOST,
+    forecastCategory: ForecastCategory.BEST_CASE,
+  },
+  {
+    id: 'abc2',
+    name: 'Needs Analysis',
+    probability: 62,
+    dealCategory: DealCategory.CLOSED_WON,
+    forecastCategory: ForecastCategory.PIPELINE,
+  },
+  {
+    id: 'abc3',
+    name: 'Identify Decision Makers',
+    probability: 62,
+    dealCategory: DealCategory.OPEN,
+    forecastCategory: ForecastCategory.OMMITED,
+  },
+]
 
 type Props = {
   visible: boolean
@@ -14,56 +40,28 @@ type Props = {
   isLoading?: boolean
 }
 
-export const DealStageModal = ({ visible, handleClose }: Props) => {
-  const client = useQueryClient()
-  const { data, isLoading } = useQuery(['deal-stages'], getDealStages(), {
-    enabled: visible,
-  })
-  const [dataSource, setDataSource] = useState<TData[]>([])
-
-  useEffect(() => {
-    setDataSource(data || [])
-  }, [data, visible])
-
-  const { mutateAsync, isLoading: submitLoading } = useMutation(
-    'update-deal-stage',
-    updateDealStage,
-    {
-      onSuccess: () => {
-        notification.success({ message: 'Update deal stage successfully' })
-        client.invalidateQueries(['deal-stages'])
-        handleClose()
-      },
-      onError: () => {
-        notification.error({ message: 'Update deal stage unsuccessfully' })
-      },
-    },
-  )
+export const DealStageModal = ({ visible, handleClose, isLoading }: Props) => {
+  const [dataSource, setDataSource] = useState(data)
 
   const submitModal = () => {
-    const validatedData = dataSource.filter(isValidData).map(formatData)
-    const dealStageCategories = Object.values(DealCategory)
-    const isEnoughCategory = dealStageCategories.every(
-      (elem) =>
-        validatedData
-          .filter((item) => item.action !== DealStageAction.DELETE)
-          .findIndex((d) => d.category === elem) > -1,
-    )
+    const validDatas = dataSource.filter((item) => isValidData(item))
+    data = validDatas
 
-    if (!isEnoughCategory) {
-      notification.error({ message: 'Deal stages must contain all categories' })
-      return
-    }
-    mutateAsync(validatedData)
+    setDataSource(data)
+    handleClose()
+  }
+
+  const closeModal = () => {
+    setDataSource(data)
+    handleClose()
   }
 
   return (
     <Modal
       visible={visible}
-      onCancel={handleClose}
-      width={900}
+      onCancel={closeModal}
+      width={1000}
       maskClosable={false}
-      destroyOnClose
       footer={
         <div className="flex w-full gap-2 justify-end">
           <button
@@ -71,10 +69,10 @@ export const DealStageModal = ({ visible, handleClose }: Props) => {
             disabled={isLoading}
             className="crm-button"
           >
-            <Loading on={submitLoading}>Submit</Loading>
+            <Loading on={isLoading}>Submit</Loading>
           </button>
 
-          <button onClick={handleClose} className="crm-button-outline">
+          <button onClick={closeModal} className="crm-button-outline">
             Cancel
           </button>
         </div>
@@ -87,38 +85,12 @@ export const DealStageModal = ({ visible, handleClose }: Props) => {
       <Divider />
 
       <div className="max-h-[400px] overflow-y-auto overflow-x-hidden crm-scrollbar pr-1">
-        <DealStageTable
-          dataSource={dataSource}
-          setDataSource={setDataSource}
-          isLoading={isLoading}
-        />
+        <DealStageTable dataSource={dataSource} setDataSource={setDataSource} />
       </div>
     </Modal>
   )
 }
 
 function isValidData(data: TData) {
-  return !!data.name && !(data.isDeleted && data.isNew)
-}
-
-function formatData(data: TData) {
-  const newData = { ...data }
-
-  if (newData.isUpdated) {
-    newData.action = DealStageAction.UPDATE
-    delete newData.isUpdated
-  }
-
-  if (newData.isNew) {
-    newData.action = DealStageAction.ADD
-    delete newData.isNew
-    delete newData.id
-  }
-
-  if (newData.isDeleted) {
-    newData.action = DealStageAction.DELETE
-    delete newData.isDeleted
-  }
-
-  return newData
+  return !!data.name
 }

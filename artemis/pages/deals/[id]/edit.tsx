@@ -19,19 +19,14 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
-import {
-  Deal,
-  DealStageData,
-  LossStages,
-  UpdateDealDto,
-} from '@utils/models/deal'
+import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
-import { getRawAccounts } from '@utils/service/account'
-import { getRawContacts } from '@utils/service/contact'
-import { getDeal, getDealStages, updateDeal } from '@utils/service/deal'
-import { getRawUsers } from '@utils/service/user'
+import { getAccounts, getRawAccounts } from '@utils/service/account'
+import { getContacts, getRawContacts } from '@utils/service/contact'
+import { getDeal, updateDeal } from '@utils/service/deal'
+import { getRawUsers, getUsers } from '@utils/service/user'
 
 export type DealUpdateFormData = {
   ownerId: string
@@ -44,7 +39,6 @@ export type DealUpdateFormData = {
   source: LeadSource
   probability: number | null
   description: string | null
-  stageId: string
 }
 
 export const EditDealSchema = yup.object().shape({
@@ -63,7 +57,7 @@ export const EditDealSchema = yup.object().shape({
     .date()
     .required('Closing Date is required.')
     .typeError('Closing Date is not valid'),
-  stageId: yup.string().required('Stage is required.'),
+  stage: yup.string().required('Stage is required.'),
   source: yup.string().required('Lead Source is required.'),
   contactId: yup.string(),
   probability: yup
@@ -95,10 +89,6 @@ const EditDeal = () => {
     enabled: false,
   })
 
-  const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
-    enabled: false,
-  })
-
   const { data: deal } = useQuery<Deal>(['deal', id], { enabled: false })
 
   const ownerOptions = owners?.map((owner) => ({
@@ -116,11 +106,6 @@ const EditDeal = () => {
     option: contact.fullName,
   }))
 
-  const dealStageOptions = dealStages?.map((dealStage) => ({
-    value: dealStage.id,
-    option: dealStage.name,
-  }))
-
   contactOptions?.unshift({ value: 'None', option: 'None' })
 
   const selectChildren = {
@@ -135,12 +120,6 @@ const EditDeal = () => {
       </option>
     )),
     contactId: contactOptions?.map((option) => (
-      <option key={option.value} value={option.value}>
-        {option.option}
-      </option>
-    )),
-
-    stageId: dealStageOptions?.map((option) => (
       <option key={option.value} value={option.value}>
         {option.option}
       </option>
@@ -173,7 +152,7 @@ const EditDeal = () => {
       fullName: deal?.fullName,
       amount: deal?.amount,
       closingDate: deal?.closingDate,
-      stageId: deal?.stage.id,
+      stage: deal?.stage,
       source: deal?.source,
       probability: deal?.probability,
       description: deal?.description,
@@ -201,18 +180,18 @@ const EditDeal = () => {
       data.contactId = null
     }
 
-    // const isMarkDealAsClosedLoss =
-    //   (deal?.stage !== DealStage.CLOSED_LOST &&
-    //     data.stage === DealStage.CLOSED_LOST) ||
-    //   (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
-    //     data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
+    const isMarkDealAsClosedLoss =
+      (deal?.stage !== DealStage.CLOSED_LOST &&
+        data.stage === DealStage.CLOSED_LOST) ||
+      (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
+        data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
 
-    // if (isMarkDealAsClosedLoss) {
-    //   setUpdatedData(data)
-    //   setCloseStage(data.stage as LossStages)
-    //   openConfirmCloseLost()
-    //   return
-    // }
+    if (isMarkDealAsClosedLoss) {
+      setUpdatedData(data)
+      setCloseStage(data.stage as LossStages)
+      openConfirmCloseLost()
+      return
+    }
 
     mutateAsync({ id, dealInfo: data })
   })
@@ -338,7 +317,6 @@ export const getServerSideProps: GetServerSideProps = async ({
       client.prefetchQuery(['contacts'], getRawContacts(token)),
       client.prefetchQuery(['accounts'], getRawAccounts(token)),
       client.prefetchQuery(['deal', id], getDeal(id, token)),
-      client.prefetchQuery(['deal-stages'], getDealStages(token)),
     ])
   }
 

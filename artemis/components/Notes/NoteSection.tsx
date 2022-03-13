@@ -168,10 +168,7 @@ export const NoteSection = ({
                 onDeleteNote={onDeleteNote}
                 noteId={id}
                 noteSource={source}
-                sourceName={
-                  (item[source]?.fullName as string) ||
-                  (item.task?.subject as string)
-                }
+                sourceName={item[source]?.fullName as string}
                 sourceId={item[source]?.id as string}
                 files={attachments}
               />
