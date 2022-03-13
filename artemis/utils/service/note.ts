@@ -20,6 +20,7 @@ export const addNote = async (noteInfo: AddNoteDto) => {
     contactId,
     dealId,
     accountId,
+    taskId,
   } = noteInfo
   const formData = new FormData()
   formData.append('ownerId', ownerId)
@@ -30,6 +31,7 @@ export const addNote = async (noteInfo: AddNoteDto) => {
   contactId && formData.append('contactId', contactId)
   dealId && formData.append('dealId', dealId)
   accountId && formData.append('accountId', accountId)
+  taskId && formData.append('taskId', taskId)
 
   if (files) {
     for (const file of files) {

@@ -80,7 +80,7 @@
   }
 
   .crm-icon-btn {
-    @apply p-2 leading-3 bg-white rounded-full text-gray-700 border cursor-pointer;
+    @apply w-8 aspect-square bg-white rounded-full text-gray-700 border;
   }
 
   * {
