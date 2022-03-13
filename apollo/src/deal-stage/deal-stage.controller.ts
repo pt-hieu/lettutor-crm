@@ -15,6 +15,7 @@ export class DealStageController {
   constructor(private readonly service: DealStageService) {}
 
   @Get()
+  @DefineAction(Actions.VIEW_ALL_DEAL_STAGES)
   @ApiOperation({ summary: 'view all deal stages' })
   index() {
     return this.service.getAll()
@@ -24,9 +25,9 @@ export class DealStageController {
   @DefineAction(Actions.MODIFY_ALL_DEAL_STAGES)
   @ApiOperation({ summary: 'to modify all deal stages' })
   addDeal(
-    @Body(new ParseArrayPipe({ items: DTO.DealStage.ModifyDealStage }))
-    dtos: DTO.DealStage.ModifyDealStage[],
+    @Body()
+    dto: DTO.DealStage.ExposeDto,
   ) {
-    return this.service.modifyDealStage(dtos)
+    return this.service.modifyDealStage(dto.items)
   }
 }

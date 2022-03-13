@@ -10,7 +10,7 @@ export enum DealStageCategory {
   CLOSE_LOST = 'Close Lost',
 }
 
-@Entity({ name: 'deal-stage' })
+@Entity({ name: 'deal_stage' })
 export class DealStage extends BaseEntity {
   @Column({ type: 'varchar' })
   name: string
