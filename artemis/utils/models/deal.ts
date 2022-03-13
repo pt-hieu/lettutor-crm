@@ -30,12 +30,13 @@ export interface Deal extends Base {
   fullName: string
   amount: number | null
   closingDate: Date
-  stage: DealStage
+  stage: DealStageData
   source: LeadSource
   probability: number
   description: string | null
   tasks: Task[]
   notes: Note[]
+  stageId?: string
 }
 
 export type UpdateDealDto = {

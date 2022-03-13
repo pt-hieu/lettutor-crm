@@ -56,9 +56,8 @@ export const DealUpdateData: UpdateDealTemplate = [
       },
       {
         label: 'Stage',
-        name: 'stage',
+        name: 'stageId',
         as: 'select',
-        selectSource: Object.values(DealStage),
         required: true,
       },
       {

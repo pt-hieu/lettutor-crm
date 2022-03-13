@@ -63,7 +63,7 @@ export const batchDelete = (ids: string[]) =>
     .delete(API + '/apollo/deal/batch', { data: { ids } })
     .then((r) => r.data)
 
-export const getDealStages = async (token?: string) => {
+export const getDealStages = (token?: string) => async () => {
   const { data } = await axios.get<TData[]>(API + '/apollo/deal-stage', {
     headers: { authorization: `Bearer ${token}` },
   })
@@ -72,6 +72,8 @@ export const getDealStages = async (token?: string) => {
 }
 
 export const updateDealStage = async (datas: TData[]) => {
-  const { data } = await axios.post(API + `/apollo/deal-stage`, datas)
+  const { data } = await axios.post(API + `/apollo/deal-stage`, {
+    items: datas,
+  })
   return data
 }

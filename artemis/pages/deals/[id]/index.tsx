@@ -36,7 +36,13 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
-import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
+import {
+  Deal,
+  DealStage,
+  DealStageData,
+  LossStages,
+  UpdateDealDto,
+} from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { LogSource } from '@utils/models/log'
 import { AddNoteDto } from '@utils/models/note'
@@ -45,7 +51,7 @@ import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccounts, getRawAccounts } from '@utils/service/account'
 import { getContacts, getRawContacts } from '@utils/service/contact'
-import { getDeal, updateDeal } from '@utils/service/deal'
+import { getDeal, getDealStages, updateDeal } from '@utils/service/deal'
 import {
   SortNoteType,
   addNote,
@@ -92,12 +98,14 @@ const fields =
     users,
     accounts,
     contacts,
+    dealStages,
   }: {
     register: UseFormRegister<DealUpdateFormData>
     errors: FieldErrors<DealUpdateFormData>
     users: User[]
     accounts: Account[]
     contacts: Contact[]
+    dealStages: DealStageData[]
   }): Array<DealInfo> =>
     [
       {
@@ -184,18 +192,18 @@ const fields =
           error: errors.stage?.message,
           as: 'select',
           props: {
-            id: 'stage',
+            id: 'stageId',
             disabled,
             children: (
               <>
-                {Object.values(DealStage).map((stage) => (
-                  <option key={stage} value={stage}>
-                    {stage}
+                {dealStages.map((stage) => (
+                  <option key={stage.id} value={stage.id}>
+                    {stage.name}
                   </option>
                 ))}
               </>
             ),
-            ...register('stage'),
+            ...register('stageId'),
           },
         },
       },
@@ -298,6 +306,10 @@ const DealDetail = () => {
     }),
   )
 
+  const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
+    enabled: false,
+  })
+
   const isOwner = useOwnership(deal)
 
   const defaultValues = useMemo(
@@ -307,7 +319,7 @@ const DealDetail = () => {
       accountId: deal?.account?.id,
       amount: deal?.amount,
       closingDate: deal?.closingDate,
-      stage: deal?.stage,
+      stageId: deal?.stage.id,
       source: deal?.source || LeadSource.NONE,
       contactId: deal?.contact?.id || 'None',
       probability: deal?.probability,
@@ -364,26 +376,26 @@ const DealDetail = () => {
         data.contactId = null
       }
 
-      const isMarkDealAsClosedWon =
-        deal?.stage !== DealStage.CLOSED_WON &&
-        data.stage === DealStage.CLOSED_WON
+      // const isMarkDealAsClosedWon =
+      //   deal?.stage !== DealStage.CLOSED_WON &&
+      //   data.stage === DealStage.CLOSED_WON
 
-      const isMarkDealAsClosedLoss =
-        (deal?.stage !== DealStage.CLOSED_LOST &&
-          data.stage === DealStage.CLOSED_LOST) ||
-        (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
-          data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
+      // const isMarkDealAsClosedLoss =
+      //   (deal?.stage !== DealStage.CLOSED_LOST &&
+      //     data.stage === DealStage.CLOSED_LOST) ||
+      //   (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
+      //     data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
 
-      if (isMarkDealAsClosedWon) {
-        openConfirmCloseWon()
-        return
-      }
+      // if (isMarkDealAsClosedWon) {
+      //   openConfirmCloseWon()
+      //   return
+      // }
 
-      if (isMarkDealAsClosedLoss) {
-        setCloseStage(data.stage as LossStages)
-        openConfirmCloseLost()
-        return
-      }
+      // if (isMarkDealAsClosedLoss) {
+      //   setCloseStage(data.stage as LossStages)
+      //   openConfirmCloseLost()
+      //   return
+      // }
 
       mutateAsync({ dealInfo: data, id })
     }),
@@ -499,6 +511,7 @@ const DealDetail = () => {
                   users: users || [],
                   accounts: accounts || [],
                   contacts: contacts || [],
+                  dealStages: dealStages || [],
                 }).map(({ label, props }) => (
                   <div
                     key={label}
@@ -591,6 +604,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           token,
         ),
       ),
+      client.prefetchQuery(['deal-stages'], getDealStages(token)),
     ])
   }
 

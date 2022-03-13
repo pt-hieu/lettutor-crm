@@ -34,9 +34,14 @@ export interface TData extends DealStageData {
 interface IProps {
   dataSource: TData[]
   setDataSource: (data: TData[]) => void
+  isLoading: boolean
 }
 
-export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
+export const DealStageTable = ({
+  dataSource,
+  setDataSource,
+  isLoading,
+}: IProps) => {
   const onSortEnd = ({
     oldIndex,
     newIndex,
@@ -215,6 +220,7 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
       rowKey="id"
       bordered
       locale={locale}
+      loading={isLoading}
       components={{
         body: {
           wrapper: DraggableContainer,
