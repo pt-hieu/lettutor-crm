@@ -48,7 +48,7 @@ export class DealStageService {
 
     const updateAction = async (dto: DTO.DealStage.ModifyDealStage) => {
       await this.updateDealStage({
-        ids: dto.ids,
+        id: dto.id,
         name: dto.name,
         probability: dto.probability,
         category: dto.category,
@@ -63,14 +63,13 @@ export class DealStageService {
           probability: dto.probability,
           category: dto.category,
           order,
-          ids: [],
         })
       },
       Update: updateAction,
       undefined: updateAction,
       Delete: async (dto: DTO.DealStage.ModifyDealStage) => {
         order--
-        await this.batchDelete(dto.ids)
+        await this.batchDelete([dto.id])
       },
     }
 
@@ -85,7 +84,7 @@ export class DealStageService {
   }
 
   async updateDealStage(dto: DTO.DealStage.ModifyDealStage) {
-    const stage = await this.getDealStageById({ where: { id: In(dto.ids) } })
+    const stage = await this.getDealStageById({ where: { id: dto.id } })
     return this.dealStageRepo.save({ ...stage, ...dto })
   }
 

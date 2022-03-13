@@ -21,14 +21,12 @@ export enum DealStageAction {
   UPDATE = 'Update',
 }
 
-export class BatchDelete {
+export class ModifyDealStage {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID(undefined, { each: true })
-  ids: string[]
-}
+  @IsUUID()
+  id?: string
 
-export class ModifyDealStage extends BatchDelete {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
