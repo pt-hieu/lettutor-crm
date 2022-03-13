@@ -62,6 +62,7 @@ export class DealController {
           'tasks.owner',
           'notes',
           'notes.owner',
+          'stage',
         ],
       },
       true,

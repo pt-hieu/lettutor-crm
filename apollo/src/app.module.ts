@@ -21,6 +21,7 @@ import { RoleModule } from './role/role.module'
 import { TaskModule } from './task/task.module'
 import { UserModule } from './user/user.module'
 import { WebhookModule } from './webhook/webhook.module'
+import { DealStageModule } from './deal-stage/deal-stage.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { WebhookModule } from './webhook/webhook.module'
     LogModule,
     GlobalModule,
     FileModule,
+    DealStageModule,
   ],
   providers: [
     BaseSubscriber,

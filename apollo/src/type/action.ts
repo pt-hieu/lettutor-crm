@@ -47,4 +47,7 @@ export enum Actions {
   VIEW_ALL_NOTES = 'Can view all notes',
   CREATE_NEW_NOTE = 'Can create new note',
   DELETE_NOTE = 'Can delete any note',
+
+  VIEW_ALL_DEAL_STAGES = 'Can view all deal stages',
+  MODIFY_ALL_DEAL_STAGES = 'Can modify all deal stages',
 }
