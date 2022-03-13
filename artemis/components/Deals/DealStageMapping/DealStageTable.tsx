@@ -155,7 +155,7 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
           <div className="flex gap-2">
             <Popconfirm
               title="Sure to delete?"
-              onConfirm={() => handleDelete(record.id)}
+              onConfirm={() => handleDelete(record.id as string)}
             >
               <button className="crm-icon-btn hover:text-red-500 hover:border-red-500">
                 <i className="fa fa-trash" />
@@ -164,7 +164,7 @@ export const DealStageTable = ({ dataSource, setDataSource }: IProps) => {
 
             <button
               className="crm-icon-btn hover:text-blue-500 hover:border-blue-500"
-              onClick={() => handleAdd(record.id)}
+              onClick={() => handleAdd(record.id as string)}
             >
               <i className="fa fa-plus" />
             </button>

@@ -35,7 +35,7 @@ export default function LogSection({ title, entityId, source }: TProps) {
       to: to ? new Date(to) : undefined,
       owner,
     }),
-    { enabled: false },
+    { enabled: true },
   )
 
   useEffect(() => {

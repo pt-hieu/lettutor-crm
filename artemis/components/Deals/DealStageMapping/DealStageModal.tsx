@@ -114,6 +114,7 @@ function formatData(data: TData) {
   if (data.isNew) {
     data.action = DealStageAction.ADD
     delete data.isNew
+    delete data.id
   }
 
   if (data.isDeleted) {

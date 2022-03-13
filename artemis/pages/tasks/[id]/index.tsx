@@ -299,6 +299,7 @@ const TaskDetail = () => {
     {
       onSuccess() {
         client.invalidateQueries(['task', id, 'notes'])
+        client.invalidateQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Add note unsuccessfully' })

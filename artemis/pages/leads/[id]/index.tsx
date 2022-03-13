@@ -274,6 +274,7 @@ const LeadDetail = () => {
   const { mutateAsync: addNoteLead } = useMutation('add-note-lead', addNote, {
     onSuccess() {
       client.invalidateQueries(['lead', id, 'notes'])
+      client.invalidateQueries([id, 'detail-log'])
     },
     onError() {
       notification.error({ message: 'Add note unsuccessfully' })
@@ -313,6 +314,7 @@ const LeadDetail = () => {
     {
       onSuccess() {
         client.invalidateQueries(['lead', id, 'notes'])
+        client.invalidateQueries([id, 'detail-log'])
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {

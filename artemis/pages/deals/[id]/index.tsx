@@ -405,6 +405,7 @@ const DealDetail = () => {
     {
       onSuccess() {
         client.invalidateQueries(['deal', id, 'notes'])
+        client.invalidateQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Add note unsuccessfully' })
