@@ -48,10 +48,7 @@ export class DealStageService {
 
     const updateAction = async (dto: DTO.DealStage.ModifyDealStage) => {
       await this.updateDealStage({
-        id: dto.id,
-        name: dto.name,
-        probability: dto.probability,
-        category: dto.category,
+        ...dto,
         order,
       })
     }
@@ -59,9 +56,7 @@ export class DealStageService {
     const actions = {
       Add: async (dto: DTO.DealStage.ModifyDealStage) => {
         await this.addDealStage({
-          name: dto.name,
-          probability: dto.probability,
-          category: dto.category,
+          ...dto,
           order,
         })
       },
