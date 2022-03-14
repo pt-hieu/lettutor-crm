@@ -52,7 +52,7 @@ export class LogService {
     shouldNotPaginate,
     source,
     to,
-    entity,
+    entities,
   }: DTO.Log.GetManyLogs) {
     const qb = this.logRepo
       .createQueryBuilder('l')
@@ -63,88 +63,16 @@ export class LogService {
       qb.andWhere('l.ownerId = :owner', { owner })
     }
 
-    if (entity) {
-      const entities = []
-      entities.push(entity)
-
-      if (source === LogSource.ACCOUNT) {
-        const account = await this.accountService.getAccountById({
-          where: {
-            id: entity,
-          },
-        })
-
-        if (account.tasks) {
-          account.tasks.forEach((task) => entities.push(task.id))
-        }
-        if (account.notes) {
-          account.notes.forEach((note) => entities.push(note.id))
-        }
+    if (entities) {
+      if (typeof entities === 'string') {
+        qb.andWhere('l.entityId = :entities', { entities })
+      } else {
+        qb.andWhere('l.entityId in (:...entities)', { entities })
       }
+    }
 
-      if (source === LogSource.CONTACT) {
-        const contact = await this.contactService.getContactById({
-          where: {
-            id: entity,
-          },
-        })
-
-        if (contact.tasks) {
-          contact.tasks.forEach((task) => entities.push(task.id))
-        }
-        if (contact.notes) {
-          contact.notes.forEach((note) => entities.push(note.id))
-        }
-      }
-
-      if (source === LogSource.DEAL) {
-        const deal = await this.dealService.getDealById({
-          where: {
-            id: entity,
-          },
-        })
-
-        if (deal.tasks) {
-          deal.tasks.forEach((task) => entities.push(task.id))
-        }
-        if (deal.notes) {
-          deal.notes.forEach((note) => entities.push(note.id))
-        }
-      }
-
-      if (source === LogSource.LEAD) {
-        const lead = await this.leadService.getLeadById({
-          where: {
-            id: entity,
-          },
-          relations: ['tasks', 'notes'],
-        })
-
-        if (lead.tasks) {
-          lead.tasks.forEach((task) => entities.push(task.id))
-        }
-        if (lead.notes) {
-          lead.notes.forEach((note) => entities.push(note.id))
-        }
-      }
-
-      if (source === LogSource.TASK) {
-        const task = await this.taskService.getTaskById({
-          where: {
-            id: entity,
-          },
-        })
-
-        if (task.notes) {
-          task.notes.forEach((note) => entities.push(note.id))
-        }
-      }
-
-      qb.andWhere('l.entityId in (:...entities)', { entities })
-    } else {
-      if (source) {
-        qb.andWhere('l.source = :source', { source })
-      }
+    if (source) {
+      qb.andWhere('l.source = :source', { source })
     }
 
     if (action) {
