@@ -12,6 +12,8 @@ import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { AccountService } from 'src/account/account.service'
 import { ContactService } from 'src/contact/contact.service'
+import { DealStageType } from 'src/deal-stage/deal-stage.entity'
+import { DealStageService } from 'src/deal-stage/deal-stage.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { NoteService } from 'src/note/note.service'
@@ -19,7 +21,7 @@ import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
 
-import { Deal, DealStage } from './deal.entity'
+import { Deal } from './deal.entity'
 
 @Injectable()
 export class DealService {
@@ -33,6 +35,7 @@ export class DealService {
     private readonly contactService: ContactService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
+    private readonly dealStageService: DealStageService,
   ) {}
 
   getManyRaw() {
@@ -48,6 +51,7 @@ export class DealService {
       .leftJoin('d.account', 'account')
       .leftJoin('d.contact', 'contact')
       .leftJoin('d.tasks', 'tasks')
+      .leftJoin('d.stage', 'stage')
       .addSelect([
         'owner.name',
         'owner.email',
@@ -57,6 +61,7 @@ export class DealService {
         'tasks.subject',
         'tasks.dueDate',
         'tasks.id',
+        'stage.name',
       ])
       .orderBy('d.createdAt', 'DESC')
 
@@ -77,8 +82,10 @@ export class DealService {
     if (query.source)
       q.andWhere('d.source IN (:...source)', { source: query.source })
 
-    if (query.stage)
-      q.andWhere('d.stage IN (:...stage)', { stage: query.stage })
+    if (query.stageCategory)
+      q.andWhere('d.stage.category IN (:...stageCategory)', {
+        stageCategory: query.stageCategory,
+      })
 
     if (query.search) {
       q = q.andWhere('d.fullName ILIKE :search', {
@@ -125,6 +132,9 @@ export class DealService {
       dto.contactId
         ? this.contactService.getContactById({ where: { id: dto.contactId } })
         : undefined,
+      dto.stageId
+        ? this.dealStageService.getDealStageById({ where: { id: dto.stageId } })
+        : undefined,
     ])
 
     return this.dealRepo.save(dto)
@@ -132,6 +142,9 @@ export class DealService {
 
   async updateDeal(dto: DTO.Deal.UpdateDeal, id: string) {
     const deal = await this.getDealById({ where: { id } })
+    const stage = await this.dealStageService.getDealStageById({
+      where: { id: dto.stageId },
+    })
 
     if (
       !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
@@ -141,19 +154,13 @@ export class DealService {
       throw new ForbiddenException()
     }
 
-    if (dto.reasonForLoss) {
-      if (
-        (dto.stage === DealStage.CLOSED_LOST ||
-          dto.stage === DealStage.CLOSED_LOST_TO_COMPETITION) &&
-        dto.reasonForLoss
-      ) {
-        const note: DTO.Note.AddNote = new DTO.Note.AddNote()
-        note.ownerId = dto.ownerId
-        note.dealId = id
-        note.title = dto.stage
-        note.content = dto.reasonForLoss
-        this.noteService.addNote(note)
-      }
+    if (stage.type === DealStageType.CLOSE_LOST && dto.reasonForLoss) {
+      const note: DTO.Note.AddNote = new DTO.Note.AddNote()
+      note.ownerId = dto.ownerId
+      note.dealId = id
+      note.title = stage.name
+      note.content = dto.reasonForLoss
+      this.noteService.addNote(note)
     }
 
     return this.dealRepo.save({
