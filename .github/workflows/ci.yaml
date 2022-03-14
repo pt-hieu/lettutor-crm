@@ -64,9 +64,6 @@ jobs:
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install
 
-      - name: Run Unit Test
-        run: yarn test
-
       - name: Run Lint
         run: yarn lint
 
