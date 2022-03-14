@@ -51,6 +51,9 @@ function run(command) {
     var concurrentProc = (0, child_process_1.exec)(command, function () { });
     (_a = concurrentProc === null || concurrentProc === void 0 ? void 0 : concurrentProc.stdout) === null || _a === void 0 ? void 0 : _a.pipe(process.stdout);
     (_b = concurrentProc === null || concurrentProc === void 0 ? void 0 : concurrentProc.stderr) === null || _b === void 0 ? void 0 : _b.pipe(process.stdout);
+    concurrentProc.addListener('exit', function (code) {
+        process.exit(code || undefined);
+    });
 }
 function capitalize(str) {
     return str.charAt(0).toLocaleUpperCase() + str.slice(1);
