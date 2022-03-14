@@ -85,6 +85,12 @@ export class AddNote extends Files implements IAddNote {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['taskId']>) => {
+      if (obj.source !== NoteSource.TASK && obj.taskId) return null
+      return value
+    },
+  )
   taskId?: string
 
   @ApiPropertyOptional()
@@ -206,11 +212,6 @@ export class UpdateBody extends Files implements IUpdateBody {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  @Transform(
-    ({ value }: TransformParams<IUpdateBody, IUpdateBody['taskId']>) => {
-      return value
-    },
-  )
   taskId?: string
 
   @ApiPropertyOptional()

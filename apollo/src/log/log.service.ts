@@ -141,15 +141,15 @@ export class LogService {
       }
 
       qb.andWhere('l.entityId in (:...entities)', { entities })
+    } else {
+      if (source) {
+        qb.andWhere('l.source = :source', { source })
+      }
     }
 
     if (action) {
       qb.andWhere('l.action = :action', { action })
     }
-
-    // if (source) {
-    //   qb.andWhere('l.source = :source', { source })
-    // }
 
     if (from) {
       qb.andWhere('l.createdAt > :from', { from: from.toISOString() })
