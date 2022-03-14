@@ -7,9 +7,11 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Validate,
 } from 'class-validator'
 
 import { LogAction, LogSource, TChange } from 'src/log/log.entity'
+import { EntityValidator } from 'src/utils/decorators/log_entity.validator'
 
 import { Paginate } from './paging'
 
@@ -57,7 +59,7 @@ export class GetManyLogs extends Paginate {
   owner?: string
 
   @ApiPropertyOptional()
+  @Validate(EntityValidator)
   @IsOptional()
-  @IsUUID()
-  entity?: string
+  entities?: string | string[]
 }

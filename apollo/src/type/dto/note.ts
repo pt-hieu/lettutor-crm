@@ -21,6 +21,7 @@ interface IAddNote {
   contactId?: string
   accountId?: string
   dealId?: string
+  taskId?: string
   title?: string
   content: string
   source?: NoteSource
@@ -80,6 +81,17 @@ export class AddNote extends Files implements IAddNote {
     },
   )
   dealId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['taskId']>) => {
+      if (obj.source !== NoteSource.TASK && obj.taskId) return null
+      return value
+    },
+  )
+  taskId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -196,6 +208,11 @@ export class UpdateBody extends Files implements IUpdateBody {
     },
   )
   dealId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  taskId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
