@@ -40,7 +40,6 @@ export type DealUpdateFormData = {
   fullName: string
   amount: number | null
   closingDate: Date
-  stage: string
   source: LeadSource
   probability: number | null
   description: string | null

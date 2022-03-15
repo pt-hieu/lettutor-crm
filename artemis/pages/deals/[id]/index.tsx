@@ -186,7 +186,7 @@ const fields =
       {
         label: 'Stage',
         props: {
-          error: errors.stage?.message,
+          error: errors.stageId?.message,
           as: 'select',
           props: {
             id: 'stageId',

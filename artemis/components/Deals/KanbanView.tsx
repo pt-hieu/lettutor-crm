@@ -15,7 +15,13 @@ import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
 
 import Tooltip from '@utils/components/Tooltip'
 import { useModal } from '@utils/hooks/useModal'
-import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
+import {
+  Deal,
+  DealStage,
+  DealStageData,
+  DealStageType,
+  UpdateDealDto,
+} from '@utils/models/deal'
 import { Paginate } from '@utils/models/paging'
 import { Task } from '@utils/models/task'
 import { updateDeal } from '@utils/service/deal'
@@ -23,33 +29,41 @@ import { updateDeal } from '@utils/service/deal'
 type Props = {
   data: Paginate<Deal> | undefined
   queryKey: any
+  dealStages: DealStageData[]
 }
 
-const stageToColorMappings: Partial<Record<DealStage, string>> = {
-  [DealStage.CLOSED_LOST]: 'bg-red-500 text-white !border-b-red-300',
-  [DealStage.CLOSED_LOST_TO_COMPETITION]:
-    'bg-red-500 text-white !border-b-red-300',
-  [DealStage.CLOSED_WON]: 'bg-green-500 text-white !border-b-green-300',
+const stageToColorMappings: Partial<Record<DealStageType, string>> = {
+  [DealStageType.CLOSED_LOST]: 'bg-red-500 text-white !border-b-red-300',
+  // [DealStage.CLOSED_LOST_TO_COMPETITION]:
+  //   'bg-red-500 text-white !border-b-red-300',
+  [DealStageType.CLOSED_WON]: 'bg-green-500 text-white !border-b-green-300',
 }
 
-const stageNameToColorMappings: Partial<Record<DealStage | 'default', string>> =
-  {
-    [DealStage.CLOSED_LOST]: 'group-hover:text-white',
-    [DealStage.CLOSED_WON]: 'group-hover:text-white',
-    [DealStage.CLOSED_LOST_TO_COMPETITION]: 'group-hover:text-white',
-    ['default']: 'group-hover:text-blue-600',
-  }
+const stageNameToColorMappings: Partial<
+  Record<DealStageType | 'default', string>
+> = {
+  [DealStageType.CLOSED_LOST]: 'group-hover:text-white',
+  [DealStageType.CLOSED_WON]: 'group-hover:text-white',
+  // [DealStage.CLOSED_LOST_TO_COMPETITION]: 'group-hover:text-white',
+  ['default']: 'group-hover:text-blue-600',
+}
 
-export default function KanbanView({ queryKey, data: deals }: Props) {
+export default function KanbanView({
+  queryKey,
+  data: deals,
+  dealStages,
+}: Props) {
   const dealByStage = useMemo(
     () =>
-      Object.values(DealStage).reduce(
+      dealStages.reduce(
         (sum, curr) => ({
           ...sum,
-          [curr]: deals?.items.filter((deal) => deal.stage === curr),
+          [curr.name]: deals?.items.filter(
+            (deal) => deal.stage.name === curr.name,
+          ),
         }),
         {},
-      ) as Record<DealStage, Deal[]>,
+      ) as Record<string, Deal[]>,
     [deals],
   )
 
@@ -61,7 +75,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
           [curr]: dealByStage[curr]?.length,
         }),
         {},
-      ) as Record<DealStage, number>,
+      ) as Record<string, number>,
     [dealByStage],
   )
 
@@ -76,7 +90,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
           ),
         }),
         {},
-      ) as Record<DealStage, number>,
+      ) as Record<string, number>,
     [dealByStage],
   )
 
@@ -103,7 +117,10 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
     updateDeal,
     {
       onMutate(varivables) {
-        const newStage = varivables.dealInfo.stage as DealStage
+        const newStageId = varivables.dealInfo.stageId
+        const newStage = dealStages.find(
+          (item) => item.id === newStageId,
+        ) as DealStageData
         client.setQueryData(queryKey, (deals: Paginate<Deal> | undefined) => ({
           meta: deals!.meta,
           items: deals!.items.map((deal) => ({
@@ -160,7 +177,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
 
     mutateAsync({
       id: dealId,
-      dealInfo: { stage: res.destination.droppableId },
+      dealInfo: { stageId: res.destination.droppableId },
     })
   }, [])
 
@@ -186,8 +203,12 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
         />
       )}
       <DragDropContext onDragEnd={handleDragEnd}>
-        {Object.values(DealStage).map((stage) => (
-          <Droppable isDropDisabled={isLoading} key={stage} droppableId={stage}>
+        {dealStages.map((stage) => (
+          <Droppable
+            isDropDisabled={isLoading}
+            key={stage.id}
+            droppableId={stage.id}
+          >
             {(provided) => (
               <div
                 {...provided.droppableProps}
@@ -195,26 +216,28 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                 className="min-w-[300px] flex flex-col gap-2 group pr-[10px]"
               >
                 <div
-                  className={`p-4 border border-b-[3px] border-b-blue-600 ${stageToColorMappings[stage]} rounded-md group-hover:shadow-md crm-transition select-none`}
+                  className={`p-4 border border-b-[3px] border-b-blue-600 ${
+                    stageToColorMappings[stage.type]
+                  } rounded-md group-hover:shadow-md crm-transition select-none`}
                 >
                   <div
                     className={`font-medium text-[15px] ${
-                      stageNameToColorMappings[stage] ||
+                      stageNameToColorMappings[stage.type] ||
                       stageNameToColorMappings['default']
                     } crm-transition`}
                   >
-                    {stage}
+                    {stage.name}
                   </div>
                   <div className="flex items-center ">
-                    <span>${amountCount[stage]}</span>
+                    <span>${amountCount[stage.name]}</span>
 
                     <span className="mx-2 fa fa-angle-right" />
-                    <span>{dealCount[stage]} deals</span>
+                    <span>{dealCount[stage.name]} deals</span>
                   </div>
                 </div>
 
                 <div className="max-h-[calc(100vh-293px)] crm-transition flex flex-col gap-2 overflow-auto crm-scrollbar pr-2 mr-[-15px]">
-                  {dealByStage[stage]?.map(
+                  {dealByStage[stage.name]?.map(
                     (
                       {
                         id,

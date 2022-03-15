@@ -53,17 +53,17 @@ export type UpdateDealDto = {
   reasonForLoss?: string | null
 }
 
-export enum DealCategory {
+export enum DealStageType {
   OPEN = 'Open',
   CLOSED_LOST = 'Close Lost',
   CLOSED_WON = 'Close Won',
 }
 
 export interface DealStageData {
-  id?: string
+  id: string
   name: string
   probability: number
-  category: DealCategory
+  type: DealStageType
 }
 
 export enum DealStageAction {

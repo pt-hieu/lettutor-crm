@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 import Loading from '@utils/components/Loading'
-import { DealCategory, DealStageAction } from '@utils/models/deal'
+import { DealStageAction, DealStageType } from '@utils/models/deal'
 import { getDealStages, updateDealStage } from '@utils/service/deal'
 
 import { DealStageTable, TData } from './DealStageTable'
@@ -42,12 +42,12 @@ export const DealStageModal = ({ visible, handleClose }: Props) => {
 
   const submitModal = () => {
     const validatedData = dataSource.filter(isValidData).map(formatData)
-    const dealStageCategories = Object.values(DealCategory)
+    const dealStageCategories = Object.values(DealStageType)
     const isEnoughCategory = dealStageCategories.every(
       (elem) =>
         validatedData
           .filter((item) => item.action !== DealStageAction.DELETE)
-          .findIndex((d) => d.category === elem) > -1,
+          .findIndex((d) => d.type === elem) > -1,
     )
 
     if (!isEnoughCategory) {
@@ -112,7 +112,7 @@ function formatData(data: TData) {
   if (newData.isNew) {
     newData.action = DealStageAction.ADD
     delete newData.isNew
-    delete newData.id
+    // delete newData.id
   }
 
   if (newData.isDeleted) {

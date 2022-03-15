@@ -8,9 +8,9 @@ import {
 
 import Tooltip from '@utils/components/Tooltip'
 import {
-  DealCategory,
   DealStageAction,
   DealStageData,
+  DealStageType,
 } from '@utils/models/deal'
 
 import { EditableCell, EditableRow } from './EditableCell'
@@ -102,7 +102,7 @@ export const DealStageTable = ({
       id: new Date().toString(),
       name: '',
       probability: 0,
-      category: DealCategory.OPEN,
+      type: DealStageType.OPEN,
       isNew: true,
     }
     if (id === null) {
@@ -150,7 +150,7 @@ export const DealStageTable = ({
       className: 'w-[180px]',
       editable: true,
       as: 'select',
-      selectSource: Object.values(DealCategory),
+      selectSource: Object.values(DealStageType),
     },
     {
       title: 'Operation',

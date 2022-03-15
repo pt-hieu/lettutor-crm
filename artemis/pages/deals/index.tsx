@@ -16,9 +16,9 @@ import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
 import { formatDate } from '@utils/libs/time'
-import { Deal, DealStage } from '@utils/models/deal'
+import { Deal, DealStage, DealStageData } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
-import { getDeals } from '@utils/service/deal'
+import { getDealStages, getDeals } from '@utils/service/deal'
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -39,6 +39,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         ['deals', page, limit, search || '', source || [], stage || []],
         getDeals({ limit, page, search, source, stage }, token),
       ),
+      client.prefetchQuery(['deal-stages'], getDealStages(token)),
     ])
   }
 
@@ -75,7 +76,8 @@ export const dealColumns: TableColumnType<Deal>[] = [
     title: 'Stage',
     dataIndex: 'stage',
     key: 'stage',
-    sorter: { compare: (a, b) => a.stage.localeCompare(b.stage) },
+    sorter: { compare: (a, b) => a.stage.name.localeCompare(b.stage.name) },
+    render: ({ name }) => name,
   },
   {
     title: 'Closing Date',
@@ -157,6 +159,10 @@ export default function DealsView() {
     getDeals({ limit, page, search, source, stage }),
   )
 
+  const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
+    enabled: false,
+  })
+
   const applySearch = (keyword: string | undefined) => {
     setPage(1)
     setSearch(keyword)
@@ -220,7 +226,11 @@ export default function DealsView() {
             }}
           >
             {viewMode === ViewMode.KANBAN && (
-              <KanbanView queryKey={key} data={deals} />
+              <KanbanView
+                queryKey={key}
+                data={deals}
+                dealStages={dealStages || []}
+              />
             )}
             {(viewMode === ViewMode.TABULAR || viewMode === undefined) && (
               <div className="w-full flex flex-col gap-4">
