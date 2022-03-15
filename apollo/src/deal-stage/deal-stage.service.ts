@@ -37,42 +37,50 @@ export class DealStageService {
   }
 
   async getAll() {
-    return this.dealStageRepo.find({ order: { order: 1 } })
+    return this.dealStageRepo.find({
+      order: { order: 1 },
+      relations: ['deals'],
+    })
   }
 
   async modifyDealStage(dtos: DTO.DealStage.ModifyDealStage[]) {
     this.validateStages(dtos)
 
-    let order = 1
+    let order = 0
     const actionMappings: Record<
       DealStageAction,
       (v: DTO.DealStage.ModifyDealStage) => Promise<DealStage | DealStage[]>
     > = {
       [DealStageAction.ADD]: (dto) => {
+        order++
         return this.addDealStage({
           ...dto,
           order,
         })
       },
       [DealStageAction.UPDATE]: (dto) => {
+        order++
         return this.updateDealStage({
           ...dto,
           order,
         })
       },
       [DealStageAction.DELETE]: (dto) => {
-        order--
-        return this.batchDelete([dto.id])
+        try {
+          return this.batchDelete([dto.id])
+        } catch (err) {
+          // if delete fail, increase order for this deal stage
+          order++
+          throw err
+        }
       },
     }
 
     return await Promise.all(
       dtos.map(async (dto) => {
         const result = await actionMappings[
-          dto.action || DealStageAction.DELETE
+          dto.action || DealStageAction.UPDATE
         ](dto)
-        order++
-
         return result
       }),
     )
@@ -88,7 +96,11 @@ export class DealStageService {
   }
 
   async batchDelete(ids: string[]) {
-    const stages = await this.dealStageRepo.find({ where: { id: In(ids) } })
+    const stages = await this.dealStageRepo.find({
+      where: { id: In(ids) },
+      relations: ['deals'],
+    })
+    await this.checkCanDelete(stages)
     return this.dealStageRepo.softRemove(stages)
   }
 
@@ -108,5 +120,15 @@ export class DealStageService {
     throw new BadRequestException(
       'Deal stage must has at least 1 "Open", 1 "Close Won" and 1 "Close Lost" category',
     )
+  }
+
+  async checkCanDelete(stages: DealStage[]) {
+    stages.forEach((stage) => {
+      if (stage.deals.length > 0) {
+        throw new BadRequestException(
+          'Cannot delete deal stage that already used',
+        )
+      }
+    })
   }
 }

@@ -26,7 +26,6 @@ export class DealStage extends BaseEntity {
   probability: number
 
   @OneToMany(() => Deal, (deal) => deal.stage, { cascade: true })
-  @Exclude({ toPlainOnly: true })
   deals: Deal[]
 
   @Column()
