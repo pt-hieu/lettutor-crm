@@ -5,7 +5,7 @@ import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
-import { Ownerful } from 'src/utils/owner.entity'
+import { AttachedEntity } from 'src/utils/attachment.entity'
 
 export enum LeadStatus {
   NONE = 'None',
@@ -27,7 +27,7 @@ export enum LeadSource {
 }
 
 @Entity({ name: 'lead' })
-export class Lead extends Ownerful {
+export class Lead extends AttachedEntity {
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   accountId: string | null

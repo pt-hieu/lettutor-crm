@@ -6,7 +6,7 @@ import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Lead } from 'src/lead/lead.entity'
 import { Note } from 'src/note/note.entity'
-import { Ownerful } from 'src/utils/owner.entity'
+import { AttachedEntity } from 'src/utils/attachment.entity'
 
 export enum TaskPriority {
   HIGH = 'High',
@@ -25,7 +25,7 @@ export enum TaskStatus {
 }
 
 @Entity({ name: 'task' })
-export class Task extends Ownerful {
+export class Task extends AttachedEntity {
   @ManyToOne(() => Lead, (lead) => lead.tasks, { onDelete: 'CASCADE' })
   @JoinColumn()
   lead: Lead

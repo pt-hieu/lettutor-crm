@@ -6,10 +6,10 @@ import { Deal } from 'src/deal/deal.entity'
 import { LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
-import { Ownerful } from 'src/utils/owner.entity'
+import { AttachedEntity } from 'src/utils/attachment.entity'
 
 @Entity({ name: 'contact' })
-export class Contact extends Ownerful {
+export class Contact extends AttachedEntity {
   @Column({ type: 'uuid', select: true, nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   accountId: string | null

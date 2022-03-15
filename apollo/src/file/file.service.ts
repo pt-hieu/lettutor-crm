@@ -27,6 +27,16 @@ export class FileService {
     private http: HttpService,
   ) {}
 
+  async createEntityAttachments(id: string, files: TFile<string>[]) {
+    const savedFiles = await this.uploadFile(files)
+
+    savedFiles.forEach((file) => {
+      file.entityId = id
+    })
+
+    return this.fileRepo.save(savedFiles)
+  }
+
   async uploadFile(files: TFile<string>[]) {
     this.doValidateFiles(files)
 

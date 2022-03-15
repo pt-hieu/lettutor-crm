@@ -4,7 +4,7 @@ import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
-import { Ownerful } from 'src/utils/owner.entity'
+import { AttachedEntity } from 'src/utils/attachment.entity'
 
 export enum AccountType {
   NONE = 'None',
@@ -23,7 +23,7 @@ export enum AccountType {
 }
 
 @Entity({ name: 'account' })
-export class Account extends Ownerful {
+export class Account extends AttachedEntity {
   @Column({ type: 'varchar' })
   fullName: string
 

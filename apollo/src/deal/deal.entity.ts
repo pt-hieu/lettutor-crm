@@ -7,10 +7,10 @@ import { DealStage } from 'src/deal-stage/deal-stage.entity'
 import { LeadSource } from 'src/lead/lead.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
-import { Ownerful } from 'src/utils/owner.entity'
+import { AttachedEntity } from 'src/utils/attachment.entity'
 
 @Entity({ name: 'deal' })
-export class Deal extends Ownerful {
+export class Deal extends AttachedEntity {
   @ManyToOne(() => Account, (account) => account.deals)
   @JoinColumn()
   account: Account
