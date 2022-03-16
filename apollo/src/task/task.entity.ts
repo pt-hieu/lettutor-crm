@@ -1,10 +1,11 @@
 import { Exclude } from 'class-transformer'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Lead } from 'src/lead/lead.entity'
+import { Note } from 'src/note/note.entity'
 import { Ownerful } from 'src/utils/owner.entity'
 
 export enum TaskPriority {
@@ -71,4 +72,7 @@ export class Task extends Ownerful {
 
   @Column({ type: 'varchar', nullable: true, default: null })
   description: string | null
+
+  @OneToMany(() => Note, (note) => note.task, { cascade: true })
+  notes: Note[]
 }

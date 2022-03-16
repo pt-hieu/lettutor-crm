@@ -112,7 +112,7 @@ function formatData(data: TData) {
   if (newData.isNew) {
     newData.action = DealStageAction.ADD
     delete newData.isNew
-    // delete newData.id
+    delete newData.id
   }
 
   if (newData.isDeleted) {

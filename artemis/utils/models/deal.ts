@@ -46,7 +46,7 @@ export type UpdateDealDto = {
   fullName?: string
   amount?: number | null
   closingDate?: Date
-  stage?: string
+  stageId?: string
   source?: LeadSource
   probability?: number | null
   description?: string | null
@@ -64,6 +64,7 @@ export interface DealStageData {
   name: string
   probability: number
   type: DealStageType
+  deals: Deal[]
 }
 
 export enum DealStageAction {

@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { QueryClient, dehydrate, useMutation, useQuery } from 'react-query'
 import * as yup from 'yup'
@@ -22,6 +22,7 @@ import { Contact } from '@utils/models/contact'
 import {
   Deal,
   DealStageData,
+  DealStageType,
   LossStages,
   UpdateDealDto,
 } from '@utils/models/deal'
@@ -40,6 +41,7 @@ export type DealUpdateFormData = {
   fullName: string
   amount: number | null
   closingDate: Date
+  stage: string
   source: LeadSource
   probability: number | null
   description: string | null
@@ -161,6 +163,7 @@ const EditDeal = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<DealUpdateFormData>({
     mode: 'onChange',
@@ -179,7 +182,9 @@ const EditDeal = () => {
     },
   })
 
-  const [closeStage, setCloseStage] = useState<LossStages | undefined>()
+  const [closeStage, setCloseStage] = useState<
+    DealStageType.CLOSED_LOST | undefined
+  >()
   const [
     visibleConfirmClosedLost,
     openConfirmCloseLost,
@@ -195,26 +200,46 @@ const EditDeal = () => {
     })
   }
 
+  const stageTypeById = useMemo(
+    () =>
+      dealStages?.reduce(
+        (sum, curr) => ({
+          ...sum,
+          [curr.id]: curr.type,
+        }),
+        {},
+      ) as Record<string, DealStageType>,
+    [dealStages],
+  )
+
   const editDeal = handleSubmit((data) => {
     if (data.contactId === 'None') {
       data.contactId = null
     }
 
-    // const isMarkDealAsClosedLoss =
-    //   (deal?.stage !== DealStage.CLOSED_LOST &&
-    //     data.stage === DealStage.CLOSED_LOST) ||
-    //   (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
-    //     data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
+    const isMarkDealAsClosedLoss =
+      deal?.stage.type !== DealStageType.CLOSED_LOST &&
+      stageTypeById[data.stageId] === DealStageType.CLOSED_LOST
 
-    // if (isMarkDealAsClosedLoss) {
-    //   setUpdatedData(data)
-    //   setCloseStage(data.stage as LossStages)
-    //   openConfirmCloseLost()
-    //   return
-    // }
+    if (isMarkDealAsClosedLoss) {
+      setUpdatedData(data)
+      setCloseStage(stageTypeById[data.stageId] as DealStageType.CLOSED_LOST)
+      openConfirmCloseLost()
+      return
+    }
 
     mutateAsync({ id, dealInfo: data })
   })
+
+  const handleChangeStage = (value: string) => {
+    if (!value) return
+    const stageById = dealStages?.find((s) => s.id === value)
+
+    if (!stageById) return
+    const probability = stageById.probability
+
+    setValue('probability', probability)
+  }
 
   const renderField = ({
     name,
@@ -266,11 +291,20 @@ const EditDeal = () => {
                   </>
                 )
               ) : undefined,
-            ...register(name as keyof DealUpdateFormData),
+            ...register(name as keyof DealUpdateFormData, {
+              onChange:
+                name === 'stageId'
+                  ? (e) => handleChangeStage(e.target.value)
+                  : undefined,
+            }),
           }}
         />
       </div>
     </div>
+  )
+
+  const closedLostStage = dealStages?.find(
+    (s) => s.type === DealStageType.CLOSED_LOST,
   )
 
   return (
@@ -278,7 +312,7 @@ const EditDeal = () => {
       {deal && closeStage && (
         <ConfirmReasonForLoss
           deal={deal}
-          stage={closeStage}
+          stageId={closedLostStage?.id as string}
           visible={visibleConfirmClosedLost}
           onCloseModal={closeConfirmCloseLost}
           onUpdateDeal={finishDeal}

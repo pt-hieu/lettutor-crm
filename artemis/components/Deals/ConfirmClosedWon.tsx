@@ -9,6 +9,7 @@ import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
 type Props = {
   deal: Deal
   visible: boolean
+  stageId: string
   onCloseModal: () => void
   onUpdateDeal: (id: string, updateDealDto: UpdateDealDto) => void
 }
@@ -30,6 +31,7 @@ const ConfirmClosedWonSchema = yup.object().shape({
 const ConfirmClosedWon = ({
   deal,
   visible,
+  stageId,
   onCloseModal,
   onUpdateDeal: updateDeal,
 }: Props) => {
@@ -50,8 +52,7 @@ const ConfirmClosedWon = ({
 
   const closeDealAsClosedWon = handleSubmit(
     ({ amount, closingDate }: ConfirmClosedWonData) => {
-      const stage = DealStage.CLOSED_WON
-      updateDeal(deal.id, { amount, stage, closingDate })
+      updateDeal(deal.id, { amount, stageId, closingDate })
       reset()
       closeModal()
     },

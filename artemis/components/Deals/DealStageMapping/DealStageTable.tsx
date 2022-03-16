@@ -1,4 +1,4 @@
-import { Empty, Popconfirm, Table } from 'antd'
+import { Empty, Popconfirm, Popover, Table } from 'antd'
 import { arrayMoveImmutable } from 'array-move'
 import {
   SortableContainer,
@@ -24,7 +24,7 @@ const SortableBody = SortableContainer((props: any) => (
   <tbody ref={props.tableRef} {...props} />
 ))
 
-export interface TData extends DealStageData {
+export interface TData extends Partial<DealStageData> {
   isNew?: boolean
   isDeleted?: boolean
   isUpdated?: boolean
@@ -145,7 +145,7 @@ export const DealStageTable = ({
     },
     {
       title: 'Deal category',
-      dataIndex: 'category',
+      dataIndex: 'type',
       width: 180,
       className: 'w-[180px]',
       editable: true,
@@ -158,14 +158,24 @@ export const DealStageTable = ({
       render: (_: any, record: TData) =>
         dataSource.length >= 1 ? (
           <div className="flex gap-2">
-            <Popconfirm
-              title="Sure to delete?"
-              onConfirm={() => handleDelete(record.id as string)}
-            >
-              <button className="crm-icon-btn hover:text-red-500 hover:border-red-500">
+            {record.deals?.length ? (
+              <Popover
+                title="Cannot delete"
+                trigger="click"
+                content="Exist deals binding with this stage"
+              >
+                <button className="crm-icon-btn hover:text-red-500 hover:border-red-500">
+                  <i className="fa fa-trash" />
+                </button>
+              </Popover>
+            ) : (
+              <button
+                className="crm-icon-btn hover:text-red-500 hover:border-red-500"
+                onClick={() => handleDelete(record.id as string)}
+              >
                 <i className="fa fa-trash" />
               </button>
-            </Popconfirm>
+            )}
 
             <button
               className="crm-icon-btn hover:text-blue-500 hover:border-blue-500"

@@ -37,7 +37,7 @@ import { Contact } from '@utils/models/contact'
 import {
   Deal,
   DealStageData,
-  LossStages,
+  DealStageType,
   UpdateDealDto,
 } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
@@ -186,7 +186,7 @@ const fields =
       {
         label: 'Stage',
         props: {
-          error: errors.stageId?.message,
+          error: errors.stage?.message,
           as: 'select',
           props: {
             id: 'stageId',
@@ -339,7 +339,9 @@ const DealDetail = () => {
     reset(defaultValues)
   }, [defaultValues])
 
-  const [closeStage, setCloseStage] = useState<LossStages | undefined>()
+  const [closeStage, setCloseStage] = useState<
+    DealStageType.CLOSED_LOST | undefined
+  >()
 
   const { mutateAsync } = useMutation(['update-deal', id], updateDeal, {
     onSuccess() {
@@ -367,32 +369,42 @@ const DealDetail = () => {
     })
   }
 
+  const stageTypeById = useMemo(
+    () =>
+      dealStages?.reduce(
+        (sum, curr) => ({
+          ...sum,
+          [curr.id]: curr.type,
+        }),
+        {},
+      ) as Record<string, DealStageType>,
+    [dealStages],
+  )
+
   const submit = useCallback(
     handleSubmit((data) => {
       if (data.contactId === 'None') {
         data.contactId = null
       }
 
-      // const isMarkDealAsClosedWon =
-      //   deal?.stage !== DealStage.CLOSED_WON &&
-      //   data.stage === DealStage.CLOSED_WON
+      const isMarkDealAsClosedWon =
+        deal?.stage.type !== DealStageType.CLOSED_WON &&
+        stageTypeById[data.stageId] === DealStageType.CLOSED_WON
 
-      // const isMarkDealAsClosedLoss =
-      //   (deal?.stage !== DealStage.CLOSED_LOST &&
-      //     data.stage === DealStage.CLOSED_LOST) ||
-      //   (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
-      //     data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
+      const isMarkDealAsClosedLoss =
+        deal?.stage.type !== DealStageType.CLOSED_LOST &&
+        stageTypeById[data.stageId] === DealStageType.CLOSED_LOST
 
-      // if (isMarkDealAsClosedWon) {
-      //   openConfirmCloseWon()
-      //   return
-      // }
+      if (isMarkDealAsClosedWon) {
+        openConfirmCloseWon()
+        return
+      }
 
-      // if (isMarkDealAsClosedLoss) {
-      //   setCloseStage(data.stage as LossStages)
-      //   openConfirmCloseLost()
-      //   return
-      // }
+      if (isMarkDealAsClosedLoss) {
+        setCloseStage(stageTypeById[data.stageId] as DealStageType.CLOSED_LOST)
+        openConfirmCloseLost()
+        return
+      }
 
       mutateAsync({ dealInfo: data, id })
     }),
@@ -403,6 +415,7 @@ const DealDetail = () => {
     () => deal?.tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
     [deal],
   )
+
   const closedTasks = useMemo(
     () => deal?.tasks?.filter((task) => task.status === TaskStatus.COMPLETED),
     [deal],
@@ -471,11 +484,20 @@ const DealDetail = () => {
     setSortNote(sort)
   }
 
+  const closedWonStage = dealStages?.find(
+    (s) => s.type === DealStageType.CLOSED_WON,
+  )
+
+  const closedLostStage = dealStages?.find(
+    (s) => s.type === DealStageType.CLOSED_LOST,
+  )
+
   return (
     <Layout title={`CRM | Deal | ${deal?.fullName}`} requireLogin>
       {deal && (
         <ConfirmClosedWon
           deal={deal}
+          stageId={closedWonStage?.id as string}
           visible={visibleConfirmClosedWon}
           onCloseModal={closeConfirmCloseWon}
           onUpdateDeal={finishDeal}
@@ -484,7 +506,7 @@ const DealDetail = () => {
       {deal && closeStage && (
         <ConfirmClosedLost
           deal={deal}
-          stage={closeStage}
+          stageId={closedLostStage?.id as string}
           visible={visibleConfirmClosedLost}
           onCloseModal={closeConfirmCloseLost}
           onUpdateDeal={finishDeal}

@@ -131,6 +131,16 @@ const AddDeal = () => {
     mutateAsync(data)
   })
 
+  const handleChangeStage = (value: string) => {
+    if (!value) return
+    const stageById = dealStages?.find((s) => s.id === value)
+
+    if (!stageById) return
+    const probability = stageById.probability
+
+    setValue('probability', probability)
+  }
+
   const renderField = ({
     name,
     label,
@@ -175,7 +185,12 @@ const AddDeal = () => {
                   </>
                 )
               ) : undefined,
-            ...register(name as keyof DealUpdateFormData),
+            ...register(name as keyof DealUpdateFormData, {
+              onChange:
+                name === 'stageId'
+                  ? (e) => handleChangeStage(e.target.value)
+                  : undefined,
+            }),
           }}
         />
       </div>

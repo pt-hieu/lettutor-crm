@@ -12,7 +12,7 @@ import {
 } from 'class-validator'
 import { Double } from 'typeorm'
 
-import { DealStageCategory } from 'src/deal-stage/deal-stage.entity'
+import { DealStageType } from 'src/deal-stage/deal-stage.entity'
 import { LeadSource } from 'src/lead/lead.entity'
 
 import { Paginate } from './paging'
@@ -101,13 +101,13 @@ export class GetManyQuery extends Paginate {
   search?: string
 
   @ApiPropertyOptional({
-    type: DealStageCategory,
-    enum: DealStageCategory,
+    type: DealStageType,
+    enum: DealStageType,
     isArray: true,
   })
   @IsOptional()
-  @IsEnum(DealStageCategory, { each: true })
-  stageCategory?: DealStageCategory[]
+  @IsEnum(DealStageType, { each: true })
+  stageCategory?: DealStageType[]
 
   @ApiPropertyOptional({ type: LeadSource, enum: LeadSource, isArray: true })
   @IsOptional()

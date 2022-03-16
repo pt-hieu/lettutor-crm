@@ -11,6 +11,9 @@ function run(command: string) {
 
   concurrentProc?.stdout?.pipe(process.stdout)
   concurrentProc?.stderr?.pipe(process.stdout)
+  concurrentProc.addListener('exit', (code) => {
+    process.exit(code || undefined)
+  })
 }
 
 function capitalize(str: string) {
