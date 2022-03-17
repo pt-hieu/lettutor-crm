@@ -36,6 +36,7 @@ import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
+import { getDealStages } from '@utils/service/deal'
 import { getLead, updateLead } from '@utils/service/lead'
 import {
   SortNoteType,
@@ -443,6 +444,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           token,
         ),
       ),
+      client.prefetchQuery(['deal-stages'], getDealStages(token)),
     ])
   }
 

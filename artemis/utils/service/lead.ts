@@ -62,7 +62,7 @@ export const convertLead =
   (id: string, ownerId?: string) =>
   (
     data?:
-      | Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
+      | Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stageId'>
       | undefined,
   ) =>
     axios
