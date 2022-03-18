@@ -185,12 +185,12 @@ const AccountDetail = () => {
       label: 'Description',
       props: {
         error: errors.description?.message,
-        as: "textarea",
+        as: 'textarea',
         props: {
           disabled,
           ...register('description'),
           id: 'desc',
-          cols: 40
+          cols: 40,
         },
       },
     },
@@ -239,6 +239,7 @@ const AccountDetail = () => {
     {
       onSuccess() {
         client.invalidateQueries(['account', id, 'notes'])
+        client.invalidateQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Add note unsuccessfully' })

@@ -20,9 +20,7 @@ import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 
-import DetailPageSidebar, {
-  SidebarStructure,
-} from '@utils/components/DetailPageSidebar'
+import { SidebarStructure } from '@utils/components/DetailPageSidebar'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
@@ -36,16 +34,21 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
-import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
+import {
+  Deal,
+  DealStageData,
+  DealStageType,
+  UpdateDealDto,
+} from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { LogSource } from '@utils/models/log'
 import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
-import { getAccounts, getRawAccounts } from '@utils/service/account'
-import { getContacts, getRawContacts } from '@utils/service/contact'
-import { getDeal, updateDeal } from '@utils/service/deal'
+import { getRawAccounts } from '@utils/service/account'
+import { getRawContacts } from '@utils/service/contact'
+import { getDeal, getDealStages, updateDeal } from '@utils/service/deal'
 import {
   SortNoteType,
   addNote,
@@ -53,7 +56,7 @@ import {
   editNote,
   getNotes,
 } from '@utils/service/note'
-import { getRawUsers, getUsers } from '@utils/service/user'
+import { getRawUsers } from '@utils/service/user'
 
 import { DealUpdateFormData, EditDealSchema } from './edit'
 
@@ -92,12 +95,14 @@ const fields =
     users,
     accounts,
     contacts,
+    dealStages,
   }: {
     register: UseFormRegister<DealUpdateFormData>
     errors: FieldErrors<DealUpdateFormData>
     users: User[]
     accounts: Account[]
     contacts: Contact[]
+    dealStages: DealStageData[]
   }): Array<DealInfo> =>
     [
       {
@@ -184,18 +189,18 @@ const fields =
           error: errors.stage?.message,
           as: 'select',
           props: {
-            id: 'stage',
+            id: 'stageId',
             disabled,
             children: (
               <>
-                {Object.values(DealStage).map((stage) => (
-                  <option key={stage} value={stage}>
-                    {stage}
+                {dealStages.map((stage) => (
+                  <option key={stage.id} value={stage.id}>
+                    {stage.name}
                   </option>
                 ))}
               </>
             ),
-            ...register('stage'),
+            ...register('stageId'),
           },
         },
       },
@@ -298,6 +303,10 @@ const DealDetail = () => {
     }),
   )
 
+  const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
+    enabled: false,
+  })
+
   const isOwner = useOwnership(deal)
 
   const defaultValues = useMemo(
@@ -307,7 +316,7 @@ const DealDetail = () => {
       accountId: deal?.account?.id,
       amount: deal?.amount,
       closingDate: deal?.closingDate,
-      stage: deal?.stage,
+      stageId: deal?.stage.id,
       source: deal?.source || LeadSource.NONE,
       contactId: deal?.contact?.id || 'None',
       probability: deal?.probability,
@@ -330,7 +339,9 @@ const DealDetail = () => {
     reset(defaultValues)
   }, [defaultValues])
 
-  const [closeStage, setCloseStage] = useState<LossStages | undefined>()
+  const [closeStage, setCloseStage] = useState<
+    DealStageType.CLOSED_LOST | undefined
+  >()
 
   const { mutateAsync } = useMutation(['update-deal', id], updateDeal, {
     onSuccess() {
@@ -358,6 +369,18 @@ const DealDetail = () => {
     })
   }
 
+  const stageTypeById = useMemo(
+    () =>
+      dealStages?.reduce(
+        (sum, curr) => ({
+          ...sum,
+          [curr.id]: curr.type,
+        }),
+        {},
+      ) as Record<string, DealStageType>,
+    [dealStages],
+  )
+
   const submit = useCallback(
     handleSubmit((data) => {
       if (data.contactId === 'None') {
@@ -365,14 +388,12 @@ const DealDetail = () => {
       }
 
       const isMarkDealAsClosedWon =
-        deal?.stage !== DealStage.CLOSED_WON &&
-        data.stage === DealStage.CLOSED_WON
+        deal?.stage.type !== DealStageType.CLOSED_WON &&
+        stageTypeById[data.stageId] === DealStageType.CLOSED_WON
 
       const isMarkDealAsClosedLoss =
-        (deal?.stage !== DealStage.CLOSED_LOST &&
-          data.stage === DealStage.CLOSED_LOST) ||
-        (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
-          data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
+        deal?.stage.type !== DealStageType.CLOSED_LOST &&
+        stageTypeById[data.stageId] === DealStageType.CLOSED_LOST
 
       if (isMarkDealAsClosedWon) {
         openConfirmCloseWon()
@@ -380,7 +401,7 @@ const DealDetail = () => {
       }
 
       if (isMarkDealAsClosedLoss) {
-        setCloseStage(data.stage as LossStages)
+        setCloseStage(stageTypeById[data.stageId] as DealStageType.CLOSED_LOST)
         openConfirmCloseLost()
         return
       }
@@ -394,6 +415,7 @@ const DealDetail = () => {
     () => deal?.tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
     [deal],
   )
+
   const closedTasks = useMemo(
     () => deal?.tasks?.filter((task) => task.status === TaskStatus.COMPLETED),
     [deal],
@@ -405,6 +427,7 @@ const DealDetail = () => {
     {
       onSuccess() {
         client.invalidateQueries(['deal', id, 'notes'])
+        client.invalidateQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Add note unsuccessfully' })
@@ -461,11 +484,20 @@ const DealDetail = () => {
     setSortNote(sort)
   }
 
+  const closedWonStage = dealStages?.find(
+    (s) => s.type === DealStageType.CLOSED_WON,
+  )
+
+  const closedLostStage = dealStages?.find(
+    (s) => s.type === DealStageType.CLOSED_LOST,
+  )
+
   return (
     <Layout title={`CRM | Deal | ${deal?.fullName}`} requireLogin>
       {deal && (
         <ConfirmClosedWon
           deal={deal}
+          stageId={closedWonStage?.id as string}
           visible={visibleConfirmClosedWon}
           onCloseModal={closeConfirmCloseWon}
           onUpdateDeal={finishDeal}
@@ -474,7 +506,7 @@ const DealDetail = () => {
       {deal && closeStage && (
         <ConfirmClosedLost
           deal={deal}
-          stage={closeStage}
+          stageId={closedLostStage?.id as string}
           visible={visibleConfirmClosedLost}
           onCloseModal={closeConfirmCloseLost}
           onUpdateDeal={finishDeal}
@@ -498,6 +530,7 @@ const DealDetail = () => {
                   users: users || [],
                   accounts: accounts || [],
                   contacts: contacts || [],
+                  dealStages: dealStages || [],
                 }).map(({ label, props }) => (
                   <div
                     key={label}
@@ -590,6 +623,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           token,
         ),
       ),
+      client.prefetchQuery(['deal-stages'], getDealStages(token)),
     ])
   }
 

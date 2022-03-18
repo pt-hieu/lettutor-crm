@@ -32,11 +32,11 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Lead, LeadSource, LeadStatus } from '@utils/models/lead'
 import { LogSource } from '@utils/models/log'
-import { AddNoteDto, Note } from '@utils/models/note'
-import { Paginate } from '@utils/models/paging'
+import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
+import { getDealStages } from '@utils/service/deal'
 import { getLead, updateLead } from '@utils/service/lead'
 import {
   SortNoteType,
@@ -274,6 +274,7 @@ const LeadDetail = () => {
   const { mutateAsync: addNoteLead } = useMutation('add-note-lead', addNote, {
     onSuccess() {
       client.invalidateQueries(['lead', id, 'notes'])
+      client.invalidateQueries([id, 'detail-log'])
     },
     onError() {
       notification.error({ message: 'Add note unsuccessfully' })
@@ -313,6 +314,7 @@ const LeadDetail = () => {
     {
       onSuccess() {
         client.invalidateQueries(['lead', id, 'notes'])
+        client.invalidateQueries([id, 'detail-log'])
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {
@@ -442,6 +444,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           token,
         ),
       ),
+      client.prefetchQuery(['deal-stages'], getDealStages(token)),
     ])
   }
 

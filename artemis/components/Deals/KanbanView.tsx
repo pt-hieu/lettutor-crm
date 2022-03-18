@@ -15,7 +15,13 @@ import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
 
 import Tooltip from '@utils/components/Tooltip'
 import { useModal } from '@utils/hooks/useModal'
-import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
+import {
+  Deal,
+  DealStage,
+  DealStageData,
+  DealStageType,
+  UpdateDealDto,
+} from '@utils/models/deal'
 import { Paginate } from '@utils/models/paging'
 import { Task } from '@utils/models/task'
 import { updateDeal } from '@utils/service/deal'
@@ -23,34 +29,51 @@ import { updateDeal } from '@utils/service/deal'
 type Props = {
   data: Paginate<Deal> | undefined
   queryKey: any
+  dealStages: DealStageData[]
 }
 
-const stageToColorMappings: Partial<Record<DealStage, string>> = {
-  [DealStage.CLOSED_LOST]: 'bg-red-500 text-white !border-b-red-300',
-  [DealStage.CLOSED_LOST_TO_COMPETITION]:
-    'bg-red-500 text-white !border-b-red-300',
-  [DealStage.CLOSED_WON]: 'bg-green-500 text-white !border-b-green-300',
+const stageToColorMappings: Partial<Record<DealStageType, string>> = {
+  [DealStageType.CLOSED_LOST]: 'bg-red-500 text-white !border-b-red-300',
+  [DealStageType.CLOSED_WON]: 'bg-green-500 text-white !border-b-green-300',
 }
 
-const stageNameToColorMappings: Partial<Record<DealStage | 'default', string>> =
-  {
-    [DealStage.CLOSED_LOST]: 'group-hover:text-white',
-    [DealStage.CLOSED_WON]: 'group-hover:text-white',
-    [DealStage.CLOSED_LOST_TO_COMPETITION]: 'group-hover:text-white',
-    ['default']: 'group-hover:text-blue-600',
-  }
+const stageNameToColorMappings: Partial<
+  Record<DealStageType | 'default', string>
+> = {
+  [DealStageType.CLOSED_LOST]: 'group-hover:text-white',
+  [DealStageType.CLOSED_WON]: 'group-hover:text-white',
+  ['default']: 'group-hover:text-blue-600',
+}
 
-export default function KanbanView({ queryKey, data: deals }: Props) {
-  const dealByStage = useMemo(
+export default function KanbanView({
+  queryKey,
+  data: deals,
+  dealStages,
+}: Props) {
+  const stageTypeById = useMemo(
     () =>
-      Object.values(DealStage).reduce(
+      dealStages.reduce(
         (sum, curr) => ({
           ...sum,
-          [curr]: deals?.items.filter((deal) => deal.stage === curr),
+          [curr.id]: curr.type,
         }),
         {},
-      ) as Record<DealStage, Deal[]>,
-    [deals],
+      ) as Record<string, DealStageType>,
+    [dealStages],
+  )
+
+  const dealByStage = useMemo(
+    () =>
+      dealStages.reduce(
+        (sum, curr) => ({
+          ...sum,
+          [curr.name]: deals?.items.filter(
+            (deal) => deal?.stage?.name === curr.name,
+          ),
+        }),
+        {},
+      ) as Record<string, Deal[]>,
+    [deals, dealStages],
   )
 
   const dealCount = useMemo(
@@ -61,7 +84,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
           [curr]: dealByStage[curr]?.length,
         }),
         {},
-      ) as Record<DealStage, number>,
+      ) as Record<string, number>,
     [dealByStage],
   )
 
@@ -76,7 +99,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
           ),
         }),
         {},
-      ) as Record<DealStage, number>,
+      ) as Record<string, number>,
     [dealByStage],
   )
 
@@ -103,7 +126,10 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
     updateDeal,
     {
       onMutate(varivables) {
-        const newStage = varivables.dealInfo.stage as DealStage
+        const newStageId = varivables.dealInfo.stageId
+        const newStage = dealStages.find(
+          (item) => item.id === newStageId,
+        ) as DealStageData
         client.setQueryData(queryKey, (deals: Paginate<Deal> | undefined) => ({
           meta: deals!.meta,
           items: deals!.items.map((deal) => ({
@@ -126,9 +152,9 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
 
   const [dealId, setDealId] = useState<string | undefined>()
   const [closeStage, setCloseStage] = useState<
-    DealStage.CLOSED_LOST | DealStage.CLOSED_LOST_TO_COMPETITION | undefined
+    DealStageType.CLOSED_LOST | undefined
   >()
-
+  const [dealStageId, setDealStageId] = useState<string>('')
   const finishDeal = (dealId: string, updateDealDto: UpdateDealDto) => {
     mutateAsync({
       id: dealId,
@@ -138,29 +164,35 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
 
   const handleDragEnd: OnDragEndResponder = useCallback((res) => {
     if (!res.destination) return
-    if (res.destination.droppableId === res.source.droppableId) return
+
+    const stageId = res.destination.droppableId
+
+    if (stageId === res.source.droppableId) return
 
     const dealId = res.draggableId
 
-    if (res.destination.droppableId === DealStage.CLOSED_WON) {
+    if (stageTypeById[stageId] === DealStageType.CLOSED_WON) {
       setDealId(dealId)
+      setDealStageId(stageId)
       openConfirmCloseWon()
       return
     }
 
     if (
-      res.destination.droppableId === DealStage.CLOSED_LOST ||
-      res.destination.droppableId === DealStage.CLOSED_LOST_TO_COMPETITION
+      stageTypeById[res.destination.droppableId] === DealStageType.CLOSED_LOST
     ) {
       setDealId(dealId)
-      setCloseStage(res.destination.droppableId)
+      setDealStageId(stageId)
+      setCloseStage(
+        stageTypeById[res.destination.droppableId] as DealStageType.CLOSED_LOST,
+      )
       openConfirmCloseLost()
       return
     }
 
     mutateAsync({
       id: dealId,
-      dealInfo: { stage: res.destination.droppableId },
+      dealInfo: { stageId: res.destination.droppableId },
     })
   }, [])
 
@@ -170,6 +202,7 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
     <div className="w-full overflow-x-auto flex gap-3 min-h-[calc(100vh-204px)] crm-scrollbar pb-4">
       {chosenDeal && (
         <ConfirmClosedWon
+          stageId={dealStageId}
           deal={chosenDeal}
           visible={visibleConfirmClosedWon}
           onCloseModal={closeConfirmCloseWon}
@@ -179,15 +212,19 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
       {chosenDeal && closeStage && (
         <ConfirmClosedLost
           deal={chosenDeal}
-          stage={closeStage}
+          stageId={dealStageId}
           visible={visibleConfirmClosedLost}
           onCloseModal={closeConfirmCloseLost}
           onUpdateDeal={finishDeal}
         />
       )}
       <DragDropContext onDragEnd={handleDragEnd}>
-        {Object.values(DealStage).map((stage) => (
-          <Droppable isDropDisabled={isLoading} key={stage} droppableId={stage}>
+        {dealStages.map((stage) => (
+          <Droppable
+            isDropDisabled={isLoading}
+            key={stage.id}
+            droppableId={stage.id}
+          >
             {(provided) => (
               <div
                 {...provided.droppableProps}
@@ -195,26 +232,28 @@ export default function KanbanView({ queryKey, data: deals }: Props) {
                 className="min-w-[300px] flex flex-col gap-2 group pr-[10px]"
               >
                 <div
-                  className={`p-4 border border-b-[3px] border-b-blue-600 ${stageToColorMappings[stage]} rounded-md group-hover:shadow-md crm-transition select-none`}
+                  className={`p-4 border border-b-[3px] border-b-blue-600 ${
+                    stageToColorMappings[stage.type]
+                  } rounded-md group-hover:shadow-md crm-transition select-none`}
                 >
                   <div
                     className={`font-medium text-[15px] ${
-                      stageNameToColorMappings[stage] ||
+                      stageNameToColorMappings[stage.type] ||
                       stageNameToColorMappings['default']
                     } crm-transition`}
                   >
-                    {stage}
+                    {stage.name}
                   </div>
                   <div className="flex items-center ">
-                    <span>${amountCount[stage]}</span>
+                    <span>${amountCount[stage.name]}</span>
 
                     <span className="mx-2 fa fa-angle-right" />
-                    <span>{dealCount[stage]} deals</span>
+                    <span>{dealCount[stage.name]} deals</span>
                   </div>
                 </div>
 
                 <div className="max-h-[calc(100vh-293px)] crm-transition flex flex-col gap-2 overflow-auto crm-scrollbar pr-2 mr-[-15px]">
-                  {dealByStage[stage]?.map(
+                  {dealByStage[stage.name]?.map(
                     (
                       {
                         id,

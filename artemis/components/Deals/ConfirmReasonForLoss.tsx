@@ -9,7 +9,7 @@ import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
 
 type Props = {
   deal: Deal
-  stage: DealStage.CLOSED_LOST | DealStage.CLOSED_LOST_TO_COMPETITION
+  stageId: string
   visible: boolean
   onCloseModal: () => void
   onUpdateDeal: (id: string, updateDealDto: UpdateDealDto) => void
@@ -27,7 +27,7 @@ const ConfirmClosedLossSchema = yup.object().shape({
 
 const ConfirmReasonForLoss = ({
   deal,
-  stage,
+  stageId,
   visible,
   onCloseModal,
   onUpdateDeal: updateDeal,
@@ -52,7 +52,7 @@ const ConfirmReasonForLoss = ({
 
   const closeDealAsClosedWon = handleSubmit(
     ({ reason }: ConfirmClosedLossData) => {
-      updateDeal(deal.id, { ownerId, stage, reasonForLoss: reason })
+      updateDeal(deal.id, { ownerId, stageId, reasonForLoss: reason })
       reset()
       closeModal()
     },
