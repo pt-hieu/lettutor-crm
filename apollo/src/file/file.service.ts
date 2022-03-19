@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 
 import { UtilService } from 'src/global/util.service'
 import { UploadAttachment } from 'src/type/dto/file'
@@ -19,6 +19,7 @@ type TFile<T extends string | Buffer> = {
   name: string
   buffer: T
 }
+
 @Injectable()
 export class FileService {
   constructor(
@@ -26,7 +27,7 @@ export class FileService {
     private fileRepo: Repository<File>,
     private util: UtilService,
     private http: HttpService,
-  ) {}
+  ) { }
 
   async createEntityAttachments(id: string, dto: UploadAttachment) {
     const savedFiles = await this.uploadFile(dto.files)
@@ -36,6 +37,12 @@ export class FileService {
     })
 
     return this.fileRepo.save(savedFiles)
+  }
+
+  async removeEntityAttachments(ids: string[]) {
+    const files = await this.fileRepo.find({ where: { id: In(ids) } })
+
+    return this.fileRepo.remove(files)
   }
 
   async uploadFile(files: TFile<string>[]) {
@@ -68,4 +75,5 @@ export class FileService {
       throw new BadRequestException('The total size of files exceeds 20MB')
     }
   }
+
 }

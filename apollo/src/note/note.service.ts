@@ -42,7 +42,7 @@ export class NoteService {
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
     private readonly fileService: FileService,
-  ) {}
+  ) { }
 
   async addNote(dto: DTO.Note.AddNote) {
     let filesToAdd: File[] = []
