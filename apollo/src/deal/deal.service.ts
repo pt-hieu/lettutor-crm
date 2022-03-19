@@ -82,10 +82,7 @@ export class DealService {
     if (query.source)
       q.andWhere('d.source IN (:...source)', { source: query.source })
 
-    if (query.stageCategory)
-      q.andWhere('d.stage.category IN (:...stageCategory)', {
-        stageCategory: query.stageCategory,
-      })
+    if (query.stageId) q.andWhere('d.stage.id = :id', { id: query.stageId })
 
     if (query.search) {
       q = q.andWhere('d.fullName ILIKE :search', {
