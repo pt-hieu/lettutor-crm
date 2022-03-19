@@ -100,14 +100,10 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   search?: string
 
-  @ApiPropertyOptional({
-    type: DealStageType,
-    enum: DealStageType,
-    isArray: true,
-  })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsEnum(DealStageType, { each: true })
-  stageCategory?: DealStageType[]
+  @IsUUID()
+  stageId?: string
 
   @ApiPropertyOptional({ type: LeadSource, enum: LeadSource, isArray: true })
   @IsOptional()

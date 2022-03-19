@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
 import { UtilService } from 'src/global/util.service'
+import { UploadAttachment } from 'src/type/dto/file'
 
 import { File } from './file.entity'
 
@@ -26,6 +27,16 @@ export class FileService {
     private util: UtilService,
     private http: HttpService,
   ) {}
+
+  async createEntityAttachments(id: string, dto: UploadAttachment) {
+    const savedFiles = await this.uploadFile(dto.files)
+
+    savedFiles.forEach((file) => {
+      file[dto.entity + 'Id'] = id
+    })
+
+    return this.fileRepo.save(savedFiles)
+  }
 
   async uploadFile(files: TFile<string>[]) {
     this.doValidateFiles(files)

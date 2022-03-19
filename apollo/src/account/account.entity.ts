@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany } from 'typeorm'
 
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { File } from 'src/file/file.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { Ownerful } from 'src/utils/owner.entity'
@@ -50,4 +51,7 @@ export class Account extends Ownerful {
 
   @OneToMany(() => Note, (note) => note.account, { cascade: true })
   notes: Note[]
+
+  @OneToMany(() => File, (f) => f.account, { cascade: true })
+  attachments: File
 }

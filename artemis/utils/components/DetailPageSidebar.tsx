@@ -21,7 +21,7 @@ const DetailPageSidebar = ({ data }: Props) => {
   const scrollToSection = useCallback((value: string) => {
     const element = document.getElementById(value)
     const y =
-      (element?.getBoundingClientRect().top || 0) + window.pageYOffset - 150
+      (element?.getBoundingClientRect().top || 0) + window.pageYOffset - 166
 
     window.scrollTo({ top: y, behavior: 'smooth' })
   }, [])

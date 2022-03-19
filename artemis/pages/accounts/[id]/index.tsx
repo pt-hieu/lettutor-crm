@@ -20,6 +20,7 @@ import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 
+import AttachmentSection from '@utils/components/AttachmentSection'
 import DealInfo from '@utils/components/DealInfo'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
@@ -364,12 +365,6 @@ const AccountDetail = () => {
               )}
             </div>
 
-            <LogSection
-              source={LogSource.ACCOUNT}
-              title={AccountDetailSections.Logs}
-              entityId={id}
-            />
-
             <div className="p-4 rounded-md border">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -399,6 +394,14 @@ const AccountDetail = () => {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
+            <AttachmentSection id={AccountDetailSections.Attachments} />
+
+            <LogSection
+              source={LogSource.ACCOUNT}
+              title={AccountDetailSections.Logs}
+              entityId={id}
+            />
           </div>
         </div>
       </div>
