@@ -4,15 +4,16 @@ import { useHoverDirty } from 'react-use'
 import Animate from '@utils/components/Animate'
 
 type Props = {
-  location: string
+  location?: string
   filename: string
+  onRemove?: () => void
 }
 
-function ImageFile({ src }: { src: string }) {
-  return <img src={src} />
+function ImageFile({ src }: { src?: string }) {
+  return <img src={src || '/artemis_logo.png'} />
 }
 
-export default function File({ filename, location }: Props) {
+export default function File({ filename, location, onRemove: remove }: Props) {
   const ext = useMemo(() => filename.split('.').slice(-1)[0], [])
 
   const linkRef = useRef<HTMLAnchorElement>(null)
@@ -28,7 +29,7 @@ export default function File({ filename, location }: Props) {
       txt: <span className="fa fa-file text-2xl" />,
       doc: <span className="fa fa-file-word text-2xl" />,
       docx: <span className="fa fa-file-word text-2xl" />,
-      fallback: <></>
+      fallback: <></>,
     }),
     [],
   )
@@ -76,8 +77,18 @@ export default function File({ filename, location }: Props) {
         download={filename}
       />
 
-      <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
-        {filename}
+      <div className="w-full flex gap-2 items-center">
+        {remove && (
+          <button
+            onClick={remove}
+            className="crm-button-danger rounded-full w-2 h-2 text-xs aspect-square !p-2 grid place-content-center"
+          >
+            <span className="fa fa-times" />
+          </button>
+        )}
+        <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
+          {filename}
+        </div>
       </div>
     </div>
   )
