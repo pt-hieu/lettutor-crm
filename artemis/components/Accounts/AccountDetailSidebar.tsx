@@ -18,6 +18,7 @@ export enum AccountDetailSections {
   Logs = 'Logs',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
+  Attachments = 'Attachments',
 }
 
 const AccountDetailSidebar = () => {
@@ -84,9 +85,6 @@ const AccountDetailSidebar = () => {
           label: AccountDetailSections.Deals,
         },
         {
-          label: AccountDetailSections.Logs,
-        },
-        {
           id: AccountDetailSections.OpenActivities,
           label: (
             <span>
@@ -115,6 +113,17 @@ const AccountDetailSidebar = () => {
               )}
             </span>
           ),
+        },
+        {
+          label: AccountDetailSections.Attachments,
+          extend: {
+            title: 'Add attachments',
+            onClick: () =>
+              client.setQueryData('cmd:add-attachment', Date.now()),
+          },
+        },
+        {
+          label: AccountDetailSections.Logs,
         },
       ],
     },
