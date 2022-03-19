@@ -17,7 +17,7 @@ export class AwsController {
     return this.service.uploadFile(dto)
   }
 
-  @Delete('s3')
+  @Post('s3/batch-delete')
   @ApiOperation({ summary: 'to delete file in aws s3' })
   deleteInS3(@Body() dto: DeleteFiles) {
     return this.service.deleteFile(dto.keys)
