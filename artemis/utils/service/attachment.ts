@@ -22,3 +22,8 @@ export const addAttachmentAsFile =
       .post(API + '/apollo/file/attachment/' + id, data)
       .then((r) => r.data)
   }
+
+export const deleteAttachment = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/file/batch', { data: { ids } })
+    .then((r) => r.data)

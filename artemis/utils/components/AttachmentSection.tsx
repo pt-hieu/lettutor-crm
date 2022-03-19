@@ -16,7 +16,11 @@ import { useDispatch } from '@utils/hooks/useDispatch'
 import { useModal } from '@utils/hooks/useModal'
 import { useStore } from '@utils/hooks/useStore'
 import { Attachments } from '@utils/models/note'
-import { Entity, addAttachmentAsFile } from '@utils/service/attachment'
+import {
+  Entity,
+  addAttachmentAsFile,
+  deleteAttachment,
+} from '@utils/service/attachment'
 
 import Loading from './Loading'
 
@@ -33,10 +37,21 @@ export default function AttachmentSection({
   entityId,
   entityType,
 }: TProps) {
+  const client = useQueryClient()
   const [modal, open, close] = useModal()
 
   useCommand('cmd:add-attachment', () => {
     open()
+  })
+
+  const { mutateAsync } = useMutation('delete-attachment', deleteAttachment, {
+    onSuccess() {
+      client.invalidateQueries([entityType, entityId])
+      notification.success({ message: 'Delete attachment successfully' })
+    },
+    onError() {
+      notification.success({ message: 'Delete attachment un`successfully' })
+    },
   })
 
   return (
@@ -65,7 +80,12 @@ export default function AttachmentSection({
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,140px))] gap-2">
         {data?.map((file) => (
-          <File filename={file.key} key={file.id} location={file.location} />
+          <File
+            filename={file.key}
+            key={file.id}
+            onRemove={() => mutateAsync([file.id])}
+            location={file.location}
+          />
         ))}
       </div>
     </div>
