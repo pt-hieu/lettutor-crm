@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -10,7 +11,9 @@ import {
 } from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
+import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
+import { Actions } from 'src/type/action'
 
 import { LinkService } from './link.service'
 
@@ -22,8 +25,9 @@ export class LinkController {
   constructor(private service: LinkService) {}
 
   @Post()
+  @DefineAction(Actions.CREATE_NEW_NOTE)
   @ApiOperation({ summary: 'to attach new link manually' })
-  addNote(@Body() dto: DTO.Link.AddLink) {
+  addLink(@Body() dto: DTO.Link.AddLink) {
     return this.service.addLink(dto)
   }
 
@@ -35,7 +39,7 @@ export class LinkController {
 
   @Get(':id')
   @ApiOperation({ summary: 'to get link information by Id' })
-  getLeadById(@Param('id', ParseUUIDPipe) id: string) {
+  getLinkById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getLinkById({
       where: { id },
       relations: ['owner'],
@@ -44,10 +48,16 @@ export class LinkController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'to update link manually' })
-  updateLead(
+  updateLink(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.Link.UpdateLink,
   ) {
     return this.service.updateLink(dto, id)
+  }
+
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete a attach link' })
+  deleteLink(@Body() dto: DTO.BatchDelete) {
+    return this.service.deleteLink(dto.ids)
   }
 }

@@ -10,6 +10,11 @@ export enum LinkSource {
   TASK = 'task',
 }
 
+export enum LinkSort {
+  LAST = 'last',
+  FIRST = 'first',
+}
+
 @Entity({ name: 'link' })
 export class Link extends Ownerful {
   @Column({ enum: LinkSource, type: 'enum', default: LinkSource.LEAD })

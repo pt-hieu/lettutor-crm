@@ -8,7 +8,7 @@ import {
   MaxLength,
 } from 'class-validator'
 
-import { LinkSource } from 'src/link/link.entity'
+import { LinkSort, LinkSource } from 'src/link/link.entity'
 
 import { Paginate } from './paging'
 
@@ -62,4 +62,12 @@ export class GetManyLinks extends Paginate {
   @ApiPropertyOptional()
   @IsOptional()
   entity?: string
+
+  @ApiPropertyOptional({
+    type: LinkSort,
+    enum: LinkSort,
+  })
+  @IsString()
+  @IsOptional()
+  sort?: string
 }

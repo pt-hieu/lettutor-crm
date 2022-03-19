@@ -48,6 +48,10 @@ export enum Actions {
   CREATE_NEW_NOTE = 'Can create new note',
   DELETE_NOTE = 'Can delete any note',
 
+  VIEW_ALL_ATTACHMENTS = 'Can view all attachments',
+  CREATE_NEW_ATTACHMENT = 'Can create new attachments',
+  DELETE_ATTACHMENTS = 'Cab delete any attachments',
+
   VIEW_ALL_DEAL_STAGES = 'Can view all deal stages',
   MODIFY_ALL_DEAL_STAGES = 'Can modify all deal stages',
 }
