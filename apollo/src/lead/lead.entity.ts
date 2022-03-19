@@ -70,6 +70,6 @@ export class Lead extends Ownerful {
   @OneToMany(() => Note, (note) => note.lead, { cascade: true })
   notes: Note[]
 
-  @OneToMany(() => File, (f) => f.lead, { cascade: true })
+  @OneToMany(() => File, (f) => f.lead, { cascade: true, eager: true })
   attachments: File
 }

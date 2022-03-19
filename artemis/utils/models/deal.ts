@@ -2,7 +2,7 @@ import { Account } from './account'
 import { Base } from './base'
 import { Contact } from './contact'
 import { LeadSource } from './lead'
-import { Note } from './note'
+import { Attachments, Note } from './note'
 import { Task } from './task'
 import { User } from './user'
 
@@ -37,6 +37,7 @@ export interface Deal extends Base {
   tasks: Task[]
   notes: Note[]
   stageId?: string
+  attachments: Attachments[]
 }
 
 export type UpdateDealDto = {

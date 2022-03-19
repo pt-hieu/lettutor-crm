@@ -1,6 +1,7 @@
 import { Base } from './base'
 import { Deal } from './deal'
 import { Lead } from './lead'
+import { Attachments } from './note'
 import { Task } from './task'
 import { User } from './user'
 
@@ -31,4 +32,5 @@ export interface Account extends Base {
   deals: Deal[]
   tasks: Task[]
   tasksToDisplay: Task[]
+  attachments: Attachments[]
 }

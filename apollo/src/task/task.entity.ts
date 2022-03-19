@@ -77,6 +77,6 @@ export class Task extends Ownerful {
   @OneToMany(() => Note, (note) => note.task, { cascade: true })
   notes: Note[]
 
-  @OneToMany(() => File, (f) => f.task, { cascade: true })
+  @OneToMany(() => File, (f) => f.task, { cascade: true, eager: true })
   attachments: File
 }

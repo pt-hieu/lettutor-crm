@@ -3,6 +3,7 @@ import { Base } from './base'
 import { Contact } from './contact'
 import { Deal } from './deal'
 import { Lead } from './lead'
+import { Attachments } from './note'
 import { User } from './user'
 
 export enum TaskPriority {
@@ -33,4 +34,5 @@ export interface Task extends Base {
   dueDate: Date | null
   description: string | null
   fullName?: string
+  attachments: Attachments[]
 }

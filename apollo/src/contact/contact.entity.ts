@@ -52,6 +52,6 @@ export class Contact extends Ownerful {
   @OneToMany(() => Note, (note) => note.contact, { cascade: true })
   notes: Note[]
 
-  @OneToMany(() => File, (f) => f.contact, { cascade: true })
+  @OneToMany(() => File, (f) => f.contact, { cascade: true, eager: true })
   attachments: File
 }

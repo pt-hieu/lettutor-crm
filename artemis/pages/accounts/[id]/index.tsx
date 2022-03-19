@@ -40,6 +40,7 @@ import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getAccount, updateAccount } from '@utils/service/account'
+import { Entity } from '@utils/service/attachment'
 import {
   FilterNoteType,
   SortNoteType,
@@ -395,7 +396,12 @@ const AccountDetail = () => {
               )}
             </div>
 
-            <AttachmentSection id={AccountDetailSections.Attachments} />
+            <AttachmentSection
+              entityType={Entity.ACCOUNT}
+              entityId={id}
+              id={AccountDetailSections.Attachments}
+              data={account?.attachments}
+            />
 
             <LogSection
               source={LogSource.ACCOUNT}

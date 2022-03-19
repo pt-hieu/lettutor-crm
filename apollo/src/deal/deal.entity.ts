@@ -60,6 +60,6 @@ export class Deal extends Ownerful {
   @OneToMany(() => Note, (note) => note.deal, { cascade: true })
   notes: Note[]
 
-  @OneToMany(() => File, (f) => f.deal, { cascade: true })
+  @OneToMany(() => File, (f) => f.deal, { cascade: true, eager: true })
   attachments: File
 }

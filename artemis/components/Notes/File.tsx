@@ -78,6 +78,10 @@ export default function File({ filename, location, onRemove: remove }: Props) {
       />
 
       <div className="w-full flex gap-2 items-center">
+        <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
+          {filename}
+        </div>
+
         {remove && (
           <button
             onClick={remove}
@@ -86,9 +90,6 @@ export default function File({ filename, location, onRemove: remove }: Props) {
             <span className="fa fa-times" />
           </button>
         )}
-        <div className="w-full text-[12px] truncate text-center mt-1 mb-2">
-          {filename}
-        </div>
       </div>
     </div>
   )
