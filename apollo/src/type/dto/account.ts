@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import {
   IsEnum,
   IsMobilePhone,
@@ -56,6 +57,9 @@ export class GetManyQuery extends Paginate {
   @ApiPropertyOptional({ type: AccountType, enum: AccountType, isArray: true })
   @IsOptional()
   @IsEnum(AccountType, { each: true })
+  @Transform(({ value }) =>
+    Array.from(typeof value === 'string' ? [value] : value),
+  )
   type?: AccountType[]
 }
 

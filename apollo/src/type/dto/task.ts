@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
   IsDate,
   IsEnum,
@@ -81,11 +81,17 @@ export class GetManyQuery extends Paginate {
   })
   @IsOptional()
   @IsEnum(TaskPriority, { each: true })
+  @Transform(({ value }) =>
+    Array.from(typeof value === 'string' ? [value] : value),
+  )
   priority?: TaskPriority[]
 
   @ApiPropertyOptional({ type: TaskStatus, enum: TaskStatus, isArray: true })
   @IsOptional()
   @IsEnum(TaskStatus, { each: true })
+  @Transform(({ value }) =>
+    Array.from(typeof value === 'string' ? [value] : value),
+  )
   status?: TaskStatus[]
 }
 

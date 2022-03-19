@@ -9,13 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger'
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DefineAction } from 'src/action.decorator'
 import { DTO } from 'src/type'
@@ -31,7 +25,6 @@ export class RoleController {
   constructor(private service: RoleService) {}
 
   @Get()
-  @ApiQuery({ type: DTO.Role.GetManyRole })
   @ApiOperation({ summary: 'to get all role' })
   getMany(@Query() query: DTO.Role.GetManyRole) {
     return this.service.getManyRole(query)

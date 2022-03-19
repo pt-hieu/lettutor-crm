@@ -9,7 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DefineAction } from 'src/action.decorator'
 import { UtilService } from 'src/global/util.service'
@@ -36,7 +36,6 @@ export class DealController {
 
   @Get()
   @ApiOperation({ summary: 'view, search and filter all deal' })
-  @ApiQuery({ type: DTO.Deal.GetManyQuery })
   index(@Query() query: DTO.Deal.GetManyQuery) {
     return this.service.getMany(query)
   }
