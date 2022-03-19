@@ -3,13 +3,14 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { File } from 'src/file/file.entity'
 import { LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
-import { AttachedEntity } from 'src/utils/attachment.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 
 @Entity({ name: 'contact' })
-export class Contact extends AttachedEntity {
+export class Contact extends Ownerful {
   @Column({ type: 'uuid', select: true, nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   accountId: string | null
@@ -50,4 +51,7 @@ export class Contact extends AttachedEntity {
 
   @OneToMany(() => Note, (note) => note.contact, { cascade: true })
   notes: Note[]
+
+  @OneToMany(() => File, (f) => f.contact, { cascade: true })
+  attachments: File
 }

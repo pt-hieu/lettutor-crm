@@ -4,9 +4,10 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { File } from 'src/file/file.entity'
 import { Lead } from 'src/lead/lead.entity'
 import { Note } from 'src/note/note.entity'
-import { AttachedEntity } from 'src/utils/attachment.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 
 export enum TaskPriority {
   HIGH = 'High',
@@ -25,7 +26,7 @@ export enum TaskStatus {
 }
 
 @Entity({ name: 'task' })
-export class Task extends AttachedEntity {
+export class Task extends Ownerful {
   @ManyToOne(() => Lead, (lead) => lead.tasks, { onDelete: 'CASCADE' })
   @JoinColumn()
   lead: Lead
@@ -75,4 +76,7 @@ export class Task extends AttachedEntity {
 
   @OneToMany(() => Note, (note) => note.task, { cascade: true })
   notes: Note[]
+
+  @OneToMany(() => File, (f) => f.task, { cascade: true })
+  attachments: File
 }

@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Allow } from 'class-validator'
+import { Allow, IsEnum } from 'class-validator'
+
+import { Entity } from '../util'
 
 export class Files {
   @ApiProperty()
@@ -10,4 +12,10 @@ export class Files {
       buffer: string
     },
   ]
+}
+
+export class UploadAttachment extends Files {
+  @ApiProperty({ type: 'enum', enumName: 'Entity', enum: Entity })
+  @IsEnum(Entity)
+  entity: Entity
 }

@@ -3,9 +3,10 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 import { Account } from 'src/account/account.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { File } from 'src/file/file.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
-import { AttachedEntity } from 'src/utils/attachment.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 
 export enum LeadStatus {
   NONE = 'None',
@@ -27,7 +28,7 @@ export enum LeadSource {
 }
 
 @Entity({ name: 'lead' })
-export class Lead extends AttachedEntity {
+export class Lead extends Ownerful {
   @Column({ type: 'uuid', select: false, nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   accountId: string | null
@@ -68,4 +69,7 @@ export class Lead extends AttachedEntity {
 
   @OneToMany(() => Note, (note) => note.lead, { cascade: true })
   notes: Note[]
+
+  @OneToMany(() => File, (f) => f.lead, { cascade: true })
+  attachments: File
 }

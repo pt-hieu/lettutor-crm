@@ -2,9 +2,10 @@ import { Column, Entity, OneToMany } from 'typeorm'
 
 import { Contact } from 'src/contact/contact.entity'
 import { Deal } from 'src/deal/deal.entity'
+import { File } from 'src/file/file.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
-import { AttachedEntity } from 'src/utils/attachment.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 
 export enum AccountType {
   NONE = 'None',
@@ -23,7 +24,7 @@ export enum AccountType {
 }
 
 @Entity({ name: 'account' })
-export class Account extends AttachedEntity {
+export class Account extends Ownerful {
   @Column({ type: 'varchar' })
   fullName: string
 
@@ -50,4 +51,7 @@ export class Account extends AttachedEntity {
 
   @OneToMany(() => Note, (note) => note.account, { cascade: true })
   notes: Note[]
+
+  @OneToMany(() => File, (f) => f.account, { cascade: true })
+  attachments: File
 }

@@ -1,7 +1,7 @@
 import { Body, Controller, Param, ParseUUIDPipe, Post } from '@nestjs/common'
 import { ApiSecurity, ApiTags } from '@nestjs/swagger'
 
-import { Files } from 'src/type/dto/file'
+import { Files, UploadAttachment } from 'src/type/dto/file'
 
 import { FileService } from './file.service'
 
@@ -14,9 +14,9 @@ export class FileController {
 
   @Post('attachment/:entityId')
   createAttachment(
-    @Body() dto: Files,
+    @Body() dto: UploadAttachment,
     @Param('entityId', ParseUUIDPipe) id: string,
   ) {
-    return this.fileService.createEntityAttachments(id, dto.files)
+    return this.fileService.createEntityAttachments(id, dto)
   }
 }

@@ -4,13 +4,14 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
 import { DealStage } from 'src/deal-stage/deal-stage.entity'
+import { File } from 'src/file/file.entity'
 import { LeadSource } from 'src/lead/lead.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
-import { AttachedEntity } from 'src/utils/attachment.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 
 @Entity({ name: 'deal' })
-export class Deal extends AttachedEntity {
+export class Deal extends Ownerful {
   @ManyToOne(() => Account, (account) => account.deals)
   @JoinColumn()
   account: Account
@@ -58,4 +59,7 @@ export class Deal extends AttachedEntity {
 
   @OneToMany(() => Note, (note) => note.deal, { cascade: true })
   notes: Note[]
+
+  @OneToMany(() => File, (f) => f.deal, { cascade: true })
+  attachments: File
 }
