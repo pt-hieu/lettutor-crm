@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useQuery } from 'react-query'
 
 import MultipleQuery from '@utils/components/MultipleQuery'
-import { DealStage } from '@utils/models/deal'
+import { DealStage, DealStageData } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 
 type FormData = {
@@ -40,6 +41,12 @@ export default function DealsSidebar({
     [],
   )
 
+  const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
+    enabled: false,
+  })
+
+  const stageNames = dealStages?.map((s) => s.name) || []
+
   return (
     <div className="text-gray-700 bg-gray-100 flex flex-col gap-3 p-4 rounded-md">
       <div className="flex justify-between border-b pb-2 mb-2 items-center">
@@ -58,11 +65,7 @@ export default function DealsSidebar({
             type="checkbox"
           />
           <div className="font-medium my-2">Deal Stage</div>
-          <MultipleQuery
-            name="stage"
-            options={Object.values(DealStage)}
-            type="checkbox"
-          />
+          <MultipleQuery name="stage" options={stageNames} type="checkbox" />
         </FormProvider>
       </form>
     </div>
