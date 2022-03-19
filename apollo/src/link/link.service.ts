@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
-import { FindOneOptions, Repository } from 'typeorm'
+import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { DTO } from 'src/type'
 
@@ -9,10 +9,10 @@ import { Link } from './link.entity'
 
 @Injectable()
 export class LinkService {
-  constructor(@InjectRepository(Link) private LinkRepo: Repository<Link>) {}
+  constructor(@InjectRepository(Link) private linkRepo: Repository<Link>) {}
 
   async getLinkById(option: FindOneOptions<Link>) {
-    const link = await this.LinkRepo.findOne(option)
+    const link = await this.linkRepo.findOne(option)
 
     if (!link) {
       Logger.error(JSON.stringify(option, null, 2))
@@ -23,13 +23,13 @@ export class LinkService {
   }
 
   async addLink(dto: DTO.Link.AddLink) {
-    return this.LinkRepo.save(dto)
+    return this.linkRepo.save(dto)
   }
 
   async updateLink(dto: DTO.Link.UpdateLink, id: string) {
     const link = await this.getLinkById({ where: { id } })
 
-    return this.LinkRepo.save({
+    return this.linkRepo.save({
       ...link,
       ...dto,
     })
@@ -43,7 +43,7 @@ export class LinkService {
     source,
     entity,
   }: DTO.Link.GetManyLinks) {
-    const qb = this.LinkRepo.createQueryBuilder('link')
+    const qb = this.linkRepo.createQueryBuilder('link')
       .leftJoinAndSelect('link.owner', 'owner')
       .orderBy('link.createdAt', 'DESC')
 
@@ -61,5 +61,11 @@ export class LinkService {
 
     if (shouldNotPaginate) return qb.getMany()
     return paginate(qb, { limit, page })
+  }
+
+
+  async batchDelete(ids: string[]) {
+    const links = await this.linkRepo.find({ where: { id: In(ids) } })
+    return this.linkRepo.remove(links)
   }
 }
