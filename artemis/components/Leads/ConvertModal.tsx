@@ -18,7 +18,7 @@ import Animate from '@utils/components/Animate'
 import Input from '@utils/components/Input'
 import Loading from '@utils/components/Loading'
 import { useInput } from '@utils/hooks/useInput'
-import { Deal, DealStage } from '@utils/models/deal'
+import { Deal, DealStageData } from '@utils/models/deal'
 import { Lead } from '@utils/models/lead'
 import { convertLead } from '@utils/service/lead'
 import { getRawUsers } from '@utils/service/user'
@@ -47,7 +47,10 @@ const labelMapping = {
   2: 'Deal: ',
 }
 
-type FormData = {} & Pick<Deal, 'amount' | 'closingDate' | 'fullName' | 'stage'>
+type FormData = {} & Pick<
+  Deal,
+  'amount' | 'closingDate' | 'fullName' | 'stageId'
+>
 
 const schema = yup.object().shape({
   amount: yup.number().typeError('Invalid amount'),
@@ -61,6 +64,10 @@ export default function ConvertModal({ close, visible }: Props) {
   const id = query.id as string
 
   const { data: lead } = useQuery<Lead>(['lead', id], { enabled: false })
+  const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
+    enabled: false,
+  })
+
   const { fullName, owner } = lead || {}
 
   const [convertToDeal, setConvertToDeal] = useState(false)
@@ -241,17 +248,17 @@ export default function ConvertModal({ close, visible }: Props) {
                     Stage
                   </label>
                   <Input
-                    error={errors.stage?.message}
+                    error={errors.stageId?.message}
                     as="select"
                     props={{
-                      id: 'stage',
+                      id: 'stageId',
                       className: 'w-full',
-                      ...register('stage'),
+                      ...register('stageId'),
                       children: (
                         <>
-                          {Object.values(DealStage).map((stage) => (
-                            <option key={stage} value={stage}>
-                              {stage}
+                          {dealStages?.map((stage) => (
+                            <option key={stage.id} value={stage.id}>
+                              {stage.name}
                             </option>
                           ))}
                         </>

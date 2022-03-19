@@ -5,11 +5,16 @@ import * as yup from 'yup'
 
 import Input from '@utils/components/Input'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { Deal, DealStage, UpdateDealDto } from '@utils/models/deal'
+import {
+  Deal,
+  DealStage,
+  DealStageType,
+  UpdateDealDto,
+} from '@utils/models/deal'
 
 type Props = {
   deal: Deal
-  stage: DealStage.CLOSED_LOST | DealStage.CLOSED_LOST_TO_COMPETITION
+  stageId: string
   visible: boolean
   onCloseModal: () => void
   onUpdateDeal: (id: string, updateDealDto: UpdateDealDto) => void
@@ -35,7 +40,7 @@ const ConfirmClosedLossSchema = yup.object().shape({
 
 const ConfirmCloseLost = ({
   deal,
-  stage,
+  stageId,
   visible,
   onCloseModal,
   onUpdateDeal: updateDeal,
@@ -62,7 +67,7 @@ const ConfirmCloseLost = ({
     ({ amount, closingDate, reason }: ConfirmClosedLossData) => {
       updateDeal(deal.id, {
         ownerId,
-        stage,
+        stageId,
         amount,
         closingDate,
         reasonForLoss: reason,

@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { QueryClient, dehydrate, useMutation, useQuery } from 'react-query'
 import * as yup from 'yup'
@@ -19,14 +19,20 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { Account } from '@utils/models/account'
 import { Contact } from '@utils/models/contact'
-import { Deal, DealStage, LossStages, UpdateDealDto } from '@utils/models/deal'
+import {
+  Deal,
+  DealStageData,
+  DealStageType,
+  LossStages,
+  UpdateDealDto,
+} from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
-import { getAccounts, getRawAccounts } from '@utils/service/account'
-import { getContacts, getRawContacts } from '@utils/service/contact'
-import { getDeal, updateDeal } from '@utils/service/deal'
-import { getRawUsers, getUsers } from '@utils/service/user'
+import { getRawAccounts } from '@utils/service/account'
+import { getRawContacts } from '@utils/service/contact'
+import { getDeal, getDealStages, updateDeal } from '@utils/service/deal'
+import { getRawUsers } from '@utils/service/user'
 
 export type DealUpdateFormData = {
   ownerId: string
@@ -39,6 +45,7 @@ export type DealUpdateFormData = {
   source: LeadSource
   probability: number | null
   description: string | null
+  stageId: string
 }
 
 export const EditDealSchema = yup.object().shape({
@@ -57,7 +64,7 @@ export const EditDealSchema = yup.object().shape({
     .date()
     .required('Closing Date is required.')
     .typeError('Closing Date is not valid'),
-  stage: yup.string().required('Stage is required.'),
+  stageId: yup.string().required('Stage is required.'),
   source: yup.string().required('Lead Source is required.'),
   contactId: yup.string(),
   probability: yup
@@ -89,6 +96,10 @@ const EditDeal = () => {
     enabled: false,
   })
 
+  const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
+    enabled: false,
+  })
+
   const { data: deal } = useQuery<Deal>(['deal', id], { enabled: false })
 
   const ownerOptions = owners?.map((owner) => ({
@@ -106,6 +117,11 @@ const EditDeal = () => {
     option: contact.fullName,
   }))
 
+  const dealStageOptions = dealStages?.map((dealStage) => ({
+    value: dealStage.id,
+    option: dealStage.name,
+  }))
+
   contactOptions?.unshift({ value: 'None', option: 'None' })
 
   const selectChildren = {
@@ -120,6 +136,12 @@ const EditDeal = () => {
       </option>
     )),
     contactId: contactOptions?.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.option}
+      </option>
+    )),
+
+    stageId: dealStageOptions?.map((option) => (
       <option key={option.value} value={option.value}>
         {option.option}
       </option>
@@ -141,6 +163,7 @@ const EditDeal = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<DealUpdateFormData>({
     mode: 'onChange',
@@ -152,14 +175,16 @@ const EditDeal = () => {
       fullName: deal?.fullName,
       amount: deal?.amount,
       closingDate: deal?.closingDate,
-      stage: deal?.stage,
+      stageId: deal?.stage.id,
       source: deal?.source,
       probability: deal?.probability,
       description: deal?.description,
     },
   })
 
-  const [closeStage, setCloseStage] = useState<LossStages | undefined>()
+  const [closeStage, setCloseStage] = useState<
+    DealStageType.CLOSED_LOST | undefined
+  >()
   const [
     visibleConfirmClosedLost,
     openConfirmCloseLost,
@@ -175,26 +200,46 @@ const EditDeal = () => {
     })
   }
 
+  const stageTypeById = useMemo(
+    () =>
+      dealStages?.reduce(
+        (sum, curr) => ({
+          ...sum,
+          [curr.id]: curr.type,
+        }),
+        {},
+      ) as Record<string, DealStageType>,
+    [dealStages],
+  )
+
   const editDeal = handleSubmit((data) => {
     if (data.contactId === 'None') {
       data.contactId = null
     }
 
     const isMarkDealAsClosedLoss =
-      (deal?.stage !== DealStage.CLOSED_LOST &&
-        data.stage === DealStage.CLOSED_LOST) ||
-      (deal?.stage !== DealStage.CLOSED_LOST_TO_COMPETITION &&
-        data.stage === DealStage.CLOSED_LOST_TO_COMPETITION)
+      deal?.stage.type !== DealStageType.CLOSED_LOST &&
+      stageTypeById[data.stageId] === DealStageType.CLOSED_LOST
 
     if (isMarkDealAsClosedLoss) {
       setUpdatedData(data)
-      setCloseStage(data.stage as LossStages)
+      setCloseStage(stageTypeById[data.stageId] as DealStageType.CLOSED_LOST)
       openConfirmCloseLost()
       return
     }
 
     mutateAsync({ id, dealInfo: data })
   })
+
+  const handleChangeStage = (value: string) => {
+    if (!value) return
+    const stageById = dealStages?.find((s) => s.id === value)
+
+    if (!stageById) return
+    const probability = stageById.probability
+
+    setValue('probability', probability)
+  }
 
   const renderField = ({
     name,
@@ -246,11 +291,20 @@ const EditDeal = () => {
                   </>
                 )
               ) : undefined,
-            ...register(name as keyof DealUpdateFormData),
+            ...register(name as keyof DealUpdateFormData, {
+              onChange:
+                name === 'stageId'
+                  ? (e) => handleChangeStage(e.target.value)
+                  : undefined,
+            }),
           }}
         />
       </div>
     </div>
+  )
+
+  const closedLostStage = dealStages?.find(
+    (s) => s.type === DealStageType.CLOSED_LOST,
   )
 
   return (
@@ -258,7 +312,7 @@ const EditDeal = () => {
       {deal && closeStage && (
         <ConfirmReasonForLoss
           deal={deal}
-          stage={closeStage}
+          stageId={closedLostStage?.id as string}
           visible={visibleConfirmClosedLost}
           onCloseModal={closeConfirmCloseLost}
           onUpdateDeal={finishDeal}
@@ -317,6 +371,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       client.prefetchQuery(['contacts'], getRawContacts(token)),
       client.prefetchQuery(['accounts'], getRawAccounts(token)),
       client.prefetchQuery(['deal', id], getDeal(id, token)),
+      client.prefetchQuery(['deal-stages'], getDealStages(token)),
     ])
   }
 

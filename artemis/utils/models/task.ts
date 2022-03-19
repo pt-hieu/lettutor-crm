@@ -32,4 +32,5 @@ export interface Task extends Base {
   deal: Deal | null
   dueDate: Date | null
   description: string | null
+  fullName?: string
 }
