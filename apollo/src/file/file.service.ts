@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 
 import { UtilService } from 'src/global/util.service'
 import { UploadAttachment } from 'src/type/dto/file'
@@ -40,24 +40,9 @@ export class FileService {
   }
 
   async removeEntityAttachments(ids: string[]) {
-    const files = await this.getManyFiles(ids)
-
-    const fileKeys = []
-    files.forEach((file) => {
-      fileKeys.push(file.key)
-    })
-
-    await this.deleteFileByKeys(fileKeys)
+    const files = await this.fileRepo.find({ where: { id: In(ids) } })
 
     return this.fileRepo.remove(files)
-  }
-
-  async deleteFileByKeys(keys: string[]) {
-    const deleteResult = await this.util.wrap<
-      Promise<any>
-    >(this.http.post(this.util.aresService + '/aws/s3/batch-delete', keys))
-
-    return deleteResult
   }
 
   async uploadFile(files: TFile<string>[]) {
@@ -91,13 +76,4 @@ export class FileService {
     }
   }
 
-  async getManyFiles(ids: string[]) {
-    const files = await this.fileRepo.findByIds(ids)
-
-    if (!files) {
-      throw new NotFoundException('File not found')
-    }
-
-    return files
-  }
 }
