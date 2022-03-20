@@ -55,7 +55,7 @@ export const getServerSideProps: GetServerSideProps = async ({
             property,
             from: from ? new Date(from) : undefined,
             to: to ? new Date(to) : undefined,
-            entity,
+            entities: entity,
           },
           token,
         ),
@@ -105,7 +105,7 @@ export default function LogPage() {
       property,
       from: from ? new Date(from) : undefined,
       to: to ? new Date(to) : undefined,
-      entity,
+      entities: entity,
     }),
   )
 
