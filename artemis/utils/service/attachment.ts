@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { API } from 'environment'
 
+import { TFormData } from '@utils/components/AttachmentSection'
+
 export enum Entity {
   LEAD = 'lead',
   TASK = 'task',
@@ -22,6 +24,15 @@ export const addAttachmentAsFile =
       .post(API + '/apollo/file/attachment/' + id, data)
       .then((r) => r.data)
   }
+
+export const addAttachmentAsLink =
+  (id: string, entity: Entity) => (data: TFormData) =>
+    axios
+      .post(API + '/apollo/file/attachment/external/' + id, {
+        ...data,
+        entity,
+      })
+      .then((r) => r.data)
 
 export const deleteAttachment = (ids: string[]) =>
   axios

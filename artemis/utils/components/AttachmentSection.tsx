@@ -1,4 +1,6 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import { Divider, Modal, notification } from 'antd'
+import { throttle } from 'lodash'
 import React, {
   ChangeEvent,
   useCallback,
@@ -7,7 +9,9 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
+import * as yup from 'yup'
 
 import File from '@components/Notes/File'
 
@@ -19,9 +23,11 @@ import { Attachments } from '@utils/models/note'
 import {
   Entity,
   addAttachmentAsFile,
+  addAttachmentAsLink,
   deleteAttachment,
 } from '@utils/service/attachment'
 
+import Input from './Input'
 import Loading from './Loading'
 
 type TProps = {
@@ -180,8 +186,87 @@ function AddAttachmentAsFile() {
   )
 }
 
+export type TFormData = {
+  key: string
+  location: string
+}
+const schema = yup.object().shape({
+  key: yup.string().typeError('Name has to be a string'),
+  location: yup
+    .string()
+    .typeError('Link has to be a string')
+    .url('Link has to be a valid url'),
+})
 function AddAttachmentAsLink() {
-  return <div></div>
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    clearErrors,
+    reset,
+  } = useForm<TFormData>({
+    resolver: yupResolver(schema),
+  })
+
+  useCommand('cmd:clear-temp-attachment', () => {
+    client.setQueryData('store:link-attachment-data', undefined)
+    clearErrors()
+    reset()
+  })
+
+  const client = useQueryClient()
+  useEffect(() => {
+    const subs = watch(
+      throttle(() => {
+        handleSubmit(
+          (data) => {
+            if (!data.key || !data.location) return
+            client.setQueryData('store:link-attachment-data', data)
+          },
+          () => {
+            client.setQueryData('store:link-attachment-data', undefined)
+          },
+        )()
+      }, 700),
+    )
+
+    return subs.unsubscribe
+  }, [watch])
+
+  return (
+    <form noValidate onSubmit={(e) => e.preventDefault()}>
+      <div className="mb-4">
+        <label htmlFor="name" className="crm-label">
+          Name
+        </label>
+        <Input
+          error={errors.key?.message}
+          props={{
+            type: 'text',
+            id: 'name',
+            className: 'w-full',
+            ...register('key'),
+          }}
+        />
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="link" className="crm-label">
+          Link
+        </label>
+        <Input
+          error={errors.location?.message}
+          props={{
+            type: 'text',
+            id: 'link',
+            className: 'w-full',
+            ...register('location'),
+          }}
+        />
+      </div>
+    </form>
+  )
 }
 
 function AddAttachmentModal({
@@ -208,34 +293,56 @@ function AddAttachmentModal({
     dispatch('cmd:clear-temp-attachment')
   }, [visible])
 
+  useEffect(() => {
+    dispatch('cmd:clear-temp-attachment')
+  }, [selectedMode])
+
   const { data: files } = useStore<File[]>('store:selected-files')
+  const { data: linkData } = useStore<TFormData>('store:link-attachment-data')
 
-  const { isLoading, mutateAsync } = useMutation(
-    'add-attachments',
-    addAttachmentAsFile(entityId, entityType),
-    {
-      onSuccess(_, files) {
-        client.invalidateQueries([entityType, entityId])
-        client.removeQueries('store:selected-files')
-        dispatch('cmd:clear-temp-attachment')
+  const { isLoading: isUploadFile, mutateAsync: mutateAttachmentAsFile } =
+    useMutation(
+      'add-attachments-as-file',
+      addAttachmentAsFile(entityId, entityType),
+      {
+        onSuccess(_, files) {
+          client.invalidateQueries([entityType, entityId])
+          client.removeQueries('store:selected-files')
+          dispatch('cmd:clear-temp-attachment')
 
-        notification.success({
-          message: `Upload ${files.length} atachments successfully`,
-        })
+          notification.success({
+            message: `Upload ${files.length} atachments successfully`,
+          })
+        },
+        onError() {
+          notification.error({
+            message: 'Upload unsuccessfully',
+          })
+        },
       },
-      onError() {
-        notification.error({
-          message: 'Upload unsuccessfully',
-        })
+    )
+
+  const { isLoading: isUploadLink, mutateAsync: mutateAttachmentAsLink } =
+    useMutation(
+      'add-attachment-as-link',
+      addAttachmentAsLink(entityId, entityType),
+      {
+        onSuccess() {
+          client.invalidateQueries([entityType, entityId])
+          dispatch('cmd:clear-temp-attachment')
+
+          notification.success({
+            message: `Upload atachment successfully`,
+          })
+        },
       },
-    },
-  )
+    )
 
   return (
     <Modal
       centered
-      closable={!isLoading}
-      maskClosable={!isLoading}
+      closable={!isUploadFile}
+      maskClosable={!isUploadFile}
       onCancel={close}
       visible={visible}
       footer={null}
@@ -265,11 +372,19 @@ function AddAttachmentModal({
           </button>
 
           <button
-            onClick={() => mutateAsync(files || [])}
-            disabled={isLoading || !files || !files?.length}
+            onClick={() =>
+              selectedMode === AddMode.FILE
+                ? mutateAttachmentAsFile(files || [])
+                : mutateAttachmentAsLink(linkData!)
+            }
+            disabled={
+              isUploadFile ||
+              isUploadLink ||
+              ((!files || !files?.length) && !linkData)
+            }
             className="crm-button"
           >
-            <Loading on={isLoading}>
+            <Loading on={isUploadFile}>
               <span className="fa fa-upload mr-2" />
               Upload
             </Loading>
