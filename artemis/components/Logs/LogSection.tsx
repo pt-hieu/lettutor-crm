@@ -52,7 +52,7 @@ export default function LogSection({
 
   useEffect(() => {
     refetch()
-  }, [page, action, source, from, to, owner])
+  }, [page, action, source, from, to, owner, entityId, data, noteIds])
 
   return (
     <div className="p-4 border rounded-md">
