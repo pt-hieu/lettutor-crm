@@ -102,13 +102,13 @@ export class GetManyQuery extends Paginate {
 
   @ApiPropertyOptional({ type: String, isArray: true })
   @IsOptional()
-  @Transform(({ value }) => Array.from(value))
+  @Transform(({ value }) => [value].flat())
   stage?: string[]
 
   @ApiPropertyOptional({ type: LeadSource, enum: LeadSource, isArray: true })
   @IsOptional()
   @IsEnum(LeadSource, { each: true })
-  @Transform(({ value }) => Array.from(value))
+  @Transform(({ value }) => [value].flat())
   source?: LeadSource[]
 
   @ApiPropertyOptional({ type: Date })

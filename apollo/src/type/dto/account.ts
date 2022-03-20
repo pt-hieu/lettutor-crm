@@ -57,7 +57,7 @@ export class GetManyQuery extends Paginate {
   @ApiPropertyOptional({ type: AccountType, enum: AccountType, isArray: true })
   @IsOptional()
   @IsEnum(AccountType, { each: true })
-  @Transform(({ value }) => Array.from(value))
+  @Transform(({ value }) => [value].flat())
   type?: AccountType[]
 }
 
