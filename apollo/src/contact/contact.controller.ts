@@ -53,15 +53,7 @@ export class ContactController {
     return this.service.getContactById(
       {
         where: { id },
-        relations: [
-          'owner',
-          'account',
-          'deals',
-          'tasks',
-          'tasks.owner',
-          'notes',
-          'notes.owner',
-        ],
+        relations: ['owner', 'account', 'deals', 'tasks', 'tasks.owner'],
       },
       true,
     )

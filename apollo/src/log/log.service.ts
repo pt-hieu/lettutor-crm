@@ -70,8 +70,6 @@ export class LogService {
     }
 
     if (source) {
-      console.log(source)
-
       qb.andWhere('l.source IN (:...source)', { source })
     }
 

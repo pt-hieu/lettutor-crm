@@ -59,8 +59,6 @@ export class DealController {
           'contact',
           'tasks',
           'tasks.owner',
-          'notes',
-          'notes.owner',
           'stage',
         ],
       },

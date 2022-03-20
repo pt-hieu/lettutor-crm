@@ -325,6 +325,8 @@ const TaskDetail = () => {
     {
       onSuccess() {
         client.refetchQueries(['task', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
+
         notification.success({ message: 'Edit note successfully' })
       },
       onError() {
@@ -342,6 +344,8 @@ const TaskDetail = () => {
     {
       onSuccess() {
         client.refetchQueries(['task', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
+
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {
@@ -436,6 +440,9 @@ const TaskDetail = () => {
                       source={LogSource.TASK}
                       entityId={id}
                       title="Logs"
+                      noteIds={((viewAllNote ? notes : notes?.items) || []).map(
+                        (note: { id: string }) => note.id,
+                      )}
                     />
                   </div>
                 </div>

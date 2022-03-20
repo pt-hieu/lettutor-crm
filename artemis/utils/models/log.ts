@@ -15,6 +15,7 @@ export enum LogSource {
   CONTACT = 'contact',
   DEAL = 'deal',
   TASK = 'task',
+  NOTE = 'note',
 }
 
 export enum LogAction {

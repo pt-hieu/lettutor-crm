@@ -455,6 +455,8 @@ const DealDetail = () => {
     {
       onSuccess() {
         client.refetchQueries(['deal', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
+
         notification.success({ message: 'Edit note successfully' })
       },
       onError() {
@@ -472,6 +474,8 @@ const DealDetail = () => {
     {
       onSuccess() {
         client.refetchQueries(['deal', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
+
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {
@@ -599,7 +603,14 @@ const DealDetail = () => {
               data={deal?.attachments}
             />
 
-            <LogSection source={LogSource.DEAL} entityId={id} title={'Logs'} />
+            <LogSection
+              source={LogSource.DEAL}
+              entityId={id}
+              title={'Logs'}
+              noteIds={((viewAllNote ? notes : notes?.items) || []).map(
+                (note: { id: string }) => note.id,
+              )}
+            />
           </div>
         </div>
       </div>

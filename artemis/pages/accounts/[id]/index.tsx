@@ -265,6 +265,8 @@ const AccountDetail = () => {
     {
       onSuccess() {
         client.refetchQueries(['account', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
+
         notification.success({ message: 'Edit note successfully' })
       },
       onError() {
@@ -282,6 +284,8 @@ const AccountDetail = () => {
     {
       onSuccess() {
         client.refetchQueries(['account', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
+
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {
@@ -407,6 +411,9 @@ const AccountDetail = () => {
               source={LogSource.ACCOUNT}
               title={AccountDetailSections.Logs}
               entityId={id}
+              noteIds={((viewAllNote ? notes : notes?.items) || []).map(
+                (note: { id: string }) => note.id,
+              )}
             />
           </div>
         </div>

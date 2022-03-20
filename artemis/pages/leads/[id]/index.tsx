@@ -301,6 +301,8 @@ const LeadDetail = () => {
     {
       onSuccess() {
         client.refetchQueries(['lead', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
+
         notification.success({ message: 'Edit note successfully' })
       },
       onError() {
@@ -422,6 +424,9 @@ const LeadDetail = () => {
               entityId={id}
               source={LogSource.LEAD}
               title={LeadDetailSections.Logs}
+              noteIds={((viewAllNote ? notes : notes?.items) || []).map(
+                (note: { id: string }) => note.id,
+              )}
             />
           </div>
         </div>

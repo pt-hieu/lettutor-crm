@@ -13,9 +13,15 @@ type TProps = {
   title: string
   entityId: string
   source: LogSource
+  noteIds?: string[]
 }
 
-export default function LogSection({ title, entityId, source }: TProps) {
+export default function LogSection({
+  title,
+  entityId,
+  source,
+  noteIds,
+}: TProps) {
   const [page, setPage] = useState(1)
 
   const [action, setAction] = useState<LogAction>()
@@ -28,11 +34,15 @@ export default function LogSection({ title, entityId, source }: TProps) {
   const { data: logs, refetch } = useQuery(
     [entityId, 'detail-log'],
     getLogs({
-      entities: [entityId, ...(data.tasks?.map((task: any) => task.id) || [])],
+      entities: [
+        entityId,
+        ...(data.tasks?.map((task: any) => task.id) || []),
+        ...(noteIds || []),
+      ],
       page,
       limit: 5,
       action,
-      source: [source, LogSource.TASK],
+      source: [source, LogSource.TASK, LogSource.NOTE],
       from: from ? new Date(from) : undefined,
       to: to ? new Date(to) : undefined,
       owner,

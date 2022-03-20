@@ -46,7 +46,7 @@ export class NoteSubscriber implements EntitySubscriberInterface<Note> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.entity.id,
-      entityName: event.entity.title,
+      entityName: event.entity.title || 'Untitle Note',
       ownerId: this.payload.data.id,
       source: LogSource.NOTE,
       action: LogAction.CREATE,
@@ -58,7 +58,7 @@ export class NoteSubscriber implements EntitySubscriberInterface<Note> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.databaseEntity.id,
-      entityName: event.entity.title,
+      entityName: event.entity.title || 'Untitled Note',
       ownerId: this.payload.data.id,
       source: LogSource.NOTE,
       action: LogAction.DELETE,
@@ -70,7 +70,7 @@ export class NoteSubscriber implements EntitySubscriberInterface<Note> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.entity.id,
-      entityName: event.entity.subject,
+      entityName: event.entity.title || 'Untitled Note',
       ownerId: this.payload.data.id,
       source: LogSource.NOTE,
       action: LogAction.UPDATE,
