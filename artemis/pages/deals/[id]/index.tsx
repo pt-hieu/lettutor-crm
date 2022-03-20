@@ -373,9 +373,12 @@ const DealDetail = () => {
   ] = useModal()
 
   const finishDeal = (dealId: string, updateDealDto: UpdateDealDto) => {
+    const { stageId } = updateDealDto
+    const stage = dealStages?.find((s) => s.id === stageId)
+
     mutateAsync({
       id: dealId,
-      dealInfo: updateDealDto,
+      dealInfo: { ...updateDealDto, probability: stage?.probability },
     })
   }
 
