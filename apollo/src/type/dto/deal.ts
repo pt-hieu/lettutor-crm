@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
   IsDate,
   IsEnum,
@@ -100,14 +100,15 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   search?: string
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: String, isArray: true })
   @IsOptional()
-  @IsUUID()
-  stageId?: string
+  @Transform(({ value }) => Array.from(value))
+  stage?: string[]
 
   @ApiPropertyOptional({ type: LeadSource, enum: LeadSource, isArray: true })
   @IsOptional()
   @IsEnum(LeadSource, { each: true })
+  @Transform(({ value }) => Array.from(value))
   source?: LeadSource[]
 
   @ApiPropertyOptional({ type: Date })
