@@ -1,8 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   Allow,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUrl,
   MaxLength,
@@ -41,4 +42,18 @@ export class UploadAttachment extends Files {
   @ApiProperty({ type: 'enum', enumName: 'Entity', enum: Entity })
   @IsEnum(Entity)
   entity: Entity
+}
+
+export class UpdateAttachment {
+  @ApiPropertyOptional()
+  @IsNotEmpty()
+  @MaxLength(100)
+  @IsOptional()
+  @IsString()
+  key?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl()
+  location?: string
 }

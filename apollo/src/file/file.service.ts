@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { In, Repository } from 'typeorm'
@@ -51,6 +52,19 @@ export class FileService {
       [entityId]: id,
       external: true,
       size: 0,
+    })
+  }
+
+  async updateExternalAttachment(id: string, dto: DTO.File.UpdateAttachment) {
+    const attachment = await this.fileRepo.findOne({ where: { id } })
+
+    if (!attachment) throw new NotFoundException('Attachment not found')
+    if (!attachment.external)
+      throw new UnprocessableEntityException('Attachment can not be update')
+
+    return this.fileRepo.save({
+      ...attachment,
+      ...dto,
     })
   }
 

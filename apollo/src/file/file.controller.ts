@@ -4,6 +4,7 @@ import {
   Delete,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
@@ -26,11 +27,21 @@ export class FileController {
   }
 
   @Post('attachment/external/:entityId')
+  @ApiOperation({ summary: 'to create an external attachment' })
   createExternalAttachment(
     @Body() dto: DTO.File.UploadExternalAttachment,
     @Param('entityId', ParseUUIDPipe) id: string,
   ) {
     return this.fileService.createEntityExternalAttachment(id, dto)
+  }
+
+  @Patch('attachment/external/:id')
+  @ApiOperation({ summary: 'to update an external attachment' })
+  updateExternalAttachment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: DTO.File.UpdateAttachment,
+  ) {
+    return this.fileService.updateExternalAttachment(id, dto)
   }
 
   @Post('attachment/:entityId')
