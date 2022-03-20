@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
   IsDate,
   IsEnum,
@@ -25,10 +25,11 @@ export class CreateLog {
 }
 
 export class GetManyLogs extends Paginate {
-  @ApiPropertyOptional({ enum: LogSource })
+  @ApiPropertyOptional({ enum: LogSource, isArray: true })
   @IsOptional()
-  @IsEnum(LogSource)
-  source?: LogSource
+  @IsEnum(LogSource, { each: true })
+  @Transform(({ value }) => [value].flat())
+  source?: LogSource[]
 
   @ApiPropertyOptional({ enum: LogAction })
   @IsOptional()

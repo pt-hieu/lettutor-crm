@@ -10,7 +10,7 @@ import { LeadService } from 'src/lead/lead.service'
 import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
-import { Log, LogAction, LogSource } from './log.entity'
+import { Log, LogAction } from './log.entity'
 
 @Injectable()
 export class LogService {
@@ -64,15 +64,15 @@ export class LogService {
     }
 
     if (entities) {
-      if (typeof entities === 'string') {
-        qb.andWhere('l.entityId = :entities', { entities })
-      } else {
-        qb.andWhere('l.entityId in (:...entities)', { entities })
-      }
+      qb.andWhere('l.entityId IN (:...entities)', {
+        entities: [entities].flat(),
+      })
     }
 
     if (source) {
-      qb.andWhere('l.source = :source', { source })
+      console.log(source)
+
+      qb.andWhere('l.source IN (:...source)', { source })
     }
 
     if (action) {

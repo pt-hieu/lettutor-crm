@@ -7,13 +7,13 @@ import { Paginate, PagingQuery } from '@utils/models/paging'
 export const getLogs =
   (
     params: Partial<{
-      source: LogSource
+      source: LogSource[]
       action: LogAction
       from: Date
       to: Date
       property: string
       owner: string
-      entity: string
+      entities: string[]
     }> &
       PagingQuery,
     token?: string,

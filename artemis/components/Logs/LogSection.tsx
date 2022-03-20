@@ -23,14 +23,16 @@ export default function LogSection({ title, entityId, source }: TProps) {
   const [to, setTo] = useState<string>()
   const [owner, setOwner] = useState<string>()
 
+  const { data } = useQuery<any>([source, entityId], { enabled: false })
+
   const { data: logs, refetch } = useQuery(
     [entityId, 'detail-log'],
     getLogs({
-      entity: entityId,
+      entities: [entityId, ...(data.tasks?.map((task: any) => task.id) || [])],
       page,
       limit: 5,
       action,
-      source,
+      source: [source, LogSource.TASK],
       from: from ? new Date(from) : undefined,
       to: to ? new Date(to) : undefined,
       owner,
