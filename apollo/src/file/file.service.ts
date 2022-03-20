@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { In, Repository } from 'typeorm'
 
 import { UtilService } from 'src/global/util.service'
-import { UploadAttachment } from 'src/type/dto/file'
+import { DTO } from 'src/type'
 
 import { File } from './file.entity'
 
@@ -27,9 +27,9 @@ export class FileService {
     private fileRepo: Repository<File>,
     private util: UtilService,
     private http: HttpService,
-  ) { }
+  ) {}
 
-  async createEntityAttachments(id: string, dto: UploadAttachment) {
+  async createEntityAttachments(id: string, dto: DTO.File.UploadAttachment) {
     const savedFiles = await this.uploadFile(dto.files)
 
     savedFiles.forEach((file) => {
@@ -37,6 +37,21 @@ export class FileService {
     })
 
     return this.fileRepo.save(savedFiles)
+  }
+
+  createEntityExternalAttachment(
+    id: string,
+    dto: DTO.File.UploadExternalAttachment,
+  ) {
+    const entityId = dto.entity + 'Id'
+    delete dto.entity
+
+    return this.fileRepo.save({
+      ...dto,
+      [entityId]: id,
+      external: true,
+      size: 0,
+    })
   }
 
   async removeEntityAttachments(ids: string[]) {
@@ -75,5 +90,4 @@ export class FileService {
       throw new BadRequestException('The total size of files exceeds 20MB')
     }
   }
-
 }

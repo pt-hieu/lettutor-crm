@@ -26,6 +26,8 @@ export class FileSubscriber implements EntitySubscriberInterface<File> {
 
   beforeRemove(event: RemoveEvent<File>): void | Promise<any> {
     if (!event.entity) return
+    if (event.entity.external) return
+
     return this.util.wrap(
       this.http.delete(this.util.aresService + '/aws/s3', {
         data: {

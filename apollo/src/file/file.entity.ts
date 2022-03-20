@@ -69,6 +69,9 @@ export class File extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   accountId: string | null
 
+  @Column({ default: false })
+  external: boolean
+
   @Column({ type: 'varchar' })
   key: string
 
