@@ -155,10 +155,14 @@ export default function KanbanView({
     DealStageType.CLOSED_LOST | undefined
   >()
   const [dealStageId, setDealStageId] = useState<string>('')
+
   const finishDeal = (dealId: string, updateDealDto: UpdateDealDto) => {
+    const { stageId } = updateDealDto
+    const stage = dealStages.find((s) => s.id === stageId)
+
     mutateAsync({
       id: dealId,
-      dealInfo: updateDealDto,
+      dealInfo: { ...updateDealDto, probability: stage?.probability },
     })
   }
 
@@ -190,9 +194,11 @@ export default function KanbanView({
       return
     }
 
+    //auto update probability
+    const stage = dealStages.find((s) => s.id === stageId)
     mutateAsync({
       id: dealId,
-      dealInfo: { stageId: res.destination.droppableId },
+      dealInfo: { stageId, probability: stage?.probability },
     })
   }, [])
 
