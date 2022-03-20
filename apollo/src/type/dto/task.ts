@@ -81,17 +81,13 @@ export class GetManyQuery extends Paginate {
   })
   @IsOptional()
   @IsEnum(TaskPriority, { each: true })
-  @Transform(({ value }) =>
-    Array.from(typeof value === 'string' ? [value] : value),
-  )
+  @Transform(({ value }) => Array.from(value))
   priority?: TaskPriority[]
 
   @ApiPropertyOptional({ type: TaskStatus, enum: TaskStatus, isArray: true })
   @IsOptional()
   @IsEnum(TaskStatus, { each: true })
-  @Transform(({ value }) =>
-    Array.from(typeof value === 'string' ? [value] : value),
-  )
+  @Transform(({ value }) => Array.from(value))
   status?: TaskStatus[]
 }
 
