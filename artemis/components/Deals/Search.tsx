@@ -61,7 +61,7 @@ export default function DealsSearch({
       notification.error({ message: 'Delete deals unsuccessfully' })
     },
     onSettled() {
-      client.invalidateQueries('deals')
+      client.refetchQueries('deals')
     },
   })
 

@@ -29,7 +29,7 @@ const DealDetailSidebar = () => {
   const client = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      client.invalidateQueries(['deal', dealId])
+      client.refetchQueries(['deal', dealId])
       notification.success({
         message: 'Add task successfully.',
       })

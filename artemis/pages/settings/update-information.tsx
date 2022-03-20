@@ -63,7 +63,7 @@ export default function UpdateInformation() {
         })
         turnOff()
         reset({ name: data.name })
-        client.invalidateQueries('self-info')
+        client.refetchQueries('self-info')
       },
       onError() {
         notification.error({

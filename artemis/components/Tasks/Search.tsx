@@ -43,7 +43,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
       notification.error({ message: 'Delete tasks unsuccessfully' })
     },
     onSettled() {
-      client.invalidateQueries('tasks')
+      client.refetchQueries('tasks')
     },
   })
 

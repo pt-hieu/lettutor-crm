@@ -253,7 +253,7 @@ const ContactDetail = () => {
   const { mutateAsync } = useMutation(['update-contact', id], updateContact, {
     onSuccess() {
       notification.success({ message: 'Update contact successfully' })
-      client.invalidateQueries(['contact', id])
+      client.refetchQueries(['contact', id])
       client.refetchQueries([id, 'detail-log'])
     },
     onError() {
@@ -292,8 +292,8 @@ const ContactDetail = () => {
     addNote,
     {
       onSuccess() {
-        client.invalidateQueries(['contact', id, 'notes'])
-        client.invalidateQueries([id, 'detail-log'])
+        client.refetchQueries(['contact', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Add note unsuccessfully' })
@@ -316,7 +316,7 @@ const ContactDetail = () => {
     editNote,
     {
       onSuccess() {
-        client.invalidateQueries(['contact', id, 'notes'])
+        client.refetchQueries(['contact', id, 'notes'])
         notification.success({ message: 'Edit note successfully' })
       },
       onError() {
@@ -333,7 +333,7 @@ const ContactDetail = () => {
     deleteNote,
     {
       onSuccess() {
-        client.invalidateQueries(['contact', id, 'notes'])
+        client.refetchQueries(['contact', id, 'notes'])
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {

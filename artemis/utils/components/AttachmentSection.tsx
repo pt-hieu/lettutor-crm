@@ -52,7 +52,7 @@ export default function AttachmentSection({
 
   const { mutateAsync } = useMutation('delete-attachment', deleteAttachment, {
     onSuccess() {
-      client.invalidateQueries([entityType, entityId])
+      client.refetchQueries([entityType, entityId])
       notification.success({ message: 'Delete attachment successfully' })
     },
     onError() {
@@ -306,7 +306,7 @@ function AddAttachmentModal({
       addAttachmentAsFile(entityId, entityType),
       {
         onSuccess(_, files) {
-          client.invalidateQueries([entityType, entityId])
+          client.refetchQueries([entityType, entityId])
           client.removeQueries('store:selected-files')
           dispatch('cmd:clear-temp-attachment')
 
@@ -328,7 +328,7 @@ function AddAttachmentModal({
       addAttachmentAsLink(entityId, entityType),
       {
         onSuccess() {
-          client.invalidateQueries([entityType, entityId])
+          client.refetchQueries([entityType, entityId])
           dispatch('cmd:clear-temp-attachment')
 
           notification.success({
@@ -341,8 +341,8 @@ function AddAttachmentModal({
   return (
     <Modal
       centered
-      closable={!isUploadFile}
-      maskClosable={!isUploadFile}
+      closable={!isUploadFile || !isUploadLink}
+      maskClosable={!isUploadFile || !isUploadLink}
       onCancel={close}
       visible={visible}
       footer={null}
@@ -384,7 +384,7 @@ function AddAttachmentModal({
             }
             className="crm-button"
           >
-            <Loading on={isUploadFile}>
+            <Loading on={isUploadFile || isUploadLink}>
               <span className="fa fa-upload mr-2" />
               Upload
             </Loading>

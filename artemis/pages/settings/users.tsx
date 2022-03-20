@@ -90,7 +90,7 @@ export default function UsersSettings() {
 
   const { mutateAsync } = useMutation('update-user-status', updateStatus, {
     onSuccess: (res: User) => {
-      queryClient.invalidateQueries(['users'])
+      queryClient.refetchQueries(['users'])
       notification.success({
         message: `${
           res.status === UserStatus.ACTIVE ? 'Activate' : 'Deactivate'
@@ -109,7 +109,7 @@ export default function UsersSettings() {
     invalidateAddUserToken,
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['users'])
+        queryClient.refetchQueries(['users'])
         notification.success({
           message: 'Re-send add user email successfully.',
         })
@@ -223,7 +223,7 @@ export default function UsersSettings() {
         notification.error({ message: 'Delete users unsuccessfully' })
       },
       onSettled() {
-        client.invalidateQueries('users')
+        client.refetchQueries('users')
       },
     },
   )

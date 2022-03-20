@@ -47,7 +47,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
         notification.error({ message: 'Delete leads unsuccessfully' })
       },
       onSettled() {
-        client.invalidateQueries('leads')
+        client.refetchQueries('leads')
       },
     },
   )

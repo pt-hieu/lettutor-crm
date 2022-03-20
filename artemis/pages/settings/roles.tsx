@@ -87,7 +87,7 @@ export default function SettingRoles() {
     updateRole(selectedRole?.id || ''),
     {
       onSuccess() {
-        client.invalidateQueries('roles')
+        client.refetchQueries('roles')
         notification.success({ message: 'Update role successfully' })
       },
       onError() {
@@ -101,7 +101,7 @@ export default function SettingRoles() {
     deleteRoleService(selectedRole?.id || ''),
     {
       onSuccess() {
-        client.invalidateQueries('roles')
+        client.refetchQueries('roles')
         notification.success({ message: 'Delete role successfully' })
       },
       onError() {
@@ -113,7 +113,7 @@ export default function SettingRoles() {
   const { mutateAsync: restoreMutateAsync, isLoading: isRestoring } =
     useMutation(['restore-role'], restore, {
       onSuccess() {
-        client.invalidateQueries('roles')
+        client.refetchQueries('roles')
         notification.success({ message: 'Restore role successfully' })
       },
       onError() {

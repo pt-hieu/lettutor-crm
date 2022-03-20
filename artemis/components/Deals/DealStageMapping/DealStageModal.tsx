@@ -31,7 +31,7 @@ export const DealStageModal = ({ visible, handleClose }: Props) => {
     {
       onSuccess: () => {
         notification.success({ message: 'Update deal stage successfully' })
-        client.invalidateQueries(['deal-stages'])
+        client.refetchQueries(['deal-stages'])
         handleClose()
       },
       onError: () => {

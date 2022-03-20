@@ -68,7 +68,7 @@ const LeadsAdd = () => {
   const queryClient = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('add-lead', addLeadService, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries('leads')
+      queryClient.refetchQueries('leads')
       notification.success({
         message: 'Add new lead successfully',
       })

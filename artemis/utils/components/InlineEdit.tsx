@@ -18,10 +18,10 @@ export default function InlineEdit<
   const [enabled, setEnabled] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  useClickAway(containerRef, () => {
-    setEnabled(false)
-    cancel()
-  })
+  // useClickAway(containerRef, () => {
+  //   setEnabled(false)
+  //   cancel()
+  // })
 
   useEffect(() => {
     if (!enabled) return
@@ -33,12 +33,15 @@ export default function InlineEdit<
     const element = document.getElementById(inputProps.props.id || '')
     if (!element) return
 
+    const valueLength = (element as HTMLInputElement).value.length
+
     element.style.minWidth =
-      (inputProps.as === 'textarea'
-        ? 40
-        : (element as HTMLInputElement).value.length) -
-      12 +
-      'ch'
+      (inputProps.as === 'textarea' ? 40 : valueLength) - 12 + 'ch'
+
+    element.style.minWidth = element.style.minWidth || '12ch'
+
+    console.log(element.style.minWidth, element.id)
+
     setLeft(8 + (element.offsetWidth || 0) + 'px')
   }, [inputProps.props.value])
 

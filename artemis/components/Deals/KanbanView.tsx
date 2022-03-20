@@ -145,7 +145,7 @@ export default function KanbanView({
         notification.error({ message: 'Update deal unsuccessfully' })
       },
       onSettled() {
-        client.invalidateQueries('deals')
+        client.refetchQueries('deals')
       },
     },
   )

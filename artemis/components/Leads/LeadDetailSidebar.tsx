@@ -27,7 +27,7 @@ const LeadDetailSidebar = () => {
   const client = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      client.invalidateQueries(['lead', leadId])
+      client.refetchQueries(['lead', leadId])
       notification.success({
         message: 'Add task successfully.',
       })

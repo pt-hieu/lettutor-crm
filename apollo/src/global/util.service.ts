@@ -27,6 +27,7 @@ export class UtilService {
     'updatedById',
     'deletedAt',
     'ownerId',
+    'attachments',
   ]
 
   constructor(

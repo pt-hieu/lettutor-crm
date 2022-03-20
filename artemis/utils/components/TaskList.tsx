@@ -37,7 +37,7 @@ function TaskInfo(props: TaskProps) {
     closeTask(id, session?.user.id!),
     {
       onSuccess: () => {
-        client.invalidateQueries([source, entityId])
+        client.refetchQueries([source, entityId])
         notification.success({
           message: 'Close task successfully.',
         })

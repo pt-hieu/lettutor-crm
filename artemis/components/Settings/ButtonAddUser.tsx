@@ -55,7 +55,7 @@ const ButtonAddUser = () => {
 
   const { isLoading, mutateAsync } = useMutation('add-user', addUserService, {
     onSuccess: () => {
-      queryClient.invalidateQueries('users')
+      queryClient.refetchQueries('users')
       reset(initialValue)
       hideModal()
       notification.success({

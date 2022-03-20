@@ -226,7 +226,7 @@ const TaskDetail = () => {
     closeTask(id, task?.owner.id as string),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['task', id])
+        queryClient.refetchQueries(['task', id])
         notification.success({
           message: 'Close task successfully.',
         })
@@ -274,7 +274,7 @@ const TaskDetail = () => {
     {
       onSuccess() {
         notification.success({ message: 'Update task successfully' })
-        queryClient.invalidateQueries(['task', id])
+        queryClient.refetchQueries(['task', id])
         queryClient.refetchQueries([id, 'detail-log'])
       },
       onError() {
@@ -300,8 +300,8 @@ const TaskDetail = () => {
     addNote,
     {
       onSuccess() {
-        client.invalidateQueries(['task', id, 'notes'])
-        client.invalidateQueries([id, 'detail-log'])
+        client.refetchQueries(['task', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Add note unsuccessfully' })
@@ -324,7 +324,7 @@ const TaskDetail = () => {
     editNote,
     {
       onSuccess() {
-        client.invalidateQueries(['task', id, 'notes'])
+        client.refetchQueries(['task', id, 'notes'])
         notification.success({ message: 'Edit note successfully' })
       },
       onError() {
@@ -341,7 +341,7 @@ const TaskDetail = () => {
     deleteNote,
     {
       onSuccess() {
-        client.invalidateQueries(['task', id, 'notes'])
+        client.refetchQueries(['task', id, 'notes'])
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {

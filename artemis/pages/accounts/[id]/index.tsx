@@ -202,7 +202,7 @@ const AccountDetail = () => {
   const { mutateAsync } = useMutation(['update-account', id], updateAccount, {
     onSuccess() {
       notification.success({ message: 'Update account successfully' })
-      client.invalidateQueries(['account', id])
+      client.refetchQueries(['account', id])
       client.refetchQueries([id, 'detail-log'])
     },
     onError() {
@@ -240,8 +240,8 @@ const AccountDetail = () => {
     addNote,
     {
       onSuccess() {
-        client.invalidateQueries(['account', id, 'notes'])
-        client.invalidateQueries([id, 'detail-log'])
+        client.refetchQueries(['account', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
       },
       onError() {
         notification.error({ message: 'Add note unsuccessfully' })
@@ -264,7 +264,7 @@ const AccountDetail = () => {
     editNote,
     {
       onSuccess() {
-        client.invalidateQueries(['account', id, 'notes'])
+        client.refetchQueries(['account', id, 'notes'])
         notification.success({ message: 'Edit note successfully' })
       },
       onError() {
@@ -281,7 +281,7 @@ const AccountDetail = () => {
     deleteNote,
     {
       onSuccess() {
-        client.invalidateQueries(['account', id, 'notes'])
+        client.refetchQueries(['account', id, 'notes'])
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {

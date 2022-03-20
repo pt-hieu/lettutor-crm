@@ -47,7 +47,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
         notification.error({ message: 'Delete contact unsuccessfully' })
       },
       onSettled() {
-        client.invalidateQueries('contacts')
+        client.refetchQueries('contacts')
       },
     },
   )

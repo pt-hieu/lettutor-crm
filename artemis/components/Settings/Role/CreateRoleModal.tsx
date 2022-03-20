@@ -42,7 +42,7 @@ export default function CreateRoleModal({ close, visible }: Props) {
 
   const { mutateAsync, isLoading } = useMutation('create-role', createRole, {
     onSuccess() {
-      client.invalidateQueries('roles')
+      client.refetchQueries('roles')
       notification.success({ message: 'Create role successfully' })
       close()
     },

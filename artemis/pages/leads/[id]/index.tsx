@@ -195,7 +195,9 @@ const LeadDetail = () => {
   const id = query.id as string
 
   const client = useQueryClient()
-  const { data: lead } = useQuery<Lead>(['lead', id], getLead(id))
+  const { data: lead } = useQuery(['lead', id], getLead(id), {
+    enabled: false,
+  })
   const { data: users } = useQuery<User[]>('users', { enabled: false })
 
   const [sortNote, setSortNote] = useState<SortNoteType>('first')
@@ -249,7 +251,7 @@ const LeadDetail = () => {
   const { mutateAsync } = useMutation(['update-lead', id], updateLead, {
     onSuccess() {
       notification.success({ message: 'Update lead successfully' })
-      client.invalidateQueries(['lead', id])
+      client.refetchQueries(['lead', id])
       client.refetchQueries([id, 'detail-log'])
     },
     onError() {
@@ -275,8 +277,8 @@ const LeadDetail = () => {
 
   const { mutateAsync: addNoteLead } = useMutation('add-note-lead', addNote, {
     onSuccess() {
-      client.invalidateQueries(['lead', id, 'notes'])
-      client.invalidateQueries([id, 'detail-log'])
+      client.refetchQueries(['lead', id, 'notes'])
+      client.refetchQueries([id, 'detail-log'])
     },
     onError() {
       notification.error({ message: 'Add note unsuccessfully' })
@@ -298,7 +300,7 @@ const LeadDetail = () => {
     editNote,
     {
       onSuccess() {
-        client.invalidateQueries(['lead', id, 'notes'])
+        client.refetchQueries(['lead', id, 'notes'])
         notification.success({ message: 'Edit note successfully' })
       },
       onError() {
@@ -315,8 +317,8 @@ const LeadDetail = () => {
     deleteNote,
     {
       onSuccess() {
-        client.invalidateQueries(['lead', id, 'notes'])
-        client.invalidateQueries([id, 'detail-log'])
+        client.refetchQueries(['lead', id, 'notes'])
+        client.refetchQueries([id, 'detail-log'])
         notification.success({ message: 'Delete note successfully' })
       },
       onError() {

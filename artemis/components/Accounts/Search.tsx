@@ -47,7 +47,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
         notification.error({ message: 'Delete account unsuccesfully' })
       },
       onSettled() {
-        client.invalidateQueries('accounts')
+        client.refetchQueries('accounts')
       },
     },
   )

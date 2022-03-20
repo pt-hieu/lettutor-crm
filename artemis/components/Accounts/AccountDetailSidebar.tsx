@@ -30,7 +30,7 @@ const AccountDetailSidebar = () => {
 
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      client.invalidateQueries(['account', accountId])
+      client.refetchQueries(['account', accountId])
       notification.success({
         message: 'Add task successfully.',
       })
