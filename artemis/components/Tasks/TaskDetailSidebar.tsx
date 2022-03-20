@@ -1,8 +1,11 @@
+import { useQueryClient } from 'react-query'
+
 import DetailPageSidebar, {
   SidebarStructure,
 } from '@utils/components/DetailPageSidebar'
 
 const TaskDetailSidebar = () => {
+  const client = useQueryClient()
   const SideBarItems: SidebarStructure = [
     {
       title: 'Related List',
@@ -12,6 +15,14 @@ const TaskDetailSidebar = () => {
         },
         {
           label: 'Logs',
+        },
+        {
+          label: 'Attachments',
+          extend: {
+            title: 'Add attachments',
+            onClick: () =>
+              client.setQueryData('cmd:add-attachment', Date.now()),
+          },
         },
       ],
     },

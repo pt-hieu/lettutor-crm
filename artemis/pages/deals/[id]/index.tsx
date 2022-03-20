@@ -15,11 +15,14 @@ import {
 
 import ConfirmClosedLost from '@components/Deals/ConfirmClosedLost'
 import ConfirmClosedWon from '@components/Deals/ConfirmClosedWon'
-import DealDetailSidebar from '@components/Deals/DealDetailSidebar'
+import DealDetailSidebar, {
+  DealDetailSections,
+} from '@components/Deals/DealDetailSidebar'
 import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 
+import AttachmentSection from '@utils/components/AttachmentSection'
 import { SidebarStructure } from '@utils/components/DetailPageSidebar'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
@@ -47,6 +50,7 @@ import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getRawAccounts } from '@utils/service/account'
+import { Entity } from '@utils/service/attachment'
 import { getRawContacts } from '@utils/service/contact'
 import { getDeal, getDealStages, updateDeal } from '@utils/service/deal'
 import {
@@ -560,8 +564,6 @@ const DealDetail = () => {
               onViewAllNote={setViewAllNote}
             />
 
-            <LogSection source={LogSource.DEAL} entityId={id} title={'Logs'} />
-
             <div className="p-4 rounded-md border">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -589,6 +591,15 @@ const DealDetail = () => {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
+            <AttachmentSection
+              entityId={id}
+              entityType={Entity.DEAL}
+              id={DealDetailSections.Attachments}
+              data={deal?.attachments}
+            />
+
+            <LogSection source={LogSource.DEAL} entityId={id} title={'Logs'} />
           </div>
         </div>
       </div>

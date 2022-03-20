@@ -15,6 +15,7 @@ import { addTask } from '@utils/service/task'
 export enum DealDetailSections {
   Notes = 'Notes',
   Logs = 'Logs',
+  Attachments = 'Attachments',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }
@@ -25,10 +26,10 @@ const DealDetailSidebar = () => {
 
   const [createTaskVisible, openCreateTask, closeCreateTask] = useModal()
 
-  const queryClient = useQueryClient()
+  const client = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      queryClient.invalidateQueries(['deal', dealId])
+      client.invalidateQueries(['deal', dealId])
       notification.success({
         message: 'Add task successfully.',
       })
@@ -78,9 +79,6 @@ const DealDetailSidebar = () => {
           label: DealDetailSections.Notes,
         },
         {
-          label: DealDetailSections.Logs,
-        },
-        {
           id: DealDetailSections.OpenActivities,
           label: (
             <span>
@@ -109,6 +107,17 @@ const DealDetailSidebar = () => {
               )}
             </span>
           ),
+        },
+        {
+          label: DealDetailSections.Attachments,
+          extend: {
+            title: 'Add attachments',
+            onClick: () =>
+              client.setQueryData('cmd:add-attachment', Date.now()),
+          },
+        },
+        {
+          label: DealDetailSections.Logs,
         },
       ],
     },

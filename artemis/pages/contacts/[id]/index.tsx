@@ -20,6 +20,7 @@ import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 
+import AttachmentSection from '@utils/components/AttachmentSection'
 import DealInfo from '@utils/components/DealInfo'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
@@ -40,6 +41,7 @@ import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
 import { getRawAccounts } from '@utils/service/account'
+import { Entity } from '@utils/service/attachment'
 import { getContact, updateContact } from '@utils/service/contact'
 import {
   SortNoteType,
@@ -418,12 +420,6 @@ const ContactDetail = () => {
               )}
             </div>
 
-            <LogSection
-              source={LogSource.CONTACT}
-              entityId={id}
-              title={ContactDetailSections.Logs}
-            />
-
             <div className="p-4 rounded-md border">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -451,6 +447,19 @@ const ContactDetail = () => {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
+            <AttachmentSection
+              entityId={id}
+              entityType={Entity.CONTACT}
+              id={ContactDetailSections.Attachments}
+              data={contact?.attachments}
+            />
+
+            <LogSection
+              source={LogSource.CONTACT}
+              entityId={id}
+              title={ContactDetailSections.Logs}
+            />
           </div>
         </div>
       </div>

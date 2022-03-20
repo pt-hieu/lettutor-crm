@@ -15,6 +15,7 @@ import { addTask } from '@utils/service/task'
 export enum LeadDetailSections {
   Notes = 'Notes',
   Logs = 'Logs',
+  Attachments = 'Attachments',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }
@@ -23,10 +24,10 @@ const LeadDetailSidebar = () => {
   const router = useRouter()
   const leadId = router.query.id as string
 
-  const queryClient = useQueryClient()
+  const client = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      queryClient.invalidateQueries(['lead', leadId])
+      client.invalidateQueries(['lead', leadId])
       notification.success({
         message: 'Add task successfully.',
       })
@@ -76,9 +77,6 @@ const LeadDetailSidebar = () => {
           label: LeadDetailSections.Notes,
         },
         {
-          label: LeadDetailSections.Logs,
-        },
-        {
           id: LeadDetailSections.OpenActivities,
           label: (
             <span>
@@ -107,6 +105,17 @@ const LeadDetailSidebar = () => {
               )}
             </span>
           ),
+        },
+        {
+          label: LeadDetailSections.Attachments,
+          extend: {
+            title: 'Add attachments',
+            onClick: () =>
+              client.setQueryData('cmd:add-attachment', Date.now()),
+          },
+        },
+        {
+          label: LeadDetailSections.Logs,
         },
       ],
     },

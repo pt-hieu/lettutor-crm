@@ -18,6 +18,7 @@ import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 import TaskDetailNavbar from '@components/Tasks/TaskDetailNavbar'
 import TaskDetailSidebar from '@components/Tasks/TaskDetailSidebar'
 
+import AttachmentSection from '@utils/components/AttachmentSection'
 import Confirm from '@utils/components/Confirm'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
@@ -34,6 +35,7 @@ import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
+import { Entity } from '@utils/service/attachment'
 import {
   SortNoteType,
   addNote,
@@ -421,6 +423,13 @@ const TaskDetail = () => {
                       onDeleteNote={handleDeleteNote}
                       onChangeFilterSort={handleChangeFilterSort}
                       onViewAllNote={setViewAllNote}
+                    />
+
+                    <AttachmentSection
+                      entityId={id}
+                      entityType={Entity.TASK}
+                      id="Attachments"
+                      data={task?.attachments}
                     />
 
                     <LogSection

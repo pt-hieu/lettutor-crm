@@ -20,6 +20,7 @@ import LogSection from '@components/Logs/LogSection'
 import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 
+import AttachmentSection from '@utils/components/AttachmentSection'
 import InlineEdit from '@utils/components/InlineEdit'
 import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
@@ -36,6 +37,7 @@ import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
+import { Entity } from '@utils/service/attachment'
 import { getDealStages } from '@utils/service/deal'
 import { getLead, updateLead } from '@utils/service/lead'
 import {
@@ -377,12 +379,6 @@ const LeadDetail = () => {
               onViewAllNote={setViewAllNote}
             />
 
-            <LogSection
-              entityId={id}
-              source={LogSource.LEAD}
-              title={LeadDetailSections.Logs}
-            />
-
             <div className="p-4 rounded-md border">
               <div
                 className="font-semibold mb-4 text-[17px]"
@@ -412,6 +408,19 @@ const LeadDetail = () => {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
+            <AttachmentSection
+              entityId={id}
+              entityType={Entity.LEAD}
+              id={LeadDetailSections.Attachments}
+              data={lead?.attachments}
+            />
+
+            <LogSection
+              entityId={id}
+              source={LogSource.LEAD}
+              title={LeadDetailSections.Logs}
+            />
           </div>
         </div>
       </div>

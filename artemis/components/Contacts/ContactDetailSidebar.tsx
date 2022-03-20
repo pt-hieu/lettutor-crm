@@ -17,6 +17,7 @@ export enum ContactDetailSections {
   Notes = 'Notes',
   Deals = 'Deals',
   Logs = 'Logs',
+  Attachments = 'Attachments',
   OpenActivities = 'Open Activities',
   ClosedActivities = 'Closed Activities',
 }
@@ -32,10 +33,10 @@ const ContactDetailSidebar = () => {
     { enabled: false },
   )
 
-  const queryClient = useQueryClient()
+  const client = useQueryClient()
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      queryClient.invalidateQueries(['contact', contactId])
+      client.invalidateQueries(['contact', contactId])
       notification.success({
         message: 'Add task successfully.',
       })
@@ -98,9 +99,6 @@ const ContactDetailSidebar = () => {
           label: ContactDetailSections.Deals,
         },
         {
-          label: ContactDetailSections.Logs,
-        },
-        {
           id: ContactDetailSections.OpenActivities,
           label: (
             <span>
@@ -129,6 +127,17 @@ const ContactDetailSidebar = () => {
               )}
             </span>
           ),
+        },
+        {
+          label: ContactDetailSections.Attachments,
+          extend: {
+            title: 'Add attachments',
+            onClick: () =>
+              client.setQueryData('cmd:add-attachment', Date.now()),
+          },
+        },
+        {
+          label: ContactDetailSections.Logs,
         },
       ],
     },
