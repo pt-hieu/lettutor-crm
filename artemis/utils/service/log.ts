@@ -13,7 +13,7 @@ export const getLogs =
       to: Date
       property: string
       owner: string
-      entities: string[] | string
+      entity: string[] | string
     }> &
       PagingQuery,
     token?: string,

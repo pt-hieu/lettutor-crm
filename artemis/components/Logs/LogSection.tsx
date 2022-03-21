@@ -13,15 +13,9 @@ type TProps = {
   title: string
   entityId: string
   source: LogSource
-  noteIds?: string[]
 }
 
-export default function LogSection({
-  title,
-  entityId,
-  source,
-  noteIds,
-}: TProps) {
+export default function LogSection({ title, entityId, source }: TProps) {
   const [page, setPage] = useState(1)
 
   const [action, setAction] = useState<LogAction>()
@@ -29,20 +23,14 @@ export default function LogSection({
   const [to, setTo] = useState<string>()
   const [owner, setOwner] = useState<string>()
 
-  const { data } = useQuery<any>([source, entityId], { enabled: false })
-
   const { data: logs, refetch } = useQuery(
     [entityId, 'detail-log'],
     getLogs({
-      entities: [
-        entityId,
-        ...(data.tasks?.map((task: any) => task.id) || []),
-        ...(noteIds || []),
-      ],
+      entity: entityId,
       page,
       limit: 5,
       action,
-      source: [source, LogSource.TASK, LogSource.NOTE],
+      source,
       from: from ? new Date(from) : undefined,
       to: to ? new Date(to) : undefined,
       owner,
@@ -52,7 +40,7 @@ export default function LogSection({
 
   useEffect(() => {
     refetch()
-  }, [page, action, source, from, to, owner, entityId, data, noteIds])
+  }, [page, action, source, from, to, owner, entityId])
 
   return (
     <div className="p-4 border rounded-md">

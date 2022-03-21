@@ -607,9 +607,6 @@ const DealDetail = () => {
               source={LogSource.DEAL}
               entityId={id}
               title={'Logs'}
-              noteIds={((viewAllNote ? notes : notes?.items) || []).map(
-                (note: { id: string }) => note.id,
-              )}
             />
           </div>
         </div>

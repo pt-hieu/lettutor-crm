@@ -411,9 +411,6 @@ const AccountDetail = () => {
               source={LogSource.ACCOUNT}
               title={AccountDetailSections.Logs}
               entityId={id}
-              noteIds={((viewAllNote ? notes : notes?.items) || []).map(
-                (note: { id: string }) => note.id,
-              )}
             />
           </div>
         </div>

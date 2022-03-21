@@ -464,9 +464,6 @@ const ContactDetail = () => {
               source={LogSource.CONTACT}
               entityId={id}
               title={ContactDetailSections.Logs}
-              noteIds={((viewAllNote ? notes : notes?.items) || []).map(
-                (note: { id: string }) => note.id,
-              )}
             />
           </div>
         </div>

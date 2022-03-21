@@ -27,9 +27,8 @@ export class CreateLog {
 export class GetManyLogs extends Paginate {
   @ApiPropertyOptional({ enum: LogSource, isArray: true })
   @IsOptional()
-  @IsEnum(LogSource, { each: true })
-  @Transform(({ value }) => [value].flat())
-  source?: LogSource[]
+  @IsEnum(LogSource)
+  source?: LogSource
 
   @ApiPropertyOptional({ enum: LogAction })
   @IsOptional()
@@ -62,5 +61,5 @@ export class GetManyLogs extends Paginate {
   @ApiPropertyOptional()
   @Validate(EntityValidator)
   @IsOptional()
-  entities?: string | string[]
+  entity?: string
 }

@@ -424,9 +424,6 @@ const LeadDetail = () => {
               entityId={id}
               source={LogSource.LEAD}
               title={LeadDetailSections.Logs}
-              noteIds={((viewAllNote ? notes : notes?.items) || []).map(
-                (note: { id: string }) => note.id,
-              )}
             />
           </div>
         </div>

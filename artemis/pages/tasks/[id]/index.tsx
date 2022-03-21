@@ -440,9 +440,6 @@ const TaskDetail = () => {
                       source={LogSource.TASK}
                       entityId={id}
                       title="Logs"
-                      noteIds={((viewAllNote ? notes : notes?.items) || []).map(
-                        (note: { id: string }) => note.id,
-                      )}
                     />
                   </div>
                 </div>

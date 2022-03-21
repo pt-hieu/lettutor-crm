@@ -1,28 +1,20 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Repository } from 'typeorm'
 
-import { AccountService } from 'src/account/account.service'
-import { ContactService } from 'src/contact/contact.service'
-import { DealService } from 'src/deal/deal.service'
-import { LeadService } from 'src/lead/lead.service'
-import { TaskService } from 'src/task/task.service'
+import { Note } from 'src/note/note.entity'
+import { Task } from 'src/task/task.entity'
 import { DTO } from 'src/type'
 
-import { Log, LogAction } from './log.entity'
+import { Log, LogAction, LogSource } from './log.entity'
 
 @Injectable()
 export class LogService {
   constructor(
     @InjectRepository(Log) private logRepo: Repository<Log>,
-
-    @Inject(forwardRef(() => TaskService))
-    private readonly taskService: TaskService,
-    private readonly accountService: AccountService,
-    private readonly contactService: ContactService,
-    private readonly leadService: LeadService,
-    private readonly dealService: DealService,
+    @InjectRepository(Note) private noteRepo: Repository<Note>,
+    @InjectRepository(Task) private taskRepo: Repository<Task>,
   ) {}
 
   async create(dto: DTO.Log.CreateLog) {
@@ -52,7 +44,7 @@ export class LogService {
     shouldNotPaginate,
     source,
     to,
-    entities,
+    entity,
   }: DTO.Log.GetManyLogs) {
     const qb = this.logRepo
       .createQueryBuilder('l')
@@ -63,13 +55,48 @@ export class LogService {
       qb.andWhere('l.ownerId = :owner', { owner })
     }
 
-    if (entities) {
+    if (entity) {
+      const noteIds = await this.noteRepo
+        .find({
+          where: [
+            {
+              leadId: entity,
+            },
+            { accountId: entity },
+            { leadId: entity },
+            { contactId: entity },
+            { dealId: entity },
+            { taskId: entity },
+          ],
+          select: ['id'],
+        })
+        .then((notes) => notes.map((note) => note.id))
+
+      const taskIds = await this.taskRepo
+        .find({
+          where: [
+            {
+              leadId: entity,
+            },
+            { accountId: entity },
+            { leadId: entity },
+            { contactId: entity },
+            { dealId: entity },
+            { taskId: entity },
+          ],
+          select: ['id'],
+        })
+        .then((tasks) => tasks.map((task) => task.id))
+
       qb.andWhere('l.entityId IN (:...entities)', {
-        entities: [entities].flat(),
+        entities: [entity].concat(...noteIds, ...taskIds),
       })
     }
 
     if (source) {
+      if (entity)
+        source = [source].concat(LogSource.NOTE, LogSource.TASK) as any
+
       qb.andWhere('l.source IN (:...source)', { source })
     }
 
