@@ -25,6 +25,8 @@ export interface Attachments extends Base {
   key: string
   location: string
   size: number
+  external: boolean
+  attachedById: string
 }
 
 export interface Note extends Base {

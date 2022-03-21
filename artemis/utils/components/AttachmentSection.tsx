@@ -27,6 +27,7 @@ import {
   deleteAttachment,
 } from '@utils/service/attachment'
 
+import AttachmentTable from './AttachmentTable'
 import Input from './Input'
 import Loading from './Loading'
 
@@ -84,16 +85,7 @@ export default function AttachmentSection({
         <div className="text-gray-500 font-medium">No attachments found.</div>
       )}
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,140px))] gap-2">
-        {data?.map((file) => (
-          <File
-            filename={file.key}
-            key={file.id}
-            onRemove={() => mutateAsync([file.id])}
-            location={file.location}
-          />
-        ))}
-      </div>
+      {data && !!data.length && <AttachmentTable data={data} />}
     </div>
   )
 }
