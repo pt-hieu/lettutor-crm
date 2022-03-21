@@ -22,6 +22,7 @@ export default function QueryUpdater() {
     Object.entries(queryStore || {}).forEach(([key, value]) => {
       if (Array.isArray(value) && !value.length) delete newQuery[key]
       else if (typeof value === 'string' && !value) delete newQuery[key]
+      else if (key === 'id') delete newQuery[key]
     })
 
     const newPathname = stringifyUrl(
