@@ -9,7 +9,7 @@ type Item = {
 type Props = {
   className?: string
   stopPropagationOnClick?: boolean
-  items: Item[]
+  items: (Item | undefined)[]
 }
 
 export default function Menu({
@@ -29,7 +29,7 @@ export default function Menu({
       onClick={handleContainerClick}
       className={`py-2 border rounded-md bg-white ${className || ''}`}
     >
-      {items.map(({ key, action, title }) => (
+      {(items.filter((x) => !!x) as Item[]).map(({ key, action, title }) => (
         <button
           className="px-5 py-2 font-semibold text-sm text-gray-700 hover:bg-gray-200 w-full"
           onClick={action}

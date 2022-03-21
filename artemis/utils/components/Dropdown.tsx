@@ -9,6 +9,8 @@ type Props = {
   overlay: ReactNode
   triggerOnHover?: boolean
   triggerOnClick?: boolean
+  className?: string
+  onVisibilityChange?: (v: boolean) => void
 }
 
 export default function Dropdown({
@@ -16,11 +18,17 @@ export default function Dropdown({
   overlay,
   triggerOnClick,
   triggerOnHover,
+  className,
+  onVisibilityChange,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const isContainerHover = useHoverDirty(ref)
 
   const [popup, _, closeModal, toggleModal] = useModal()
+
+  useEffect(() => {
+    onVisibilityChange && onVisibilityChange(popup)
+  }, [popup])
 
   const openPopup = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
@@ -45,8 +53,8 @@ export default function Dropdown({
   )
 
   return (
-    <div ref={ref} className="relative" onClick={openPopup}>
-      <div>{children}</div>
+    <div ref={ref} className={`relative ${className}`} onClick={openPopup}>
+      {children}
 
       <AnimatePresence exitBeforeEnter>
         {popup && (
@@ -55,7 +63,7 @@ export default function Dropdown({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ ease: 'linear', duration: 0.1 }}
-            className="absolute right-0 bottom-[-10%] translate-y-full"
+            className="absolute right-0 bottom-[-10%] translate-y-full z-[10001]"
           >
             {overlay}
           </motion.div>

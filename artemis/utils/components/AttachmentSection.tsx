@@ -24,7 +24,6 @@ import {
   Entity,
   addAttachmentAsFile,
   addAttachmentAsLink,
-  deleteAttachment,
 } from '@utils/service/attachment'
 
 import AttachmentTable from './AttachmentTable'
@@ -44,21 +43,10 @@ export default function AttachmentSection({
   entityId,
   entityType,
 }: TProps) {
-  const client = useQueryClient()
   const [modal, open, close] = useModal()
 
   useCommand('cmd:add-attachment', () => {
     open()
-  })
-
-  const { mutateAsync } = useMutation('delete-attachment', deleteAttachment, {
-    onSuccess() {
-      client.refetchQueries([entityType, entityId])
-      notification.success({ message: 'Delete attachment successfully' })
-    },
-    onError() {
-      notification.success({ message: 'Delete attachment un`successfully' })
-    },
   })
 
   return (
@@ -85,7 +73,13 @@ export default function AttachmentSection({
         <div className="text-gray-500 font-medium">No attachments found.</div>
       )}
 
-      {data && !!data.length && <AttachmentTable data={data} />}
+      {data && !!data.length && (
+        <AttachmentTable
+          data={data}
+          entityId={entityId}
+          entityType={entityType}
+        />
+      )}
     </div>
   )
 }
@@ -305,6 +299,7 @@ function AddAttachmentModal({
           notification.success({
             message: `Upload ${files.length} atachments successfully`,
           })
+          close()
         },
         onError() {
           notification.error({
