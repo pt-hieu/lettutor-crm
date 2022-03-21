@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer'
 import { Column, Entity } from 'typeorm'
 
 import { Ownerful } from 'src/utils/owner.entity'
@@ -31,10 +30,6 @@ export class Log extends Ownerful {
 
   @Column({ type: 'uuid' })
   entityId: string
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  taskId: string | null
 
   @Column()
   entityName: string

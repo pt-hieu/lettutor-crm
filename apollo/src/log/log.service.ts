@@ -69,6 +69,7 @@ export class LogService {
             { taskId: entity },
           ],
           select: ['id'],
+          withDeleted: true,
         })
         .then((notes) => notes.map((note) => note.id))
 
@@ -82,9 +83,9 @@ export class LogService {
             { leadId: entity },
             { contactId: entity },
             { dealId: entity },
-            { taskId: entity },
           ],
           select: ['id'],
+          withDeleted: true,
         })
         .then((tasks) => tasks.map((task) => task.id))
 

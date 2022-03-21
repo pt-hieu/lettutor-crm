@@ -6,6 +6,7 @@ import {
   RemoveEvent,
   UpdateEvent,
 } from 'typeorm'
+import { SoftRemoveEvent } from 'typeorm/subscriber/event/SoftRemoveEvent'
 
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
@@ -40,6 +41,18 @@ export class ContactSubscriber implements EntitySubscriberInterface<Contact> {
   }
 
   afterRemove(event: RemoveEvent<Contact>): void | Promise<any> {
+    if (!event.entity) return
+    return this.util.emitLog({
+      entityId: event.databaseEntity.id,
+      entityName: event.entity.fullName,
+      ownerId: this.payload.data.id,
+      source: LogSource.CONTACT,
+      action: LogAction.DELETE,
+      changes: null,
+    })
+  }
+
+  afterSoftRemove(event: SoftRemoveEvent<Contact>): void | Promise<any> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.databaseEntity.id,

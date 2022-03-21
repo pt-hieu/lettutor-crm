@@ -42,7 +42,7 @@ export class NoteService {
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
     private readonly fileService: FileService,
-  ) { }
+  ) {}
 
   async addNote(dto: DTO.Note.AddNote) {
     let filesToAdd: File[] = []
@@ -199,6 +199,6 @@ export class NoteService {
 
   async batchDelete(ids: string[]) {
     const notes = await this.noteRepo.find({ where: { id: In(ids) } })
-    return this.noteRepo.remove(notes)
+    return this.noteRepo.softRemove(notes)
   }
 }
