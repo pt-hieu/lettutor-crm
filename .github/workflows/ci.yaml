@@ -50,9 +50,9 @@ jobs:
     needs: Label_Checker
     if: ${{ needs.Label_Checker.outputs.should_run == 'apollo' || needs.Label_Checker.outputs.should_run == 'both' }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./apollo
+    # defaults:
+    #   run:
+    #     working-directory: ./apollo
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -71,9 +71,9 @@ jobs:
     needs: Label_Checker
     if: ${{ needs.Label_Checker.outputs.should_run == 'artemis' || needs.Label_Checker.outputs.should_run == 'both' }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./artemis
+    # defaults:
+    #   run:
+    #     working-directory: ./artemis
     steps:
       - uses: actions/checkout@v2
 
