@@ -7,7 +7,7 @@ import {
   forwardRef,
 } from 'react'
 
-type InputProps = DetailedHTMLProps<
+export type InputProps = DetailedHTMLProps<
   InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >

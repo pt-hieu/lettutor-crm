@@ -1,9 +1,9 @@
-import { MouseEventHandler, ReactNode, useCallback } from 'react'
+import { Key, MouseEventHandler, ReactNode, useCallback } from 'react'
 
 type Item = {
-  key: string
+  key: Key
   title: string | ReactNode
-  action: MouseEventHandler
+  action: MouseEventHandler<HTMLButtonElement>
 }
 
 type Props = {
