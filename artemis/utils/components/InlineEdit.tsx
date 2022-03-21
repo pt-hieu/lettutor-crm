@@ -36,11 +36,9 @@ export default function InlineEdit<
     const valueLength = (element as HTMLInputElement).value.length
 
     element.style.minWidth =
-      (inputProps.as === 'textarea' ? 40 : valueLength) - 12 + 'ch'
-
-    element.style.minWidth = element.style.minWidth || '12ch'
-
-    console.log(element.style.minWidth, element.id)
+      (inputProps.as === 'textarea'
+        ? 40
+        : Math.min(Math.max(valueLength, 40), 60)) + 'ch'
 
     setLeft(8 + (element.offsetWidth || 0) + 'px')
   }, [inputProps.props.value])
