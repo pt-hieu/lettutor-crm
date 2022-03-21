@@ -17,12 +17,14 @@ export const useQueryState = <T extends string | string[] | number | Date>(
   const { data: queryStore } =
     useStore<Record<string, unknown>>('store:query-store')
 
-  const hasEffectRun = useRef(false)
-  useEffect(() => {
-    if (hasEffectRun.current) return
+  const hasInitialEffectRun = useRef<boolean>()
+  const [canSubscribeEffectRun, setCanSubscribeEffectRun] = useState(false)
 
+  useEffect(() => {
+    if (hasInitialEffectRun.current) return
     if (!queryStore) return
-    hasEffectRun.current = true
+
+    hasInitialEffectRun.current = true
 
     if (queryStore[name]) {
       setState(queryStore[name] as T)
@@ -36,6 +38,15 @@ export const useQueryState = <T extends string | string[] | number | Date>(
       ...(oldQuery || {}),
       [name]: defaultValue,
     }))
+
+    setCanSubscribeEffectRun(true)
+  }, [queryStore])
+
+  useEffect(() => {
+    if (!canSubscribeEffectRun) return
+    if (!queryStore) return
+
+    setState(queryStore[name] as T)
   }, [queryStore])
 
   const hookedSetState = useCallback((value: T | undefined) => {
