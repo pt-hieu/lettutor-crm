@@ -1,4 +1,5 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import MultipleQuery from '@utils/components/MultipleQuery'
@@ -10,12 +11,14 @@ type FormData = {
 }
 
 type Props = {
+  onPerformFilter?: () => void
   onSourceChange: (v: LeadSource[] | undefined) => void
   source: LeadSource[] | undefined
 }
 
 export default function ContactsSidebar({
   onSourceChange: setSource,
+  onPerformFilter,
   source,
 }: Props) {
   const form = useForm<FormData>({
@@ -24,20 +27,23 @@ export default function ContactsSidebar({
     },
   })
 
-  const applyFilter = useCallback(
-    form.handleSubmit(({ source }) => {
-      setSource(source || [])
-    }),
-    [],
-  )
+  useEffect(() => {
+    const subs = form.watch(() => {
+      form.handleSubmit(({ source }) => {
+        unstable_batchedUpdates(() => {
+          source && setSource(source)
+          onPerformFilter && onPerformFilter()
+        })
+      })()
+    })
+
+    return subs.unsubscribe
+  }, [form.watch])
 
   return (
-    <div className="text-gray-700 bg-gray-100 flex flex-col gap-3 p-4 rounded-md">
-      <div className="flex justify-between border-b pb-2 mb-2 items-center">
-        <div className="font-semibold ">Filters</div>
-        <button onClick={applyFilter} className="crm-button-outline">
-          <span className="fa-solid fa-filter" />
-        </button>
+    <div className="text-gray-700 border flex flex-col gap-3 p-4 pt-2 rounded-md">
+      <div className="font-semibold text-[17px] border-b pb-2 mb-2">
+        Filters
       </div>
 
       <form>

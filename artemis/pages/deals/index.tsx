@@ -2,7 +2,8 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useCallback } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
 import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
 
 import KanbanView from '@components/Deals/KanbanView'
@@ -145,26 +146,21 @@ export default function DealsView() {
   const { data: deals, isLoading } = useQuery(
     key,
     getDeals({ limit, page, search, source, stage }),
+    {
+      keepPreviousData: true,
+    },
   )
 
   const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
     enabled: false,
   })
 
-  const applySearch = (keyword: string | undefined) => {
-    setPage(1)
-    setSearch(keyword)
-  }
-
-  const applySourceFilter = (sources: LeadSource[] | undefined) => {
-    setPage(1)
-    setSource(sources)
-  }
-
-  const applyStageFilter = (stages: DealStage[] | undefined) => {
-    setPage(1)
-    setStage(stages)
-  }
+  const applySearch = useCallback((keyword: string | undefined) => {
+    unstable_batchedUpdates(() => {
+      setPage(1)
+      setSearch(keyword)
+    })
+  }, [])
 
   const [start, end, total] = usePaginateItem(deals)
   const [viewMode] = useQueryState<ViewMode>('view-mode', ViewMode.TABULAR)
@@ -175,9 +171,9 @@ export default function DealsView() {
       sidebar={
         <DealsSidebar
           source={source}
-          onSourceChange={applySourceFilter}
+          onSourceChange={setSource}
           stage={stage}
-          onStageChange={applyStageFilter}
+          onStageChange={setStage}
         />
       }
     >
@@ -220,6 +216,7 @@ export default function DealsView() {
                 dealStages={dealStages || []}
               />
             )}
+
             {(viewMode === ViewMode.TABULAR || viewMode === undefined) && (
               <div className="w-full flex flex-col gap-4">
                 <Table

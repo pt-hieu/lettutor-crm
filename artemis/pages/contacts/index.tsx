@@ -2,6 +2,8 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
+import { useCallback } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
 import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
 
 import Search from '@components/Contacts/Search'
@@ -110,17 +112,17 @@ export default function ContactsView() {
   const { data: contacts, isLoading } = useQuery(
     ['contacts', page || 1, limit || 10, search || '', source || []],
     getContacts({ limit, page, search, source }),
+    {
+      keepPreviousData: true,
+    },
   )
 
-  const applySearch = (keyword: string | undefined) => {
-    setPage(1)
-    setSearch(keyword)
-  }
-
-  const applySourceFilter = (sources: LeadSource[] | undefined) => {
-    setPage(1)
-    setSource(sources)
-  }
+  const applySearch = useCallback((keyword: string | undefined) => {
+    unstable_batchedUpdates(() => {
+      setPage(1)
+      setSearch(keyword)
+    })
+  }, [])
 
   const [start, end, total] = usePaginateItem(contacts)
 
@@ -128,7 +130,11 @@ export default function ContactsView() {
     <ContactsViewLayout
       title="CRM | Contacts"
       sidebar={
-        <ContactsSidebar source={source} onSourceChange={applySourceFilter} />
+        <ContactsSidebar
+          onPerformFilter={() => setPage(1)}
+          source={source}
+          onSourceChange={setSource}
+        />
       }
     >
       <Search search={search} onSearchChange={applySearch} />

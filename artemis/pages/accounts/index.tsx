@@ -2,6 +2,8 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
+import { useCallback } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
 import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
 
 import AccountsViewLayout from '@components/Accounts/AccountsViewLayout'
@@ -92,19 +94,19 @@ export default function AccountsView() {
   const [search, setSearch] = useQueryState<string>('search')
   const [type, setType] = useQueryState<Array<AccountType>>('type')
 
-  const applySearch = (keyword: string | undefined) => {
-    setPage(1)
-    setSearch(keyword)
-  }
-
-  const applyFilter = (types: AccountType[] | undefined) => {
-    setPage(1)
-    setType(types)
-  }
+  const applySearch = useCallback((keyword: string | undefined) => {
+    unstable_batchedUpdates(() => {
+      setPage(1)
+      setSearch(keyword)
+    })
+  }, [])
 
   const { data: accounts, isLoading } = useQuery(
     ['accounts', page || 1, limit || 10, search || '', type || []],
     getAccounts({ limit, page, search, type }),
+    {
+      keepPreviousData: true,
+    },
   )
 
   const [start, end, total] = usePaginateItem(accounts)
@@ -112,7 +114,13 @@ export default function AccountsView() {
   return (
     <AccountsViewLayout
       title="CRM | Accounts"
-      sidebar={<AccountsSidebar type={type} onTypeChange={applyFilter} />}
+      sidebar={
+        <AccountsSidebar
+          onPerformFilter={() => setPage(1)}
+          type={type}
+          onTypeChange={setType}
+        />
+      }
     >
       <Search search={search} onSearchChange={applySearch} />
 

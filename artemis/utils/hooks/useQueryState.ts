@@ -24,9 +24,14 @@ export const useQueryState = <T extends string | string[] | number | Date>(
     if (!queryStore) return
     hasEffectRun.current = true
 
-    if (queryStore[name]) return
+    if (queryStore[name]) {
+      setState(queryStore[name] as T)
+      return
+    }
+
     if (!defaultValue) return
 
+    setState(defaultValue)
     client.setQueryData('store:query-store', (oldQuery: any) => ({
       ...(oldQuery || {}),
       [name]: defaultValue,

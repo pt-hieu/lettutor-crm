@@ -1,4 +1,5 @@
-import { useCallback } from 'react'
+import { useEffect } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useQuery } from 'react-query'
 
@@ -16,6 +17,8 @@ type Props = {
   source: LeadSource[] | undefined
   onStageChange: (v: DealStage[] | undefined) => void
   stage: DealStage[] | undefined
+
+  onPerformFilter?: () => void
 }
 
 export default function DealsSidebar({
@@ -23,6 +26,7 @@ export default function DealsSidebar({
   source,
   onStageChange: setStage,
   stage,
+  onPerformFilter,
 }: Props) {
   const form = useForm<FormData>({
     defaultValues: {
@@ -31,15 +35,20 @@ export default function DealsSidebar({
     },
   })
 
-  const applyFilter = useCallback(
-    form.handleSubmit(({ source, stage }) => {
-      setSource(source || [])
-      setTimeout(() => {
-        setStage(stage || [])
-      }, 0)
-    }),
-    [],
-  )
+  useEffect(() => {
+    const subs = form.watch(() => {
+      form.handleSubmit(({ source, stage }) => {
+        unstable_batchedUpdates(() => {
+          source && setSource(source)
+          stage && setStage(stage)
+
+          onPerformFilter && onPerformFilter()
+        })
+      })()
+    })
+
+    return subs.unsubscribe
+  }, [form.watch])
 
   const { data: dealStages } = useQuery<DealStageData[]>(['deal-stages'], {
     enabled: false,
@@ -48,12 +57,9 @@ export default function DealsSidebar({
   const stageNames = dealStages?.map((s) => s.name) || []
 
   return (
-    <div className="text-gray-700 bg-gray-100 flex flex-col gap-3 p-4 rounded-md">
-      <div className="flex justify-between border-b pb-2 mb-2 items-center">
-        <div className="font-semibold ">Filters</div>
-        <button onClick={applyFilter} className="crm-button-outline">
-          <span className="fa-solid fa-filter" />
-        </button>
+    <div className="text-gray-700 border flex flex-col gap-3 p-4 pt-2 rounded-md">
+      <div className="font-semibold text-[17px] border-b pb-2 mb-2">
+        Filters
       </div>
 
       <form>
@@ -64,7 +70,8 @@ export default function DealsSidebar({
             options={Object.values(LeadSource)}
             type="checkbox"
           />
-          <div className="font-medium my-2">Deal Stage</div>
+
+          <div className="font-medium my-2 mt-4">Deal Stage</div>
           <MultipleQuery name="stage" options={stageNames} type="checkbox" />
         </FormProvider>
       </form>

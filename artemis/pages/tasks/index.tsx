@@ -2,6 +2,8 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
+import { useCallback } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
 import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
 
 import Search from '@components/Tasks/Search'
@@ -79,14 +81,19 @@ export default function TasksView() {
     setSearch(keyword)
   }
 
-  const applyFilter = (
-    status: TaskStatus[] | undefined,
-    priority: TaskPriority[] | undefined,
-  ) => {
-    setPage(1)
-    setStatus(status)
-    setPriority(priority)
-  }
+  const applyFilter = useCallback(
+    (
+      status: TaskStatus[] | undefined,
+      priority: TaskPriority[] | undefined,
+    ) => {
+      unstable_batchedUpdates(() => {
+        setPage(1)
+        status && setStatus(status)
+        priority && setPriority(priority)
+      })
+    },
+    [],
+  )
 
   const { data: tasks, isLoading } = useQuery(
     [
@@ -98,6 +105,9 @@ export default function TasksView() {
       priority || [],
     ],
     getTasks({ limit, page, search, status, priority }),
+    {
+      keepPreviousData: true
+    }
   )
 
   const [start, end, total] = usePaginateItem(tasks)
