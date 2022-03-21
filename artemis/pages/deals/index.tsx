@@ -130,20 +130,8 @@ export default function DealsView() {
   const [limit, setLimit] = useQueryState<number>('limit')
 
   const [search, setSearch] = useQueryState<string>('search')
-  const [source, setSource] = useQueryState<Array<LeadSource>>(
-    'source',
-    undefined,
-    {
-      isArray: true,
-    },
-  )
-  const [stage, setStage] = useQueryState<Array<DealStage>>(
-    'stage',
-    undefined,
-    {
-      isArray: true,
-    },
-  )
+  const [source, setSource] = useQueryState<Array<LeadSource>>('source')
+  const [stage, setStage] = useQueryState<Array<DealStage>>('stage')
 
   const key = [
     'deals',

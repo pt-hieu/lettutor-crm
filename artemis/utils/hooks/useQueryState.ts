@@ -1,17 +1,7 @@
-import { useRouter } from 'next/router'
-import { stringifyUrl } from 'query-string'
-import {
-  useCallback,
-  useDebugValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useDebugValue, useEffect, useRef, useState } from 'react'
+import { useQueryClient } from 'react-query'
 
-export type TUseQueryStateOptions = {
-  isArray?: boolean
-}
+import { useStore } from './useStore'
 
 export const useQueryState = <T extends string | string[] | number | Date>(
   /**The name of the query on the url */
@@ -20,86 +10,38 @@ export const useQueryState = <T extends string | string[] | number | Date>(
    * This value would be overwritten by the value of the query on url
    */
   defaultValue?: T,
-  options?: TUseQueryStateOptions,
 ): [T | undefined, (v: T | undefined) => void] => {
-  const memoizedOptions = useMemo(() => options, [])
-
-  const { query, pathname, asPath, replace } = useRouter()
   const [state, setState] = useState<T>()
-  useDebugValue(state)
+  const client = useQueryClient()
 
-  const hookedSetState = useCallback((value: T | undefined) => {
-    shouldUpdateUrl.current = true
-    setState(value)
-  }, [])
-
-  const shouldUpdateUrl = useRef(false)
-  useEffect(() => {
-    let value = query[name]
-    if (memoizedOptions?.isArray) {
-      value = (value as string)?.split(',')
-    }
-
-    setState(value as unknown as T)
-    shouldUpdateUrl.current = false
-  }, [query])
-
-  useEffect(() => {
-    if (!shouldUpdateUrl.current) return
-
-    const newQuery = { ...query }
-
-    if (state) {
-      newQuery[name] = state + ''
-    }
-
-    if (!state && newQuery[name]) {
-      delete newQuery[name]
-    }
-
-    // @ts-expect-error
-    if (memoizedOptions?.isArray && state?.length === 0) {
-      delete newQuery[name]
-    }
-
-    const newPathname = stringifyUrl(
-      {
-        url: pathname,
-        query: newQuery,
-      },
-      { encode: true },
-    )
-
-    const newAsPath = stringifyUrl(
-      {
-        url: asPath.split('?')[0],
-        query: newQuery,
-      },
-      { encode: true },
-    )
-
-    replace(newPathname, newAsPath, { shallow: true })
-  }, [state])
+  const { data: queryStore } =
+    useStore<Record<string, unknown>>('store:query-store')
 
   const hasEffectRun = useRef(false)
   useEffect(() => {
     if (hasEffectRun.current) return
 
+    if (!queryStore) return
     hasEffectRun.current = true
-    shouldUpdateUrl.current = true
 
-    if (query[name]) {
-      let value = query[name]
-      if (memoizedOptions?.isArray) {
-        value = (value as string).split(',')
-      }
+    if (queryStore[name]) return
+    if (!defaultValue) return
 
-      setState(value as unknown as T)
-      return
-    }
+    client.setQueryData('store:query-store', (oldQuery: any) => ({
+      ...(oldQuery || {}),
+      [name]: defaultValue,
+    }))
+  }, [queryStore])
 
-    setState(defaultValue)
-  }, [query])
+  const hookedSetState = useCallback((value: T | undefined) => {
+    client.setQueryData('store:query-store', (oldQuery: any) => ({
+      ...(oldQuery || {}),
+      [name]: value,
+    }))
 
+    setState(value)
+  }, [])
+
+  useDebugValue(state)
   return [state, hookedSetState]
 }

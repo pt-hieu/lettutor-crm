@@ -71,20 +71,8 @@ export default function TasksView() {
   const [limit, setLimit] = useQueryState<number>('limit')
 
   const [search, setSearch] = useQueryState<string>('search')
-  const [status, setStatus] = useQueryState<Array<TaskStatus>>(
-    'status',
-    undefined,
-    {
-      isArray: true,
-    },
-  )
-  const [priority, setPriority] = useQueryState<Array<TaskPriority>>(
-    'priority',
-    undefined,
-    {
-      isArray: true,
-    },
-  )
+  const [status, setStatus] = useQueryState<Array<TaskStatus>>('status')
+  const [priority, setPriority] = useQueryState<Array<TaskPriority>>('priority')
 
   const applySearch = (keyword: string | undefined) => {
     setPage(1)

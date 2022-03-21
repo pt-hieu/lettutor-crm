@@ -90,9 +90,7 @@ export default function AccountsView() {
   const [limit, setLimit] = useQueryState<number>('limit')
 
   const [search, setSearch] = useQueryState<string>('search')
-  const [type, setType] = useQueryState<Array<AccountType>>('type', undefined, {
-    isArray: true,
-  })
+  const [type, setType] = useQueryState<Array<AccountType>>('type')
 
   const applySearch = (keyword: string | undefined) => {
     setPage(1)

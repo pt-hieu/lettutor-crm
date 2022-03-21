@@ -1,4 +1,5 @@
-import { useCallback } from 'react'
+import { useEffect } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import MultipleQuery from '@utils/components/MultipleQuery'
@@ -12,6 +13,7 @@ type FormData = {
 type Props = {
   onSourceChange: (v: LeadSource[] | undefined) => void
   onStatusChange: (v: LeadStatus[] | undefined) => void
+  onPerformFilter?: () => void
   source: LeadSource[] | undefined
   status: LeadStatus[] | undefined
 }
@@ -19,6 +21,7 @@ type Props = {
 export default function LeadSidebar({
   onSourceChange: setSource,
   onStatusChange: setStatus,
+  onPerformFilter,
   source,
   status,
 }: Props) {
@@ -29,24 +32,25 @@ export default function LeadSidebar({
     },
   })
 
-  const applyFilter = useCallback(
-    form.handleSubmit(({ source, status }) => {
-      setSource(source || [])
+  useEffect(() => {
+    const subs = form.watch(() => {
+      form.handleSubmit(({ source, status }) => {
+        unstable_batchedUpdates(() => {
+          status && setStatus(status)
+          source && setSource(source)
 
-      setTimeout(() => {
-        setStatus(status || [])
-      }, 0)
-    }),
-    [],
-  )
+          onPerformFilter && onPerformFilter()
+        })
+      })()
+    })
+
+    return subs.unsubscribe
+  }, [form.watch])
 
   return (
-    <div className="text-gray-700 bg-gray-100 flex flex-col gap-3 p-4 rounded-md">
-      <div className="flex justify-between border-b pb-2 mb-2 items-center">
-        <div className="font-semibold ">Filters</div>
-        <button onClick={applyFilter} className="crm-button-outline">
-          <span className="fa-solid fa-filter" />
-        </button>
+    <div className="text-gray-700 border flex flex-col gap-3 p-4 pt-2 rounded-md">
+      <div className="font-semibold text-[17px] border-b pb-2 mb-2">
+        Filters
       </div>
 
       <form>
@@ -58,7 +62,7 @@ export default function LeadSidebar({
             type="checkbox"
           />
 
-          <div className="font-medium my-2">Source</div>
+          <div className="font-medium my-2 mt-4">Source</div>
           <MultipleQuery
             name="source"
             options={Object.values(LeadSource)}

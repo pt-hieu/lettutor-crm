@@ -29,7 +29,7 @@ export default function Paginate({
 }: Props) {
   const { register, watch, handleSubmit } = useForm<{ page: number }>({
     defaultValues: {
-      page: currentPage,
+      page: Number(currentPage),
     },
   })
 
@@ -66,52 +66,52 @@ export default function Paginate({
       <div className="flex gap-2">
         {showJumpToHead && (
           <button
-            disabled={currentPage <= 1}
+            disabled={Number(currentPage) <= 1}
             onClick={() => changePage && changePage(1)}
             className={`fa fa-angle-double-left ${utilClassName}`}
           />
         )}
 
         <button
-          disabled={currentPage <= 1}
-          onClick={() => changePage && changePage(currentPage - 1)}
+          disabled={Number(currentPage) <= 1}
+          onClick={() => changePage && changePage(Number(currentPage) - 1)}
           className={`fa fa-angle-left ${utilClassName}`}
         />
 
-        {currentPage > 1 && (
+        {Number(currentPage) > 1 && (
           <button
-            onClick={() => changePage && changePage(currentPage - 1)}
+            onClick={() => changePage && changePage(Number(currentPage) - 1)}
             className={utilClassName}
           >
-            {currentPage - 1}
+            {Number(currentPage) - 1}
           </button>
         )}
 
         <button
           className={utilClassName + ' text-white bg-blue-600 border-blue-600'}
         >
-          {currentPage}
+          {Number(currentPage)}
         </button>
 
-        {currentPage < (totalPage || 0) && (
+        {Number(currentPage) < (totalPage || 0) && (
           <button
-            onClick={() => changePage && changePage(currentPage + 1)}
+            onClick={() => changePage && changePage(Number(currentPage) + 1)}
             className={utilClassName}
           >
-            {currentPage + 1}
+            {Number(currentPage) + 1}
           </button>
         )}
 
         <button
-          onClick={() => changePage && changePage(currentPage + 1)}
-          disabled={currentPage >= (totalPage || 0)}
+          onClick={() => changePage && changePage(Number(currentPage) + 1)}
+          disabled={Number(currentPage) >= (totalPage || 0)}
           className={`fa fa-angle-right ${utilClassName}`}
         />
 
         {showJumpToHead && (
           <button
             onClick={() => changePage && changePage(totalPage || 0)}
-            disabled={currentPage >= (totalPage || 0)}
+            disabled={Number(currentPage) >= (totalPage || 0)}
             className={`fa fa-angle-double-right ${utilClassName}`}
           />
         )}

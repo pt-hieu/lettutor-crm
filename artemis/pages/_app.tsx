@@ -13,6 +13,7 @@ import OpenGraph from '@utils/components/OpenGraph'
 import '../styles/global.scss'
 import '../styles/markdown.css'
 import '../styles/tailwind.css'
+import QueryUpdater from '@utils/components/QueryUpdater'
 
 axios.defaults.withCredentials = true
 
@@ -50,6 +51,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           </Head> */}
           <Component {...pageProps} />
           <OpenGraph />
+          <QueryUpdater />
         </Hydrate>
       </QueryClientProvider>
     </NextAuthProvider>

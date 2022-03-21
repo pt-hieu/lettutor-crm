@@ -1,5 +1,4 @@
 import { Avatar } from 'antd'
-import { motion } from 'framer-motion'
 import { signOut } from 'next-auth/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -44,10 +43,7 @@ export default function Header() {
                 {title}
 
                 {link === `/${splitPath[1]}` && (
-                  <motion.span
-                    layoutId="underline"
-                    className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]"
-                  />
+                  <span className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]" />
                 )}
               </a>
             </Link>
@@ -56,7 +52,7 @@ export default function Header() {
       </div>
 
       <div className="flex gap-3 items-center relative z-20">
-        <div className='font-medium mr-4'>
+        <div className="font-medium mr-4">
           Press <kbd className="p-1 border rounded-md">Ctrl</kbd> +{' '}
           <kbd className="p-1 border rounded-md">/</kbd> to open search box
         </div>

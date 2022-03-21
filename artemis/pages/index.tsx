@@ -29,11 +29,17 @@ export default function Index() {
         (s) => s !== TaskStatus.COMPLETED,
       ),
     }),
+    {
+      keepPreviousData: true,
+    },
   )
 
   const { data: leads, isLoading: leadsLoading } = useQuery(
     ['leads', leadPage],
     getLeads({ page: leadPage, from: moment().startOf('day').toDate() }),
+    {
+      keepPreviousData: true,
+    },
   )
 
   const { data: deals, isLoading: dealsLoading } = useQuery(
@@ -43,6 +49,9 @@ export default function Index() {
       closeFrom: moment().startOf('month').toDate(),
       closeTo: moment().endOf('month').toDate(),
     }),
+    {
+      keepPreviousData: true,
+    },
   )
 
   return (

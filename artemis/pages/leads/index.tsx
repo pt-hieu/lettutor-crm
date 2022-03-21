@@ -2,6 +2,8 @@ import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
+import { useCallback } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
 import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
 
 import LeadsViewLayout from '@components/Leads/LeadsViewLayout'
@@ -105,41 +107,24 @@ export default function LeadsViews() {
   const [limit, setLimit] = useQueryState<number>('limit')
 
   const [search, setSearch] = useQueryState<string>('search')
-  const [source, setSource] = useQueryState<Array<LeadSource>>(
-    'source',
-    undefined,
-    {
-      isArray: true,
-    },
-  )
+  const [source, setSource] = useQueryState<Array<LeadSource>>('source')
 
-  const [status, setStatus] = useQueryState<Array<LeadStatus>>(
-    'status',
-    undefined,
-    {
-      isArray: true,
-    },
-  )
+  const [status, setStatus] = useQueryState<Array<LeadStatus>>('status')
 
   const { data: leads, isLoading } = useQuery(
     ['leads', page || 1, limit || 10, search || '', source || [], status || []],
     getLeads({ limit, page, search, source, status }),
+    {
+      keepPreviousData: true,
+    },
   )
 
-  const applySearch = (keyword: string | undefined) => {
-    setPage(1)
-    setSearch(keyword)
-  }
-
-  const applySourceFilter = (sources: LeadSource[] | undefined) => {
-    setPage(1)
-    setSource(sources)
-  }
-
-  const applyStatusFilter = (status: LeadStatus[] | undefined) => {
-    setPage(1)
-    setStatus(status)
-  }
+  const applySearch = useCallback((keyword: string | undefined) => {
+    unstable_batchedUpdates(() => {
+      setPage(1)
+      setSearch(keyword)
+    })
+  }, [])
 
   const [start, end, total] = usePaginateItem(leads)
 
@@ -148,10 +133,11 @@ export default function LeadsViews() {
       title="CRM | Leads"
       sidebar={
         <LeadSidebar
+          onPerformFilter={() => setPage(1)}
           source={source}
           status={status}
-          onSourceChange={applySourceFilter}
-          onStatusChange={applyStatusFilter}
+          onSourceChange={setSource}
+          onStatusChange={setStatus}
         />
       }
     >
