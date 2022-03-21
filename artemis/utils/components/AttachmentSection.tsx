@@ -317,9 +317,15 @@ function AddAttachmentModal({
         onSuccess() {
           client.refetchQueries([entityType, entityId])
           dispatch('cmd:clear-temp-attachment')
+          close()
 
           notification.success({
             message: `Upload atachment successfully`,
+          })
+        },
+        onError() {
+          notification.success({
+            message: `Upload atachment unsuccessfully`,
           })
         },
       },

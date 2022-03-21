@@ -115,7 +115,17 @@ const AccountDetailSidebar = () => {
           ),
         },
         {
-          label: AccountDetailSections.Attachments,
+          id: AccountDetailSections.Attachments,
+          label: (
+            <span>
+              {AccountDetailSections.Attachments}
+              {!!account?.attachments.length && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {account.attachments.length}
+                </span>
+              )}
+            </span>
+          ),
           extend: {
             title: 'Add attachments',
             onClick: () =>

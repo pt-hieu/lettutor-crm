@@ -55,20 +55,18 @@ const DealDetailSidebar = () => {
     closeCreateTask()
   }
 
-  const { data: account } = useQuery(['deal', dealId], getDeal(dealId), {
+  const { data: deal } = useQuery(['deal', dealId], getDeal(dealId), {
     enabled: false,
   })
 
   const { open, close } = useMemo(
     () => ({
-      open: account?.tasks.filter(
-        (task) => task.status !== TaskStatus.COMPLETED,
-      ).length,
-      close: account?.tasks.filter(
-        (task) => task.status === TaskStatus.COMPLETED,
-      ).length,
+      open: deal?.tasks.filter((task) => task.status !== TaskStatus.COMPLETED)
+        .length,
+      close: deal?.tasks.filter((task) => task.status === TaskStatus.COMPLETED)
+        .length,
     }),
-    [account],
+    [deal],
   )
 
   const SideBarItems: SidebarStructure = [
@@ -109,7 +107,17 @@ const DealDetailSidebar = () => {
           ),
         },
         {
-          label: DealDetailSections.Attachments,
+          id: DealDetailSections.Attachments,
+          label: (
+            <span>
+              {DealDetailSections.Attachments}
+              {!!deal?.attachments.length && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {deal.attachments.length}
+                </span>
+              )}
+            </span>
+          ),
           extend: {
             title: 'Add attachments',
             onClick: () =>

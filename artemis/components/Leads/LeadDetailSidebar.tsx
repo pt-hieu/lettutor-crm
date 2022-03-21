@@ -107,7 +107,17 @@ const LeadDetailSidebar = () => {
           ),
         },
         {
-          label: LeadDetailSections.Attachments,
+          id: LeadDetailSections.Attachments,
+          label: (
+            <span>
+              {LeadDetailSections.Attachments}
+              {!!lead?.attachments.length && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {lead.attachments.length}
+                </span>
+              )}
+            </span>
+          ),
           extend: {
             title: 'Add attachments',
             onClick: () =>

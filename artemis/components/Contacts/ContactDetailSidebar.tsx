@@ -129,7 +129,17 @@ const ContactDetailSidebar = () => {
           ),
         },
         {
-          label: ContactDetailSections.Attachments,
+          id: ContactDetailSections.Attachments,
+          label: (
+            <span>
+              {ContactDetailSections.Attachments}
+              {!!contact?.attachments.length && (
+                <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
+                  {contact.attachments.length}
+                </span>
+              )}
+            </span>
+          ),
           extend: {
             title: 'Add attachments',
             onClick: () =>
