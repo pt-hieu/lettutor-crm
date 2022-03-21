@@ -91,195 +91,6 @@ type DealInfo = {
   props: Omit<Props<'input' | 'textarea' | 'select' | undefined>, 'editable'>
 }
 
-const fields =
-  (disabled?: boolean) =>
-  ({
-    register,
-    errors,
-    users,
-    accounts,
-    contacts,
-    dealStages,
-  }: {
-    register: UseFormRegister<DealUpdateFormData>
-    errors: FieldErrors<DealUpdateFormData>
-    users: User[]
-    accounts: Account[]
-    contacts: Contact[]
-    dealStages: DealStageData[]
-  }): Array<DealInfo> =>
-    [
-      {
-        label: 'Deal Owner',
-        props: {
-          as: 'select',
-          error: errors.ownerId?.message,
-          props: {
-            disabled,
-            children: (
-              <>
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name}
-                  </option>
-                ))}
-              </>
-            ),
-            id: 'deal-owner',
-            ...register('ownerId'),
-          },
-        },
-      },
-      {
-        label: 'Deal Name',
-        props: {
-          error: errors.fullName?.message,
-          props: {
-            disabled,
-            type: 'text',
-            id: 'full-name',
-            ...register('fullName'),
-          },
-        },
-      },
-      {
-        label: 'Account Name',
-        props: {
-          as: 'select',
-          error: errors.accountId?.message,
-          props: {
-            disabled,
-            children: (
-              <>
-                {accounts.map(({ id, fullName }) => (
-                  <option key={id} value={id}>
-                    {fullName}
-                  </option>
-                ))}
-              </>
-            ),
-            id: 'account',
-            ...register('accountId'),
-          },
-        },
-      },
-      {
-        label: 'Closing Date',
-        props: {
-          error: errors.closingDate?.message,
-          props: {
-            type: 'date',
-            disabled,
-            id: 'closing-date',
-            ...register('closingDate'),
-          },
-        },
-      },
-      {
-        label: 'Amount',
-        props: {
-          error: errors.amount?.message,
-          props: {
-            type: 'text',
-            disabled,
-            id: 'amount',
-            ...register('amount'),
-          },
-        },
-      },
-      {
-        label: 'Stage',
-        props: {
-          error: errors.stage?.message,
-          as: 'select',
-          props: {
-            id: 'stageId',
-            disabled,
-            children: (
-              <>
-                {dealStages.map((stage) => (
-                  <option key={stage.id} value={stage.id}>
-                    {stage.name}
-                  </option>
-                ))}
-              </>
-            ),
-            ...register('stageId'),
-          },
-        },
-      },
-      {
-        label: 'Lead Source',
-        props: {
-          error: errors.source?.message,
-          as: 'select',
-          props: {
-            id: 'source',
-            disabled,
-            children: (
-              <>
-                {Object.values(LeadSource).map((source) => (
-                  <option key={source} value={source}>
-                    {source}
-                  </option>
-                ))}
-              </>
-            ),
-            ...register('source'),
-          },
-        },
-      },
-      {
-        label: 'Contact Name',
-        props: {
-          as: 'select',
-          error: errors.contactId?.message,
-          props: {
-            disabled,
-            children: (
-              <>
-                <option key="none" value="None">
-                  None
-                </option>
-                {contacts.map(({ id, fullName }) => (
-                  <option key={id} value={id}>
-                    {fullName}
-                  </option>
-                ))}
-              </>
-            ),
-            id: 'contact',
-            ...register('contactId'),
-          },
-        },
-      },
-      {
-        label: 'Probability (%)',
-        props: {
-          error: errors.probability?.message,
-          props: {
-            disabled,
-            type: 'text',
-            id: 'probability',
-            ...register('probability'),
-          },
-        },
-      },
-      {
-        label: 'Description',
-        props: {
-          error: errors.description?.message,
-          as: 'textarea',
-          props: {
-            disabled,
-            id: 'desc',
-            ...register('description'),
-            cols: 40,
-          },
-        },
-      },
-    ]
-
 const DealDetail = () => {
   const { query } = useRouter()
   const id = query.id as string
@@ -333,11 +144,206 @@ const DealDetail = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<DealUpdateFormData>({
     mode: 'onChange',
     resolver: yupResolver(EditDealSchema),
     defaultValues,
   })
+
+  const fields =
+    (disabled?: boolean) =>
+    ({
+      register,
+      errors,
+      users,
+      accounts,
+      contacts,
+      dealStages,
+    }: {
+      register: UseFormRegister<DealUpdateFormData>
+      errors: FieldErrors<DealUpdateFormData>
+      users: User[]
+      accounts: Account[]
+      contacts: Contact[]
+      dealStages: DealStageData[]
+    }): Array<DealInfo> =>
+      [
+        {
+          label: 'Deal Owner',
+          props: {
+            as: 'select',
+            error: errors.ownerId?.message,
+            props: {
+              disabled,
+              children: (
+                <>
+                  {users.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name}
+                    </option>
+                  ))}
+                </>
+              ),
+              id: 'deal-owner',
+              ...register('ownerId'),
+            },
+          },
+        },
+        {
+          label: 'Deal Name',
+          props: {
+            error: errors.fullName?.message,
+            props: {
+              disabled,
+              type: 'text',
+              id: 'full-name',
+              ...register('fullName'),
+            },
+          },
+        },
+        {
+          label: 'Account Name',
+          props: {
+            as: 'select',
+            error: errors.accountId?.message,
+            props: {
+              disabled,
+              children: (
+                <>
+                  {accounts.map(({ id, fullName }) => (
+                    <option key={id} value={id}>
+                      {fullName}
+                    </option>
+                  ))}
+                </>
+              ),
+              id: 'account',
+              ...register('accountId'),
+            },
+          },
+        },
+        {
+          label: 'Closing Date',
+          props: {
+            error: errors.closingDate?.message,
+            props: {
+              type: 'date',
+              disabled,
+              id: 'closing-date',
+              ...register('closingDate'),
+            },
+          },
+        },
+        {
+          label: 'Amount',
+          props: {
+            error: errors.amount?.message,
+            props: {
+              type: 'text',
+              disabled,
+              id: 'amount',
+              ...register('amount'),
+            },
+          },
+        },
+        {
+          label: 'Stage',
+          props: {
+            error: errors.stage?.message,
+            as: 'select',
+            props: {
+              id: 'stageId',
+              disabled,
+              children: (
+                <>
+                  {dealStages.map((stage) => (
+                    <option key={stage.id} value={stage.id}>
+                      {stage.name}
+                    </option>
+                  ))}
+                </>
+              ),
+              ...register('stageId', {
+                onChange: (e) => {
+                  const stage = dealStages.find((s) => s.id === e.target.value)
+                  setValue('probability', stage?.probability ?? null)
+                },
+              }),
+            },
+          },
+        },
+        {
+          label: 'Lead Source',
+          props: {
+            error: errors.source?.message,
+            as: 'select',
+            props: {
+              id: 'source',
+              disabled,
+              children: (
+                <>
+                  {Object.values(LeadSource).map((source) => (
+                    <option key={source} value={source}>
+                      {source}
+                    </option>
+                  ))}
+                </>
+              ),
+              ...register('source'),
+            },
+          },
+        },
+        {
+          label: 'Contact Name',
+          props: {
+            as: 'select',
+            error: errors.contactId?.message,
+            props: {
+              disabled,
+              children: (
+                <>
+                  <option key="none" value="None">
+                    None
+                  </option>
+                  {contacts.map(({ id, fullName }) => (
+                    <option key={id} value={id}>
+                      {fullName}
+                    </option>
+                  ))}
+                </>
+              ),
+              id: 'contact',
+              ...register('contactId'),
+            },
+          },
+        },
+        {
+          label: 'Probability (%)',
+          props: {
+            error: errors.probability?.message,
+            props: {
+              disabled,
+              type: 'text',
+              id: 'probability',
+              ...register('probability'),
+            },
+          },
+        },
+        {
+          label: 'Description',
+          props: {
+            error: errors.description?.message,
+            as: 'textarea',
+            props: {
+              disabled,
+              id: 'desc',
+              ...register('description'),
+              cols: 40,
+            },
+          },
+        },
+      ]
 
   useEffect(() => {
     reset(defaultValues)
@@ -367,9 +373,12 @@ const DealDetail = () => {
   ] = useModal()
 
   const finishDeal = (dealId: string, updateDealDto: UpdateDealDto) => {
+    const { stageId } = updateDealDto
+    const stage = dealStages?.find((s) => s.id === stageId)
+
     mutateAsync({
       id: dealId,
-      dealInfo: updateDealDto,
+      dealInfo: { ...updateDealDto, probability: stage?.probability },
     })
   }
 
