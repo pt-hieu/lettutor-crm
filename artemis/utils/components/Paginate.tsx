@@ -43,7 +43,7 @@ export default function Paginate({
     return subs.unsubscribe
   }, [watch, changePage])
 
-  return (
+  return (totalPage || 0) > 1 ? (
     <div className={`flex ${containerClassName}`}>
       {showQuickJump && (
         <form noValidate className="mr-4 inline-block">
@@ -117,5 +117,5 @@ export default function Paginate({
         )}
       </div>
     </div>
-  )
+  ) : null
 }
