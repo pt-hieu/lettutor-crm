@@ -176,7 +176,7 @@ export type TFormData = {
   key: string
   location: string
 }
-const schema = yup.object().shape({
+export const attachmentSchema = yup.object().shape({
   key: yup.string().typeError('Name has to be a string'),
   location: yup
     .string()
@@ -192,7 +192,7 @@ function AddAttachmentAsLink() {
     clearErrors,
     reset,
   } = useForm<TFormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(attachmentSchema),
   })
 
   useCommand('cmd:clear-temp-attachment', () => {

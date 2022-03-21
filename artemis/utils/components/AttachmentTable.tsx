@@ -12,6 +12,7 @@ import Confirm from './Confirm'
 import Dropdown from './Dropdown'
 import Menu from './Menu'
 import Tooltip from './Tooltip'
+import UpdateLinkAttachmentModal from './UpdateLinkAttachmentModal'
 
 if (!(Number.prototype as any).toSize) {
   Object.defineProperty(Number.prototype, 'toSize', {
@@ -55,7 +56,7 @@ export default function AttachmentTable({
     deleteAttachment,
     {
       onMutate() {
-        setSelectedId(undefined)
+        setSelectedDeleteId(undefined)
       },
       onSuccess() {
         client.refetchQueries([entityType, entityId])
@@ -67,13 +68,26 @@ export default function AttachmentTable({
     },
   )
 
-  const [selectedId, setSelectedId] = useState<string>()
+  const [selectedDeleteId, setSelectedDeleteId] = useState<string>()
+  const [selectedUpdateId, setSelectedUpdateId] = useState<string>()
+
   const [confirm, openConfirm, closeConfirm] = useModal()
+  const [update, openUpdate, closeUpdate] = useModal()
 
   useEffect(() => {
-    if (!selectedId) return
+    if (!selectedDeleteId) return
     openConfirm()
-  }, [selectedId])
+  }, [selectedDeleteId])
+
+  useEffect(() => {
+    if (!selectedUpdateId) return
+    openUpdate()
+  }, [selectedUpdateId])
+
+  useEffect(() => {
+    if (update) return
+    setSelectedUpdateId(undefined)
+  }, [update])
 
   const columns = useMemo<TableColumnsType<Attachments>>(
     () => [
@@ -85,7 +99,8 @@ export default function AttachmentTable({
           <AttachmentCell
             value={value}
             record={record}
-            onRemove={setSelectedId}
+            onRemove={setSelectedDeleteId}
+            onUpdate={setSelectedUpdateId}
           />
         ),
       },
@@ -117,7 +132,14 @@ export default function AttachmentTable({
         visible={confirm}
         message="Are you sure you want to delete the attachment?"
         close={closeConfirm}
-        onYes={() => removeAttachment([selectedId!])}
+        onYes={() => removeAttachment([selectedDeleteId!])}
+      />
+
+      <UpdateLinkAttachmentModal
+        onRefetch={() => client.refetchQueries([entityType, entityId])}
+        visible={update}
+        close={closeUpdate}
+        data={data.find((item) => item.id === selectedUpdateId)!}
       />
 
       <Table
@@ -136,12 +158,14 @@ type AttachmentCellProps = {
   record: Attachments
   value: string
   onRemove: (id: string) => void
+  onUpdate: (id: string) => void
 }
 
 function AttachmentCell({
   record,
   value,
   onRemove: remove,
+  onUpdate: update,
 }: AttachmentCellProps) {
   const [isPopupOpen, setPopupOpen] = useState(false)
 
@@ -178,7 +202,7 @@ function AttachmentCell({
                         Update
                       </span>
                     ),
-                    action: () => {},
+                    action: () => update(record.id),
                     key: 'update',
                   }
                 : undefined,

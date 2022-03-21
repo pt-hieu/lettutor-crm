@@ -2,6 +2,7 @@ import axios from 'axios'
 import { API } from 'environment'
 
 import { TFormData } from '@utils/components/AttachmentSection'
+import { Attachments } from '@utils/models/note'
 
 export enum Entity {
   LEAD = 'lead',
@@ -38,3 +39,9 @@ export const deleteAttachment = (ids: string[]) =>
   axios
     .delete(API + '/apollo/file/batch', { data: { ids } })
     .then((r) => r.data)
+
+export const updateAttachmentAsLink =
+  (id: string) => (data: Pick<Attachments, 'key' | 'location'>) =>
+    axios
+      .patch(API + '/apollo/file/attachment/external/' + id, data)
+      .then((r) => r.data)
