@@ -17,7 +17,7 @@ export const useQueryState = <T extends string | string[] | number | Date>(
   const { data: queryStore } =
     useStore<Record<string, unknown>>('store:query-store')
 
-  const hasInitialEffectRun = useRef<boolean>()
+  const hasInitialEffectRun = useRef(false)
   const [canSubscribeEffectRun, setCanSubscribeEffectRun] = useState(false)
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const useQueryState = <T extends string | string[] | number | Date>(
   }, [queryStore])
 
   useEffect(() => {
-    if (!canSubscribeEffectRun) return
+    if (canSubscribeEffectRun === false) return
     if (!queryStore) return
 
     setState(queryStore[name] as T)

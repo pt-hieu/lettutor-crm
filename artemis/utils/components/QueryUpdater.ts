@@ -13,7 +13,10 @@ export default function QueryUpdater() {
     useStore<Record<string, unknown>>('store:query-store')
 
   useEffect(() => {
-    client.setQueryData('store:query-store', { ...query })
+    client.setQueryData('store:query-store', (old: any) => ({
+      ...(old || {}),
+      ...query,
+    }))
   }, [pathname])
 
   useEffect(() => {

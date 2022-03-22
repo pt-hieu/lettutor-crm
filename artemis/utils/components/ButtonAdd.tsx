@@ -7,8 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-
-import { useOnClickOutside } from '@utils/hooks/useOnClickOutSide'
+import { useClickAway } from 'react-use'
 
 type Props = {
   title: string
@@ -32,7 +31,7 @@ const ButtonAdd = ({
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef(null)
 
-  useOnClickOutside(
+  useClickAway(
     menuRef,
     useCallback(() => setShowMenu(false), []),
   )
