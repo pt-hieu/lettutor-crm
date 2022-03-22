@@ -45,32 +45,6 @@ export class AccountService {
       throw new ForbiddenException()
     }
 
-    let tasksToDisplay = []
-
-    account.tasks
-      ? (tasksToDisplay = tasksToDisplay.concat(account.tasks))
-      : undefined
-
-    account.deals
-      ? account.deals.forEach((deal) => {
-          deal.tasks
-            ? (tasksToDisplay = tasksToDisplay.concat(deal.tasks))
-            : undefined
-        })
-      : undefined
-
-    account.contacts
-      ? account.contacts.forEach((contact) => {
-          contact.tasks
-            ? (tasksToDisplay = tasksToDisplay.concat(contact.tasks))
-            : undefined
-        })
-      : undefined
-
-    account['tasksToDisplay'] = [
-      ...new Map(tasksToDisplay.map((o) => [o.id, o])).values(),
-    ]
-
     if (trace) {
       await this.utilService.loadTraceInfo(account)
     }
@@ -79,10 +53,6 @@ export class AccountService {
   }
 
   async addAccount(dto: DTO.Account.AddAccount) {
-    if (dto.ownerId) {
-      await this.userService.getOneUserById({ where: { id: dto.ownerId } })
-    }
-
     return this.accountRepo.save(dto)
   }
 

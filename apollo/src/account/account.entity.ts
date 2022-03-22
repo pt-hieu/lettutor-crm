@@ -1,3 +1,4 @@
+import { Expose, Transform } from 'class-transformer'
 import { Column, Entity, OneToMany } from 'typeorm'
 
 import { Contact } from 'src/contact/contact.entity'
@@ -21,6 +22,29 @@ export enum AccountType {
   PROSPECT = 'Prospect',
   RESELLER = 'Reseller',
   VENDOR = 'Vendor',
+}
+
+const TransformAccountTask = ({ value, obj }: { value: any; obj: Account }) => {
+  let tasksToDisplay = []
+  obj.tasks ? (tasksToDisplay = tasksToDisplay.concat(obj.tasks)) : undefined
+
+  obj.deals
+    ? obj.deals.forEach((deal) => {
+        deal.tasks
+          ? (tasksToDisplay = tasksToDisplay.concat(deal.tasks))
+          : undefined
+      })
+    : undefined
+
+  obj.contacts
+    ? obj.contacts.forEach((contact) => {
+        contact.tasks
+          ? (tasksToDisplay = tasksToDisplay.concat(contact.tasks))
+          : undefined
+      })
+    : undefined
+
+  return [...new Map(tasksToDisplay.map((o) => [o.id, o])).values()]
 }
 
 @Entity({ name: 'account' })
@@ -54,4 +78,8 @@ export class Account extends Ownerful {
 
   @OneToMany(() => File, (f) => f.account, { cascade: true, eager: true })
   attachments: File
+
+  @Transform(TransformAccountTask, { toPlainOnly: true })
+  @Expose()
+  tasksToDisplay: Task[]
 }
