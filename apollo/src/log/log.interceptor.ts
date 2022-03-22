@@ -12,6 +12,7 @@ import { Repository } from 'typeorm'
 
 import { Account } from 'src/account/account.entity'
 import { Contact } from 'src/contact/contact.entity'
+import { DealStage } from 'src/deal-stage/deal-stage.entity'
 import { Deal } from 'src/deal/deal.entity'
 import { Lead } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
@@ -27,6 +28,7 @@ export class LogInterceptor implements NestInterceptor {
     contactId: 'fullName',
     dealId: 'fullName',
     taskId: 'subject',
+    stageId: 'name',
   }
 
   constructor(
@@ -35,6 +37,7 @@ export class LogInterceptor implements NestInterceptor {
     @InjectRepository(Deal) dealRepo: Repository<Deal>,
     @InjectRepository(Contact) contactRepo: Repository<Contact>,
     @InjectRepository(Task) taskRepo: Repository<Task>,
+    @InjectRepository(DealStage) dealStageRepo: Repository<DealStage>,
   ) {
     this.mappingRepo = {
       accountId: accountRepo,
@@ -42,6 +45,7 @@ export class LogInterceptor implements NestInterceptor {
       contactId: contactRepo,
       dealId: dealRepo,
       taskId: taskRepo,
+      stageId: dealStageRepo,
     }
   }
 

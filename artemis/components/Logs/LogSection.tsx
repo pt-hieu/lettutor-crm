@@ -76,13 +76,13 @@ export default function LogSection({ title, entityId, source }: TProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6 divide-y pb-4">
         {!logs?.items.length && (
           <div className="text-gray-500 font-medium">No logs found.</div>
         )}
 
         {logs?.items.map((log, index) => (
-          <LogItem key={log.id} data={log} index={index} />
+          <LogItem className="ring-0 px-0 pb-0" key={log.id} data={log} index={index} />
         ))}
       </div>
     </div>
