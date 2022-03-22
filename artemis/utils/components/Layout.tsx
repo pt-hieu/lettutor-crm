@@ -87,8 +87,6 @@ function Layout({
 
     if (!eventSource) return
     eventSource.onmessage = ({ data }: MessageEvent) => {
-      console.log({ data })
-
       client.setQueryData(GlobalState.SUBSCRIPTION, JSON.parse(data))
     }
 

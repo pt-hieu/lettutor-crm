@@ -2,13 +2,13 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { QueryClient, dehydrate, useMutation, useQuery } from 'react-query'
 import * as yup from 'yup'
 
 import Input from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
+import SuggestInput from '@utils/components/SuggestInput'
 import { AccountAddData } from '@utils/data/add-account-data'
 import { Field } from '@utils/data/update-deal-data'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
@@ -18,7 +18,7 @@ import { Account, AccountType } from '@utils/models/account'
 import { Actions } from '@utils/models/role'
 import { User } from '@utils/models/user'
 import { addAccount } from '@utils/service/account'
-import { getRawUsers, getUsers } from '@utils/service/user'
+import { getRawUsers } from '@utils/service/user'
 
 export interface AccountAddFormData
   extends Pick<
@@ -71,18 +71,13 @@ const CreateAccount = () => {
   } = useForm<AccountAddFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      ownerId: '',
+      ownerId: session?.user.id || '',
       fullName: '',
       type: AccountType.NONE,
       address: '',
       description: '',
-      phoneNum: '',
     },
   })
-
-  useEffect(() => {
-    setValue('ownerId', session?.user.id || '')
-  }, [session?.user.id])
 
   const handleAddAccount = handleSubmit((data) => {
     mutateAsync(data)
@@ -105,42 +100,63 @@ const CreateAccount = () => {
       >
         {label}
       </label>
+
       <div className="col-span-2">
-        {/* @ts-ignore */}
-        <Input
-          error={errors[name as keyof AccountAddFormData]?.message}
-          as={as!}
-          props={{
-            id: name,
-            type: type || 'text',
-            className: `text-sm p-3 min-h-[44px] ${
-              name === 'description' || name === 'address'
-                ? 'w-[600px]'
-                : 'w-full'
-            }`,
-            children:
-              as === 'select' ? (
-                name === 'ownerId' ? (
-                  <>
-                    {accountOwners?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    {selectSource?.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </>
-                )
-              ) : undefined,
-            ...register(name as keyof AccountAddFormData),
-          }}
-        />
+        {as !== 'select' && (
+          // @ts-ignore
+          <Input
+            error={errors[name as keyof AccountAddFormData]?.message}
+            as={as!}
+            props={{
+              id: name,
+              type: type || 'text',
+              className: `text-sm p-3 min-h-[44px] ${
+                name === 'description' || name === 'address'
+                  ? 'w-[600px]'
+                  : 'w-full'
+              }`,
+
+              ...register(name as keyof AccountAddFormData),
+            }}
+          />
+        )}
+
+        {as === 'select' && name === 'ownerId' && (
+          <SuggestInput
+            error={errors[name as keyof AccountAddFormData]?.message}
+            inputProps={{
+              className: 'w-full',
+              id: name,
+              ...register(name as keyof AccountAddFormData),
+            }}
+            getData={accountOwners || []}
+            getKey={(a) => a.id}
+            render={(account) => <span>{account.name}</span>}
+            onItemSelect={({ id }) => setValue('ownerId', id)}
+            filter={(account, query) =>
+              account.name.toLocaleLowerCase().includes(query)
+            }
+            mapValue={(id) =>
+              accountOwners?.find((account) => account.id === id)?.name || ''
+            }
+          />
+        )}
+
+        {as === 'select' && name === 'type' && (
+          <SuggestInput
+            error={errors[name as keyof AccountAddFormData]?.message}
+            inputProps={{
+              className: 'w-full',
+              id: name,
+              ...register(name as keyof AccountAddFormData),
+            }}
+            getData={selectSource || []}
+            getKey={(item) => item}
+            render={(item) => <span>{item}</span>}
+            onItemSelect={(type) => setValue('type', type)}
+            filter={(type, query) => type.toLocaleLowerCase().includes(query)}
+          />
+        )}
       </div>
     </div>
   )
