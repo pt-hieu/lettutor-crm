@@ -24,6 +24,7 @@ import { User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 
 import { Lead } from './lead.entity'
+import { Note } from 'src/note/note.entity'
 
 @Injectable()
 export class LeadService {
@@ -189,6 +190,7 @@ export class LeadService {
     const contact = await this.contactService.addContact(contactDto)
 
     const tasks: Task[] = lead.tasks
+    const notes: Note[] = lead.notes
     let deal: Deal | null = null
     if (shouldConvertToDeal) {
       const dto: DTO.Deal.AddDeal = {
@@ -205,12 +207,30 @@ export class LeadService {
         task.dealId = deal.id
         task.contactId = contact.id
       })
+      // update notes of lead with deal and contact
+      notes.forEach(note => {
+        note.leadId = null
+        note.dealId = deal.id
+        note.contactId = contact.id
+      })
+      // update notes of lead with deal and contact
+      notes.forEach(note => {
+        note.leadId = null
+        note.dealId = deal.id
+        note.contactId = contact.id
+      })
     } else {
       // update tasks of lead with account and contact
       tasks.forEach((task) => {
         task.leadId = null
         task.accountId = account.id
         task.contactId = contact.id
+      })
+      // update notes of lead with account and contact
+      notes.forEach(note => {
+        note.leadId = null
+        note.accountId = account.id
+        note.contactId = contact.id
       })
     }
 

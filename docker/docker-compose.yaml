@@ -12,10 +12,13 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_PASSWORD: postgres
-      PGDATA: /data/postgres
+      - POSTGRES_DB=crm
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - PGDATA=/data/postgres
     volumes:
       - postgres:/data/postgres
+    
 
   apollo:
     container_name: apollo
