@@ -213,12 +213,6 @@ export class LeadService {
         note.dealId = deal.id
         note.contactId = contact.id
       })
-      // update notes of lead with deal and contact
-      notes.forEach(note => {
-        note.leadId = null
-        note.dealId = deal.id
-        note.contactId = contact.id
-      })
     } else {
       // update tasks of lead with account and contact
       tasks.forEach((task) => {
