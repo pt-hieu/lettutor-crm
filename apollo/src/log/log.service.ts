@@ -56,41 +56,8 @@ export class LogService {
     }
 
     if (entity) {
-      const noteIds = await this.noteRepo
-        .find({
-          where: [
-            {
-              leadId: entity,
-            },
-            { accountId: entity },
-            { leadId: entity },
-            { contactId: entity },
-            { dealId: entity },
-            { taskId: entity },
-          ],
-          select: ['id'],
-          withDeleted: true,
-        })
-        .then((notes) => notes.map((note) => note.id))
-
-      const taskIds = await this.taskRepo
-        .find({
-          where: [
-            {
-              leadId: entity,
-            },
-            { accountId: entity },
-            { leadId: entity },
-            { contactId: entity },
-            { dealId: entity },
-          ],
-          select: ['id'],
-          withDeleted: true,
-        })
-        .then((tasks) => tasks.map((task) => task.id))
-
       qb.andWhere('l.entityId IN (:...entities)', {
-        entities: [entity].concat(...noteIds, ...taskIds),
+        entities: [entity],
       })
     }
 

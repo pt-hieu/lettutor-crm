@@ -2,8 +2,6 @@ import { HttpModule } from '@nestjs/axios'
 import { Module, forwardRef } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { ContactModule } from 'src/contact/contact.module'
-import { DealModule } from 'src/deal/deal.module'
 import { File } from 'src/file/file.entity'
 import { FileModule } from 'src/file/file.module'
 import { TaskModule } from 'src/task/task.module'
@@ -16,8 +14,6 @@ import { NoteSubscriber } from './note.subscriber'
 @Module({
   imports: [
     TypeOrmModule.forFeature([Note, File]),
-    forwardRef(() => ContactModule),
-    forwardRef(() => DealModule),
     forwardRef(() => TaskModule),
     FileModule,
     HttpModule,

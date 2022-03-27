@@ -122,13 +122,5 @@ export class DealStageService {
     )
   }
 
-  async checkCanDelete(stages: DealStage[]) {
-    stages.forEach((stage) => {
-      if (stage.deals.length > 0) {
-        throw new BadRequestException(
-          'Cannot delete deal stage that already used',
-        )
-      }
-    })
-  }
+  async checkCanDelete(stages: DealStage[]) {}
 }

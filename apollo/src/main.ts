@@ -25,10 +25,12 @@ async function bootstrap() {
   app.use(json({ limit: '22mb' }))
   app.use(urlencoded({ limit: '22mb', extended: true }))
   app.useGlobalInterceptors(new TransformInterceptor())
+
   registerSchema(ConvertToDealSchema)
 
   if (process.env.NODE_ENV !== 'production') {
     app.use(morgan('dev'))
+
     const config = new DocumentBuilder()
       .setTitle('Apollo')
       .addApiKey(
@@ -38,6 +40,7 @@ async function bootstrap() {
       .addApiKey({ type: 'apiKey', name: 'x-user', in: 'header' }, 'x-user')
       .setVersion('0.0.1')
       .build()
+
     const document = SwaggerModule.createDocument(app, config)
     SwaggerModule.setup('docs', app, document)
   }

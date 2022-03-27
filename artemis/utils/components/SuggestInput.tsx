@@ -22,7 +22,7 @@ type TProps<T> = {
   getKey: (v: T) => Key
   filter: (v: T, query: string) => boolean
   onItemSelect: (v: T) => any
-  mapValue?: (v: string) => string
+  mapValue?: (v: string, data: T[]) => string
 } & (
   | {
       showError?: true
@@ -45,9 +45,13 @@ export default function SuggestInput<T>({
   showError,
   mapValue,
 }: TProps<T>) {
-  const [data] = useState(getData)
+  const [data, setData] = useState(getData)
   const [value, setValue] = useState<string>('')
   const [displayValue, setDisplayValue] = useState<string>('')
+
+  useEffect(() => {
+    setData(getData)
+  }, [getData])
 
   const filteredData = useMemo<T[]>(() => {
     return data.filter((item) => filter(item, value.toLocaleLowerCase()))
@@ -76,10 +80,10 @@ export default function SuggestInput<T>({
         ) as HTMLInputElement
       )?.value
 
-      const mappedValue = mapValue ? mapValue(value) : value
+      const mappedValue = mapValue ? mapValue(value, data) : value
       setDisplayValue(mappedValue)
     },
-    [],
+    [data],
   )
 
   useEffect(() => {
@@ -89,9 +93,9 @@ export default function SuggestInput<T>({
       ) as HTMLInputElement
     )?.value
 
-    const mappedValue = mapValue ? mapValue(value) : value
+    const mappedValue = mapValue ? mapValue(value, data) : value
     setDisplayValue(mappedValue)
-  }, [])
+  }, [data])
 
   return (
     <div className="relative w-full">

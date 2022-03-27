@@ -10,12 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 
-import { AccountService } from 'src/account/account.service'
-import { ContactService } from 'src/contact/contact.service'
-import { DealService } from 'src/deal/deal.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
-import { LeadService } from 'src/lead/lead.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
@@ -27,63 +23,51 @@ export class TaskService {
   constructor(
     @InjectRepository(Task)
     private taskRepo: Repository<Task>,
-    private readonly accountService: AccountService,
     private readonly userService: UserService,
-    private readonly contactService: ContactService,
-    @Inject(forwardRef(() => LeadService))
-    private readonly leadService: LeadService,
-    private readonly dealService: DealService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
   ) {}
 
   async addTask(dto: DTO.Task.AddTask) {
-    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
-
-    if (dto.leadId) {
-      await this.leadService.getLeadById({
-        where: { id: dto.leadId },
-      })
-      dto.accountId = null
-      dto.contactId = null
-      dto.dealId = null
-    } else {
-      dto.leadId = null
-
-      if (dto.contactId) {
-        const contact = await this.contactService.getContactById({
-          where: { id: dto.contactId },
-        })
-
-        dto.accountId = contact.accountId
-      }
-
-      if (dto.accountId) {
-        dto.dealId = null
-      } else if (dto.dealId) {
-        const deal = await this.dealService.getDealById({
-          where: { id: dto.dealId },
-        })
-
-        dto.accountId = deal.accountId
-      }
-
-      await Promise.all([
-        dto.contactId
-          ? this.contactService.getContactById({
-              where: { id: dto.contactId },
-            })
-          : undefined,
-        dto.accountId
-          ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-          : undefined,
-        dto.dealId
-          ? this.dealService.getDealById({ where: { id: dto.dealId } })
-          : undefined,
-      ])
-    }
-
-    return this.taskRepo.save(dto)
+    // await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+    // if (dto.leadId) {
+    //   await this.leadService.getLeadById({
+    //     where: { id: dto.leadId },
+    //   })
+    //   dto.accountId = null
+    //   dto.contactId = null
+    //   dto.dealId = null
+    // } else {
+    //   dto.leadId = null
+    //   if (dto.contactId) {
+    //     const contact = await this.contactService.getContactById({
+    //       where: { id: dto.contactId },
+    //     })
+    //     dto.accountId = contact.accountId
+    //   }
+    //   if (dto.accountId) {
+    //     dto.dealId = null
+    //   } else if (dto.dealId) {
+    //     const deal = await this.dealService.getDealById({
+    //       where: { id: dto.dealId },
+    //     })
+    //     dto.accountId = deal.accountId
+    //   }
+    //   await Promise.all([
+    //     dto.contactId
+    //       ? this.contactService.getContactById({
+    //           where: { id: dto.contactId },
+    //         })
+    //       : undefined,
+    //     dto.accountId
+    //       ? this.accountService.getAccountById({ where: { id: dto.accountId } })
+    //       : undefined,
+    //     dto.dealId
+    //       ? this.dealService.getDealById({ where: { id: dto.dealId } })
+    //       : undefined,
+    //   ])
+    // }
+    // return this.taskRepo.save(dto)
   }
 
   async getTaskById(option: FindOneOptions<Task>) {
@@ -155,50 +139,44 @@ export class TaskService {
   }
 
   async update(id: string, dto: DTO.Task.UpdateBody) {
-    const task = await this.getTaskById({ where: { id } })
-
-    if (
-      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(task) &&
-      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
-    ) {
-      throw new ForbiddenException()
-    }
-
-    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
-
-    if (dto.leadId) {
-      await this.leadService.getLeadById({
-        where: { id: dto.leadId },
-      })
-      dto.contactId = null
-      dto.accountId = null
-      dto.dealId = null
-      return this.taskRepo.save({ ...task, ...dto })
-    }
-
-    if (dto.contactId || dto.accountId || dto.dealId) {
-      dto.leadId = null
-      dto.accountId
-        ? (dto.dealId = null)
-        : dto.dealId
-        ? (dto.accountId = null)
-        : undefined
-
-      await Promise.all([
-        dto.contactId
-          ? this.contactService.getContactById({ where: { id: dto.contactId } })
-          : undefined,
-        dto.accountId
-          ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-          : undefined,
-        dto.dealId
-          ? this.dealService.getDealById({ where: { id: dto.dealId } })
-          : undefined,
-      ])
-    }
-
-    return this.taskRepo.save({ ...task, ...dto })
+    // const task = await this.getTaskById({ where: { id } })
+    // if (
+    //   !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+    //   !this.utilService.checkOwnership(task) &&
+    //   !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
+    // ) {
+    //   throw new ForbiddenException()
+    // }
+    // await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+    // if (dto.leadId) {
+    //   await this.leadService.getLeadById({
+    //     where: { id: dto.leadId },
+    //   })
+    //   dto.contactId = null
+    //   dto.accountId = null
+    //   dto.dealId = null
+    //   return this.taskRepo.save({ ...task, ...dto })
+    // }
+    // if (dto.contactId || dto.accountId || dto.dealId) {
+    //   dto.leadId = null
+    //   dto.accountId
+    //     ? (dto.dealId = null)
+    //     : dto.dealId
+    //     ? (dto.accountId = null)
+    //     : undefined
+    //   await Promise.all([
+    //     dto.contactId
+    //       ? this.contactService.getContactById({ where: { id: dto.contactId } })
+    //       : undefined,
+    //     dto.accountId
+    //       ? this.accountService.getAccountById({ where: { id: dto.accountId } })
+    //       : undefined,
+    //     dto.dealId
+    //       ? this.dealService.getDealById({ where: { id: dto.dealId } })
+    //       : undefined,
+    //   ])
+    // }
+    // return this.taskRepo.save({ ...task, ...dto })
   }
 
   async updateAllTasks(tasks: Task[]) {

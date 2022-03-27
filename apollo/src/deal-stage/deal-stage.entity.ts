@@ -1,7 +1,5 @@
-import { Exclude } from 'class-transformer'
 import { Column, Entity, OneToMany } from 'typeorm'
 
-import { Deal } from 'src/deal/deal.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 
 export enum DealStageType {
@@ -24,9 +22,6 @@ export class DealStage extends BaseEntity {
 
   @Column({ type: 'double precision', nullable: true })
   probability: number
-
-  @OneToMany(() => Deal, (deal) => deal.stage, { cascade: true })
-  deals: Deal[]
 
   @Column()
   order: number
