@@ -100,16 +100,7 @@ export class TaskService {
     let q = this.taskRepo
       .createQueryBuilder('t')
       .leftJoin('t.owner', 'owner')
-      .leftJoin('t.lead', 'lead')
-      .leftJoin('t.account', 'account')
-      .leftJoin('t.deal', 'deal')
-      .addSelect([
-        'owner.name',
-        'owner.email',
-        'lead.fullName',
-        'account.fullName',
-        'deal.fullName',
-      ])
+      .addSelect(['owner.name', 'owner.email'])
       .orderBy('t.createdAt', 'DESC')
 
     if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {

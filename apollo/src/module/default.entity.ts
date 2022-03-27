@@ -236,14 +236,14 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
     {
       name: 'address',
       group: 'Address Information',
-      required: true,
+      required: false,
       type: FieldType.TEXT,
     },
 
     {
       name: 'description',
       group: 'Description Information',
-      required: true,
+      required: false,
       type: FieldType.MULTILINE_TEXT,
     },
   ],

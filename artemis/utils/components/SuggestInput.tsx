@@ -130,7 +130,7 @@ export default function SuggestInput<T>({
           animate: { opacity: 1, y: 0 },
         }}
         transition={{ duration: 0.1, ease: 'linear' }}
-        className="absolute right-0 bottom-[-8px] w-full"
+        className="absolute right-0 bottom-[-8px] w-full z-[10001]"
       >
         <Menu
           itemClassName="text-left"
