@@ -1,4 +1,5 @@
 import { List } from 'antd'
+import Link from 'next/link'
 
 import { DealStageModal } from '@components/Deals/DealStageMapping/DealStageModal'
 import SettingsLayout from '@components/Settings/SettingsLayout'
@@ -9,6 +10,7 @@ import { useModal } from '@utils/hooks/useModal'
 
 type ModulesList = {
   name: string
+  link: string
   options: {
     option: string
     handleClick: () => void
@@ -22,17 +24,21 @@ const ModulesSettings = () => {
     {
       name: 'Lead',
       options: [],
+      link: '/settings/modules/leads',
     },
     {
       name: 'Contact',
+      link: '/settings/modules/contacts',
       options: [],
     },
     {
       name: 'Account',
+      link: '/settings/modules/accounts',
       options: [],
     },
     {
       name: 'Deal',
+      link: '/settings/modules/deals',
       options: [
         {
           option: 'Stage-Probability Mapping',
@@ -82,7 +88,9 @@ const ModulesSettings = () => {
               </Dropdown>,
             ]}
           >
-            <div>{item.name}</div>
+            <Link href={item.link}>
+              <a>{item.name}</a>
+            </Link>
           </List.Item>
         )}
       />
