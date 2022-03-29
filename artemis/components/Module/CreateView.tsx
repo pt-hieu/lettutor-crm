@@ -1,16 +1,15 @@
 import { notification } from 'antd'
 import { capitalize } from 'lodash'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation } from 'react-query'
 
 import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
 import { useRelationField } from '@utils/hooks/useRelationField'
 import { FieldMeta, FieldType, Module } from '@utils/models/module'
 import { createEntity } from '@utils/service/module'
-import { getRawUsers } from '@utils/service/user'
 
 import Field from './Field'
 
@@ -68,13 +67,25 @@ export default function CreateView({ module }: Props) {
       >
         <div>
           <FormProvider {...form}>
-            {Object.entries(parsedMeta).map(([groupName, fields]) => (
+            {Object.entries(parsedMeta).map(([groupName, fields], index) => (
               <div className="flex flex-col gap-6" key={groupName}>
                 <div className="font-semibold text-lg text-gray-700">
                   {groupName}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
+                  {!index && (
+                    <Field
+                      data={{
+                        name: 'name',
+                        group: groupName,
+                        required: true,
+                        visibility: { Overview: true, Update: true },
+                        type: FieldType.TEXT,
+                      }}
+                    />
+                  )}
+
                   {fields.map((field) => (
                     <Field data={field} key={field.name} />
                   ))}

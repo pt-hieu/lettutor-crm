@@ -2,9 +2,7 @@ import { useEffect } from 'react'
 import { useQueryClient } from 'react-query'
 
 import { FieldMeta, FieldType } from '@utils/models/module'
-import { getRawAccounts } from '@utils/service/account'
-import { getRawContacts } from '@utils/service/contact'
-import { getRawDealStage, getRawDeals } from '@utils/service/deal'
+import { getRawDealStage } from '@utils/service/deal'
 import { getRawEntity } from '@utils/service/module'
 import { getRawUsers } from '@utils/service/user'
 
@@ -25,25 +23,17 @@ export function useRelationField(meta: FieldMeta[] | null) {
     }
 
     relationNames.forEach((name) => {
-      if (name === 'User') {
+      if (name === 'user') {
         getRawUsers()().then(setData(name))
+        return
       }
 
-      if (name === 'Account') {
-        getRawEntity('account')().then(setData(name))
-      }
-
-      if (name === 'Contact') {
-        getRawEntity('contact')().then(setData(name))
-      }
-
-      if (name === 'Deal') {
-        getRawEntity('deal')().then(setData(name))
-      }
-
-      if (name === 'DealStage') {
+      if (name === 'dealstage') {
         getRawDealStage().then(setData(name))
+        return
       }
+
+      getRawEntity(name)().then(setData(name))
     })
   }, [])
 }

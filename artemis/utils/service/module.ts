@@ -14,10 +14,14 @@ export const getModules = (token?: string) => () =>
     })
     .then((r) => r.data)
 
-export const createEntity = (moduleName: string) => (data: any) =>
-  axios
-    .post<Entity>(API + '/apollo/' + moduleName, { data })
+export const createEntity = (moduleName: string) => (data: any) => {
+  const name = data.name
+  delete data.name
+
+  return axios
+    .post<Entity>(API + '/apollo/' + moduleName, { data, name })
     .then((r) => r.data)
+}
 
 export const getRawEntity = (moduleName: string) => () =>
   axios

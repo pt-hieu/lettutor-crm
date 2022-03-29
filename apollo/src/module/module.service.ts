@@ -67,13 +67,13 @@ export class ModuleService implements OnApplicationBootstrap {
 
     return this.entityRepo.find({
       where: { moduleId: module.id },
-      select: ['id', 'data'],
+      select: ['id', 'name'],
       loadEagerRelations: false,
     })
   }
 
   async getManyEntity(
-    moduleName,
+    moduleName: string,
     { limit, page, shouldNotPaginate }: DTO.Module.GetManyEntity,
   ) {
     let qb = this.entityRepo

@@ -136,6 +136,9 @@ export class Entity extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   moduleId: string
 
+  @Column()
+  name: string
+
   @Column({ type: 'jsonb' })
   data: Record<string, unknown>
 }

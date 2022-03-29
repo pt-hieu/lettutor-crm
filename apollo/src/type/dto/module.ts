@@ -46,6 +46,11 @@ export class UpdateModule {
 
 export class AddEntity {
   @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string
+
+  @ApiProperty()
   @IsObject()
   data: Record<string, unknown>
 }

@@ -43,7 +43,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
       group: 'Deal Information',
       required: true,
       type: FieldType.RELATION,
-      relateTo: 'User',
+      relateTo: 'user',
       visibility: {
         Overview: true,
         Update: true,
@@ -54,7 +54,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
       group: 'Deal Information',
       required: true,
       type: FieldType.RELATION,
-      relateTo: 'Account',
+      relateTo: 'account',
       visibility: {
         Overview: true,
         Update: true,
@@ -65,17 +65,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
       group: 'Deal Information',
       required: false,
       type: FieldType.RELATION,
-      relateTo: 'Contact',
-      visibility: {
-        Overview: true,
-        Update: true,
-      },
-    },
-    {
-      name: 'fullName',
-      group: 'Deal Information',
-      required: true,
-      type: FieldType.TEXT,
+      relateTo: 'contact',
       visibility: {
         Overview: true,
         Update: true,
@@ -106,7 +96,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
       group: 'Deal Information',
       required: true,
       type: FieldType.RELATION,
-      relateTo: 'DealStage',
+      relateTo: 'dealstage',
       visibility: {
         Overview: true,
         Update: true,
@@ -136,7 +126,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     {
       name: 'description',
       group: 'Description Information',
-      required: true,
+      required: false,
       type: FieldType.MULTILINE_TEXT,
       visibility: {
         Overview: false,
@@ -154,17 +144,7 @@ export const account: Pick<Module, 'name' | 'meta'> = {
       group: 'Account Information',
       required: true,
       type: FieldType.RELATION,
-      relateTo: 'User',
-      visibility: {
-        Overview: true,
-        Update: true,
-      },
-    },
-    {
-      name: 'fullName',
-      group: 'Account Information',
-      required: true,
-      type: FieldType.TEXT,
+      relateTo: 'user',
       visibility: {
         Overview: true,
         Update: true,
@@ -194,7 +174,7 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     {
       name: 'address',
       group: 'Address Information',
-      required: true,
+      required: false,
       type: FieldType.TEXT,
       visibility: {
         Overview: false,
@@ -204,7 +184,7 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     {
       name: 'description',
       group: 'Description Information',
-      required: true,
+      required: false,
       type: FieldType.MULTILINE_TEXT,
       visibility: {
         Overview: false,
@@ -221,17 +201,7 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
       group: 'Contact Information',
       required: true,
       type: FieldType.RELATION,
-      relateTo: 'User',
-      visibility: {
-        Overview: true,
-        Update: true,
-      },
-    },
-    {
-      name: 'fullName',
-      group: 'Contact Information',
-      required: true,
-      type: FieldType.TEXT,
+      relateTo: 'user',
       visibility: {
         Overview: true,
         Update: true,
@@ -273,7 +243,7 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
       group: 'Contact Information',
       required: false,
       type: FieldType.RELATION,
-      relateTo: 'Account',
+      relateTo: 'account',
       visibility: {
         Overview: false,
         Update: true,
@@ -310,17 +280,7 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
       group: 'Lead Information',
       required: true,
       type: FieldType.RELATION,
-      relateTo: 'User',
-      visibility: {
-        Overview: true,
-        Update: true,
-      },
-    },
-    {
-      name: 'fullName',
-      group: 'Lead Information',
-      required: true,
-      type: FieldType.TEXT,
+      relateTo: 'user',
       visibility: {
         Overview: true,
         Update: true,
