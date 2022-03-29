@@ -32,6 +32,10 @@ export enum FieldType {
   RELATION = 'Relation',
 }
 
+type Visibility = {
+  [k in 'Overview' | 'Update']?: boolean
+}
+
 export class FieldMeta {
   @ApiProperty()
   @IsString()
@@ -46,6 +50,10 @@ export class FieldMeta {
   @ApiProperty()
   @IsBoolean()
   required: boolean
+
+  @ApiProperty()
+  @Allow()
+  visibility: Visibility
 
   @ApiProperty()
   @IsEnum(FieldType)

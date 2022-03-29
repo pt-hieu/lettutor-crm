@@ -83,7 +83,7 @@ export default function SuggestInput<T>({
       const mappedValue = mapValue ? mapValue(value, data) : value
       setDisplayValue(mappedValue)
     },
-    [data],
+    [data, mapValue],
   )
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function SuggestInput<T>({
 
     const mappedValue = mapValue ? mapValue(value, data) : value
     setDisplayValue(mappedValue)
-  }, [data])
+  }, [data, mapValue])
 
   return (
     <div className="relative w-full">

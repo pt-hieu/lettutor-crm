@@ -30,17 +30,19 @@ export default function OverviewView({ module }: Props) {
 
   const colums = useMemo<TableColumnType<any>[]>(
     () =>
-      module.meta?.map((field) => {
-        if (field.type === FieldType.RELATION) {
-          field.name = field.name.replace('Id', '')
-        }
+      module.meta
+        ?.filter((field) => field.visibility.Overview)
+        .map((field) => {
+          if (field.type === FieldType.RELATION) {
+            field.name = field.name.replace('Id', '')
+          }
 
-        return {
-          title: toCapitalizedWords(field.name),
-          render: (_, { data }) => data?.[field.name],
-        }
-      }) || [],
-    [],
+          return {
+            title: toCapitalizedWords(field.name),
+            render: (_, { data }) => data?.[field.name],
+          }
+        }) || [],
+    [module],
   )
 
   const { data, isLoading } = useQuery(

@@ -36,6 +36,13 @@ export class DealStageService {
     return dealStage
   }
 
+  getRaw() {
+    return this.dealStageRepo.find({
+      select: ['id', 'name'],
+      loadEagerRelations: false,
+    })
+  }
+
   async getAll() {
     return this.dealStageRepo.find({
       order: { order: 1 },

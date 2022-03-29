@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   OnApplicationBootstrap,
   UnprocessableEntityException,
 } from '@nestjs/common'
@@ -21,14 +22,14 @@ export class ModuleService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    const moduleCount = await this.moduleRepo.count()
-    if (moduleCount) return
-
     this.initDefaultModules()
   }
 
   private initDefaultModules() {
-    return this.moduleRepo.save([lead, account, contact, deal])
+    return this.moduleRepo.upsert([lead, deal, account, contact], {
+      conflictPaths: ['name'],
+      skipUpdateIfNoValuesChanged: true,
+    })
   }
 
   getManyModule() {
@@ -58,9 +59,14 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.entityRepo.save({ ...dto, moduleId: module.id })
   }
 
-  getRawEntity(moduleName: string) {
-    return this.entityRepo.find({
+  async getRawEntity(moduleName: string) {
+    const module = await this.moduleRepo.findOne({
       where: { name: moduleName },
+    })
+    if (!module) return new NotFoundException('Module not found')
+
+    return this.entityRepo.find({
+      where: { moduleId: module.id },
       select: ['id', 'data'],
       loadEagerRelations: false,
     })

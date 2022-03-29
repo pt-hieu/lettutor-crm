@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from 'react-query'
 
 import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
+import { useRelationField } from '@utils/hooks/useRelationField'
 import { FieldMeta, FieldType, Module } from '@utils/models/module'
 import { createEntity } from '@utils/service/module'
 import { getRawUsers } from '@utils/service/user'
@@ -21,25 +22,7 @@ export default function CreateView({ module }: Props) {
   const { push } = useRouter()
 
   const form = useForm()
-  const client = useQueryClient()
-
-  useEffect(() => {
-    const relationNames = new Set(
-      module.meta
-        ?.filter(
-          (field) => !!field.relateTo && field.type === FieldType.RELATION,
-        )
-        .map((field) => field.relateTo!) || [],
-    )
-
-    relationNames.forEach((name) => {
-      if (name === 'User') {
-        getRawUsers()().then((users) => {
-          client.setQueryData(['relation-data', name], users)
-        })
-      }
-    })
-  }, [])
+  useRelationField(module.meta)
 
   const { isLoading, mutateAsync } = useMutation(
     ['created-entity', module.name],

@@ -111,11 +111,16 @@ export default function Field({ data }: FieldProps) {
           onItemSelect={(item) => setValue(name, item.id)}
           getData={relationItems || []}
           filter={(item, query) =>
-            item.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+            (item.name || item.data.fullName)
+              .toLocaleLowerCase()
+              .includes(query.toLocaleLowerCase())
           }
-          mapValue={(v, items) => items?.find((item) => item.id === v)?.name}
+          mapValue={(v, items) => {
+            const item = items?.find((item) => item.id === v)
+            return item?.name || item?.data.fullName
+          }}
           getKey={(item) => item.id}
-          render={(item) => <span>{item.name}</span>}
+          render={(item) => <span>{item.name || item.data.fullName}</span>}
           inputProps={{
             className: 'w-full',
             id: name,

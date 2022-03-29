@@ -21,7 +21,7 @@ export const createEntity = (moduleName: string) => (data: any) =>
 
 export const getRawEntity = (moduleName: string) => () =>
   axios
-    .get<Pick<Entity, 'id' | 'data'>[]>(API + '/apollo/' + moduleName)
+    .get<Pick<Entity, 'id' | 'data'>[]>(API + '/apollo/' + moduleName + '/raw')
     .then((r) => r.data)
 
 export const getEntities =

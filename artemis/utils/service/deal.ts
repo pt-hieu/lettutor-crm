@@ -4,7 +4,7 @@ import { DealUpdateFormData } from 'pages/deals/[id]/edit'
 
 import { TData } from '@components/Deals/DealStageMapping/DealStageTable'
 
-import { Deal, DealStage } from '@utils/models/deal'
+import { Deal, DealStage, DealStageData } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 
@@ -70,6 +70,11 @@ export const getDealStages = (token?: string) => async () => {
 
   return data
 }
+
+export const getRawDealStage = () =>
+  axios
+    .get<Pick<DealStageData, 'id' | 'name'>>(API + '/apollo/deal-stage/raw')
+    .then((r) => r.data)
 
 export const updateDealStage = async (datas: TData[]) => {
   const { data } = await axios.post(API + `/apollo/deal-stage`, {

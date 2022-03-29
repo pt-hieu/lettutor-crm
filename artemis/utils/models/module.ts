@@ -2,6 +2,10 @@ import { RegisterOptions } from 'react-hook-form'
 
 import { Base } from './base'
 
+type TVisibility = {
+  [k in 'Overview' | 'Update']: boolean
+}
+
 export enum FieldType {
   TEXT = 'Text',
   MULTILINE_TEXT = 'Multiline Text',
@@ -19,6 +23,7 @@ export interface FieldMeta {
   group: string
   required: boolean
   type: FieldType
+  visibility: TVisibility
   options?: string[]
   relateTo?: string
   validation?: Pick<
