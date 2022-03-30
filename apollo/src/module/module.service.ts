@@ -1,14 +1,16 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   OnApplicationBootstrap,
   UnprocessableEntityException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
-import { In, Repository } from 'typeorm'
+import { FindOneOptions, In, Repository } from 'typeorm'
 
+import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 
 import { account, contact, deal, lead } from './default.entity'
@@ -19,6 +21,7 @@ export class ModuleService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(Module) private moduleRepo: Repository<Module>,
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
+    private readonly utilService: UtilService,
   ) {}
 
   async onApplicationBootstrap() {
@@ -36,23 +39,27 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.moduleRepo.find()
   }
 
+  async getOneModule(option: FindOneOptions<Module>) {
+    const module = await this.moduleRepo.findOne(option)
+    if (!module) {
+      Logger.error(JSON.stringify(option, null, 2))
+      throw new BadRequestException('Module not found')
+    }
+
+    return module
+  }
+
   createModule(dto: DTO.Module.CreateModule) {
     return this.moduleRepo.save(dto)
   }
 
   async updateModule(id: string, dto: DTO.Module.UpdateModule) {
-    const module = await this.moduleRepo.findOne({ where: { id } })
-    if (!module) throw new BadRequestException('Module not found')
-
+    const module = await this.getOneModule({ where: { id: id } })
     return this.moduleRepo.save({ ...module, ...dto })
   }
 
   async addEntity(moduleName: string, dto: DTO.Module.AddEntity) {
-    const module = await this.moduleRepo.findOne({
-      where: { name: moduleName },
-    })
-
-    if (!module) throw new BadRequestException('Module not found')
+    const module = await this.getOneModule({ where: { name: moduleName } })
     const validateMessage = module.validateEntity(dto.data)
 
     if (validateMessage) throw new UnprocessableEntityException(validateMessage)
@@ -60,10 +67,7 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   async getRawEntity(moduleName: string) {
-    const module = await this.moduleRepo.findOne({
-      where: { name: moduleName },
-    })
-    if (!module) return new NotFoundException('Module not found')
+    const module = await this.getOneModule({ where: { name: moduleName } })
 
     return this.entityRepo.find({
       where: { moduleId: module.id },
@@ -86,21 +90,27 @@ export class ModuleService implements OnApplicationBootstrap {
     return paginate(qb, { limit, page })
   }
 
-  async getOneEntity(moduleName: string, id: string) {
-    const entity = await this.entityRepo.findOne({
-      join: {
-        alias: 'entity',
-        leftJoinAndSelect: {
-          module: 'entity.module',
+  async getOneEntity(id: string, moduleName?: string) {
+    let entity
+
+    if (moduleName) {
+      entity = await this.entityRepo.findOne({
+        join: {
+          alias: 'entity',
+          leftJoinAndSelect: {
+            module: 'entity.module',
+          },
         },
-      },
-      where: {
-        id,
-        module: {
-          name: moduleName,
+        where: {
+          id,
+          module: {
+            name: moduleName,
+          },
         },
-      },
-    })
+      })
+    } else {
+      entity = await this.entityRepo.findOne({ where: { id: id } })
+    }
 
     if (!entity) throw new NotFoundException('Entity not found')
     return entity
@@ -112,7 +122,6 @@ export class ModuleService implements OnApplicationBootstrap {
 
     const module = entity.module
     const validateMsg = module.validateEntity(dto.data)
-
     if (validateMsg) throw new UnprocessableEntityException(validateMsg)
     return this.entityRepo.save({ ...entity, ...dto })
   }

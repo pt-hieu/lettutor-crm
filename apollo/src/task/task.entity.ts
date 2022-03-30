@@ -1,6 +1,8 @@
+import { Exclude } from 'class-transformer'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 import { File } from 'src/file/file.entity'
+import { Entity as EntityData } from 'src/module/module.entity'
 import { Note } from 'src/note/note.entity'
 import { Ownerful } from 'src/utils/owner.entity'
 
@@ -22,6 +24,26 @@ export enum TaskStatus {
 
 @Entity({ name: 'task' })
 export class Task extends Ownerful {
+  @ManyToOne(() => EntityData, (entity) => entity.tasksOfLeadContact, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  leadContactEntity: EntityData
+
+  @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
+  leadContactEntityId: string | null
+
+  @ManyToOne(() => EntityData, (entity) => entity.tasksOfDealAccount, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  dealAccountEntity: EntityData
+
+  @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
+  dealAccountEntityId: string | null
+
   @Column({ enum: TaskPriority, type: 'enum', default: TaskPriority.HIGH })
   priority: TaskPriority
 

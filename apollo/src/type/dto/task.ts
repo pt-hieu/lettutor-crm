@@ -22,22 +22,12 @@ export class AddTask {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  contactId?: string
+  leadContactId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  dealId?: string
+  dealAccountId?: string
 
   @ApiPropertyOptional({ enum: TaskPriority, enumName: 'Task Priority' })
   @IsOptional()
@@ -112,22 +102,12 @@ export class UpdateBody {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  contactId?: string
+  leadContactId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  dealId?: string
+  dealAccountId?: string
 
   @ApiPropertyOptional({ type: TaskPriority, enum: TaskPriority })
   @IsOptional()

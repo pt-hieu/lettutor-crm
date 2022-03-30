@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
+import { ModuleModule } from 'src/module/module.module'
 import { UserModule } from 'src/user/user.module'
 
 import { TaskController } from './task.controller'
@@ -9,7 +10,7 @@ import { TaskService } from './task.service'
 import { TaskSubscriber } from './task.subscriber'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task]), UserModule],
+  imports: [TypeOrmModule.forFeature([Task]), UserModule, ModuleModule],
   providers: [TaskService, TaskSubscriber],
   controllers: [TaskController],
   exports: [TaskService],

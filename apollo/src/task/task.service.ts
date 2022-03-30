@@ -1,10 +1,9 @@
 import {
+  BadRequestException,
   ForbiddenException,
-  Inject,
   Injectable,
   Logger,
   NotFoundException,
-  forwardRef,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
@@ -12,6 +11,8 @@ import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
+import { ModuleName } from 'src/module/default.entity'
+import { ModuleService } from 'src/module/module.service'
 import { DTO } from 'src/type'
 import { Actions } from 'src/type/action'
 import { UserService } from 'src/user/user.service'
@@ -26,48 +27,41 @@ export class TaskService {
     private readonly userService: UserService,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
+    private readonly moduleService: ModuleService,
   ) {}
 
   async addTask(dto: DTO.Task.AddTask) {
-    // await this.userService.getOneUserById({ where: { id: dto.ownerId } })
-    // if (dto.leadId) {
-    //   await this.leadService.getLeadById({
-    //     where: { id: dto.leadId },
-    //   })
-    //   dto.accountId = null
-    //   dto.contactId = null
-    //   dto.dealId = null
-    // } else {
-    //   dto.leadId = null
-    //   if (dto.contactId) {
-    //     const contact = await this.contactService.getContactById({
-    //       where: { id: dto.contactId },
-    //     })
-    //     dto.accountId = contact.accountId
-    //   }
-    //   if (dto.accountId) {
-    //     dto.dealId = null
-    //   } else if (dto.dealId) {
-    //     const deal = await this.dealService.getDealById({
-    //       where: { id: dto.dealId },
-    //     })
-    //     dto.accountId = deal.accountId
-    //   }
-    //   await Promise.all([
-    //     dto.contactId
-    //       ? this.contactService.getContactById({
-    //           where: { id: dto.contactId },
-    //         })
-    //       : undefined,
-    //     dto.accountId
-    //       ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-    //       : undefined,
-    //     dto.dealId
-    //       ? this.dealService.getDealById({ where: { id: dto.dealId } })
-    //       : undefined,
-    //   ])
-    // }
-    // return this.taskRepo.save(dto)
+    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+
+    if (dto.leadContactId) {
+      const leadContactEntity = await this.moduleService.getOneEntity(
+        dto.leadContactId,
+      )
+
+      const leadContactModule = leadContactEntity.module
+
+      if (leadContactModule.name === ModuleName.LEAD) {
+        dto.dealAccountId = null
+      } else if (leadContactModule.name !== ModuleName.CONTACT) {
+        throw new BadRequestException('Lead or contact not found')
+      }
+    }
+
+    if (dto.dealAccountId) {
+      const dealAccountEntity = await this.moduleService.getOneEntity(
+        dto.dealAccountId,
+      )
+
+      const dealAccountModule = dealAccountEntity.module
+      if (
+        dealAccountModule.name !== ModuleName.DEAL &&
+        dealAccountModule.name !== ModuleName.ACCOUNT
+      ) {
+        throw new BadRequestException('Deal or account not found')
+      }
+    }
+
+    return this.taskRepo.save(dto)
   }
 
   async getTaskById(option: FindOneOptions<Task>) {
@@ -130,44 +124,45 @@ export class TaskService {
   }
 
   async update(id: string, dto: DTO.Task.UpdateBody) {
-    // const task = await this.getTaskById({ where: { id } })
-    // if (
-    //   !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-    //   !this.utilService.checkOwnership(task) &&
-    //   !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
-    // ) {
-    //   throw new ForbiddenException()
-    // }
-    // await this.userService.getOneUserById({ where: { id: dto.ownerId } })
-    // if (dto.leadId) {
-    //   await this.leadService.getLeadById({
-    //     where: { id: dto.leadId },
-    //   })
-    //   dto.contactId = null
-    //   dto.accountId = null
-    //   dto.dealId = null
-    //   return this.taskRepo.save({ ...task, ...dto })
-    // }
-    // if (dto.contactId || dto.accountId || dto.dealId) {
-    //   dto.leadId = null
-    //   dto.accountId
-    //     ? (dto.dealId = null)
-    //     : dto.dealId
-    //     ? (dto.accountId = null)
-    //     : undefined
-    //   await Promise.all([
-    //     dto.contactId
-    //       ? this.contactService.getContactById({ where: { id: dto.contactId } })
-    //       : undefined,
-    //     dto.accountId
-    //       ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-    //       : undefined,
-    //     dto.dealId
-    //       ? this.dealService.getDealById({ where: { id: dto.dealId } })
-    //       : undefined,
-    //   ])
-    // }
-    // return this.taskRepo.save({ ...task, ...dto })
+    const task = await this.getTaskById({ where: { id } })
+    if (
+      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkOwnership(task) &&
+      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
+    ) {
+      throw new ForbiddenException()
+    }
+    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+
+    if (dto.leadContactId) {
+      const leadContactEntity = await this.moduleService.getOneEntity(
+        dto.leadContactId,
+      )
+
+      const leadContactModule = leadContactEntity.module
+
+      if (leadContactModule.name === ModuleName.LEAD) {
+        dto.dealAccountId = null
+      } else if (leadContactModule.name !== ModuleName.CONTACT) {
+        throw new BadRequestException('Lead or contact not found')
+      }
+    }
+
+    if (dto.dealAccountId) {
+      const dealAccountEntity = await this.moduleService.getOneEntity(
+        dto.dealAccountId,
+      )
+
+      const dealAccountModule = dealAccountEntity.module
+      if (
+        dealAccountModule.name !== ModuleName.DEAL &&
+        dealAccountModule.name !== ModuleName.ACCOUNT
+      ) {
+        throw new BadRequestException('Deal or account not found')
+      }
+    }
+
+    return this.taskRepo.save({ ...task, ...dto })
   }
 
   async updateAllTasks(tasks: Task[]) {

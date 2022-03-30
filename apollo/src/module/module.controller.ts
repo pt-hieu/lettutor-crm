@@ -78,7 +78,7 @@ export class ModuleController {
     @Param('id', ParseUUIDPipe) entityId: string,
     @Param('name') moduleName: string,
   ) {
-    return this.service.getOneEntity(moduleName, entityId)
+    return this.service.getOneEntity(entityId, moduleName)
   }
 
   @Patch(':name/:id')

@@ -18,7 +18,9 @@ import {
   OneToMany,
 } from 'typeorm'
 
+import { Task } from 'src/task/task.entity'
 import { BaseEntity } from 'src/utils/base.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 
 export enum FieldType {
   TEXT = 'Text',
@@ -128,7 +130,7 @@ export class Module extends BaseEntity {
 }
 
 @EntityDecorator()
-export class Entity extends BaseEntity {
+export class Entity extends Ownerful {
   @ManyToOne(() => Module, { eager: true, onDelete: 'CASCADE' })
   module: Module
 
@@ -141,4 +143,14 @@ export class Entity extends BaseEntity {
 
   @Column({ type: 'jsonb' })
   data: Record<string, unknown>
+
+  @OneToMany(() => Task, (task) => task.leadContactEntity, {
+    cascade: true,
+  })
+  tasksOfLeadContact: Task[]
+
+  @OneToMany(() => Task, (task) => task.dealAccountEntity, {
+    cascade: true,
+  })
+  tasksOfDealAccount: Task[]
 }
