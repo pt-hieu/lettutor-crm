@@ -86,6 +86,26 @@ export class ModuleService implements OnApplicationBootstrap {
     return paginate(qb, { limit, page })
   }
 
+  async getOneEntity(moduleName: string, id: string) {
+    const entity = await this.entityRepo.findOne({
+      join: {
+        alias: 'entity',
+        leftJoinAndSelect: {
+          module: 'entity.module',
+        },
+      },
+      where: {
+        id,
+        module: {
+          name: moduleName,
+        },
+      },
+    })
+
+    if (!entity) throw new NotFoundException('Entity not found')
+    return entity
+  }
+
   async updateEntity(id: string, dto: DTO.Module.AddEntity) {
     const entity = await this.entityRepo.findOne({ where: { id } })
     if (!entity) throw new BadRequestException('Entity not found')

@@ -72,6 +72,15 @@ export class ModuleController {
     return this.service.addEntity(moduleName, dto)
   }
 
+  @Get(':name/:id')
+  @ApiOperation({ summary: 'to get one entity at module' })
+  getOneEntity(
+    @Param('id', ParseUUIDPipe) entityId: string,
+    @Param('name') moduleName: string,
+  ) {
+    return this.service.getOneEntity(moduleName, entityId)
+  }
+
   @Patch(':name/:id')
   @ApiOperation({ summary: 'to update entity at module' })
   updateEntity(
