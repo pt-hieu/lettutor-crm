@@ -54,7 +54,7 @@ export default function DynamicModule({ paths }: Props) {
 
   if (paths[1] && isUUID(paths[1])) {
     if (paths[2] === 'update') return <UpdateView />
-    if (!paths[2]) return <DetailView />
+    if (!paths[2]) return <DetailView paths={paths} />
     return <NotFound />
   }
 

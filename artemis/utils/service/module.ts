@@ -38,3 +38,10 @@ export const batchDeleteEntities = (ids: string[] | string) =>
   axios
     .delete(API + '/apollo/entity/batch', { data: { ids: [ids].flat() } })
     .then((r) => r.data)
+
+export const getEntity = (name: string, id: string, token?: string) => () =>
+  axios
+    .get<Entity>(API + `/apollo/${name}/${id}`, {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    .then((res) => res.data)
