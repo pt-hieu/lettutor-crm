@@ -105,6 +105,7 @@ export default function SuggestInput<T>({
       <Input
         as="input"
         showError={showError}
+        editable={!inputProps.disabled}
         error={error}
         props={{
           type: 'text',

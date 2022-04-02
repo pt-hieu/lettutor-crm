@@ -16,7 +16,6 @@ export default function InlineEdit<
   T extends 'select' | 'input' | 'textarea' | undefined,
 >({ onEditComplete: submit, onEditCancel: cancel, ...inputProps }: Props<T>) {
   const [enabled, setEnabled] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   // useClickAway(containerRef, () => {
   //   setEnabled(false)
@@ -44,7 +43,7 @@ export default function InlineEdit<
   }, [inputProps.props.value])
 
   return (
-    <div ref={containerRef} className="flex gap-2 relative group">
+    <div className="flex gap-2 relative group">
       {/* @ts-ignore */}
       <Input
         editable={enabled}
