@@ -9,7 +9,8 @@ import OverviewView from '@components/Module/OverviewView'
 import UpdateView from '@components/Module/UpdateView'
 
 import { getSessionToken } from '@utils/libs/getToken'
-import { getModules } from '@utils/service/module'
+import { Entity } from '@utils/models/module'
+import { getEntity, getModules } from '@utils/service/module'
 
 import NotFound from './404'
 
@@ -50,6 +51,11 @@ export default function DynamicModule({ paths }: Props) {
     enabled: false,
   })
 
+  const { data: moduleEntity } = useQuery(
+    [moduleName, moduleId],
+    getEntity(moduleName, moduleId),
+  )
+
   const selectedModule = useMemo(() => {
     return modules?.find((module) => module.name === moduleName)
   }, [modules, paths])
@@ -63,7 +69,10 @@ export default function DynamicModule({ paths }: Props) {
   }
 
   if (moduleId && isUUID(moduleId)) {
-    if (moduleAction === ModuleAction.UPDATE) return <UpdateView />
+    if (moduleAction === ModuleAction.UPDATE)
+      return (
+        <UpdateView module={selectedModule} entity={moduleEntity as Entity} />
+      )
 
     if (!moduleAction) return <DetailView paths={paths} />
 
