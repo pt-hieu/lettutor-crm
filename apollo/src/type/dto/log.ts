@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { Transform, Type } from 'class-transformer'
+import { Type } from 'class-transformer'
 import {
   IsDate,
   IsEnum,
@@ -16,7 +16,7 @@ import { EntityValidator } from 'src/utils/decorators/log_entity.validator'
 import { Paginate } from './paging'
 
 export class CreateLog {
-  source: LogSource
+  source: LogSource | string
   action: LogAction
   changes: TChange[] | null
   ownerId: string
@@ -27,8 +27,7 @@ export class CreateLog {
 export class GetManyLogs extends Paginate {
   @ApiPropertyOptional({ enum: LogSource, isArray: true })
   @IsOptional()
-  @IsEnum(LogSource)
-  source?: LogSource
+  source?: LogSource | string
 
   @ApiPropertyOptional({ enum: LogAction })
   @IsOptional()

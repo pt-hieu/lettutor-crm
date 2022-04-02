@@ -54,8 +54,17 @@ export class UtilService {
     )
   }
 
-  public compare(baseEntity: object, entityToCompare: object) {
+  public compare(
+    baseEntity: object,
+    entityToCompare: object,
+    oldName?: string,
+    nameToCompare?: string,
+  ) {
     const changes: TChange[] = []
+
+    if (oldName !== nameToCompare) {
+      changes.push({ name: 'name', from: oldName, to: nameToCompare })
+    }
     Object.entries(baseEntity).forEach(([key, value]) => {
       if (this.keysToIgnore.includes(key)) return
       if (baseEntity[key] === entityToCompare[key]) return

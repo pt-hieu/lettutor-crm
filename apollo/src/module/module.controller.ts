@@ -9,12 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import {
-  ApiOperation,
-  ApiProperty,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger'
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DTO } from 'src/type'
 

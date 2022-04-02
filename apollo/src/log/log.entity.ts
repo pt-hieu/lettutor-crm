@@ -26,7 +26,7 @@ export enum LogAction {
 @Entity()
 export class Log extends Ownerful {
   @Column()
-  source: LogSource
+  source: LogSource | string
 
   @Column({ type: 'uuid' })
   entityId: string

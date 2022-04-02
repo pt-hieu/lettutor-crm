@@ -4,10 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { ModuleController } from './module.controller'
 import { Entity, Module } from './module.entity'
 import { ModuleService } from './module.service'
+import { ModuleSubscriber } from './module.subscriber'
 
 @ModuleDecorator({
   imports: [TypeOrmModule.forFeature([Module, Entity])],
-  providers: [ModuleService],
+  providers: [ModuleService, ModuleSubscriber],
   controllers: [ModuleController],
 })
 export class ModuleModule {}
