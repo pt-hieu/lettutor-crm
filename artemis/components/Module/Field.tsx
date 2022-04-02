@@ -1,5 +1,6 @@
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { useClickAway } from 'react-use'
 
 import Animate from '@utils/components/Animate'
 import Input from '@utils/components/Input'
@@ -38,7 +39,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
     if (!element) return
 
     const valueLength = (element as HTMLInputElement).value.length
-    element.style.minWidth = Math.min(Math.max(valueLength, 40), 60)  + 'ch'
+    element.style.minWidth = Math.min(Math.max(valueLength, 40), 60) + 'ch'
 
     setLeft(230 + (element.offsetWidth || 0) + 'px')
   }, [])
@@ -184,8 +185,12 @@ export default function Field({ data, inlineEdit }: FieldProps) {
     ],
   )
 
+  const containerRef = useRef<HTMLDivElement>(null)
+  useClickAway(containerRef, disable)
+
   return (
     <div
+      ref={containerRef}
       className={`grid ${
         inlineEdit
           ? 'grid-cols-[200px,1fr] relative group'
@@ -235,7 +240,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
                 type="submit"
                 onClick={(e) => {
                   // submit && submit(e)
-                  // inputProps.error || setEnabled(false)
+                  errors[name] || disable()
                 }}
                 className={' crm-button'}
               >

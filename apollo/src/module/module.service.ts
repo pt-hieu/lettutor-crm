@@ -106,7 +106,7 @@ export class ModuleService implements OnApplicationBootstrap {
     return entity
   }
 
-  async updateEntity(id: string, dto: DTO.Module.AddEntity) {
+  async updateEntity(id: string, dto: DTO.Module.UpdateEnity) {
     const entity = await this.entityRepo.findOne({ where: { id } })
     if (!entity) throw new BadRequestException('Entity not found')
 

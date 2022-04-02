@@ -1,18 +1,16 @@
+import { notification } from 'antd'
 import { capitalize } from 'lodash'
-import { useEffect, useMemo } from 'react'
+import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useQuery } from 'react-query'
+import { useMutation, useQuery  } from 'react-query'
 
 import { DetailNavbar } from '@components/Details/Navbar'
 import { DetailSidebar } from '@components/Details/Sidebar'
 
-import InlineEdit from '@utils/components/InlineEdit'
-import { Props } from '@utils/components/Input'
 import Layout from '@utils/components/Layout'
 import { useRelationField } from '@utils/hooks/useRelationField'
-import { FieldMeta, FieldType } from '@utils/models/module'
-import { getEntity } from '@utils/service/module'
-import { getRawUsers } from '@utils/service/user'
+import { FieldType } from '@utils/models/module'
+import { getEntity, updateEntity } from '@utils/service/module'
 
 import Field from './Field'
 import { toCapitalizedWords } from './OverviewView'
@@ -21,18 +19,17 @@ type TProps = {
   paths: string[]
 }
 
-type EntityInfo = {
-  label: string
-  props: Omit<Props<'input' | 'textarea' | 'select' | undefined>, 'editable'>
-}
-
 export default function DetailView({ paths }: TProps) {
   const [moduleName, id] = paths
 
-  const { data } = useQuery([moduleName, id], getEntity(moduleName, id), {
-    enabled: false,
-    keepPreviousData: true,
-  })
+  const { data, refetch } = useQuery(
+    [moduleName, id],
+    getEntity(moduleName, id),
+    {
+      enabled: false,
+      keepPreviousData: true,
+    },
+  )
 
   const entity = data!
 
@@ -49,9 +46,32 @@ export default function DetailView({ paths }: TProps) {
     },
   })
 
-  // useEffect(() => {
-  //   form.reset({ name: entity?.name, ...entityData })
-  // }, [entityData, entity])
+  const { mutateAsync } = useMutation(
+    [moduleName, id, 'updated'],
+    updateEntity(moduleName, id),
+    {
+      onSuccess() {
+        refetch()
+        notification.success({
+          message: `Update ${toCapitalizedWords(moduleName)} successfully`,
+        })
+      },
+      onError() {
+        notification.error({
+          message: `Update ${toCapitalizedWords(
+            moduleName,
+          ).toLocaleLowerCase()} successfully`,
+        })
+      },
+    },
+  )
+
+  const submitEntity = useCallback(
+    form.handleSubmit((data) => {
+      mutateAsync(data)
+    }),
+    [],
+  )
 
   return (
     <Layout title={`CRM | ${capitalize(moduleName)} | ${entity?.name}`}>
@@ -66,9 +86,7 @@ export default function DetailView({ paths }: TProps) {
               <div className="font-semibold mb-4 text-[17px]">Overview</div>
 
               <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                }}
+                onSubmit={submitEntity}
                 className="flex flex-col"
                 key={JSON.stringify({
                   name: entity?.name,

@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UseFormReset } from 'react-hook-form'
-import { useClickAway } from 'react-use'
 
 import Animate from './Animate'
 import Input, { Props as InputProps } from './Input'
@@ -16,11 +15,6 @@ export default function InlineEdit<
   T extends 'select' | 'input' | 'textarea' | undefined,
 >({ onEditComplete: submit, onEditCancel: cancel, ...inputProps }: Props<T>) {
   const [enabled, setEnabled] = useState(false)
-
-  // useClickAway(containerRef, () => {
-  //   setEnabled(false)
-  //   cancel()
-  // })
 
   useEffect(() => {
     if (!enabled) return

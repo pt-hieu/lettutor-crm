@@ -98,7 +98,7 @@ export default function SuggestInput<T>({
   }, [data, mapValue])
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-fit">
       <input type="hidden" {...inputProps} id={inputProps.name + 'hidden'} />
 
       {/* @ts-ignore */}

@@ -45,3 +45,12 @@ export const getEntity = (name: string, id: string, token?: string) => () =>
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
+
+export const updateEntity = (name: string, id: string) => (data: any) => {
+  const name = data.name
+  delete data.name
+
+  return axios
+    .patch(API + `/apollo/${name}/${id}`, { data, name })
+    .then((r) => r.data)
+}

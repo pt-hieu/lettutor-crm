@@ -55,4 +55,17 @@ export class AddEntity {
   data: Record<string, unknown>
 }
 
+export class UpdateEnity {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  name?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsObject()
+  data?: Record<string, unknown>
+}
+
 export class GetManyEntity extends Paginate {}
