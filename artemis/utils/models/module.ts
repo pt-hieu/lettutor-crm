@@ -42,6 +42,7 @@ export interface Module extends Base {
 }
 
 export interface Entity extends Base {
+  id: string
   name: string
   module: Module
   data: Record<string, unknown>

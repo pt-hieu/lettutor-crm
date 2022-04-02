@@ -1,7 +1,7 @@
 import { isUUID } from 'class-validator'
 import { GetServerSideProps } from 'next'
 import { ReactNode, useMemo } from 'react'
-import { QueryClient, dehydrate, useQuery } from 'react-query'
+import { QueryClient, dehydrate } from 'react-query'
 
 import CreateView from '@components/Module/CreateView'
 import DetailView from '@components/Module/DetailView'
@@ -84,7 +84,7 @@ export default function DynamicModule({ module, render, paths }: Props) {
       [View.DETAIL]: <DetailView paths={paths} />,
       [View.NOTFOUND]: <></>,
       [View.OVERVIEW]: <OverviewView module={module!} />,
-      [View.UPDATE]: <UpdateView />,
+      [View.UPDATE]: <UpdateView module={module!} />,
     }),
     [module],
   )
