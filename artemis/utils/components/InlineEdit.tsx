@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UseFormReset } from 'react-hook-form'
-import { useClickAway } from 'react-use'
 
 import Animate from './Animate'
 import Input, { Props as InputProps } from './Input'
@@ -16,12 +15,6 @@ export default function InlineEdit<
   T extends 'select' | 'input' | 'textarea' | undefined,
 >({ onEditComplete: submit, onEditCancel: cancel, ...inputProps }: Props<T>) {
   const [enabled, setEnabled] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // useClickAway(containerRef, () => {
-  //   setEnabled(false)
-  //   cancel()
-  // })
 
   useEffect(() => {
     if (!enabled) return
@@ -44,7 +37,7 @@ export default function InlineEdit<
   }, [inputProps.props.value])
 
   return (
-    <div ref={containerRef} className="flex gap-2 relative group">
+    <div className="flex gap-2 relative group">
       {/* @ts-ignore */}
       <Input
         editable={enabled}

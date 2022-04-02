@@ -86,7 +86,7 @@ export class ModuleController {
   updateEntity(
     @Param('id', ParseUUIDPipe) entityId: string,
     @Param('name') _moduleName: string,
-    @Body() dto: DTO.Module.AddEntity,
+    @Body() dto: DTO.Module.UpdateEnity,
   ) {
     return this.service.updateEntity(entityId, dto)
   }

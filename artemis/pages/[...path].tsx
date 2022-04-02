@@ -1,7 +1,7 @@
 import { isUUID } from 'class-validator'
 import { GetServerSideProps } from 'next'
-import { useMemo } from 'react'
-import { QueryClient, dehydrate, useQuery } from 'react-query'
+import { ReactNode, useMemo } from 'react'
+import { QueryClient, dehydrate } from 'react-query'
 
 import CreateView from '@components/Module/CreateView'
 import DetailView from '@components/Module/DetailView'
@@ -9,78 +9,85 @@ import OverviewView from '@components/Module/OverviewView'
 import UpdateView from '@components/Module/UpdateView'
 
 import { getSessionToken } from '@utils/libs/getToken'
-import { Entity } from '@utils/models/module'
+import { Module } from '@utils/models/module'
 import { getEntity, getModules } from '@utils/service/module'
 
-import NotFound from './404'
+enum View {
+  UPDATE,
+  CREATE,
+  DETAIL,
+  OVERVIEW,
+  NOTFOUND,
+}
 
-export const getServerSideProps: GetServerSideProps = async ({
+type Props = {
+  render: View
+  dehydratedState: any
+  module: Module | undefined
+  paths: string[]
+}
+
+export const getServerSideProps: GetServerSideProps<Props> = async ({
   req,
   query,
 }) => {
   const client = new QueryClient()
   const token = getSessionToken(req.cookies)
-  const paths = query.path
+  const paths = query.path || []
 
-  await client.prefetchQuery('modules', getModules(token))
+  let render: View = View.OVERVIEW
+
+  if (paths[1] && isUUID(paths[1])) {
+    if (!paths[2]) render = View.DETAIL
+    else if (paths[2] === 'update') render = View.UPDATE
+    else render = View.NOTFOUND
+  }
+
+  if (paths[1] === 'create') render = View.CREATE
+
+  if (paths[3]) {
+    render = View.NOTFOUND
+  }
+
+  const promises = [client.prefetchQuery('modules', getModules(token))]
+
+  if (render === View.DETAIL)
+    promises.push(
+      client.prefetchQuery(
+        [paths[0], paths[1]],
+        getEntity(paths[0], paths[1], token),
+      ),
+    )
+
+  await Promise.all(promises)
+
+  const modules = client.getQueryData<Module[]>('modules')
+  const currentModule = modules?.find((module) => module.name === paths[0])
+
+  if (!currentModule) render = View.NOTFOUND
 
   return {
+    notFound: render === View.NOTFOUND,
     props: {
       dehydratedState: dehydrate(client),
-      paths,
+      render,
+      module: currentModule,
+      paths: [paths].flat(),
     },
   }
 }
 
-type Props = {
-  paths: string[]
-}
-
-enum ModuleAction {
-  CREATE = 'create',
-  UPDATE = 'update',
-}
-
-export default function DynamicModule({ paths }: Props) {
-  const moduleName = paths[0]
-  const moduleId = paths[1]
-  const moduleAction = paths[2]
-  const isInvalidPath = paths[3]
-
-  const { data: modules } = useQuery('modules', getModules(), {
-    enabled: false,
-  })
-
-  const { data: moduleEntity } = useQuery(
-    [moduleName, moduleId],
-    getEntity(moduleName, moduleId),
+export default function DynamicModule({ module, render, paths }: Props) {
+  const renderView = useMemo<Record<View, ReactNode>>(
+    () => ({
+      [View.CREATE]: <CreateView module={module!} />,
+      [View.DETAIL]: <DetailView paths={paths} />,
+      [View.NOTFOUND]: <></>,
+      [View.OVERVIEW]: <OverviewView module={module!} />,
+      [View.UPDATE]: <UpdateView module={module!} />,
+    }),
+    [module],
   )
 
-  const selectedModule = useMemo(() => {
-    return modules?.find((module) => module.name === moduleName)
-  }, [modules, paths])
-
-  if (!selectedModule) {
-    return <NotFound />
-  }
-
-  if (isInvalidPath) {
-    return <NotFound />
-  }
-
-  if (moduleId && isUUID(moduleId)) {
-    if (moduleAction === ModuleAction.UPDATE)
-      return (
-        <UpdateView module={selectedModule} entity={moduleEntity as Entity} />
-      )
-
-    if (!moduleAction) return <DetailView paths={paths} />
-
-    return <NotFound />
-  }
-
-  if (moduleAction === ModuleAction.CREATE)
-    return <CreateView module={selectedModule} />
-
-  return <OverviewView module={selectedModule} />
+  return renderView[render]
 }

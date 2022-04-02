@@ -4,34 +4,47 @@ import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
+import { useQuery } from 'react-query'
 
 import Field from '@components/Module/Field'
 
 import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
 import { useRelationField } from '@utils/hooks/useRelationField'
-import { Entity, FieldMeta, FieldType, Module } from '@utils/models/module'
-import { updateEntity } from '@utils/service/module'
+import { FieldMeta, FieldType, Module } from '@utils/models/module'
+import { getEntity, updateEntity } from '@utils/service/module'
 
 type Props = {
   module: Module
-  entity: Entity
 }
 
-export default function UpdateView({ module, entity }: Props) {
-  const { push } = useRouter()
+export default function UpdateView({ module }: Props) {
+  const { push, query } = useRouter()
+  const paths = query.path as string[]
+
+  const moduleName = paths[0]
+  const id = paths[1]
+
+  const { data: entity } = useQuery(
+    [moduleName, id],
+    getEntity(moduleName, id),
+    {
+      enabled: false,
+      keepPreviousData: true,
+    },
+  )
 
   const form = useForm({
     defaultValues: {
-      name: entity.name,
-      ...entity.data,
+      name: entity?.name,
+      ...entity?.data,
     },
   })
   useRelationField(module.meta)
 
   const { isLoading, mutateAsync } = useMutation(
     ['updated-entity', module.name],
-    updateEntity(module.name, entity.id),
+    updateEntity(module.name, entity?.id as string),
     {
       onSuccess: (res) => {
         notification.success({
