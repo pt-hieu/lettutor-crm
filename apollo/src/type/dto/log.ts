@@ -19,7 +19,7 @@ export class CreateLog {
   source: LogSource | string
   action: LogAction
   changes: TChange[] | null
-  ownerId: string
+  ownerId: string | null
   entityId: string
   entityName: string
 }

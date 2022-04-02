@@ -54,17 +54,17 @@ export class UtilService {
     )
   }
 
-  public compare(
-    baseEntity: object,
-    entityToCompare: object,
-    oldName?: string,
-    nameToCompare?: string,
-  ) {
-    const changes: TChange[] = []
+  public compareEntity(
+    baseEntity: any,
+    entityToCompare: any,
+    nameEntity: string,
+  ): TChange {
+    if (baseEntity === entityToCompare) return
+    return { name: nameEntity, from: baseEntity, to: entityToCompare }
+  }
 
-    if (oldName !== nameToCompare) {
-      changes.push({ name: 'name', from: oldName, to: nameToCompare })
-    }
+  public compare(baseEntity: object, entityToCompare: object) {
+    const changes: TChange[] = []
     Object.entries(baseEntity).forEach(([key, value]) => {
       if (this.keysToIgnore.includes(key)) return
       if (baseEntity[key] === entityToCompare[key]) return
