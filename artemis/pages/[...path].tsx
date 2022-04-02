@@ -35,30 +35,43 @@ type Props = {
   paths: string[]
 }
 
+enum ModuleAction {
+  CREATE = 'create',
+  UPDATE = 'update',
+}
+
 export default function DynamicModule({ paths }: Props) {
+  const moduleName = paths[0]
+  const moduleId = paths[1]
+  const moduleAction = paths[2]
+  const isInvalidPath = paths[3]
+
   const { data: modules } = useQuery('modules', getModules(), {
     enabled: false,
   })
 
   const selectedModule = useMemo(() => {
-    return modules?.find((module) => module.name === paths[0])
+    return modules?.find((module) => module.name === moduleName)
   }, [modules, paths])
 
   if (!selectedModule) {
     return <NotFound />
   }
 
-  if (paths[3]) {
+  if (isInvalidPath) {
     return <NotFound />
   }
 
-  if (paths[1] && isUUID(paths[1])) {
-    if (paths[2] === 'update') return <UpdateView />
-    if (!paths[2]) return <DetailView paths={paths} />
+  if (moduleId && isUUID(moduleId)) {
+    if (moduleAction === ModuleAction.UPDATE) return <UpdateView />
+
+    if (!moduleAction) return <DetailView paths={paths} />
+
     return <NotFound />
   }
 
-  if (paths[1] === 'create') return <CreateView module={selectedModule} />
+  if (moduleAction === ModuleAction.CREATE)
+    return <CreateView module={selectedModule} />
 
   return <OverviewView module={selectedModule} />
 }
