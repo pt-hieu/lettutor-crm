@@ -36,6 +36,13 @@ export class DealStageService {
     return dealStage
   }
 
+  getRaw() {
+    return this.dealStageRepo.find({
+      select: ['id', 'name'],
+      loadEagerRelations: false,
+    })
+  }
+
   async getAll() {
     return this.dealStageRepo.find({
       order: { order: 1 },
@@ -122,13 +129,5 @@ export class DealStageService {
     )
   }
 
-  async checkCanDelete(stages: DealStage[]) {
-    stages.forEach((stage) => {
-      if (stage.deals.length > 0) {
-        throw new BadRequestException(
-          'Cannot delete deal stage that already used',
-        )
-      }
-    })
-  }
+  async checkCanDelete(stages: DealStage[]) {}
 }

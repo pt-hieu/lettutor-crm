@@ -2,11 +2,13 @@ import { Avatar } from 'antd'
 import { signOut } from 'next-auth/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useQuery } from 'react-query'
 
 import { data } from '@utils/data/header-data'
 import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { getModules } from '@utils/service/module'
 
 import Confirm from './Confirm'
 import Dropdown from './Dropdown'
@@ -17,11 +19,20 @@ export const menuItemClass =
 
 export default function Header() {
   const [seed] = useState(Math.random())
-  const { pathname } = useRouter()
+  const { asPath } = useRouter()
   const [confirm, openConfirm, closeConfirm] = useModal()
 
   const [session] = useTypedSession()
-  const splitPath = useMemo(() => pathname.split('/'), [pathname])
+  const splitPath = useMemo(() => asPath.split('/'), [asPath])
+
+  const { data: modules, refetch } = useQuery('modules', getModules(), {
+    enabled: false,
+    initialData: [],
+  })
+
+  useEffect(() => {
+    refetch()
+  }, [])
 
   return (
     <header className="z-[1000] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
@@ -33,21 +44,28 @@ export default function Header() {
         </Link>
 
         <div className="ml-12 flex gap-6">
-          {data.map(({ link, title }) => (
-            <Link href={link} key={link}>
-              <a
-                className={`relative crm-link font-medium leading-[28px] whitespace-nowrap ${
-                  link === `/${splitPath[1]}` ? 'text-blue-600' : ''
-                }`}
+          {modules &&
+            modules.map(({ name }) => (
+              <Link
+                href={{
+                  pathname: '/[...path]',
+                  query: { path: name  },
+                }}
+                key={name}
               >
-                {title}
+                <a
+                  className={`relative crm-link font-medium leading-[28px] whitespace-nowrap capitalize ${
+                    name === `${splitPath[1]}` ? 'text-blue-600' : ''
+                  }`}
+                >
+                  {name}
 
-                {link === `/${splitPath[1]}` && (
-                  <span className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]" />
-                )}
-              </a>
-            </Link>
-          ))}
+                  {name === `${splitPath[1]}` && (
+                    <span className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]" />
+                  )}
+                </a>
+              </Link>
+            ))}
         </div>
       </div>
 

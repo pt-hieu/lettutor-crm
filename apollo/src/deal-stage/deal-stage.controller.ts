@@ -30,4 +30,10 @@ export class DealStageController {
   ) {
     return this.service.modifyDealStage(dto.items)
   }
+
+  @Get('raw')
+  @ApiOperation({ summary: 'to get raw deal stage' })
+  getRaw() {
+    return this.service.getRaw()
+  }
 }

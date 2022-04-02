@@ -1,14 +1,9 @@
 import { Exclude } from 'class-transformer'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
-import { Account } from 'src/account/account.entity'
-import { Contact } from 'src/contact/contact.entity'
-import { Deal } from 'src/deal/deal.entity'
 import { File } from 'src/file/file.entity'
-import { Lead } from 'src/lead/lead.entity'
 import { Task } from 'src/task/task.entity'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 
 export enum NoteSort {
   LAST = 'last',
@@ -28,47 +23,7 @@ export enum NoteSource {
 }
 
 @Entity({ name: 'note' })
-export class Note extends BaseEntity {
-  @ManyToOne(() => User, (u) => u.deals)
-  @JoinColumn()
-  owner: User | null
-
-  @Column({ type: 'uuid', nullable: true })
-  @Exclude({ toPlainOnly: true })
-  ownerId: string | null
-
-  @ManyToOne(() => Lead, (lead) => lead.notes, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  lead: Lead
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  leadId: string | null
-
-  @ManyToOne(() => Contact, (contact) => contact.notes, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  contact: Contact
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  contactId: string | null
-
-  @ManyToOne(() => Account, (account) => account.notes, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  account: Account
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  accountId: string
-
-  @ManyToOne(() => Deal, (deal) => deal.notes, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  deal: Deal
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  dealId: string | null
-
+export class Note extends Ownerful {
   @ManyToOne(() => Task, (task) => task.notes, { onDelete: 'CASCADE' })
   @JoinColumn()
   task: Task

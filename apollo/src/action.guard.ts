@@ -1,8 +1,9 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 
+import { Actions } from 'src/type/action'
+
 import { KEY } from './action.decorator'
-import { Actions } from './type/action'
 import { JwtPayload } from './utils/interface'
 
 @Injectable()

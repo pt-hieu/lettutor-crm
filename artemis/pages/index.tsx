@@ -13,7 +13,7 @@ import { getLeads } from '@utils/service/lead'
 import { getTasks } from '@utils/service/task'
 
 import { dealColumns } from './deals'
-import { leadColumns } from './leads'
+// import { leadColumns } from './leads'
 import { taskColumns } from './tasks'
 
 export default function Index() {
@@ -67,14 +67,14 @@ export default function Index() {
           tableWidth={800}
         />
 
-        <ViewBoard
+        {/* <ViewBoard
           title="Today's Leads"
           columns={leadColumns}
           page={leadPage}
           onChangePage={setLeadPage}
           data={leads}
           isLoading={leadsLoading}
-        />
+        /> */}
 
         <ViewBoard
           title="Deals Closing This Month "

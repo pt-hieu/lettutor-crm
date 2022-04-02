@@ -10,8 +10,6 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
-import { ContactService } from 'src/contact/contact.service'
-import { DealService } from 'src/deal/deal.service'
 import { File } from 'src/file/file.entity'
 import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
@@ -30,12 +28,6 @@ export class NoteService {
     @InjectRepository(File)
     private fileRepo: Repository<File>,
 
-    @Inject(forwardRef(() => ContactService))
-    private readonly contactService: ContactService,
-
-    @Inject(forwardRef(() => DealService))
-    private readonly dealService: DealService,
-
     @Inject(forwardRef(() => TaskService))
     private readonly taskService: TaskService,
 
@@ -45,43 +37,35 @@ export class NoteService {
   ) {}
 
   async addNote(dto: DTO.Note.AddNote) {
-    let filesToAdd: File[] = []
-    if (dto.files && dto.files.length > 0) {
-      filesToAdd = await this.fileService.uploadFile(dto.files)
-    }
-
-    delete dto.files
-
-    if (dto.contactId && dto.source === NoteSource.CONTACT) {
-      const contact = await this.contactService.getContactById({
-        where: { id: dto.contactId },
-      })
-
-      dto.source = NoteSource.CONTACT
-      dto.accountId = contact.accountId
-    }
-
-    if (dto.dealId && dto.source === NoteSource.DEAL) {
-      const deal = await this.dealService.getDealById({
-        where: { id: dto.dealId },
-      })
-
-      dto.accountId = deal.accountId
-    }
-
-    if (dto.taskId && dto.source === NoteSource.TASK) {
-      const task = await this.taskService.getTaskById({
-        where: { id: dto.taskId },
-      })
-
-      dto.leadId = task.leadId
-      dto.contactId = task.contactId
-      dto.accountId = task.accountId
-      dto.dealId = task.dealId
-    }
-
-    dto.ownerId = this.payloadService.data.id
-    return this.noteRepo.save({ ...dto, attachments: filesToAdd })
+    // let filesToAdd: File[] = []
+    // if (dto.files && dto.files.length > 0) {
+    //   filesToAdd = await this.fileService.uploadFile(dto.files)
+    // }
+    // delete dto.files
+    // if (dto.contactId && dto.source === NoteSource.CONTACT) {
+    //   const contact = await this.contactService.getContactById({
+    //     where: { id: dto.contactId },
+    //   })
+    //   dto.source = NoteSource.CONTACT
+    //   dto.accountId = contact.accountId
+    // }
+    // if (dto.dealId && dto.source === NoteSource.DEAL) {
+    //   const deal = await this.dealService.getDealById({
+    //     where: { id: dto.dealId },
+    //   })
+    //   dto.accountId = deal.accountId
+    // }
+    // if (dto.taskId && dto.source === NoteSource.TASK) {
+    //   const task = await this.taskService.getTaskById({
+    //     where: { id: dto.taskId },
+    //   })
+    //   dto.leadId = task.leadId
+    //   dto.contactId = task.contactId
+    //   dto.accountId = task.accountId
+    //   dto.dealId = task.dealId
+    // }
+    // dto.ownerId = this.payloadService.data.id
+    // return this.noteRepo.save({ ...dto, attachments: filesToAdd })
   }
 
   getMany(query: DTO.Note.GetManyQuery) {

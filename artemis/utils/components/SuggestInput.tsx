@@ -22,7 +22,7 @@ type TProps<T> = {
   getKey: (v: T) => Key
   filter: (v: T, query: string) => boolean
   onItemSelect: (v: T) => any
-  mapValue?: (v: string) => string
+  mapValue?: (v: string, data: T[]) => string
 } & (
   | {
       showError?: true
@@ -45,9 +45,13 @@ export default function SuggestInput<T>({
   showError,
   mapValue,
 }: TProps<T>) {
-  const [data] = useState(getData)
+  const [data, setData] = useState(getData)
   const [value, setValue] = useState<string>('')
   const [displayValue, setDisplayValue] = useState<string>('')
+
+  useEffect(() => {
+    setData(getData)
+  }, [getData])
 
   const filteredData = useMemo<T[]>(() => {
     return data.filter((item) => filter(item, value.toLocaleLowerCase()))
@@ -76,10 +80,10 @@ export default function SuggestInput<T>({
         ) as HTMLInputElement
       )?.value
 
-      const mappedValue = mapValue ? mapValue(value) : value
+      const mappedValue = mapValue ? mapValue(value, data) : value
       setDisplayValue(mappedValue)
     },
-    [],
+    [data, mapValue],
   )
 
   useEffect(() => {
@@ -89,18 +93,19 @@ export default function SuggestInput<T>({
       ) as HTMLInputElement
     )?.value
 
-    const mappedValue = mapValue ? mapValue(value) : value
+    const mappedValue = mapValue ? mapValue(value, data) : value
     setDisplayValue(mappedValue)
-  }, [])
+  }, [data, mapValue])
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-fit">
       <input type="hidden" {...inputProps} id={inputProps.name + 'hidden'} />
 
       {/* @ts-ignore */}
       <Input
         as="input"
         showError={showError}
+        editable={!inputProps.disabled}
         error={error}
         props={{
           type: 'text',
@@ -126,7 +131,7 @@ export default function SuggestInput<T>({
           animate: { opacity: 1, y: 0 },
         }}
         transition={{ duration: 0.1, ease: 'linear' }}
-        className="absolute right-0 bottom-[-8px] w-full"
+        className="absolute right-0 bottom-[-8px] w-full z-[10001]"
       >
         <Menu
           itemClassName="text-left"

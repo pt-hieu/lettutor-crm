@@ -1,19 +1,22 @@
 import { notification } from 'antd'
 import 'antd/dist/antd.css'
 import axios from 'axios'
+import { GetServerSideProps } from 'next'
 import { Provider as NextAuthProvider } from 'next-auth/client'
 import { AppProps } from 'next/app'
-import Head from 'next/head'
+import App, { AppContext } from 'next/app'
 import { useState } from 'react'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider, dehydrate } from 'react-query'
 import { Hydrate } from 'react-query/hydration'
 
 import OpenGraph from '@utils/components/OpenGraph'
+import QueryUpdater from '@utils/components/QueryUpdater'
+import { getSessionToken } from '@utils/libs/getToken'
+import { getModules } from '@utils/service/module'
 
 import '../styles/global.scss'
 import '../styles/markdown.css'
 import '../styles/tailwind.css'
-import QueryUpdater from '@utils/components/QueryUpdater'
 
 axios.defaults.withCredentials = true
 
