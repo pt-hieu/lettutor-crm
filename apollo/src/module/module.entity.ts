@@ -130,7 +130,7 @@ export class Module extends BaseEntity {
 }
 
 @EntityDecorator()
-export class Entity extends Ownerful {
+export class Entity extends BaseEntity {
   @ManyToOne(() => Module, { eager: true, onDelete: 'CASCADE' })
   module: Module
 
