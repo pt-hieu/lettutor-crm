@@ -40,6 +40,15 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.moduleRepo.save(dto)
   }
 
+  async getOneModule(id: string) {
+    const module = await this.moduleRepo.findOne({
+      where: { id },
+    })
+
+    if (!module) throw new NotFoundException('Module not found')
+    return module
+  }
+
   async updateModule(id: string, dto: DTO.Module.UpdateModule) {
     const module = await this.moduleRepo.findOne({ where: { id } })
     if (!module) throw new BadRequestException('Module not found')
@@ -98,6 +107,7 @@ export class ModuleService implements OnApplicationBootstrap {
     moduleName: string,
     { limit, page, shouldNotPaginate }: DTO.Module.GetManyEntity,
   ) {
+    // eslint-disable-next-line prefer-const
     let qb = this.entityRepo
       .createQueryBuilder('e')
       .leftJoinAndSelect('e.module', 'module')
