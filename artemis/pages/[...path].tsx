@@ -89,7 +89,7 @@ export default function DynamicModule({ module, render, paths }: Props) {
       [View.DETAIL]: <DetailView paths={paths} />,
       [View.NOTFOUND]: <></>,
       [View.OVERVIEW]: <OverviewView module={module!} />,
-      [View.UPDATE]: <UpdateView />,
+      [View.UPDATE]: <UpdateView module={module!} />,
     }),
     [module],
   )
