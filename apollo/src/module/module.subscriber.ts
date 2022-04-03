@@ -21,7 +21,6 @@ export class ModuleSubscriber implements EntitySubscriberInterface<Module> {
     conection: Connection,
     private util: UtilService,
     private payload: PayloadService,
-    private service: ModuleService,
   ) {
     conection.subscribers.push(this)
   }
@@ -71,34 +70,13 @@ export class ModuleSubscriber implements EntitySubscriberInterface<Module> {
 
   async afterUpdate(event: UpdateEvent<Module>): Promise<any> {
     if (!event.entity) return
-
-    // const changes = this.util.compare(
-    //   event.databaseEntity.meta,
-    //   event.entity.meta,
-    // )
-
-    // const descripChange = this.util.compareEntity(
-    //   event.databaseEntity.description,
-    //   event.entity.description,
-    //   'description',
-    // )
-    // if (descripChange) changes.unshift(descripChange)
-
-    // const nameChange = this.util.compareEntity(
-    //   event.databaseEntity.name,
-    //   event.entity.name,
-    //   'name',
-    // )
-    // if (nameChange) changes.unshift(nameChange)
-    const changes = this.util.compare(event.databaseEntity, event.entity)
-
     return this.util.emitLog({
       entityId: event.entity.id,
       entityName: event.entity.name,
       ownerId: this.payload.data.id,
       source: LogSource.MODULE,
       action: LogAction.UPDATE,
-      changes: changes,
+      changes: this.util.compare(event.databaseEntity, event.entity, ['meta']),
     })
   }
 }

@@ -77,17 +77,14 @@ export class EntitySubscriber implements EntitySubscriberInterface<Entity> {
     if (!event.entity) return
     const module = await this.service.getOneModule(event.entity.moduleId)
 
-    const changes = this.util.compare(
+    const changes = this.util.compare(event.databaseEntity, event.entity, [
+      'data',
+    ])
+
+    const dataChanges = this.util.compare(
       event.databaseEntity.data,
       event.entity.data,
     )
-
-    const nameChange = this.util.compareEntity(
-      event.databaseEntity.name,
-      event.entity.name,
-      'name',
-    )
-    if (nameChange) changes.unshift(nameChange)
 
     return this.util.emitLog({
       entityId: event.entity.id,
@@ -95,7 +92,7 @@ export class EntitySubscriber implements EntitySubscriberInterface<Entity> {
       ownerId: this.payload.data.id,
       source: module.name,
       action: LogAction.UPDATE,
-      changes: changes,
+      changes: [...changes, ...dataChanges],
     })
   }
 }
