@@ -105,9 +105,11 @@ export default function UpdateView({ module }: Props) {
                     />
                   )}
 
-                  {fields.map((field) => (
-                    <Field data={field} key={field.name} />
-                  ))}
+                  {fields
+                    .filter(({ visibility }) => !!visibility.Update)
+                    .map((field) => (
+                      <Field data={field} key={field.name} />
+                    ))}
                 </div>
               </div>
             ))}

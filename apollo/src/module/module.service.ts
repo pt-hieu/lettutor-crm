@@ -26,6 +26,7 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   private initDefaultModules() {
+    if (process.env.NODE_ENV === 'production') return
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
       skipUpdateIfNoValuesChanged: true,

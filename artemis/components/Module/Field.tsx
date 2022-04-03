@@ -136,6 +136,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
       ),
       [FieldType.RELATION]: (
         <SuggestInput
+          wrapperClassname={inlineEdit ? '' : '!w-full'}
           error={errors[name]?.message}
           onItemSelect={(item) => setValue(name, item.id)}
           getData={relationItems || []}
@@ -158,6 +159,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
       ),
       [FieldType.SELECT]: (
         <SuggestInput
+          wrapperClassname={inlineEdit ? '' : '!w-full'}
           error={errors[name]?.message}
           onItemSelect={(item) => setValue(name, item)}
           getData={options || []}
