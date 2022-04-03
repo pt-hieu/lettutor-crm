@@ -101,7 +101,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
         )}
 
         {auth[Actions.Task.CREATE_NEW_TASK] && (
-          <ButtonAdd title="Create Task" asLink link="/tasks/add-task" />
+          <ButtonAdd title="Create Task" asLink link="/tasks/create" />
         )}
       </div>
     </div>

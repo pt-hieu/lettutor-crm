@@ -5,9 +5,9 @@ import { useRouter } from 'next/router'
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'react-query'
 
-import { data } from '@utils/data/header-data'
 import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { Module } from '@utils/models/module'
 import { getModules } from '@utils/service/module'
 
 import Confirm from './Confirm'
@@ -18,17 +18,20 @@ export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
 
 export default function Header() {
-  const [seed] = useState(Math.random())
   const { asPath } = useRouter()
   const [confirm, openConfirm, closeConfirm] = useModal()
 
   const [session] = useTypedSession()
   const splitPath = useMemo(() => asPath.split('/'), [asPath])
 
-  const { data: modules, refetch } = useQuery('modules', getModules(), {
-    enabled: false,
-    initialData: [],
-  })
+  const { data: modules, refetch } = useQuery<Pick<Module, 'name'>[]>(
+    'modules',
+    getModules(),
+    {
+      enabled: false,
+      initialData: [],
+    },
+  )
 
   useEffect(() => {
     refetch()
@@ -45,14 +48,8 @@ export default function Header() {
 
         <div className="ml-12 flex gap-6">
           {modules &&
-            modules.map(({ name }) => (
-              <Link
-                href={{
-                  pathname: '/[...path]',
-                  query: { path: name  },
-                }}
-                key={name}
-              >
+            modules.concat({ name: 'tasks' }).map(({ name }) => (
+              <Link href={`/${name}`} key={name}>
                 <a
                   className={`relative crm-link font-medium leading-[28px] whitespace-nowrap capitalize ${
                     name === `${splitPath[1]}` ? 'text-blue-600' : ''
@@ -119,7 +116,7 @@ export default function Header() {
         >
           <Avatar
             className="cursor-pointer"
-            src={`https://avatars.dicebear.com/api/bottts/${seed}.svg`}
+            src={`https://avatars.dicebear.com/api/bottts/${new Date().getDate()}.svg`}
           />
         </Dropdown>
 

@@ -1,7 +1,7 @@
 import { isUUID } from 'class-validator'
 import { GetServerSideProps } from 'next'
 import { ReactNode, useMemo } from 'react'
-import { QueryClient, dehydrate, useQuery } from 'react-query'
+import { QueryClient, dehydrate } from 'react-query'
 
 import CreateView from '@components/Module/CreateView'
 import DetailView from '@components/Module/DetailView'
@@ -11,6 +11,7 @@ import UpdateView from '@components/Module/UpdateView'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Module } from '@utils/models/module'
 import { getEntity, getModules } from '@utils/service/module'
+import { getTaskOfEntity } from '@utils/service/task'
 
 enum View {
   UPDATE,
@@ -56,6 +57,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       client.prefetchQuery(
         [paths[0], paths[1]],
         getEntity(paths[0], paths[1], token),
+      ),
+      client.prefetchQuery(
+        [paths[0], paths[1], 'tasks'],
+        getTaskOfEntity(paths[1], token),
       ),
     )
 

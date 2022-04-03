@@ -115,7 +115,7 @@ describe('task service', () => {
       const dto: DTO.Task.AddTask = {
         ownerId: task.ownerId,
         leadId: task.leadId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -129,7 +129,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         accountId: task.accountId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -145,7 +145,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         dealId: task.dealId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -159,7 +159,7 @@ describe('task service', () => {
     it('should throw not found exception when owner not found', async () => {
       const dto: DTO.Task.AddTask = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue(undefined)
@@ -189,7 +189,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         accountId: task.accountId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -206,7 +206,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         accountId: task.accountId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -223,7 +223,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         dealId: task.dealId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -275,7 +275,7 @@ describe('task service', () => {
     it('should update task succeed with owner and subject', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -287,7 +287,7 @@ describe('task service', () => {
     it('should update task succeed with leadId', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
         leadId: task.leadId,
         contactId: task.contactId,
       }
@@ -307,7 +307,7 @@ describe('task service', () => {
     it('should update task succeed with contactId', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
         contactId: task.contactId,
       }
       const result = {
@@ -327,7 +327,7 @@ describe('task service', () => {
     it('should throw not found exception when task not found', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })

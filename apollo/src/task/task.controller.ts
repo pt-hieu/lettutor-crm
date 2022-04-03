@@ -43,12 +43,18 @@ export class TaskController {
     return this.service.addTask(dto)
   }
 
+  @Get('entity/:id')
+  @ApiOperation({ summary: 'to get task of an entity' })
+  getTaskOfEntity(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.getTaskOfEntity(id)
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'to get task information by Id' })
   getTaskById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getTaskById({
       where: { id },
-      relations: ['owner', 'account', 'lead', 'contact', 'deal'],
+      relations: ['owner'],
     })
   }
 

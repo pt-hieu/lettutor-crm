@@ -13,21 +13,24 @@ import { closeTask } from '@utils/service/task'
 
 import Confirm from './Confirm'
 
-type TaskProps = Pick<
-  Task,
-  'id' | 'subject' | 'dueDate' | 'owner' | 'status' | 'priority'
-> & {
-  source: string
+type TaskProps = Task & {
+  onCloseTask: () => void
 }
 
 function TaskInfo(props: TaskProps) {
-  const { id, subject, dueDate, owner, status, priority, source } = props
+  const {
+    id,
+    name,
+    dueDate,
+    owner,
+    status,
+    priority,
+    onCloseTask: refetchTasks,
+  } = props
 
-  const client = useQueryClient()
   const [session] = useTypedSession()
 
   const { query } = useRouter()
-  const entityId = query.id as string
 
   const auth = useAuthorization()
   const isOwner = useOwnership(props as unknown as Task)
@@ -37,7 +40,7 @@ function TaskInfo(props: TaskProps) {
     closeTask(id, session?.user.id!),
     {
       onSuccess: () => {
-        client.refetchQueries([source, entityId])
+        refetchTasks()
         notification.success({
           message: 'Close task successfully.',
         })
@@ -52,7 +55,7 @@ function TaskInfo(props: TaskProps) {
     <div className="pb-3">
       <div className="flex gap-4 group items-center">
         <Link href={`/tasks/${id}`}>
-          <a className="font-semibold"> {subject} </a>
+          <a className="font-semibold"> {name} </a>
         </Link>
 
         {status !== TaskStatus.COMPLETED &&
@@ -103,10 +106,13 @@ function TaskInfo(props: TaskProps) {
 
 type ListProps = {
   tasks: Task[]
-  source: string
+  onCloseTask: () => void
 }
 
-export default function TaskList({ tasks, source }: ListProps) {
+export default function TaskList({
+  tasks,
+  onCloseTask: refetchTasks,
+}: ListProps) {
   return (
     <>
       <h3 className="font-semibold text-[16px] flex gap-4 items-center text-gray-700">
@@ -119,17 +125,8 @@ export default function TaskList({ tasks, source }: ListProps) {
       </h3>
 
       <div className="flex flex-col gap-2 mt-3">
-        {tasks.map(({ id, subject, dueDate, owner, status, priority }) => (
-          <TaskInfo
-            source={source}
-            key={id}
-            id={id}
-            subject={subject}
-            dueDate={dueDate}
-            owner={owner}
-            status={status}
-            priority={priority}
-          />
+        {tasks.map((task) => (
+          <TaskInfo onCloseTask={refetchTasks} key={task.id} {...task} />
         ))}
       </div>
     </>

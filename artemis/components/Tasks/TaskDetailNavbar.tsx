@@ -17,7 +17,7 @@ type Props = {
 }
 
 const TaskDetailNavbar = ({ task }: Props) => {
-  const { subject, id } = task
+  const { name: subject, id } = task
   const router = useRouter()
   const navigateToEditPage = () => {
     router.push(`/tasks/${id}/edit`)

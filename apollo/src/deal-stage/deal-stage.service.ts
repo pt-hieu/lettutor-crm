@@ -105,9 +105,8 @@ export class DealStageService {
   async batchDelete(ids: string[]) {
     const stages = await this.dealStageRepo.find({
       where: { id: In(ids) },
-      relations: ['deals'],
     })
-    await this.checkCanDelete(stages)
+    // await this.checkCanDelete(stages)
     return this.dealStageRepo.softRemove(stages)
   }
 

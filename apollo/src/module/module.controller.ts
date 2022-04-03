@@ -48,6 +48,12 @@ export class ModuleController {
     return this.service.updateModule(id, dto)
   }
 
+  @Get('/entity/raw/create-task')
+  @ApiOperation({ summary: 'to get raw entity for creating task' })
+  getRawEntityForCreatingTask() {
+    return this.service.getRawEntityForTaskCreate()
+  }
+
   @Get(':name/raw')
   @ApiOperation({ summary: 'to get many raw entity' })
   getRawEntity(@Param('name') moduleName: string) {

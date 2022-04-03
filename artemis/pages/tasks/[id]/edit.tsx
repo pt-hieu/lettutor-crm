@@ -29,7 +29,7 @@ import { getRawLeads } from '@utils/service/lead'
 import { getTask, updateTask } from '@utils/service/task'
 import { getRawUsers } from '@utils/service/user'
 
-import { TaskFormData, taskSchema } from '../add-task'
+import { TaskFormData, taskSchema } from '../create'
 
 const { Option } = Select
 
@@ -194,7 +194,7 @@ const CreateTask = () => {
       ownerId: task?.owner.id,
       priority: task?.priority,
       status: task?.status,
-      subject: task?.subject,
+      name: task?.name,
     },
   })
 

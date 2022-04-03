@@ -584,6 +584,7 @@ const DealDetail = () => {
               >
                 {RelatedList.OpenActivities}
               </div>
+
               {openTasks && openTasks.length > 0 ? (
                 <TaskList source="deal" tasks={openTasks} />
               ) : (
@@ -598,6 +599,7 @@ const DealDetail = () => {
               >
                 {RelatedList.ClosedActivities}
               </div>
+
               {closedTasks && closedTasks.length > 0 ? (
                 <TaskList source="deal" tasks={closedTasks} />
               ) : (

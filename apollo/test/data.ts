@@ -145,7 +145,7 @@ export const task: Task = {
   dealId: deal.id,
   priority: TaskPriority.HIGH,
   status: TaskStatus.NOT_STARTED,
-  subject: 'test',
+  name: 'test',
   dueDate: null,
   description: null,
   createdAt: null,

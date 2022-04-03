@@ -86,9 +86,11 @@ export default function CreateView({ module }: Props) {
                     />
                   )}
 
-                  {fields.map((field) => (
-                    <Field data={field} key={field.name} />
-                  ))}
+                  {fields
+                    .filter((field) => !!field.visibility.Create)
+                    .map((field) => (
+                      <Field data={field} key={field.name} />
+                    ))}
                 </div>
               </div>
             ))}

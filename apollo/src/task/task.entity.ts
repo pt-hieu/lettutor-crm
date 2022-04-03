@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
+import { Column, Entity, OneToMany } from 'typeorm'
 
 import { File } from 'src/file/file.entity'
 import { Note } from 'src/note/note.entity'
@@ -29,7 +29,7 @@ export class Task extends Ownerful {
   status: TaskStatus
 
   @Column({ type: 'varchar' })
-  subject: string
+  name: string
 
   @Column({ type: 'date', nullable: true, default: null })
   dueDate: Date | null

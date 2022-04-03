@@ -12,7 +12,7 @@ import { In, Repository } from 'typeorm'
 import { DTO } from 'src/type'
 
 import { account, contact, deal, lead } from './default.entity'
-import { Entity, Module } from './module.entity'
+import { Entity, FieldType, Module } from './module.entity'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -70,6 +70,28 @@ export class ModuleService implements OnApplicationBootstrap {
       select: ['id', 'name'],
       loadEagerRelations: false,
     })
+  }
+
+  getRawEntityForTaskCreate() {
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .where(
+        `jsonb_path_query_array(module.meta, '$[*] ? (@.type == "${FieldType.RELATION}")') @> :query::jsonb`,
+        {
+          query: JSON.stringify([{ type: FieldType.RELATION }]),
+        },
+      )
+      .andWhere(
+        `jsonb_path_query_array(module.meta, '$[*] ? (@.relateTo == "task")') @> :query::jsonb`,
+        {
+          query: JSON.stringify([{ relateTo: 'task' }]),
+        },
+      )
+      .select(['e.id', 'e.name'])
+      .addSelect(['module.id', 'module.name'])
+
+    return qb.getMany()
   }
 
   async getManyEntity(

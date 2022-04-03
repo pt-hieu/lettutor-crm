@@ -1,16 +1,19 @@
 import { notification } from 'antd'
 import { capitalize } from 'lodash'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useMutation, useQuery  } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 
 import { DetailNavbar } from '@components/Details/Navbar'
-import { DetailSidebar } from '@components/Details/Sidebar'
+import { DetailSidebar, Sections } from '@components/Details/Sidebar'
 
 import Layout from '@utils/components/Layout'
+import TaskList from '@utils/components/TaskList'
 import { useRelationField } from '@utils/hooks/useRelationField'
 import { FieldType } from '@utils/models/module'
+import { TaskStatus } from '@utils/models/task'
 import { getEntity, updateEntity } from '@utils/service/module'
+import { getTaskOfEntity } from '@utils/service/task'
 
 import Field from './Field'
 import { toCapitalizedWords } from './OverviewView'
@@ -73,13 +76,26 @@ export default function DetailView({ paths }: TProps) {
     [],
   )
 
+  const { data: tasks, refetch: refetchTasks } = useQuery(
+    [moduleName, id, 'tasks'],
+    getTaskOfEntity(id),
+    { enabled: false },
+  )
+  const { open: openTasks, close: closedTasks } = useMemo(
+    () => ({
+      open: tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
+      close: tasks?.filter((task) => task.status === TaskStatus.COMPLETED),
+    }),
+    [tasks],
+  )
+
   return (
     <Layout title={`CRM | ${capitalize(moduleName)} | ${entity?.name}`}>
       <div className="crm-container">
         <DetailNavbar data={entity} />
 
         <div className="grid grid-cols-[250px,1fr] gap-5">
-          <DetailSidebar />
+          <DetailSidebar paths={paths} />
 
           <div className="flex flex-col gap-4">
             <div>
@@ -105,11 +121,43 @@ export default function DetailView({ paths }: TProps) {
                     inlineEdit
                   />
 
-                  {metaData.map((field) => (
-                    <Field data={field} key={field.name} inlineEdit />
-                  ))}
+                  {metaData
+                    .filter((field) => !!field.visibility.Detail)
+                    .map((field) => (
+                      <Field data={field} key={field.name} inlineEdit />
+                    ))}
                 </FormProvider>
               </form>
+            </div>
+
+            <div className="p-4 rounded-md border">
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={Sections.OpenActivities}
+              >
+                {Sections.OpenActivities}
+              </div>
+
+              {openTasks && openTasks.length > 0 ? (
+                <TaskList onCloseTask={() => refetch()} tasks={openTasks} />
+              ) : (
+                <p className="text-gray-500 font-medium">No records found</p>
+              )}
+            </div>
+
+            <div className="p-4 rounded-md border">
+              <div
+                className="font-semibold mb-4 text-[17px]"
+                id={Sections.ClosedActivities}
+              >
+                {Sections.ClosedActivities}
+              </div>
+
+              {closedTasks && closedTasks.length > 0 ? (
+                <TaskList onCloseTask={() => refetch()} tasks={closedTasks} />
+              ) : (
+                <p className="text-gray-500 font-medium">No records found</p>
+              )}
             </div>
           </div>
         </div>

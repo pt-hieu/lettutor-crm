@@ -345,7 +345,7 @@ export default function KanbanView({
                                       key={1}
                                       title={`${moment(task.dueDate).format(
                                         'MMMM DD',
-                                      )} - ${task.subject}`}
+                                      )} - ${task.name}`}
                                     >
                                       <div>
                                         <Link href={`/tasks/${task.id}`}>

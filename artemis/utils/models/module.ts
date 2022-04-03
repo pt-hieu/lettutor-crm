@@ -3,7 +3,7 @@ import { RegisterOptions } from 'react-hook-form'
 import { Base } from './base'
 
 type TVisibility = {
-  [k in 'Overview' | 'Update']: boolean
+  [k in 'Overview' | 'Update' | 'Create' | 'Detail']?: boolean
 }
 
 export enum FieldType {

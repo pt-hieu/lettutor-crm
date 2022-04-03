@@ -32,7 +32,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.entity.id,
-      entityName: event.entity.subject,
+      entityName: event.entity.name,
       ownerId: this.payload.data.id,
       source: LogSource.TASK,
       action: LogAction.CREATE,
@@ -44,7 +44,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.databaseEntity.id,
-      entityName: event.entity.subject,
+      entityName: event.entity.name,
       ownerId: this.payload.data.id,
       source: LogSource.TASK,
       action: LogAction.DELETE,
@@ -56,7 +56,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.databaseEntity.id,
-      entityName: event.entity.subject,
+      entityName: event.entity.name,
       ownerId: this.payload.data.id,
       source: LogSource.TASK,
       action: LogAction.DELETE,
@@ -68,7 +68,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
     if (!event.entity) return
     return this.util.emitLog({
       entityId: event.entity.id,
-      entityName: event.entity.subject,
+      entityName: event.entity.name,
       ownerId: this.payload.data.id,
       source: LogSource.TASK,
       action: LogAction.UPDATE,

@@ -32,8 +32,13 @@ export enum FieldType {
   RELATION = 'Relation',
 }
 
+export enum RelateType {
+  SINGLE = 'SINGLE',
+  MULTIPLE = 'MULTIPLE',
+}
+
 type Visibility = {
-  [k in 'Overview' | 'Update']?: boolean
+  [k in 'Overview' | 'Update' | 'Create' | 'Detail']?: boolean
 }
 
 export class FieldMeta {
@@ -84,6 +89,17 @@ export class FieldMeta {
   relateTo?: string
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(RelateType)
+  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
+    if (obj.type === FieldType.RELATION && !value)
+      throw new UnprocessableEntityException('Relate type is missing')
+
+    return value
+  })
+  relateType?: RelateType
+
+  @ApiPropertyOptional()
   @Allow()
   validation?: Pick<
     RegisterOptions,
@@ -110,10 +126,29 @@ export class Module extends BaseEntity {
   entities?: Entity[]
 
   public validateEntity(data: Record<string, unknown>): string | null {
-    for (const { name, required, type, options } of this.meta) {
+    for (const { name, required, type, options, relateType } of this.meta) {
       if (!data[name] && required) return `${name} is required`
+      if (!data[name] && !required) return null
+
       if (type === FieldType.RELATION && !isUUID(data[name]))
         return `${name} has to be a UUID`
+
+      if (
+        type === FieldType.RELATION &&
+        relateType === RelateType.MULTIPLE &&
+        !Array.isArray(data[name])
+      ) {
+        return `${name} has to be an array`
+      }
+
+      if (
+        type === FieldType.RELATION &&
+        relateType === RelateType.MULTIPLE &&
+        Array.isArray(data[name]) &&
+        (data[name] as string[]).some((id) => !isUUID(id))
+      ) {
+        return `${name} has to be an array of UUID`
+      }
 
       if (
         type === FieldType.SELECT &&

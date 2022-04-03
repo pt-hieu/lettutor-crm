@@ -54,3 +54,14 @@ export const updateEntity = (name: string, id: string) => (data: any) => {
     .patch(API + `/apollo/${name}/${id}`, { data, name })
     .then((r) => r.data)
 }
+
+export const getEntityForTaskCreate = (token?: string) => () =>
+  axios
+    .get<
+      (Pick<Entity, 'id' | 'name'> & { module: Pick<Module, 'id' | 'name'> })[]
+    >(API + '/apollo/entity/raw/create-task', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((r) => r.data)

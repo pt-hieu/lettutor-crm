@@ -46,7 +46,7 @@ import {
 import { closeTask, getTask, updateTask } from '@utils/service/task'
 import { getRawUsers } from '@utils/service/user'
 
-import { TaskFormData, taskSchema } from '../add-task'
+import { TaskFormData, taskSchema } from '../create'
 
 enum Relatives {
   LEAD = 'lead',
@@ -93,14 +93,14 @@ const fields = ({
     },
   },
   {
-    label: 'Subject',
+    label: 'Name',
     props: {
-      error: errors.subject?.message,
+      error: errors.name?.message,
       props: {
         disabled,
         type: 'text',
         id: 'subject',
-        ...register('subject'),
+        ...register('name'),
       },
     },
   },
@@ -244,8 +244,8 @@ const TaskDetail = () => {
   const defaultValues = useMemo(
     () => ({
       ownerId: task?.owner?.id,
-      subject: task?.subject,
-      dueDate: task?.dueDate,
+      name: task?.name,
+      dueDate: task?.dueDate || undefined,
       status: task?.status,
       priority: task?.priority,
       description: task?.description || '',
@@ -288,7 +288,7 @@ const TaskDetail = () => {
   const submit = useCallback(
     handleSubmit((data) => {
       if (!data.dueDate) {
-        data.dueDate = null
+        delete data.dueDate
       }
       handleUpdateTask(data)
     }),
@@ -363,7 +363,7 @@ const TaskDetail = () => {
   }
 
   return (
-    <Layout title={`CRM | Task | ${task?.subject}`} requireLogin>
+    <Layout title={`CRM | Task | ${task?.name}`} requireLogin>
       <div className="crm-container">
         <TaskDetailNavbar task={task!} />
         <div className="grid grid-cols-[250px,1fr]">

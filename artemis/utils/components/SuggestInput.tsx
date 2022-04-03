@@ -18,6 +18,7 @@ import Menu from './Menu'
 type TProps<T> = {
   inputProps: Omit<InputProps, 'hidden'>
   getData: T[] | (() => T[])
+  wrapperClassname?: string
   render: (v: T) => ReactNode
   getKey: (v: T) => Key
   filter: (v: T, query: string) => boolean
@@ -37,6 +38,7 @@ type TProps<T> = {
 export default function SuggestInput<T>({
   getData,
   onItemSelect: selectItem,
+  wrapperClassname,
   filter,
   getKey,
   render,
@@ -98,7 +100,7 @@ export default function SuggestInput<T>({
   }, [data, mapValue])
 
   return (
-    <div className="relative w-fit">
+    <div className={`relative w-fit ${wrapperClassname}`}>
       <input type="hidden" {...inputProps} id={inputProps.name + 'hidden'} />
 
       {/* @ts-ignore */}

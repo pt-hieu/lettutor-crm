@@ -170,7 +170,7 @@ export const NoteSection = ({
                 noteSource={source}
                 sourceName={
                   (item[source]?.fullName as string) ||
-                  (item.task?.subject as string)
+                  (item.task?.name as string)
                 }
                 sourceId={item[source]?.id as string}
                 files={attachments}

@@ -78,7 +78,7 @@ export default function Search({ close, visible }: TProps) {
       (entities as any).filter(
         (entity: Deal | Task | Account | Lead | Contact) => {
           if ('subject' in entity)
-            return entity.subject.toLocaleLowerCase().includes(search)
+            return entity.name.toLocaleLowerCase().includes(search)
 
           if ('fullName' in entity)
             return entity.fullName.toLocaleLowerCase().includes(search)
@@ -262,7 +262,7 @@ type EntityComponentProps = {
 
 function EntityComponent({ data, module }: EntityComponentProps) {
   const content = useMemo(() => {
-    if ('subject' in data) return data.subject
+    if ('subject' in data) return data.name
     return data.fullName
   }, [data])
 
