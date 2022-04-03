@@ -54,6 +54,15 @@ export class UtilService {
     )
   }
 
+  public compareEntity(
+    baseEntity: any,
+    entityToCompare: any,
+    nameEntity: string,
+  ): TChange {
+    if (baseEntity === entityToCompare) return
+    return { name: nameEntity, from: baseEntity, to: entityToCompare }
+  }
+
   public compare(baseEntity: object, entityToCompare: object) {
     const changes: TChange[] = []
     Object.entries(baseEntity).forEach(([key, value]) => {
