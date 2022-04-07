@@ -1,4 +1,3 @@
-import { minLength } from 'class-validator'
 import { FieldType, Module, RelateType } from './module.entity'
 
 export enum LeadStatus {
