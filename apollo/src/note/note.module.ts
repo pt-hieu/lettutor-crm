@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { File } from 'src/file/file.entity'
 import { FileModule } from 'src/file/file.module'
+import { Entity } from 'src/module/module.entity'
 import { TaskModule } from 'src/task/task.module'
 
 import { NoteController } from './note.controller'
@@ -13,7 +14,7 @@ import { NoteSubscriber } from './note.subscriber'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Note, File]),
+    TypeOrmModule.forFeature([Note, File, Entity]),
     forwardRef(() => TaskModule),
     FileModule,
     HttpModule,

@@ -18,6 +18,7 @@ import {
   OneToMany,
 } from 'typeorm'
 
+import { Note } from 'src/note/note.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 
 export enum FieldType {
@@ -176,4 +177,9 @@ export class Entity extends BaseEntity {
 
   @Column({ type: 'jsonb' })
   data: Record<string, unknown>
+
+  @OneToMany(() => Note, (note) => note.entity, {
+    cascade: true,
+  })
+  notes?: Note[]
 }
