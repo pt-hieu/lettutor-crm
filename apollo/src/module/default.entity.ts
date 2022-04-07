@@ -1,3 +1,4 @@
+import { minLength } from 'class-validator'
 import { FieldType, Module, RelateType } from './module.entity'
 
 export enum LeadStatus {
@@ -150,6 +151,8 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
         Create: true,
         Detail: true,
       },
+      maxLength: 300,
+      minLength: 0
     },
     {
       name: 'tasks',
@@ -215,6 +218,8 @@ export const account: Pick<Module, 'name' | 'meta'> = {
         Create: true,
         Detail: true,
       },
+      maxLength: 100,
+      minLength: 0
     },
     {
       name: 'description',
@@ -226,6 +231,8 @@ export const account: Pick<Module, 'name' | 'meta'> = {
         Create: true,
         Detail: true,
       },
+      maxLength: 300,
+      minLength: 0
     },
     {
       name: 'tasks',
@@ -238,6 +245,7 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     },
   ],
 }
+
 export const contact: Pick<Module, 'name' | 'meta'> = {
   name: 'contact',
   meta: [
@@ -417,6 +425,8 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
         Create: true,
         Detail: true,
       },
+      maxLength: 100,
+      minLength: 0
     },
 
     {

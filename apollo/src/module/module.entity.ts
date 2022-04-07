@@ -6,9 +6,11 @@ import {
   IsBoolean,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   isUUID,
+  Min,
 } from 'class-validator'
 import { RegisterOptions } from 'react-hook-form'
 import {
@@ -101,11 +103,52 @@ export class FieldMeta {
   relateType?: RelateType
 
   @ApiPropertyOptional()
-  @Allow()
-  validation?: Pick<
-    RegisterOptions,
-    'min' | 'max' | 'minLength' | 'maxLength' | 'pattern'
-  >
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumber()
+  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
+    if (obj.type === FieldType.NUMBER && !value)
+      throw new UnprocessableEntityException('Min is missing')
+
+    return value
+  })
+  min?: number
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumber()
+  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
+    if (obj.type === FieldType.NUMBER && !value)
+      throw new UnprocessableEntityException('Max is missing')
+
+    return value
+  })
+  max?: number
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumber()
+  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
+    if ((obj.type === FieldType.TEXT || obj.type == FieldType.MULTILINE_TEXT) && !value)
+      throw new UnprocessableEntityException('Min length is missing')
+
+    return value
+  })
+  minLength?: number
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumber()
+  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
+    if ((obj.type === FieldType.TEXT || obj.type == FieldType.MULTILINE_TEXT) && !value)
+      throw new UnprocessableEntityException('Max length is missing')
+
+    return value
+  })
+  maxLength?: number
 }
 
 type Meta = FieldMeta[]
@@ -127,7 +170,7 @@ export class Module extends BaseEntity {
   entities?: Entity[]
 
   public validateEntity(data: Record<string, unknown>): string | null {
-    for (const { name, required, type, options, relateType } of this.meta) {
+    for (const { name, required, type, options, relateType, min, max, minLength, maxLength } of this.meta) {
       if (!data[name] && required) return `${name} is required`
       if (!data[name] && !required) return null
 
@@ -156,6 +199,26 @@ export class Module extends BaseEntity {
         options.every((option) => option !== data[name])
       ) {
         return `Invalid option for ${data[name]}`
+      }
+
+      if (type === FieldType.NUMBER && data[name] < min) {
+        return `Invalid value for ${name}, min value is ${min}`
+      }
+
+      if (type === FieldType.NUMBER && data[name] > max) {
+        return `Invalid value for ${name}, max value is ${max}`
+      }
+
+      if ((type === FieldType.TEXT ||
+        type == FieldType.MULTILINE_TEXT) &&
+        (data[name] as string).length < minLength) {
+        return `Invalid value for ${name}, min length is ${minLength}`
+      }
+
+      if ((type === FieldType.TEXT ||
+        type == FieldType.MULTILINE_TEXT) &&
+        (data[name] as string).length > maxLength) {
+        return `Invalid value for ${name}, max length is ${maxLength}`
       }
     }
 
