@@ -29,7 +29,11 @@ export const getRawEntity = (moduleName: string) => () =>
     .then((r) => r.data)
 
 export const getEntities =
-  (moduleName: string, params: {} & PagingQuery) => () =>
+  (
+    moduleName: string,
+    params: { [x in string]?: string | number } & PagingQuery,
+  ) =>
+  () =>
     axios
       .get<Paginate<Entity>>(API + '/apollo/' + moduleName, { params })
       .then((r) => r.data)

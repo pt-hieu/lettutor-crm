@@ -1,8 +1,9 @@
 import { notification } from 'antd'
 import { capitalize } from 'lodash'
+import { useCallback, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
-import Animate from '@utils/components/Animate'
 import ButtonAdd from '@utils/components/ButtonAdd'
 import Confirm from '@utils/components/Confirm'
 import Input from '@utils/components/Input'
@@ -11,13 +12,35 @@ import { batchDeleteEntities } from '@utils/service/module'
 
 type Props = {
   module: Module
+  onSearchChange?: (v: string) => void
+  search?: string
 }
 
-export default function ModuleHeader({ module }: Props) {
+export default function ModuleHeader({
+  module,
+  onSearchChange,
+  search,
+}: Props) {
   const client = useQueryClient()
   const { data: ids } = useQuery<string[]>(['selected-ids', module.name], {
     enabled: false,
   })
+
+  const { register, handleSubmit, setValue } = useForm<{ search?: string }>({
+    defaultValues: { search },
+  })
+
+  useEffect(() => {
+    setValue('search', search)
+  }, [search])
+
+  const submitSearch = useCallback(
+    handleSubmit(({ search }) => {
+      if (!onSearchChange) return
+      onSearchChange(search!)
+    }),
+    [],
+  )
 
   const { mutateAsync, isLoading } = useMutation(
     ['deleted-entities', module.name],
@@ -38,41 +61,19 @@ export default function ModuleHeader({ module }: Props) {
 
   return (
     <div className="flex justify-between items-center p-1">
-      <form className="flex">
+      <form onSubmit={submitSearch} className="flex">
         <Input
           showError={false}
           props={{
             type: 'text',
             placeholder: 'Search',
+            ...register('search'),
           }}
         />
 
         <button className="crm-button ml-4 px-4">
           <span className="fa fa-search" />
         </button>
-
-        <Animate
-          shouldAnimateOnExit
-          transition={{ duration: 0.2 }}
-          // on={search}
-          animation={{
-            start: { opacity: 0 },
-            animate: { opacity: 1 },
-            end: { opacity: 0 },
-          }}
-          className="ml-2"
-        >
-          <button
-            type="button"
-            onClick={() => {
-              // reset({ search: '' })
-              // submit()
-            }}
-            className="crm-button-outline"
-          >
-            Clear
-          </button>
-        </Animate>
       </form>
 
       <div className="flex gap-2">

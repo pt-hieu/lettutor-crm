@@ -30,6 +30,7 @@ export default function OverviewView({ module }: Props) {
 
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
+  const [search, setSearch] = useQueryState<string>('search')
 
   useRelationField(meta)
 
@@ -71,8 +72,8 @@ export default function OverviewView({ module }: Props) {
   )
 
   const { data, isLoading } = useQuery(
-    [name, page || 1, limit || 10],
-    getEntities(name, { page, limit }),
+    [name, page || 1, limit || 10, search || ''],
+    getEntities(name, { page, limit, search }),
   )
 
   return (
@@ -80,7 +81,11 @@ export default function OverviewView({ module }: Props) {
       <div className="crm-container grid grid-cols-[300px,1fr] gap-4">
         <ModuleFilter module={module} />
         <div className="overflow-x-hidden">
-          <ModuleHeader module={module} />
+          <ModuleHeader
+            search={search}
+            onSearchChange={setSearch}
+            module={module}
+          />
 
           <div className="mt-4">
             <div className="w-full flex flex-col gap-4">
