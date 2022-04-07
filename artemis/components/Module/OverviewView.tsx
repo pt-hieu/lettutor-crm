@@ -1,11 +1,12 @@
 import { Table, TableColumnType } from 'antd'
 import { capitalize } from 'lodash'
 import Link from 'next/link'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 
 import Layout from '@utils/components/Layout'
 import Paginate from '@utils/components/Paginate'
+import { useObjectQuery } from '@utils/hooks/useObjectQuery'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { useRelationField } from '@utils/hooks/useRelationField'
 import { FieldType, Module } from '@utils/models/module'
@@ -32,6 +33,9 @@ export default function OverviewView({ module }: Props) {
   const [limit, setLimit] = useQueryState<number>('limit')
   const [search, setSearch] = useQueryState<string>('search')
 
+  const [filter, setFilter] = useState<object>({})
+
+  useObjectQuery(filter)
   useRelationField(meta)
 
   const colums = useMemo<TableColumnType<any>[]>(
@@ -72,14 +76,22 @@ export default function OverviewView({ module }: Props) {
   )
 
   const { data, isLoading } = useQuery(
-    [name, page || 1, limit || 10, search || ''],
-    getEntities(name, { page, limit, search }),
+    [name, page || 1, limit || 10, search || '', ...Object.values(filter)],
+    getEntities(name, { page, limit, search, ...filter }),
+    {
+      keepPreviousData: true,
+    },
   )
 
   return (
     <Layout title={`${capitalize(name)} | CRM`}>
       <div className="crm-container grid grid-cols-[300px,1fr] gap-4">
-        <ModuleFilter module={module} />
+        <ModuleFilter
+          filter={filter}
+          onFilterChange={setFilter}
+          module={module}
+        />
+
         <div className="overflow-x-hidden">
           <ModuleHeader
             search={search}
