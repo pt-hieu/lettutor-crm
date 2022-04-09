@@ -7,6 +7,7 @@ import { useMutation, useQuery } from 'react-query'
 import { DetailNavbar } from '@components/Details/Navbar'
 import { DetailSidebar, Sections } from '@components/Details/Sidebar'
 
+import AttachmentSection from '@utils/components/AttachmentSection'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useRelationField } from '@utils/hooks/useRelationField'
@@ -38,6 +39,11 @@ export default function DetailView({ paths }: TProps) {
 
   const entityData = entity.data
   const metaData = entity.module.meta || []
+
+  console.log('moduleName: ', moduleName)
+  console.log('entityId: ', id)
+  console.log('entityData: ', entityData)
+  console.log('metaData: ', metaData)
 
   useRelationField(metaData)
 
