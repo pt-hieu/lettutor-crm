@@ -1,15 +1,20 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   OnApplicationBootstrap,
   UnprocessableEntityException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
-import { In, Repository } from 'typeorm'
+import { FindOneOptions, In, Repository } from 'typeorm'
 
+import { Note } from 'src/note/note.entity'
+import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
+import { User } from 'src/user/user.entity'
+import { UserService } from 'src/user/user.service'
 
 import { account, contact, deal, lead } from './default.entity'
 import { Entity, FieldType, Module } from './module.entity'
@@ -17,6 +22,8 @@ import { Entity, FieldType, Module } from './module.entity'
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
   constructor(
+    private readonly userService: UserService,
+    private readonly noteService: NoteService,
     @InjectRepository(Module) private moduleRepo: Repository<Module>,
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
   ) {}
@@ -171,5 +178,99 @@ export class ModuleService implements OnApplicationBootstrap {
   async batchDeleteEntity(dto: DTO.BatchDelete) {
     const entities = await this.entityRepo.find({ where: { id: In(dto.ids) } })
     return this.entityRepo.softRemove(entities)
+  }
+
+  async getEntityById(option: FindOneOptions<Entity>) {
+    const entity = await this.entityRepo.findOne(option)
+
+    if (!entity) {
+      Logger.error(JSON.stringify(option, null, 2))
+      throw new NotFoundException(`Entity not found`)
+    }
+
+    return entity
+  }
+
+  async convert(
+    id: string,
+    dealDto: DTO.Module.ConvertToDeal,
+    shouldConvertToDeal: boolean,
+    ownerId: string,
+  ) {
+    const lead = await this.getEntityById({
+      where: { id },
+      relations: ['owner', 'tasks', 'tasks.owner'],
+    })
+
+    let newOwner: User
+    if (ownerId) {
+      newOwner = await this.userService.getOneUserById({
+        where: { id: ownerId },
+      })
+    }
+
+    const accountDto: DTO.Module.AddEntity = {
+      name: lead.name + ' Account',
+      data: {
+        ownerId: newOwner
+          ? newOwner.id
+          : lead.data.ownerId
+          ? lead.data.ownerId
+          : null,
+        phone: lead.data.phone,
+        address: lead.data.address ? lead.data.address : null,
+        description: lead.data.description ? lead.data.description : null,
+        tasks: shouldConvertToDeal ? null : lead.data.tasks,
+      },
+    }
+
+    const account = await this.addEntity('account', accountDto)
+
+    const contactDto: DTO.Module.AddEntity = {
+      name: lead.name,
+      data: {
+        ownerId: newOwner
+          ? newOwner.id
+          : lead.data.ownerId
+          ? lead.data.ownerId
+          : null,
+        accountId: account.id,
+        phone: lead.data.phone,
+        email: lead.data.email,
+        source: lead.data.source,
+        tasks: lead.data.tasks,
+      },
+    }
+
+    const contact = await this.addEntity('contact', contactDto)
+
+    let deal: Entity | null = null
+    delete dealDto.name
+    const { name } = dealDto
+    delete dealDto.name
+    if (shouldConvertToDeal) {
+      const dto: DTO.Module.AddEntity = {
+        name,
+        data: {
+          accountId: account.id,
+          contactId: contact.id,
+          ownerId: lead.data.ownerId ? lead.data.ownerId : null,
+          tasks: lead.data.tasks,
+          ...dealDto,
+        },
+      }
+
+      deal = await this.addEntity('deal', dto)
+    }
+
+    const notes: Note[] = lead.notes
+    notes.forEach((note) => {
+      note.entityId = contact.id
+    })
+
+    await this.noteService.updateAllNotes(notes)
+    await this.batchDeleteEntity({ ids: [lead.id] })
+
+    return [account, contact, deal] as const
   }
 }
