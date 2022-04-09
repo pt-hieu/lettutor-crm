@@ -7,6 +7,7 @@ import { useMutation, useQuery } from 'react-query'
 import { DetailNavbar } from '@components/Details/Navbar'
 import { DetailSidebar, Sections } from '@components/Details/Sidebar'
 
+import AttachmentSection from '@utils/components/AttachmentSection'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useRelationField } from '@utils/hooks/useRelationField'
@@ -159,6 +160,13 @@ export default function DetailView({ paths }: TProps) {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
+            <AttachmentSection
+              moduleName={moduleName}
+              entityId={id}
+              id={Sections.Attachments}
+              data={entity.attachments}
+            />
           </div>
         </div>
       </div>

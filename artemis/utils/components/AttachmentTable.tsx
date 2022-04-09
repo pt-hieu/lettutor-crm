@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useModal } from '@utils/hooks/useModal'
 import { formatDate } from '@utils/libs/time'
 import { Attachments } from '@utils/models/note'
-import { Entity, deleteAttachment } from '@utils/service/attachment'
+import { deleteAttachment } from '@utils/service/attachment'
 import { getRawUsers } from '@utils/service/user'
 
 import Confirm from './Confirm'
@@ -33,14 +33,14 @@ if (!(Number.prototype as any).toSize) {
 }
 type TProps = {
   data: Attachments[]
-  entityType: Entity
+  moduleName: string
   entityId: string
 }
 
 export default function AttachmentTable({
   data,
   entityId,
-  entityType,
+  moduleName,
 }: TProps) {
   const client = useQueryClient()
   const { data: users, refetch } = useQuery('raw-users', getRawUsers(), {
@@ -59,7 +59,7 @@ export default function AttachmentTable({
         setSelectedDeleteId(undefined)
       },
       onSuccess() {
-        client.refetchQueries([entityType, entityId])
+        client.refetchQueries([moduleName, entityId])
         notification.success({ message: 'Delete attachment successfully' })
       },
       onError() {
@@ -136,7 +136,7 @@ export default function AttachmentTable({
       />
 
       <UpdateLinkAttachmentModal
-        onRefetch={() => client.refetchQueries([entityType, entityId])}
+        onRefetch={() => client.refetchQueries([moduleName, entityId])}
         visible={update}
         close={closeUpdate}
         data={data.find((item) => item.id === selectedUpdateId)!}

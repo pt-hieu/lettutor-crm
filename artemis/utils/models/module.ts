@@ -1,6 +1,7 @@
 import { RegisterOptions } from 'react-hook-form'
 
-import { Base } from './base'
+import { Base } from '@utils/models/base'
+import { Attachments } from '@utils/models/note'
 
 type TVisibility = {
   [k in 'Overview' | 'Update' | 'Create' | 'Detail']?: boolean
@@ -11,9 +12,7 @@ export enum FieldType {
   MULTILINE_TEXT = 'Multiline Text',
   PHONE = 'Phone',
   EMAIL = 'Email',
-
   NUMBER = 'Number',
-
   SELECT = 'Select',
   RELATION = 'Relation',
 }
@@ -26,10 +25,10 @@ export interface FieldMeta {
   visibility: TVisibility
   options?: string[]
   relateTo?: string
-  validation?: Pick<
-    RegisterOptions,
-    'min' | 'max' | 'minLength' | 'maxLength' | 'pattern'
-  >
+  min?: number
+  max?: number
+  minLength?: number
+  maxLength?: number
 }
 
 type Meta = FieldMeta[]
@@ -46,4 +45,5 @@ export interface Entity extends Base {
   name: string
   module: Module
   data: Record<string, unknown>
+  attachments: Attachments[]
 }
