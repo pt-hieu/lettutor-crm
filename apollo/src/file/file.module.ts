@@ -7,8 +7,12 @@ import { File } from './file.entity'
 import { FileService } from './file.service'
 import { FileSubscriber } from './file.subscriber'
 
+import { Entity } from 'src/module/module.entity'
+
+
 @Module({
-  imports: [TypeOrmModule.forFeature([File]), HttpModule],
+  imports: [TypeOrmModule.forFeature([File, Entity]),
+    HttpModule],
   controllers: [FileController],
   providers: [FileService, FileSubscriber],
   exports: [FileService],

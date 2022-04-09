@@ -12,6 +12,7 @@ import { UtilService } from 'src/global/util.service'
 import { DTO } from 'src/type'
 
 import { File } from './file.entity'
+import { Entity } from 'src/module/module.entity'
 
 /** 20MB in bytes */
 const MAX_SIZE_OF_FILES = 20971520
@@ -26,6 +27,10 @@ export class FileService {
   constructor(
     @InjectRepository(File)
     private fileRepo: Repository<File>,
+
+    @InjectRepository(Entity)
+    private entityRepo: Repository<Entity>,
+    
     private util: UtilService,
     private http: HttpService,
   ) {}
@@ -40,15 +45,23 @@ export class FileService {
     return this.fileRepo.save(savedFiles)
   }
 
-  createEntityExternalAttachment(
+  async createEntityExternalAttachment(
     id: string,
     dto: DTO.File.UploadExternalAttachment,
   ) {
     const entityId = dto.entity + 'Id'
     delete dto.entity
 
+    var entity: Entity[]
+    if (entityId) {
+      entity = await this.entityRepo.find({
+        where: { id: id },
+      })
+    }
+
     return this.fileRepo.save({
       ...dto,
+      entity: entity[0],
       [entityId]: id,
       external: true,
       size: 0,
