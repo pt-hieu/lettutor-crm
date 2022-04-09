@@ -10,9 +10,7 @@ import {
   IsOptional,
   IsString,
   isUUID,
-  Min,
 } from 'class-validator'
-import { RegisterOptions } from 'react-hook-form'
 import {
   Column,
   Entity as EntityDecorator,
@@ -158,7 +156,17 @@ export class Module extends BaseEntity {
   entities?: Entity[]
 
   public validateEntity(data: Record<string, unknown>): string | null {
-    for (const { name, required, type, options, relateType, min, max, minLength, maxLength } of this.meta) {
+    for (const {
+      name,
+      required,
+      type,
+      options,
+      relateType,
+      min,
+      max,
+      minLength,
+      maxLength,
+    } of this.meta) {
       if (!data[name] && required) return `${name} is required`
       if (!data[name] && !required) return null
 
@@ -189,29 +197,35 @@ export class Module extends BaseEntity {
         return `Invalid option for ${data[name]}`
       }
 
-      if (type === FieldType.NUMBER &&
-        typeof data[name] === "number" &&
-        data[name] < min) {
+      if (
+        type === FieldType.NUMBER &&
+        typeof data[name] === 'number' &&
+        data[name] < min
+      ) {
         return `Invalid value for ${name}, min value is ${min}`
       }
 
-      if (type === FieldType.NUMBER &&
-        typeof data[name] === "number" &&
-        data[name] > max) {
+      if (
+        type === FieldType.NUMBER &&
+        typeof data[name] === 'number' &&
+        data[name] > max
+      ) {
         return `Invalid value for ${name}, max value is ${max}`
       }
 
-      if ((type === FieldType.TEXT ||
-        type == FieldType.MULTILINE_TEXT) &&
-        typeof data[name] === "string" &&
-        (data[name] as string).length < minLength) {
+      if (
+        (type === FieldType.TEXT || type == FieldType.MULTILINE_TEXT) &&
+        typeof data[name] === 'string' &&
+        (data[name] as string).length < minLength
+      ) {
         return `Invalid value for ${name}, min length is ${minLength}`
       }
 
-      if ((type === FieldType.TEXT ||
-        type == FieldType.MULTILINE_TEXT) &&
-        typeof data[name] === "string" &&
-        (data[name] as string).length > maxLength) {
+      if (
+        (type === FieldType.TEXT || type == FieldType.MULTILINE_TEXT) &&
+        typeof data[name] === 'string' &&
+        (data[name] as string).length > maxLength
+      ) {
         return `Invalid value for ${name}, max length is ${maxLength}`
       }
     }

@@ -18,7 +18,7 @@ import { Entity } from 'src/module/module.entity'
 import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
-import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
+import { Note, NoteSort, NoteSource } from './note.entity'
 
 @Injectable()
 export class NoteService {
@@ -152,6 +152,10 @@ export class NoteService {
       ...dto,
       attachments: [...note.attachments, ...filesToAdd],
     })
+  }
+
+  async updateAllNotes(notes: Note[]) {
+    await this.noteRepo.save(notes)
   }
 
   async batchDelete(ids: string[]) {

@@ -151,7 +151,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
         Detail: true,
       },
       maxLength: 300,
-      minLength: 0
+      minLength: 0,
     },
     {
       name: 'tasks',
@@ -218,7 +218,7 @@ export const account: Pick<Module, 'name' | 'meta'> = {
         Detail: true,
       },
       maxLength: 100,
-      minLength: 0
+      minLength: 0,
     },
     {
       name: 'description',
@@ -231,7 +231,7 @@ export const account: Pick<Module, 'name' | 'meta'> = {
         Detail: true,
       },
       maxLength: 300,
-      minLength: 0
+      minLength: 0,
     },
     {
       name: 'tasks',
@@ -425,7 +425,7 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
         Detail: true,
       },
       maxLength: 100,
-      minLength: 0
+      minLength: 0,
     },
 
     {
