@@ -21,7 +21,6 @@ export class ModuleSubscriber implements EntitySubscriberInterface<Module> {
     conection: Connection,
     private util: UtilService,
     private payload: PayloadService,
-    private service: ModuleService,
   ) {
     conection.subscribers.push(this)
   }

@@ -35,8 +35,15 @@ export enum AccountType {
   VENDOR = 'Vendor',
 }
 
+export enum ModuleName {
+  DEAL = 'deal',
+  ACCOUNT = 'account',
+  CONTACT = 'contact',
+  LEAD = 'lead',
+}
+
 export const deal: Pick<Module, 'name' | 'meta'> = {
-  name: 'deal',
+  name: ModuleName.DEAL,
   meta: [
     {
       name: 'ownerId',
@@ -164,7 +171,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
 }
 
 export const account: Pick<Module, 'name' | 'meta'> = {
-  name: 'account',
+  name: ModuleName.ACCOUNT,
   meta: [
     {
       name: 'ownerId',
@@ -239,7 +246,7 @@ export const account: Pick<Module, 'name' | 'meta'> = {
   ],
 }
 export const contact: Pick<Module, 'name' | 'meta'> = {
-  name: 'contact',
+  name: ModuleName.CONTACT,
   meta: [
     {
       name: 'ownerId',
@@ -340,7 +347,7 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
 }
 
 export const lead: Pick<Module, 'name' | 'meta'> = {
-  name: 'lead',
+  name: ModuleName.LEAD,
   meta: [
     {
       name: 'ownerId',
