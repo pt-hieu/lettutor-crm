@@ -5,6 +5,7 @@ import { useClickAway } from 'react-use'
 import Animate from '@utils/components/Animate'
 import Input from '@utils/components/Input'
 import SuggestInput from '@utils/components/SuggestInput'
+import { EmailReg, PhoneReg } from '@utils/data/regex'
 import { useModal } from '@utils/hooks/useModal'
 import { useStore } from '@utils/hooks/useStore'
 import { FieldMeta, FieldType } from '@utils/models/module'
@@ -15,11 +16,6 @@ type FieldProps = {
   data: FieldMeta
   inlineEdit?: boolean
 }
-
-const EmailReg =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-const PhoneReg = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/
 
 export default function Field({ data, inlineEdit }: FieldProps) {
   const {
@@ -61,6 +57,30 @@ export default function Field({ data, inlineEdit }: FieldProps) {
         required: required
           ? `${toCapitalizedWords(name.replace('Id', ''))} is required`
           : undefined,
+        ...(type === FieldType.TEXT && {
+          minLength: minLength && {
+            value: minLength,
+            message: `${toCapitalizedWords(
+              name,
+            )} is at least ${minLength} characters.`,
+          },
+          maxLength: maxLength && {
+            value: maxLength,
+            message: `${toCapitalizedWords(
+              name,
+            )} is at most ${maxLength} characters.`,
+          },
+        }),
+        ...(type === FieldType.NUMBER && {
+          min: min && {
+            value: min,
+            message: `${toCapitalizedWords(name)} must greater than ${min}.`,
+          },
+          max: max && {
+            value: max,
+            message: `${toCapitalizedWords(name)} must less than ${max}.`,
+          },
+        }),
         ...(type === FieldType.EMAIL && {
           pattern: {
             value: EmailReg,

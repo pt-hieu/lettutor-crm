@@ -12,9 +12,7 @@ export enum FieldType {
   MULTILINE_TEXT = 'Multiline Text',
   PHONE = 'Phone',
   EMAIL = 'Email',
-
   NUMBER = 'Number',
-
   SELECT = 'Select',
   RELATION = 'Relation',
 }
