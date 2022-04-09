@@ -1,6 +1,6 @@
 import { UnprocessableEntityException } from '@nestjs/common'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Exclude, Transform } from 'class-transformer'
+import { Exclude, Transform, Type } from 'class-transformer'
 import {
   Allow,
   IsBoolean,
@@ -104,50 +104,26 @@ export class FieldMeta {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
-  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
-    if (obj.type === FieldType.NUMBER && !value)
-      throw new UnprocessableEntityException('Min is missing')
-
-    return value
-  })
   min?: number
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
-  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
-    if (obj.type === FieldType.NUMBER && !value)
-      throw new UnprocessableEntityException('Max is missing')
-
-    return value
-  })
   max?: number
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
-  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
-    if ((obj.type === FieldType.TEXT || obj.type == FieldType.MULTILINE_TEXT) && !value)
-      throw new UnprocessableEntityException('Min length is missing')
-
-    return value
-  })
   minLength?: number
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
-  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
-    if ((obj.type === FieldType.TEXT || obj.type == FieldType.MULTILINE_TEXT) && !value)
-      throw new UnprocessableEntityException('Max length is missing')
-
-    return value
-  })
   maxLength?: number
 }
 
@@ -201,22 +177,28 @@ export class Module extends BaseEntity {
         return `Invalid option for ${data[name]}`
       }
 
-      if (type === FieldType.NUMBER && data[name] < min) {
+      if (type === FieldType.NUMBER &&
+        typeof data[name] === "number" &&
+        data[name] < min) {
         return `Invalid value for ${name}, min value is ${min}`
       }
 
-      if (type === FieldType.NUMBER && data[name] > max) {
+      if (type === FieldType.NUMBER &&
+        typeof data[name] === "number" &&
+        data[name] > max) {
         return `Invalid value for ${name}, max value is ${max}`
       }
 
       if ((type === FieldType.TEXT ||
         type == FieldType.MULTILINE_TEXT) &&
+        typeof data[name] === "string" &&
         (data[name] as string).length < minLength) {
         return `Invalid value for ${name}, min length is ${minLength}`
       }
 
       if ((type === FieldType.TEXT ||
         type == FieldType.MULTILINE_TEXT) &&
+        typeof data[name] === "string" &&
         (data[name] as string).length > maxLength) {
         return `Invalid value for ${name}, max length is ${maxLength}`
       }
