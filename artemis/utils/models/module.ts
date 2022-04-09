@@ -27,10 +27,10 @@ export interface FieldMeta {
   visibility: TVisibility
   options?: string[]
   relateTo?: string
-  validation?: Pick<
-    RegisterOptions,
-    'min' | 'max' | 'minLength' | 'maxLength' | 'pattern'
-  >
+  min?: number
+  max?: number
+  minLength?: number
+  maxLength?: number
 }
 
 type Meta = FieldMeta[]
