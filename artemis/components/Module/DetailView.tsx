@@ -40,11 +40,6 @@ export default function DetailView({ paths }: TProps) {
   const entityData = entity.data
   const metaData = entity.module.meta || []
 
-  console.log('moduleName: ', moduleName)
-  console.log('entityId: ', id)
-  console.log('entityData: ', entityData)
-  console.log('metaData: ', metaData)
-
   useRelationField(metaData)
 
   const form = useForm({
