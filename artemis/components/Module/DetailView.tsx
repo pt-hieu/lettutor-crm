@@ -165,6 +165,13 @@ export default function DetailView({ paths }: TProps) {
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
             </div>
+
+            <AttachmentSection
+              moduleName={moduleName}
+              entityId={id}
+              id={Sections.Attachments}
+              data={entity.attachments}
+            />
           </div>
         </div>
       </div>
