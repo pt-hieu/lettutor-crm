@@ -106,14 +106,32 @@ export class ModuleService implements OnApplicationBootstrap {
 
   async getManyEntity(
     moduleName: string,
-    { limit, page, shouldNotPaginate }: DTO.Module.GetManyEntity,
+    { limit, page, shouldNotPaginate, ...dto }: DTO.Module.GetManyEntity,
   ) {
-    // eslint-disable-next-line prefer-const
+    const module = await this.moduleRepo.findOne({
+      where: { name: moduleName },
+    })
+
+    if (!module) throw new BadRequestException('Module not existed')
     let qb = this.entityRepo
       .createQueryBuilder('e')
-      .leftJoinAndSelect('e.module', 'module')
+      .leftJoin('e.module', 'module')
       .orderBy('e.createdAt', 'DESC')
       .andWhere('module.name = :name', { name: moduleName })
+
+    module.meta
+      .filter((field) => field.type === FieldType.SELECT && !!dto[field.name])
+      .forEach(({ name }) => {
+        qb = qb.andWhere(`e.data ->> '${name}' IN (:...options)`, {
+          options: [dto[name]].flat(),
+        })
+      })
+
+    if (dto.search) {
+      qb = qb.andWhere('to_tsvector(e.name) @@ plainto_tsquery(:search)', {
+        search: dto.search,
+      })
+    }
 
     if (shouldNotPaginate) return qb.getMany()
     return paginate(qb, { limit, page })

@@ -54,19 +54,16 @@ export class UtilService {
     )
   }
 
-  public compareEntity(
-    baseEntity: any,
-    entityToCompare: any,
-    nameEntity: string,
-  ): TChange {
-    if (baseEntity === entityToCompare) return
-    return { name: nameEntity, from: baseEntity, to: entityToCompare }
-  }
-
-  public compare(baseEntity: object, entityToCompare: object) {
+  public compare(
+    baseEntity: object,
+    entityToCompare: object,
+    ignoreKeys?: string[],
+  ) {
     const changes: TChange[] = []
     Object.entries(baseEntity).forEach(([key, value]) => {
       if (this.keysToIgnore.includes(key)) return
+      if (ignoreKeys?.includes(key)) return
+
       if (baseEntity[key] === entityToCompare[key]) return
 
       changes.push({ name: key, from: value, to: entityToCompare[key] })
@@ -76,6 +73,7 @@ export class UtilService {
   }
 
   public emitLog(dto: DTO.Log.CreateLog) {
+    if (!dto.entityId) return
     this.eventEmitter.emit('log.created', dto)
   }
 

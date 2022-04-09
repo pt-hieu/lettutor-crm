@@ -1,6 +1,6 @@
 import { UnprocessableEntityException } from '@nestjs/common'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Exclude, Transform } from 'class-transformer'
+import { Exclude, Transform, Type } from 'class-transformer'
 import {
   Allow,
   IsBoolean,
@@ -56,6 +56,18 @@ export class FieldMeta {
   @ApiProperty()
   @IsBoolean()
   required: boolean
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => {
+    try {
+      return JSON.parse(value)
+    } catch (e) {
+      return false
+    }
+  })
+  index?: boolean
 
   @ApiProperty()
   @Allow()

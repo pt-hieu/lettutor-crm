@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
+  Allow,
   IsNotEmpty,
   IsObject,
   IsOptional,
@@ -68,4 +69,10 @@ export class UpdateEnity {
   data?: Record<string, unknown>
 }
 
-export class GetManyEntity extends Paginate {}
+export class GetManyEntity extends Paginate {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  search?: string
+}
