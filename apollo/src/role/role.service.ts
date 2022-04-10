@@ -62,9 +62,15 @@ export class RoleService {
         where: { target: DefaultActionTarget.ADMIN, type: ActionType.IS_ADMIN },
       })
     } else if (role.name === DefaultRoleName.SALE) {
-      role.actions = await this.actionRepo.find({
-        where: { type: ActionType.CAN_CREATE_NEW },
-      })
+      role.actions = (
+        await this.actionRepo.find({
+          where: { type: ActionType.CAN_CREATE_NEW },
+        })
+      ).filter(
+        ({ target }) =>
+          target !== DefaultActionTarget.USER &&
+          target !== DefaultActionTarget.ROLE,
+      )
     }
 
     return this.roleRepo.save(role).then((res) => {

@@ -65,6 +65,10 @@ export class NoteController {
   }
 
   @Delete('batch')
+  @DefineAction({
+    target: DefaultActionTarget.NOTE,
+    type: ActionType.CAN_DELETE_ANY,
+  })
   @ApiOperation({ summary: 'to batch delete a note' })
   deleteNote(@Body() dto: DTO.BatchDelete) {
     return this.service.batchDelete(dto.ids)
