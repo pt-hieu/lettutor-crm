@@ -19,6 +19,7 @@ import {
 } from 'typeorm'
 
 import { Note } from 'src/note/note.entity'
+import { File } from 'src/file/file.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 
 export enum FieldType {
@@ -253,4 +254,10 @@ export class Entity extends BaseEntity {
     cascade: true,
   })
   notes?: Note[]
+
+  @OneToMany(() => File, (file) => file.entity, {
+    eager: true,
+    cascade: true,
+  })
+  attachments?: File[]
 }

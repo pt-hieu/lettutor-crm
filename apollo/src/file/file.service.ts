@@ -26,6 +26,7 @@ export class FileService {
   constructor(
     @InjectRepository(File)
     private fileRepo: Repository<File>,
+
     private util: UtilService,
     private http: HttpService,
   ) {}
@@ -41,15 +42,12 @@ export class FileService {
   }
 
   createEntityExternalAttachment(
-    id: string,
+    entityId: string,
     dto: DTO.File.UploadExternalAttachment,
   ) {
-    const entityId = dto.entity + 'Id'
-    delete dto.entity
-
     return this.fileRepo.save({
       ...dto,
-      [entityId]: id,
+      entityId,
       external: true,
       size: 0,
     })

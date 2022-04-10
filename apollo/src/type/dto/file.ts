@@ -23,10 +23,6 @@ export class Files {
 }
 
 export class UploadExternalAttachment {
-  @ApiProperty({ type: 'enum', enumName: 'Entity', enum: Entity })
-  @IsEnum(Entity)
-  entity: Entity
-
   @ApiProperty()
   @IsNotEmpty()
   @MaxLength(100)
