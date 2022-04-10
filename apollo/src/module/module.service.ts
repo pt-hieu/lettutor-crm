@@ -20,6 +20,8 @@ import { UserService } from 'src/user/user.service'
 import { account, contact, deal, lead } from './default.entity'
 import { Entity, FieldType, Module } from './module.entity'
 
+// import { File } from 'src/file/file.entity'
+
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
   constructor(
@@ -28,7 +30,8 @@ export class ModuleService implements OnApplicationBootstrap {
     @InjectRepository(Module) private moduleRepo: Repository<Module>,
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
     @InjectRepository(Action) private actionRepo: Repository<Action>,
-  ) {}
+  ) // @InjectRepository(File) private fileRepo: Repository<File>,
+  {}
 
   async onApplicationBootstrap() {
     this.initDefaultModules()
@@ -150,9 +153,9 @@ export class ModuleService implements OnApplicationBootstrap {
   async getOneEntity(moduleName: string, id: string) {
     const entity = await this.entityRepo.findOne({
       join: {
-        alias: 'entity',
+        alias: 'e',
         leftJoinAndSelect: {
-          module: 'entity.module',
+          module: 'e.module',
         },
       },
       where: {
