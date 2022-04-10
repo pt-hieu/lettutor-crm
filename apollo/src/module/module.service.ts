@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
+import { Action } from 'src/action/action.entity'
 import { Note } from 'src/note/note.entity'
 import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
@@ -26,6 +27,7 @@ export class ModuleService implements OnApplicationBootstrap {
     private readonly noteService: NoteService,
     @InjectRepository(Module) private moduleRepo: Repository<Module>,
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
+    @InjectRepository(Action) private actionRepo: Repository<Action>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -33,18 +35,19 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   private initDefaultModules() {
-    if (process.env.NODE_ENV === 'production') return
-    return this.moduleRepo.upsert([lead, deal, account, contact], {
-      conflictPaths: ['name'],
-      skipUpdateIfNoValuesChanged: true,
-    })
+    // if (process.env.NODE_ENV === 'production') return
+    // return this.moduleRepo.upsert([lead, deal, account, contact], {
+    //   conflictPaths: ['name'],
+    //   skipUpdateIfNoValuesChanged: true,
+    // })
   }
 
   getManyModule() {
     return this.moduleRepo.find()
   }
 
-  createModule(dto: DTO.Module.CreateModule) {
+  async createModule(dto: DTO.Module.CreateModule) {
+    // create all action
     return this.moduleRepo.save(dto)
   }
 

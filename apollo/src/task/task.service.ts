@@ -8,11 +8,11 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Entity, FieldType, RelateType } from 'src/module/module.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 
 import { Task } from './task.entity'
 
@@ -84,10 +84,19 @@ export class TaskService {
     }
 
     if (
-      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
+      !this.utilService.checkRoleAction({
+        target: DefaultActionTarget.ADMIN,
+        type: ActionType.IS_ADMIN,
+      }) &&
       !this.utilService.checkOwnership(task) &&
-      !this.utilService.checkRoleAction(Actions.VIEW_ALL_TASK_DETAILS) &&
-      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
+      !this.utilService.checkRoleAction({
+        target: DefaultActionTarget.TASK,
+        type: ActionType.CAN_VIEW_ALL,
+      }) &&
+      !this.utilService.checkRoleAction({
+        target: DefaultActionTarget.TASK,
+        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+      })
     ) {
       throw new ForbiddenException()
     }
@@ -109,7 +118,12 @@ export class TaskService {
       .addSelect(['owner.name', 'owner.email'])
       .orderBy('t.createdAt', 'DESC')
 
-    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
+    if (
+      !this.utilService.checkRoleAction({
+        target: DefaultActionTarget.TASK,
+        type: ActionType.CAN_VIEW_ALL,
+      })
+    ) {
       q.andWhere('owner.id = :ownerId', {
         ownerId: this.payloadService.data.id,
       })
