@@ -3,7 +3,7 @@ import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { ActionService } from './action.service'
 
-@Controller()
+@Controller('action')
 @ApiTags('action')
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')

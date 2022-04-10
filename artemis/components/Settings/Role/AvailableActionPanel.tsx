@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
+import { useQuery } from 'react-query'
 
 import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
 import { ActionScope, Actions, Role } from '@utils/models/role'
+import { getActions } from '@utils/service/role'
 
 import Action from './Action'
 
@@ -12,19 +14,23 @@ type Props = {
 }
 
 export default function AvailableActionPanel({ data, disabled }: Props) {
-  const availableActions = useMemo(
-    () =>
-      Object.values(Actions)
-        .map((scope) => Object.values(scope))
-        .flat()
-        .filter((action) => !data?.actions.includes(action)),
-    [data],
-  )
+  //const availableActions = useMemo(
+  //() =>
+  //Object.values(Actions)
+  //.map((scope) => Object.values(scope))
+  //.flat()
+  //.filter((action) => !data?.actions.includes(action)),
+  //[data],
+  //)
+
+  const { data: availableActions } = useQuery('actions', getActions)
 
   const isDisabled = useMemo(
-    () => !data || !availableActions.length,
+    () => !data || !availableActions?.length,
     [data, availableActions],
   )
+
+  console.log(availableActions)
 
   return (
     <Droppable droppableId="available-action" isDropDisabled={disabled}>
@@ -48,7 +54,7 @@ export default function AvailableActionPanel({ data, disabled }: Props) {
             {Object.values(ActionScope).map((scope) => {
               const actions = Object.values(Actions[scope]).filter(
                 (scopedAction) =>
-                  availableActions.some((action) => action === scopedAction),
+                  availableActions?.some((action) => action === scopedAction),
               )
 
               if (!actions.length) return null

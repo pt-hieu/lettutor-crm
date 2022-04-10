@@ -2,7 +2,7 @@ import axios from 'axios'
 import { API } from 'environment'
 
 import { PagingQuery } from '@utils/models/paging'
-import { Role } from '@utils/models/role'
+import { Action, Role } from '@utils/models/role'
 
 export const getRoles =
   <T>(params: {} & PagingQuery, token?: string) =>
@@ -28,3 +28,6 @@ export const deleteRole = (id: string) => () =>
 
 export const restore = (id: string) =>
   axios.post(API + '/apollo/role/' + id + '/default').then((res) => res.data)
+
+export const getActions = () =>
+  axios.get<Action[]>(API + '/apollo/action').then((res) => res.data)
