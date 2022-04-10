@@ -46,7 +46,7 @@ export class FileController {
 
   @Post('attachment/:entityId')
   createAttachment(
-    @Body() dto: DTO.File.UploadAttachment,
+    @Body() dto: DTO.File.Files,
     @Param('entityId', ParseUUIDPipe) id: string,
   ) {
     return this.fileService.createEntityAttachments(id, dto)

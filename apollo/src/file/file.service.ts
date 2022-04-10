@@ -31,11 +31,14 @@ export class FileService {
     private http: HttpService,
   ) {}
 
-  async createEntityAttachments(id: string, dto: DTO.File.UploadAttachment) {
+  async createEntityAttachments(
+    entityId: string,
+    dto: DTO.File.Files
+  ) {
     const savedFiles = await this.uploadFile(dto.files)
-
+    
     savedFiles.forEach((file) => {
-      file[dto.entity + 'Id'] = id
+      file.entityId = entityId
     })
 
     return this.fileRepo.save(savedFiles)
