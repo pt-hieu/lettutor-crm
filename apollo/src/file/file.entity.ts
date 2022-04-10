@@ -1,11 +1,10 @@
 import { Exclude, Expose, Transform } from 'class-transformer'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
+import { Entity as EntityModule } from 'src/module/module.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Entity as EntityData } from 'src/module/module.entity'
-
 
 @Entity({ name: 'file' })
 export class File extends BaseEntity {
@@ -27,11 +26,11 @@ export class File extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   taskId: string | null
 
-  @ManyToOne(() => EntityData, (entity) => entity.notes, {
+  @ManyToOne(() => EntityModule, (entity) => entity.attachments, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  entity: EntityData
+  entity: EntityModule
 
   @Column({ type: 'uuid', nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
