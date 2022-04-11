@@ -77,8 +77,8 @@ export const dealColumns: TableColumnType<Deal>[] = [
     title: 'Stage',
     dataIndex: 'stage',
     key: 'stage',
-    sorter: { compare: (a, b) => a.stage.name.localeCompare(b.stage.name) },
-    render: ({ name }) => name,
+    // sorter: { compare: (a, b) => a.stage.name.localeCompare(b.stage.name) },
+    // render: ({ name }) => name,
   },
   {
     title: 'Closing Date',
@@ -106,7 +106,7 @@ export const dealColumns: TableColumnType<Deal>[] = [
     sorter: {
       compare: (a, b) => a.account.fullName.localeCompare(b.account.fullName),
     },
-    render: (_, { account }) => account.fullName,
+    render: (_, { account }) => account?.fullName,
   },
   {
     title: 'Deal Owner',
