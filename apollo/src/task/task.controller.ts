@@ -71,6 +71,10 @@ export class TaskController {
   }
 
   @Delete('batch')
+  @DefineAction({
+    target: DefaultActionTarget.TASK,
+    type: ActionType.CAN_DELETE_ANY,
+  })
   @ApiOperation({ summary: 'to batch delete tasks' })
   deleteNote(@Body() dto: DTO.BatchDelete) {
     return this.service.batchDelete(dto.ids)

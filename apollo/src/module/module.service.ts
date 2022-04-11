@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -10,7 +11,9 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
-import { Action } from 'src/action/action.entity'
+import { Action, ActionType } from 'src/action/action.entity'
+import { PayloadService } from 'src/global/payload.service'
+import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
@@ -29,20 +32,25 @@ export class ModuleService implements OnApplicationBootstrap {
     private readonly noteService: NoteService,
     @InjectRepository(Module) private moduleRepo: Repository<Module>,
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
+    // @InjectRepository(File) private fileRepo: Repository<File>,
     @InjectRepository(Action) private actionRepo: Repository<Action>,
-  ) // @InjectRepository(File) private fileRepo: Repository<File>,
-  {}
+    private readonly utilService: UtilService,
+    private readonly payloadService: PayloadService,
+  ) {}
 
   async onApplicationBootstrap() {
-    this.initDefaultModules()
+    await this.initDefaultModules()
   }
 
-  private initDefaultModules() {
-    // if (process.env.NODE_ENV === 'production') return
-    // return this.moduleRepo.upsert([lead, deal, account, contact], {
-    //   conflictPaths: ['name'],
-    //   skipUpdateIfNoValuesChanged: true,
-    // })
+  private async initDefaultModules() {
+    if (process.env.NODE_ENV === 'production') return
+    const modules = await this.moduleRepo.find()
+    if (modules.length > 0) return
+
+    return this.moduleRepo.upsert([lead, deal, account, contact], {
+      conflictPaths: ['name'],
+      skipUpdateIfNoValuesChanged: true,
+    })
   }
 
   getManyModule() {
@@ -50,7 +58,37 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   async createModule(dto: DTO.Module.CreateModule) {
-    // create all action
+    const module = await this.moduleRepo.findOne({
+      where: { name: dto.name },
+    })
+
+    if (module) {
+      throw new BadRequestException('Module already exists')
+    }
+
+    await this.actionRepo.save([
+      {
+        target: dto.name,
+        type: ActionType.CAN_CREATE_NEW,
+      },
+      {
+        target: dto.name,
+        type: ActionType.CAN_DELETE_ANY,
+      },
+      {
+        target: dto.name,
+        type: ActionType.CAN_VIEW_ALL,
+      },
+      {
+        target: dto.name,
+        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+      },
+      {
+        target: dto.name,
+        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+      },
+    ])
+
     return this.moduleRepo.save(dto)
   }
 
@@ -64,13 +102,21 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   async updateModule(id: string, dto: DTO.Module.UpdateModule) {
-    const module = await this.moduleRepo.findOne({ where: { id } })
-    if (!module) throw new BadRequestException('Module not found')
+    const module = await this.getOneModule(id)
 
     return this.moduleRepo.save({ ...module, ...dto })
   }
 
   async addEntity(moduleName: string, dto: DTO.Module.AddEntity) {
+    if (
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_CREATE_NEW,
+      })
+    ) {
+      throw new ForbiddenException()
+    }
+
     const module = await this.moduleRepo.findOne({
       where: { name: moduleName },
     })
@@ -132,6 +178,17 @@ export class ModuleService implements OnApplicationBootstrap {
       .orderBy('e.createdAt', 'DESC')
       .andWhere('module.name = :name', { name: moduleName })
 
+    if (
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_VIEW_ALL,
+      })
+    ) {
+      qb.andWhere('e.data["ownerId"] = :ownerId', {
+        ownerId: this.payloadService.data.id,
+      })
+    }
+
     module.meta
       .filter((field) => field.type === FieldType.SELECT && !!dto[field.name])
       .forEach(({ name }) => {
@@ -167,6 +224,20 @@ export class ModuleService implements OnApplicationBootstrap {
     })
 
     if (!entity) throw new NotFoundException('Entity not found')
+
+    if (
+      !this.utilService.checkOwnershipEntity(entity) &&
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_VIEW_ALL,
+      }) &&
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+      })
+    ) {
+      throw new ForbiddenException()
+    }
     return entity
   }
 
@@ -178,12 +249,34 @@ export class ModuleService implements OnApplicationBootstrap {
     const validateMsg = module.validateEntity(dto.data)
 
     if (validateMsg) throw new UnprocessableEntityException(validateMsg)
+
+    if (
+      !this.utilService.checkOwnershipEntity(entity) &&
+      !this.utilService.checkRoleAction({
+        target: module.name,
+        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+      })
+    ) {
+      throw new ForbiddenException()
+    }
+
     return this.entityRepo.save({ ...entity, ...dto })
   }
 
   async batchDeleteEntity(dto: DTO.BatchDelete) {
     const entities = await this.entityRepo.find({ where: { id: In(dto.ids) } })
-    return this.entityRepo.softRemove(entities)
+    if (entities) {
+      if (
+        !this.utilService.checkRoleAction({
+          target: entities[0].module.name,
+          type: ActionType.CAN_DELETE_ANY,
+        })
+      ) {
+        throw new ForbiddenException()
+      }
+
+      return this.entityRepo.softRemove(entities)
+    }
   }
 
   async getEntityById(option: FindOneOptions<Entity>) {

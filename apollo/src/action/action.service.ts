@@ -4,7 +4,7 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { FindOneOptions, Repository } from 'typeorm'
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm'
 
 import { Action } from './action.entity'
 import { defaultActions } from './default.action'
@@ -16,14 +16,16 @@ export class ActionService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    this.initDefaultModules()
+    await this.initDefaultActions()
   }
 
-  private initDefaultModules() {
+  private async initDefaultActions() {
     if (process.env.NODE_ENV === 'production') return
+    const actions = await this.actionRepo.find()
+    if (actions.length > 0) return
 
     return this.actionRepo.upsert(defaultActions, {
-      conflictPaths: ['type', 'target'],
+      conflictPaths: ['id'],
       skipUpdateIfNoValuesChanged: true,
     })
   }

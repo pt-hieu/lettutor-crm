@@ -84,10 +84,6 @@ export class TaskService {
     }
 
     if (
-      !this.utilService.checkRoleAction({
-        target: DefaultActionTarget.ADMIN,
-        type: ActionType.IS_ADMIN,
-      }) &&
       !this.utilService.checkOwnership(task) &&
       !this.utilService.checkRoleAction({
         target: DefaultActionTarget.TASK,

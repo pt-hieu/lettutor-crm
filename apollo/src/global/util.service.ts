@@ -102,7 +102,7 @@ export class UtilService {
     return entity.ownerId === this.payloadService.data.id
   }
 
-  public checkOwnershipModule(entity: Entity) {
+  public checkOwnershipEntity(entity: Entity) {
     return entity.data['ownerId'] === this.payloadService.data.id
   }
 
@@ -112,15 +112,14 @@ export class UtilService {
     if (!this.payloadService.data) return false
 
     return !!requiredActions.filter((requiredAction) =>
-      this.payloadService.data.roles.some(
-        ({ actions }) =>
-          !!actions.filter(
-            ({ type, target }) =>
-              (target === requiredAction.target &&
-                type === requiredAction.type) ||
-              (target === DefaultActionTarget.ADMIN &&
-                type === ActionType.IS_ADMIN),
-          ),
+      this.payloadService.data.roles.some(({ actions }) =>
+        actions.some(
+          ({ type, target }) =>
+            (target === requiredAction.target &&
+              type === requiredAction.type) ||
+            (target === DefaultActionTarget.ADMIN &&
+              type === ActionType.IS_ADMIN),
+        ),
       ),
     ).length
   }
