@@ -75,7 +75,6 @@ export class NoteService {
         'entity.id',
         'entity.name',
         'task.id',
-        'task.subject',
       ])
 
     if (query.source === NoteSource.MODULE) {

@@ -3,22 +3,20 @@ import { Base } from './base'
 import { Contact } from './contact'
 import { Deal } from './deal'
 import { Lead } from './lead'
+import { Entity } from './module'
 import { Task } from './task'
 import { User } from './user'
 
-export type NoteSource = 'lead' | 'contact' | 'account' | 'deal' | 'task'
+export type NoteSource = 'module' | 'task'
 
 export type AddNoteDto = {
   ownerId: string
-  dealId?: string
-  leadId?: string
-  contactId?: string
-  accountId?: string
+  entityId?: string
   taskId?: string
   title?: string
   content?: string
   files?: File[]
-  source?: NoteSource
+  source: NoteSource
 }
 
 export interface Attachments extends Base {
@@ -31,13 +29,10 @@ export interface Attachments extends Base {
 
 export interface Note extends Base {
   owner: User | null
-  deal: Deal
   title: string
   content: string
   source: NoteSource
-  lead?: Lead
-  contact?: Contact
-  account?: Account
-  task?: Task
+  entity: Pick<Entity, 'id' | 'name'>
+  task: Task | null
   attachments: Attachments[]
 }
