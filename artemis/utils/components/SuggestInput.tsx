@@ -114,6 +114,7 @@ export default function SuggestInput<T>({
           id: inputProps.name,
           value: displayValue,
           className: inputProps.className,
+          autoComplete: 'off',
           onChange: handleInputChange,
           onFocus() {
             open()
