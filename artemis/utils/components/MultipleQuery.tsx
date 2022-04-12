@@ -24,7 +24,7 @@ export default function MultipleQuery({ options, type, name }: Props) {
               type,
               value,
               ...register(name),
-              id: (value + name).replaceAll(reg, ' '),
+              id: `${value} ${name}`.replaceAll(reg, ' '),
             }}
           />
           <label
