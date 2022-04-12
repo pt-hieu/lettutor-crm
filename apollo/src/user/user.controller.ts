@@ -18,8 +18,8 @@ import {
 } from '@nestjs/swagger'
 
 import { DefineAction } from 'src/action.decorator'
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 import { Payload } from 'src/utils/decorators/payload.decorator'
 import { Public } from 'src/utils/decorators/public.decorator'
 import { JwtPayload } from 'src/utils/interface'
@@ -68,14 +68,20 @@ export class UserController {
   }
 
   @Post()
-  @DefineAction(Actions.CREATE_NEW_USER)
+  @DefineAction({
+    target: DefaultActionTarget.USER,
+    type: ActionType.CAN_CREATE_NEW,
+  })
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
   addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
     return this.service.addUser(dto, payload.name)
   }
 
   @Get(':id/invalidate')
-  @DefineAction(Actions.IS_ADMIN)
+  @DefineAction({
+    target: DefaultActionTarget.ADMIN,
+    type: ActionType.IS_ADMIN,
+  })
   @ApiOperation({ summary: 'to resend invitation add user mail' })
   invalidateAddUser(
     @Param('id', ParseUUIDPipe) id: string,
@@ -103,7 +109,10 @@ export class UserController {
   }
 
   @Patch(':id/activate')
-  @DefineAction(Actions.IS_ADMIN)
+  @DefineAction({
+    target: DefaultActionTarget.ADMIN,
+    type: ActionType.IS_ADMIN,
+  })
   @ApiOperation({ summary: 'to activate-deactivate user' })
   activateUser(
     @Param('id', ParseUUIDPipe) id: string,
@@ -114,7 +123,10 @@ export class UserController {
 
   @Delete('batch')
   @ApiOperation({ summary: 'to batch delete users' })
-  @DefineAction(Actions.DELETE_USER)
+  @DefineAction({
+    target: DefaultActionTarget.USER,
+    type: ActionType.CAN_DELETE_ANY,
+  })
   batchDeleteUser(@Body() dto: DTO.BatchDelete) {
     return this.service.batchDelete(dto.ids)
   }
