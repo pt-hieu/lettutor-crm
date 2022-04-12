@@ -2,8 +2,8 @@ import { Body, Controller, Get, ParseArrayPipe, Post } from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DefineAction } from 'src/action.decorator'
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 
 import { DealStageService } from './deal-stage.service'
 
@@ -15,14 +15,20 @@ export class DealStageController {
   constructor(private readonly service: DealStageService) {}
 
   @Get()
-  @DefineAction(Actions.VIEW_ALL_DEAL_STAGES)
+  @DefineAction({
+    target: DefaultActionTarget.DEAL_STAGE,
+    type: ActionType.CAN_VIEW_ALL,
+  })
   @ApiOperation({ summary: 'view all deal stages' })
   index() {
     return this.service.getAll()
   }
 
   @Post()
-  @DefineAction(Actions.MODIFY_ALL_DEAL_STAGES)
+  @DefineAction({
+    target: DefaultActionTarget.DEAL_STAGE,
+    type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+  })
   @ApiOperation({ summary: 'to modify all deal stages' })
   addDeal(
     @Body()

@@ -12,8 +12,8 @@ import {
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DefineAction } from 'src/action.decorator'
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 
 import { TaskService } from './task.service'
 
@@ -37,7 +37,10 @@ export class TaskController {
   }
 
   @Post()
-  @DefineAction(Actions.CREATE_NEW_TASK)
+  @DefineAction({
+    target: DefaultActionTarget.TASK,
+    type: ActionType.CAN_CREATE_NEW,
+  })
   @ApiOperation({ summary: 'to add new task' })
   addTask(@Body() dto: DTO.Task.AddTask) {
     return this.service.addTask(dto)
@@ -68,6 +71,10 @@ export class TaskController {
   }
 
   @Delete('batch')
+  @DefineAction({
+    target: DefaultActionTarget.TASK,
+    type: ActionType.CAN_DELETE_ANY,
+  })
   @ApiOperation({ summary: 'to batch delete tasks' })
   deleteNote(@Body() dto: DTO.BatchDelete) {
     return this.service.batchDelete(dto.ids)

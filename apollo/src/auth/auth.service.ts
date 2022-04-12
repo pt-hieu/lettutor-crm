@@ -4,9 +4,13 @@ import { compare, hash } from 'bcryptjs'
 import { Response } from 'express'
 import { Repository } from 'typeorm'
 
+import {
+  Action,
+  ActionType,
+  DefaultActionTarget,
+} from 'src/action/action.entity'
 import { Role } from 'src/role/role.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 import { User, UserStatus } from 'src/user/user.entity'
 import { JwtPayload } from 'src/utils/interface'
 
@@ -17,6 +21,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Role) private roleRepo: Repository<Role>,
+    @InjectRepository(Action) private actionRepo: Repository<Action>,
   ) {}
 
   async signup(dto: DTO.Auth.SignUp) {
@@ -29,9 +34,16 @@ export class AuthService {
     })
 
     if (!role) {
+      const action = await this.actionRepo.findOne({
+        where: {
+          target: DefaultActionTarget.ADMIN,
+          type: ActionType.IS_ADMIN,
+        },
+      })
+
       role = await this.roleRepo.save({
         name: ADMINISTRATIVE_ROLE_NAME,
-        actions: [Actions.IS_ADMIN],
+        actions: [action],
       })
     }
 
