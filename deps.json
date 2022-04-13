@@ -74,6 +74,7 @@
   ],
   "artemis": [
     "@hookform/resolvers",
+    "class-validator",
     "antd",
     "array-move",
     "axios",
