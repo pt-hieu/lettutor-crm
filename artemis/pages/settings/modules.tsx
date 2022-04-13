@@ -1,6 +1,6 @@
 import { List } from 'antd'
 
-import { DealStageModal } from '@components/Deals/DealStageMapping/DealStageModal'
+// import { DealStageModal } from '@components/Deals/DealStageMapping/DealStageModal'
 import SettingsLayout from '@components/Settings/SettingsLayout'
 
 import Dropdown from '@utils/components/Dropdown'
@@ -44,11 +44,11 @@ const ModulesSettings = () => {
 
   return (
     <SettingsLayout title="CRM | Modules and Fields">
-      <DealStageModal
+      {/* <DealStageModal
         visible={showStageMappingModal}
         handleClose={closeModal}
         isLoading={false}
-      />
+      /> */}
 
       <List
         size="large"

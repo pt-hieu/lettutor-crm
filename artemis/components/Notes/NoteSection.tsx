@@ -1,8 +1,6 @@
 import { Select } from 'antd'
 import { useState } from 'react'
 
-import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
-
 import { Note, NoteSource } from '@utils/models/note'
 import { FilterNoteType, SortNoteType } from '@utils/service/note'
 
@@ -108,9 +106,9 @@ export const NoteSection = ({
     <div className="p-4 border rounded-md">
       <div
         className="font-semibold mb-4 max-w-[720px] flex flex-row justify-between"
-        id={LeadDetailSections.Notes}
+        id="Notes"
       >
-        <div className="text-[17px]">{LeadDetailSections.Notes}</div>
+        <div className="text-[17px]">Notes</div>
         <Select
           defaultValue={sort}
           onChange={handleChangeSelect}
@@ -169,9 +167,11 @@ export const NoteSection = ({
                 noteId={id}
                 noteSource={source}
                 sourceName={
-                  (item[source]?.fullName as string) ||
+                // @ts-ignore
+                  (item[source]?.name as string) ||
                   (item.task?.name as string)
                 }
+                // @ts-ignore
                 sourceId={item[source]?.id as string}
                 files={attachments}
               />

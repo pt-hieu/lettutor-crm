@@ -19,7 +19,7 @@ interface IProps {
   onDeleteNote: (noteId: string) => void
   hideEditButton?: boolean
   noteId: string
-  noteSource: NoteSource
+  noteSource: string
   sourceName: string
   sourceId: string
   files?: Attachments[]

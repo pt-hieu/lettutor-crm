@@ -34,7 +34,7 @@ export interface Note extends Base {
   deal: Deal
   title: string
   content: string
-  source: NoteSource
+  source: string
   lead?: Lead
   contact?: Contact
   account?: Account
