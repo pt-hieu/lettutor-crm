@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FieldErrors, UseFormRegister, useForm } from 'react-hook-form'
 import {
   QueryClient,
@@ -12,8 +12,8 @@ import {
   useQueryClient,
 } from 'react-query'
 
+import { Sections } from '@components/Details/Sidebar'
 import LogSection from '@components/Logs/LogSection'
-import { INoteData } from '@components/Notes/NoteAdder'
 import { DEFAULT_NUM_NOTE, NoteSection } from '@components/Notes/NoteSection'
 import TaskDetailNavbar from '@components/Tasks/TaskDetailNavbar'
 import TaskDetailSidebar from '@components/Tasks/TaskDetailSidebar'
@@ -26,23 +26,14 @@ import Layout from '@utils/components/Layout'
 import Tooltip from '@utils/components/Tooltip'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership, useServerSideOwnership } from '@utils/hooks/useOwnership'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { LogSource } from '@utils/models/log'
-import { AddNoteDto } from '@utils/models/note'
 import { Actions } from '@utils/models/role'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
-import { Entity } from '@utils/service/attachment'
-import {
-  SortNoteType,
-  addNote,
-  deleteNote,
-  editNote,
-  getNotes,
-} from '@utils/service/note'
+import { getNotes } from '@utils/service/note'
 import { closeTask, getTask, updateTask } from '@utils/service/task'
 import { getRawUsers } from '@utils/service/user'
 
@@ -180,23 +171,6 @@ const TaskDetail = () => {
   const { data: users } = useQuery<User[]>('users', { enabled: false })
   const { data: task } = useQuery<Task>(['task', id], getTask(id))
 
-  const client = useQueryClient()
-  const [session] = useTypedSession()
-
-  const [sortNote, setSortNote] = useState<SortNoteType>('first')
-  const [viewAllNote, setViewAllNote] = useState(false)
-
-  const { data: notes } = useQuery<any>(
-    ['task', id, 'notes', sortNote, viewAllNote],
-    getNotes({
-      source: 'task',
-      sourceId: id,
-      sort: sortNote,
-      shouldNotPaginate: viewAllNote,
-      nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
-    }),
-  )
-
   const isOwner = useOwnership(task)
 
   const relatives = [
@@ -295,73 +269,6 @@ const TaskDetail = () => {
     [id],
   )
 
-  const { mutateAsync: addNoteService } = useMutation(
-    'add-note-task',
-    addNote,
-    {
-      onSuccess() {
-        client.refetchQueries(['task', id, 'notes'])
-        client.refetchQueries([id, 'detail-log'])
-      },
-      onError() {
-        notification.error({ message: 'Add note unsuccessfully' })
-      },
-    },
-  )
-
-  const handleAddNote = (data: INoteData) => {
-    const dataInfo: AddNoteDto = {
-      ownerId: session?.user.id as string,
-      taskId: task?.id,
-      source: 'task',
-      ...data,
-    }
-    addNoteService(dataInfo)
-  }
-
-  const { mutateAsync: editNoteService } = useMutation(
-    'edit-note-task',
-    editNote,
-    {
-      onSuccess() {
-        client.refetchQueries(['task', id, 'notes'])
-        client.refetchQueries([id, 'detail-log'])
-
-        notification.success({ message: 'Edit note successfully' })
-      },
-      onError() {
-        notification.error({ message: 'Edit note unsuccessfully' })
-      },
-    },
-  )
-  const handleEditNote = (noteId: string, data: INoteData) => {
-    editNoteService({ noteId, dataInfo: data })
-  }
-
-  const { mutateAsync: deleteNoteService } = useMutation(
-    'delete-note-contact',
-    deleteNote,
-    {
-      onSuccess() {
-        client.refetchQueries(['task', id, 'notes'])
-        client.refetchQueries([id, 'detail-log'])
-
-        notification.success({ message: 'Delete note successfully' })
-      },
-      onError() {
-        notification.error({ message: 'Delete note unsuccessfully' })
-      },
-    },
-  )
-
-  const handleDeleteNote = (noteId: string) => {
-    deleteNoteService({ noteId })
-  }
-
-  const handleChangeFilterSort = ({ sort }: { sort: SortNoteType }) => {
-    setSortNote(sort)
-  }
-
   return (
     <Layout title={`CRM | Task | ${task?.name}`} requireLogin>
       <div className="crm-container">
@@ -419,19 +326,15 @@ const TaskDetail = () => {
                     </form>
 
                     <NoteSection
-                      noteFor="task"
-                      onAddNote={handleAddNote}
-                      onEditNote={handleEditNote}
-                      notes={viewAllNote ? notes || [] : notes?.items || []}
-                      totalNotes={notes?.meta?.totalItems || 0}
-                      onDeleteNote={handleDeleteNote}
-                      onChangeFilterSort={handleChangeFilterSort}
-                      onViewAllNote={setViewAllNote}
+                      id={Sections.Notes}
+                      source="task"
+                      moduleName="task"
+                      entityId={task?.id || ''}
                     />
 
                     <AttachmentSection
                       entityId={id}
-                      entityType={Entity.TASK}
+                      moduleName="task"
                       id="Attachments"
                       data={task?.attachments}
                     />

@@ -1,23 +1,14 @@
-import { Select, notification } from 'antd'
+import { Select } from 'antd'
 import { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useQuery } from 'react-query'
 
 import { Sections } from '@components/Details/Sidebar'
-import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
 import { toCapitalizedWords } from '@components/Module/OverviewView'
 
-import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { AddNoteDto, Note, NoteSource } from '@utils/models/note'
-import {
-  FilterNoteType,
-  SortNoteType,
-  addNote,
-  deleteNote,
-  editNote,
-  getNotes,
-} from '@utils/service/note'
+import { Note, NoteSource } from '@utils/models/note'
+import { FilterNoteType, SortNoteType, getNotes } from '@utils/service/note'
 
-import { INoteData, NoteAdder } from './NoteAdder'
+import { NoteAdder } from './NoteAdder'
 import { NoteContent } from './NoteContent'
 
 const { Option, OptGroup } = Select
@@ -144,6 +135,7 @@ export const NoteSection = ({
                   source,
                   attachments,
                   entity,
+                  task,
                 } = item
                 return (
                   <NoteContent
@@ -156,7 +148,7 @@ export const NoteSection = ({
                     hideEditButton={!showNoteAdder}
                     noteId={id}
                     noteSource={source}
-                    entity={entity}
+                    entity={entity || task}
                     files={attachments}
                   />
                 )
