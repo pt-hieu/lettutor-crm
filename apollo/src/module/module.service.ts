@@ -163,6 +163,22 @@ export class ModuleService implements OnApplicationBootstrap {
     return qb.getMany()
   }
 
+  getManyDealByStageId(stageId: string) {
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .where(
+        `jsonb_path_query_array(e.data, '$[*] ? (@.stageId == "${stageId}")') @> :query::jsonb`,
+        {
+          query: JSON.stringify([{ stageId: stageId }]),
+        },
+      )
+      .select(['e.id', 'e.name'])
+      .addSelect(['module.id', 'module.name'])
+
+    return qb.getMany()
+  }
+
   async getManyEntity(
     moduleName: string,
     { limit, page, shouldNotPaginate, ...dto }: DTO.Module.GetManyEntity,

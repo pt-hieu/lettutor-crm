@@ -19,5 +19,6 @@ import { ModuleSubscriber } from './module.subscriber'
   ],
   providers: [ModuleService, EntitySubscriber, ModuleSubscriber],
   controllers: [ModuleController],
+  exports: [ModuleService],
 })
 export class ModuleModule {}
