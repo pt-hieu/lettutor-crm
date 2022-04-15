@@ -1,10 +1,14 @@
+import { notification } from 'antd'
 import moment from 'moment'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useMutation, useQueryClient } from 'react-query'
 
 import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
+import { Entity } from '@utils/models/module'
 import { Attachments, NoteSource } from '@utils/models/note'
+import { deleteNote, editNote } from '@utils/service/note'
 
 import File from './File'
 import { INoteData, NoteTextBox } from './NoteAdder'
@@ -15,13 +19,10 @@ interface IProps {
   author: string
   time: Date
   setShowNoteAdder: (value: boolean) => void
-  onEditNote: (noteId: string, data: INoteData) => void
-  onDeleteNote: (noteId: string) => void
   hideEditButton?: boolean
   noteId: string
-  noteSource: string
-  sourceName: string
-  sourceId: string
+  noteSource: NoteSource
+  entity: Pick<Entity, 'id' | 'name'>
   files?: Attachments[]
 }
 
@@ -32,12 +33,9 @@ export const NoteContent = ({
   time,
   setShowNoteAdder,
   hideEditButton = false,
-  onEditNote,
-  onDeleteNote,
   noteId,
   noteSource,
-  sourceName,
-  sourceId,
+  entity,
   files,
 }: IProps) => {
   const [editMode, setEditMode] = useState(false)
@@ -53,13 +51,45 @@ export const NoteContent = ({
     setShowNoteAdder(true)
   }
 
-  const handleDeleteNote = () => {
-    onDeleteNote(noteId)
-  }
+  const client = useQueryClient()
+
+  const { mutateAsync: editNoteService, isLoading } = useMutation(
+    'edit-note',
+    editNote,
+    {
+      onSuccess() {
+        client.refetchQueries([entity.id, 'notes'])
+        handleCancel()
+        notification.success({ message: 'Edit note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Edit note unsuccessfully' })
+      },
+    },
+  )
 
   const handleEditNote = (data: INoteData) => {
-    onEditNote(noteId, data)
-    handleCancel()
+    const newData = { ...data }
+    newData.attachments = data.attachments.map((i) => i.id)
+    editNoteService({ noteId, dataInfo: newData })
+  }
+
+  const { mutateAsync: deleteNoteService } = useMutation(
+    'delete-note',
+    deleteNote,
+    {
+      onSuccess() {
+        client.refetchQueries([entity.id, 'notes'])
+        notification.success({ message: 'Delete note successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Delete note unsuccessfully' })
+      },
+    },
+  )
+
+  const handleDeleteNote = () => {
+    deleteNoteService({ noteId })
   }
 
   return (
@@ -71,6 +101,7 @@ export const NoteContent = ({
           defaultNote={note}
           defaultFiles={files}
           onSave={handleEditNote}
+          isLoading={isLoading}
         />
       ) : (
         <div className="flex flex-row relative group">
@@ -99,9 +130,9 @@ export const NoteContent = ({
               <span className="capitalize">{noteSource}</span>
               <span className="px-1"> - </span>
 
-              <Link href={`/${noteSource}s/${sourceId}`}>
+              <Link href={`/${noteSource}s/${entity.id}`}>
                 <a className="max-w-[120px] truncate text-blue-600">
-                  {sourceName}
+                  {entity.name}
                 </a>
               </Link>
 
