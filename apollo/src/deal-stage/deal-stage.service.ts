@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { UtilService } from 'src/global/util.service'
+import { ModuleService } from 'src/module/module.service'
 import { DTO } from 'src/type'
 import { DealStageAction } from 'src/type/dto/deal-stage'
 
@@ -19,6 +20,7 @@ export class DealStageService {
     @InjectRepository(DealStage)
     private dealStageRepo: Repository<DealStage>,
     private readonly utilService: UtilService,
+    private readonly moduleService: ModuleService,
   ) {}
 
   async getDealStageById(option: FindOneOptions<DealStage>, trace?: boolean) {
@@ -44,10 +46,16 @@ export class DealStageService {
   }
 
   async getAll() {
-    return this.dealStageRepo.find({
+    const dealStages = await this.dealStageRepo.find({
       order: { order: 1 },
-      relations: ['deals'],
     })
+
+    for (const dealStage of dealStages) {
+      dealStage['deals'] = await this.moduleService.getManyDealByStageId(
+        dealStage.id,
+      )
+    }
+    return dealStages
   }
 
   async modifyDealStage(dtos: DTO.DealStage.ModifyDealStage[]) {

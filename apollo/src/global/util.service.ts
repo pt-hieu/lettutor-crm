@@ -7,9 +7,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import type { AxiosResponse } from 'axios'
 import { Observable, catchError, first, lastValueFrom, map } from 'rxjs'
 
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { TChange } from 'src/log/log.entity'
+import { Entity } from 'src/module/module.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 import { Ownerful } from 'src/utils/owner.entity'
 
 import { UserService } from '../user/user.service'
@@ -101,14 +102,24 @@ export class UtilService {
     return entity.ownerId === this.payloadService.data.id
   }
 
-  public checkRoleAction(...requiredActions: Actions[]) {
+  public checkOwnershipEntity(entity: Entity) {
+    return entity.data['ownerId'] === this.payloadService.data.id
+  }
+
+  public checkRoleAction(
+    ...requiredActions: { target: String; type: ActionType }[]
+  ) {
     if (!this.payloadService.data) return false
 
-    return !!requiredActions.filter((action) =>
-      this.payloadService.data.roles.some(
-        (role) =>
-          role.actions.includes(action) ||
-          role.actions.includes(Actions.IS_ADMIN),
+    return !!requiredActions.filter((requiredAction) =>
+      this.payloadService.data.roles.some(({ actions }) =>
+        actions.some(
+          ({ type, target }) =>
+            (target === requiredAction.target &&
+              type === requiredAction.type) ||
+            (target === DefaultActionTarget.ADMIN &&
+              type === ActionType.IS_ADMIN),
+        ),
       ),
     ).length
   }

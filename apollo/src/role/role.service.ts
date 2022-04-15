@@ -6,17 +6,23 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
-import { Not, Repository } from 'typeorm'
+import { In, Not, Repository } from 'typeorm'
 
+import {
+  Action,
+  ActionType,
+  DefaultActionTarget,
+} from 'src/action/action.entity'
 import { DTO } from 'src/type'
 
 import { Role } from './role.entity'
-import { RoleActionMapping } from './role.subscriber'
+import { DefaultRoleName } from './role.subscriber'
 
 @Injectable()
 export class RoleService {
   constructor(
     @InjectRepository(Role) private roleRepo: Repository<Role>,
+    @InjectRepository(Action) private actionRepo: Repository<Action>,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -34,10 +40,14 @@ export class RoleService {
     const role = await this.roleRepo.findOne({ where: { name: dto.name } })
     if (role) throw new BadRequestException('Role existed')
 
+    const actions = await this.actionRepo.find({
+      where: { id: In(dto.actionsId) },
+    })
+
     return this.roleRepo.save({
       name: dto.name,
       childrenIds: dto.childrenIds,
-      actions: dto.actions,
+      actions: actions,
     })
   }
 
@@ -47,7 +57,21 @@ export class RoleService {
     if (!role.default)
       throw new UnprocessableEntityException('Role is not default')
 
-    role.actions = RoleActionMapping[role.name]
+    if (role.name === DefaultRoleName.ADMIN) {
+      role.actions = await this.actionRepo.find({
+        where: { target: DefaultActionTarget.ADMIN, type: ActionType.IS_ADMIN },
+      })
+    } else if (role.name === DefaultRoleName.SALE) {
+      role.actions = (
+        await this.actionRepo.find({
+          where: { type: ActionType.CAN_CREATE_NEW },
+        })
+      ).filter(
+        ({ target }) =>
+          target !== DefaultActionTarget.USER &&
+          target !== DefaultActionTarget.ROLE,
+      )
+    }
 
     return this.roleRepo.save(role).then((res) => {
       this.eventEmitter.emit('auth.invalidate', id)
