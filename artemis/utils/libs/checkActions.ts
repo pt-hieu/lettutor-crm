@@ -3,8 +3,6 @@ import { getSession } from 'next-auth/client'
 import { JwtPayload } from '@utils/models/payload'
 import { ActionType } from '@utils/models/role'
 
-//import { ActionValues, Actions } from '@utils/models/role'
-
 export async function checkActionError(
   req: any,
   ...actions: { action: ActionType; moduleName: string }[]
