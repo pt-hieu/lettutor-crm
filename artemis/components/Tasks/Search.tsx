@@ -8,7 +8,7 @@ import ButtonAdd from '@utils/components/ButtonAdd'
 import Confirm from '@utils/components/Confirm'
 import Input from '@utils/components/Input'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
-import { Actions } from '@utils/models/role'
+import { ActionType, DefaultModule } from '@utils/models/role'
 import { batchDelete } from '@utils/service/task'
 
 type Props = {
@@ -100,7 +100,7 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </Confirm>
         )}
 
-        {auth[Actions.Task.CREATE_NEW_TASK] && (
+        {auth(ActionType.CAN_CREATE_NEW, DefaultModule.TASK) && (
           <ButtonAdd title="Create Task" asLink link="/tasks/create" />
         )}
       </div>
