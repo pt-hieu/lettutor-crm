@@ -3,11 +3,10 @@ import { API } from 'environment'
 
 import { INoteData } from '@components/Notes/NoteAdder'
 
-import { AddNoteDto, Note, NoteSource } from '@utils/models/note'
+import { AddNoteDto, Note } from '@utils/models/note'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 
 export type SortNoteType = 'last' | 'first'
-export type FilterNoteType = undefined | NoteSource
 
 export const addNote = async (noteInfo: AddNoteDto) => {
   const { title, content, files, ownerId, source, taskId, entityId } = noteInfo
@@ -38,8 +37,8 @@ export const getNotes =
     params: {
       search?: string
       sort?: SortNoteType
-      filter?: FilterNoteType
-      source: NoteSource
+      filter?: string
+      source: string
       sourceId: string
       nTopRecent?: number
     } & PagingQuery,

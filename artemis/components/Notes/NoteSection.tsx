@@ -5,8 +5,8 @@ import { useQuery } from 'react-query'
 import { Sections } from '@components/Details/Sidebar'
 import { toCapitalizedWords } from '@components/Module/OverviewView'
 
-import { Note, NoteSource } from '@utils/models/note'
-import { FilterNoteType, SortNoteType, getNotes } from '@utils/service/note'
+import { Note } from '@utils/models/note'
+import { SortNoteType, getNotes } from '@utils/service/note'
 
 import { NoteAdder } from './NoteAdder'
 import { NoteContent } from './NoteContent'
@@ -15,7 +15,6 @@ const { Option, OptGroup } = Select
 
 interface IProps {
   id: Sections
-  source: NoteSource
   entityId: string
   moduleName: string
   hasFilter?: boolean
@@ -26,12 +25,11 @@ export const DEFAULT_NUM_NOTE = 3
 export const NoteSection = ({
   id,
   entityId,
-  source,
-  moduleName,
   hasFilter = false,
+  moduleName,
 }: IProps) => {
   const [showNoteAdder, setShowNoteAdder] = useState(true)
-  const [filter, setFilter] = useState<FilterNoteType>()
+  const [filter, setFilter] = useState<string>()
   const [sort, setSort] = useState<SortNoteType>('first')
   const [showPrevious, setShowPrevious] = useState(true)
   const [viewAllNote, setViewAllNote] = useState(false)
@@ -39,7 +37,7 @@ export const NoteSection = ({
   const { data, refetch } = useQuery<any>(
     [entityId, 'notes'],
     getNotes({
-      source,
+      source: moduleName,
       sourceId: entityId,
       sort,
       filter,
@@ -51,7 +49,7 @@ export const NoteSection = ({
 
   useEffect(() => {
     refetch()
-  }, [source, entityId, sort, filter, viewAllNote])
+  }, [moduleName, entityId, sort, filter, viewAllNote])
 
   const notes = viewAllNote ? data || [] : data?.items || []
   const totalNotes = data?.meta?.totalItems || 0
@@ -60,7 +58,7 @@ export const NoteSection = ({
     if (['first', 'last'].includes(value)) {
       setSort(value as SortNoteType)
     } else {
-      setFilter(value as FilterNoteType)
+      setFilter(value)
     }
 
     setViewAllNote(false)
@@ -121,7 +119,7 @@ export const NoteSection = ({
           sort === 'first' ? 'flex-col' : 'flex-col-reverse'
         }`}
       >
-        {showNoteAdder && <NoteAdder entityId={entityId} source={source} />}
+        {showNoteAdder && <NoteAdder entityId={entityId} source={moduleName} />}
 
         <div className="mb-2 flex flex-col gap-4">
           {notes.length
