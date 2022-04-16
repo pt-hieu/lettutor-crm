@@ -18,7 +18,7 @@ import { Entity } from 'src/module/module.entity'
 import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
-import { Note, NoteSort, NoteSource } from './note.entity'
+import { Note, NoteSort } from './note.entity'
 
 @Injectable()
 export class NoteService {
@@ -47,13 +47,13 @@ export class NoteService {
     }
     delete dto.files
 
-    if (dto.entityId && dto.source === NoteSource.MODULE) {
+    if (dto.entityId) {
       await this.entityRepo.find({
         where: { id: dto.entityId },
       })
     }
 
-    if (dto.taskId && dto.source === NoteSource.TASK) {
+    if (dto.taskId) {
       await this.taskService.getTaskById({
         where: { id: dto.taskId },
       })
@@ -78,7 +78,11 @@ export class NoteService {
         'task.name',
       ])
 
-    if (query.source === NoteSource.MODULE) {
+    if (query.source === 'task') {
+      q.andWhere('note.taskId = :taskId', {
+        taskId: query.sourceId,
+      })
+    } else {
       q.andWhere('note.entityId = :entityId', {
         entityId: query.sourceId,
       })
@@ -94,12 +98,6 @@ export class NoteService {
     //     })
     //   }
     // }
-
-    if (query.source === NoteSource.TASK) {
-      q.andWhere('note.taskId = :taskId', {
-        taskId: query.sourceId,
-      })
-    }
 
     if (query.sort === NoteSort.FIRST) {
       q.addOrderBy('note.createdAt', 'DESC')
