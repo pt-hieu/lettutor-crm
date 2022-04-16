@@ -134,7 +134,6 @@ export default function DetailView({ paths }: TProps) {
 
             <NoteSection
               id={Sections.Notes}
-              source="module"
               moduleName={moduleName}
               entityId={entity.id}
               hasFilter={moduleName === 'account'}

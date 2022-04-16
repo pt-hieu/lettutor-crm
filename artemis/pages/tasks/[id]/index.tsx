@@ -399,7 +399,6 @@ const TaskDetail = () => {
 
                     <NoteSection
                       id={Sections.Notes}
-                      source="task"
                       moduleName={'Task'}
                       entityId={id}
                       hasFilter={false}
