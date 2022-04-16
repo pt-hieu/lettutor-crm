@@ -10,7 +10,7 @@ import Input from '@utils/components/Input'
 import Loading from '@utils/components/Loading'
 import Tooltip from '@utils/components/Tooltip'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { AddNoteDto, Attachments, NoteSource } from '@utils/models/note'
+import { AddNoteDto, Attachments } from '@utils/models/note'
 import { addNote } from '@utils/service/note'
 
 export const noteShema = yup.object().shape({
@@ -293,7 +293,7 @@ export const NoteTextBox = ({
 interface INoteAdderProps {
   active?: boolean
   entityId: string
-  source: NoteSource
+  source: string
 }
 
 export const NoteAdder = ({
