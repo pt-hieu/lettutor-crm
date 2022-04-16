@@ -3,11 +3,15 @@ import { notification } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQueryClient } from 'react-query'
 import * as yup from 'yup'
 
 import Input from '@utils/components/Input'
+import Loading from '@utils/components/Loading'
 import Tooltip from '@utils/components/Tooltip'
-import { Attachments } from '@utils/models/note'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { AddNoteDto, Attachments, NoteSource } from '@utils/models/note'
+import { addNote } from '@utils/service/note'
 
 export const noteShema = yup.object().shape({
   content: yup
@@ -31,6 +35,7 @@ export interface INoteData {
 interface ITextboxProps {
   onCancel: () => void
   onSave: (data: INoteData) => void
+  isLoading: boolean
   defaultTitle?: string
   defaultNote?: string
   defaultFiles?: Attachments[]
@@ -44,6 +49,7 @@ const animateVariant = {
 export const NoteTextBox = ({
   onCancel,
   onSave: saveNote,
+  isLoading,
   defaultTitle,
   defaultNote,
   defaultFiles: defaultFile,
@@ -276,7 +282,7 @@ export const NoteTextBox = ({
           </button>
 
           <button className="crm-button" onClick={submitNote}>
-            Save
+            {isLoading ? <Loading /> : 'Save'}
           </button>
         </div>
       </div>
@@ -285,16 +291,44 @@ export const NoteTextBox = ({
 }
 
 interface INoteAdderProps {
-  onAddNote: (data: INoteData) => void
   active?: boolean
+  entityId: string
+  source: NoteSource
 }
 
-export const NoteAdder = ({ onAddNote, active = false }: INoteAdderProps) => {
+export const NoteAdder = ({
+  active = false,
+  entityId,
+  source,
+}: INoteAdderProps) => {
   const [isActive, setIsActive] = useState(active)
 
+  const client = useQueryClient()
+  const [session] = useTypedSession()
+
+  const { mutateAsync: addNoteService, isLoading } = useMutation(
+    'add-note',
+    addNote,
+    {
+      onSuccess() {
+        client.refetchQueries([entityId, 'notes'])
+        setIsActive(false)
+      },
+      onError() {
+        notification.error({ message: 'Add note unsuccessfully' })
+      },
+    },
+  )
+
   const handleAddNote = (data: INoteData) => {
-    onAddNote(data)
-    setIsActive(false)
+    const dataInfo: AddNoteDto = {
+      ...data,
+      ownerId: session?.user.id as string,
+      source,
+      taskId: source === 'task' ? entityId : undefined,
+      entityId: source === 'task' ? undefined : entityId,
+    }
+    addNoteService(dataInfo)
   }
 
   return (
@@ -303,6 +337,7 @@ export const NoteAdder = ({ onAddNote, active = false }: INoteAdderProps) => {
         <NoteTextBox
           onCancel={() => setIsActive(false)}
           onSave={handleAddNote}
+          isLoading={isLoading}
         />
       ) : (
         <Input

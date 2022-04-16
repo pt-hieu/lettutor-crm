@@ -10,28 +10,16 @@ export type SortNoteType = 'last' | 'first'
 export type FilterNoteType = undefined | NoteSource
 
 export const addNote = async (noteInfo: AddNoteDto) => {
-  const {
-    title,
-    content,
-    files,
-    ownerId,
-    source,
-    leadId,
-    contactId,
-    dealId,
-    accountId,
-    taskId,
-  } = noteInfo
+  const { title, content, files, ownerId, source, taskId, entityId } = noteInfo
   const formData = new FormData()
+
   formData.append('ownerId', ownerId)
   formData.append('content', content as string)
+  formData.append('source', source)
+
   title && formData.append('title', title)
-  source && formData.append('source', source)
-  leadId && formData.append('leadId', leadId)
-  contactId && formData.append('contactId', contactId)
-  dealId && formData.append('dealId', dealId)
-  accountId && formData.append('accountId', accountId)
   taskId && formData.append('taskId', taskId)
+  entityId && formData.append('entityId', entityId)
 
   if (files) {
     for (const file of files) {
