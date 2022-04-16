@@ -45,7 +45,7 @@ export class ModuleService implements OnApplicationBootstrap {
   private async initDefaultModules() {
     if (process.env.NODE_ENV === 'production') return
     const modules = await this.moduleRepo.find()
-    if (modules.length > 0) return
+    // if (modules.length > 0) return
 
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
@@ -163,6 +163,22 @@ export class ModuleService implements OnApplicationBootstrap {
     return qb.getMany()
   }
 
+  getManyDealByStageId(stageId: string) {
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .where(
+        `jsonb_path_query_array(e.data, '$[*] ? (@.stageId == "${stageId}")') @> :query::jsonb`,
+        {
+          query: JSON.stringify([{ stageId: stageId }]),
+        },
+      )
+      .select(['e.id', 'e.name'])
+      .addSelect(['module.id', 'module.name'])
+
+    return qb.getMany()
+  }
+
   async getManyEntity(
     moduleName: string,
     { limit, page, shouldNotPaginate, ...dto }: DTO.Module.GetManyEntity,
@@ -184,7 +200,7 @@ export class ModuleService implements OnApplicationBootstrap {
         type: ActionType.CAN_VIEW_ALL,
       })
     ) {
-      qb.andWhere('e.data["ownerId"] = :ownerId', {
+      qb.andWhere("e.data ->> 'ownerId' = :ownerId", {
         ownerId: this.payloadService.data.id,
       })
     }

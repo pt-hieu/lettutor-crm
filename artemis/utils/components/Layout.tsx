@@ -128,7 +128,7 @@ function Layout({
       </Head>
 
       <SessionInvalidate />
-      {!disableSearch && <Search close={closeSearch} visible={search} />}
+      {/* {!disableSearch && <Search close={closeSearch} visible={search} />} */}
 
       {process.env.NODE_ENV === 'production' && <BugReporter />}
       {requireLogin && <RequireLogin />}

@@ -6,6 +6,7 @@ import { useMutation, useQuery } from 'react-query'
 
 import { DetailNavbar } from '@components/Details/Navbar'
 import { DetailSidebar, Sections } from '@components/Details/Sidebar'
+import { NoteSection } from '@components/Notes/NoteSection'
 
 import AttachmentSection from '@utils/components/AttachmentSection'
 import Layout from '@utils/components/Layout'
@@ -130,6 +131,14 @@ export default function DetailView({ paths }: TProps) {
                 </FormProvider>
               </form>
             </div>
+
+            <NoteSection
+              id={Sections.Notes}
+              source="module"
+              moduleName={moduleName}
+              entityId={entity.id}
+              hasFilter={moduleName === 'account'}
+            />
 
             <div className="p-4 rounded-md border">
               <div
