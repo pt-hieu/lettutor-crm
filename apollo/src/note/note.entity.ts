@@ -16,11 +16,6 @@ export enum NoteFilter {
   ACCOUNT_ONLY = 'account',
 }
 
-export enum NoteSource {
-  MODULE = 'module',
-  TASK = 'task',
-}
-
 @Entity({ name: 'note' })
 export class Note extends Ownerful {
   @ManyToOne(() => Task, (task) => task.notes, { onDelete: 'CASCADE' })
