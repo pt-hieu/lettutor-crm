@@ -77,8 +77,11 @@ export default function ChangePassword() {
           signOut()
         }, 1000)
       },
-      onError() {
-        notification.error({ message: 'Change password unsuccessfully.' })
+      onError(error: any) {
+        notification.error({
+          message:
+            error?.response?.data?.message || 'Change password unsuccessfully.',
+        })
       },
     },
   )
