@@ -5,6 +5,7 @@ import { useClickAway } from 'react-use'
 import Animate from '@utils/components/Animate'
 import Input from '@utils/components/Input'
 import SuggestInput from '@utils/components/SuggestInput'
+import { EmailReg, PhoneReg } from '@utils/data/regex'
 import { useModal } from '@utils/hooks/useModal'
 import { useStore } from '@utils/hooks/useStore'
 import { FieldMeta, FieldType } from '@utils/models/module'
@@ -16,13 +17,18 @@ type FieldProps = {
   inlineEdit?: boolean
 }
 
-const EmailReg =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-const PhoneReg = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/
-
 export default function Field({ data, inlineEdit }: FieldProps) {
-  const { name, required, type, options, relateTo, validation } = data
+  const {
+    name,
+    required,
+    type,
+    options,
+    relateTo,
+    min,
+    max,
+    minLength,
+    maxLength,
+  } = data
   const {
     register,
     setValue,
@@ -51,6 +57,36 @@ export default function Field({ data, inlineEdit }: FieldProps) {
         required: required
           ? `${toCapitalizedWords(name.replace('Id', ''))} is required`
           : undefined,
+        ...(max && {
+          max: {
+            value: max,
+            message: `${toCapitalizedWords(
+              name,
+            )} must not be greater than ${max}.`,
+          },
+        }),
+        ...(minLength && {
+          minLength: {
+            value: minLength,
+            message: `${toCapitalizedWords(
+              name,
+            )} must be longer than ${minLength}.`,
+          },
+        }),
+        ...(maxLength && {
+          maxLength: {
+            value: maxLength,
+            message: `${toCapitalizedWords(
+              name,
+            )} must be shorter than ${maxLength}.`,
+          },
+        }),
+        ...(min && {
+          min: {
+            value: min,
+            message: `${toCapitalizedWords(name)} must be greater than ${min}.`,
+          },
+        }),
         ...(type === FieldType.EMAIL && {
           pattern: {
             value: EmailReg,
@@ -136,6 +172,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
       ),
       [FieldType.RELATION]: (
         <SuggestInput
+          wrapperClassname={inlineEdit ? '' : '!w-full'}
           error={errors[name]?.message}
           onItemSelect={(item) => setValue(name, item.id)}
           getData={relationItems || []}
@@ -158,6 +195,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
       ),
       [FieldType.SELECT]: (
         <SuggestInput
+          wrapperClassname={inlineEdit ? '' : '!w-full'}
           error={errors[name]?.message}
           onItemSelect={(item) => setValue(name, item)}
           getData={options || []}

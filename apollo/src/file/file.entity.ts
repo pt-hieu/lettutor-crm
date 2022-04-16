@@ -1,6 +1,7 @@
 import { Exclude, Expose, Transform } from 'class-transformer'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
+import { Entity as EntityModule } from 'src/module/module.entity'
 import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { BaseEntity } from 'src/utils/base.entity'
@@ -24,6 +25,16 @@ export class File extends BaseEntity {
   @Column({ type: 'uuid', nullable: true })
   @Exclude({ toPlainOnly: true })
   taskId: string | null
+
+  @ManyToOne(() => EntityModule, (entity) => entity.attachments, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  entity: EntityModule
+
+  @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
+  entityId: string | null
 
   @Column({ default: false })
   external: boolean

@@ -19,26 +19,6 @@ export class AddTask {
   @IsUUID()
   ownerId: string
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  contactId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  dealId?: string
-
   @ApiPropertyOptional({ enum: TaskPriority, enumName: 'Task Priority' })
   @IsOptional()
   @IsEnum(TaskPriority)
@@ -53,7 +33,7 @@ export class AddTask {
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  subject: string
+  name: string
 
   @ApiPropertyOptional({ type: Date })
   @IsOptional()
@@ -66,6 +46,10 @@ export class AddTask {
   @IsString()
   @MaxLength(500)
   description?: string
+
+  @ApiProperty()
+  @IsUUID(undefined, { each: true })
+  entityIds: string[]
 }
 
 export class GetManyQuery extends Paginate {

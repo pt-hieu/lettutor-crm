@@ -29,7 +29,11 @@ export const getRawEntity = (moduleName: string) => () =>
     .then((r) => r.data)
 
 export const getEntities =
-  (moduleName: string, params: {} & PagingQuery) => () =>
+  (
+    moduleName: string,
+    params: { [x in string]?: string | number } & PagingQuery,
+  ) =>
+  () =>
     axios
       .get<Paginate<Entity>>(API + '/apollo/' + moduleName, { params })
       .then((r) => r.data)
@@ -39,18 +43,31 @@ export const batchDeleteEntities = (ids: string[] | string) =>
     .delete(API + '/apollo/entity/batch', { data: { ids: [ids].flat() } })
     .then((r) => r.data)
 
-export const getEntity = (name: string, id: string, token?: string) => () =>
-  axios
+export const getEntity = (name: string, id: string, token?: string) => () => {
+  return axios
     .get<Entity>(API + `/apollo/${name}/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
-
-export const updateEntity = (name: string, id: string) => (data: any) => {
-  const name = data.name
-  delete data.name
-
-  return axios
-    .patch(API + `/apollo/${name}/${id}`, { data, name })
-    .then((r) => r.data)
 }
+
+export const updateEntity = (moduleName: string, id: string) => (data: any) => {
+  const { name, ...rest } = data
+  return axios
+    .patch<Entity>(API + `/apollo/${moduleName}/${id}`, {
+      name,
+      data: rest,
+    })
+    .then((res) => res.data)
+}
+
+export const getEntityForTaskCreate = (token?: string) => () =>
+  axios
+    .get<
+      (Pick<Entity, 'id' | 'name'> & { module: Pick<Module, 'id' | 'name'> })[]
+    >(API + '/apollo/entity/raw/create-task', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((r) => r.data)

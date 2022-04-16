@@ -12,8 +12,8 @@ import {
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DefineAction } from 'src/action.decorator'
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 
 import { TaskService } from './task.service'
 
@@ -37,10 +37,19 @@ export class TaskController {
   }
 
   @Post()
-  @DefineAction(Actions.CREATE_NEW_TASK)
+  @DefineAction({
+    target: DefaultActionTarget.TASK,
+    type: ActionType.CAN_CREATE_NEW,
+  })
   @ApiOperation({ summary: 'to add new task' })
   addTask(@Body() dto: DTO.Task.AddTask) {
     return this.service.addTask(dto)
+  }
+
+  @Get('entity/:id')
+  @ApiOperation({ summary: 'to get task of an entity' })
+  getTaskOfEntity(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.getTaskOfEntity(id)
   }
 
   @Get(':id')
@@ -48,7 +57,7 @@ export class TaskController {
   getTaskById(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.getTaskById({
       where: { id },
-      relations: ['owner', 'account', 'lead', 'contact', 'deal'],
+      relations: ['owner'],
     })
   }
 
@@ -62,6 +71,10 @@ export class TaskController {
   }
 
   @Delete('batch')
+  @DefineAction({
+    target: DefaultActionTarget.TASK,
+    type: ActionType.CAN_DELETE_ANY,
+  })
   @ApiOperation({ summary: 'to batch delete tasks' })
   deleteNote(@Body() dto: DTO.BatchDelete) {
     return this.service.batchDelete(dto.ids)

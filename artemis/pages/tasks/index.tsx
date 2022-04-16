@@ -23,9 +23,9 @@ export const taskColumns: TableColumnType<Task>[] = [
     title: 'Subject',
     dataIndex: 'subject',
     key: 'subject',
-    sorter: { compare: (a, b) => a.subject.localeCompare(b.subject) },
+    sorter: { compare: (a, b) => a.name.localeCompare(b.name) },
     fixed: 'left',
-    render: (_, { id, subject }) => (
+    render: (_, { id, name: subject }) => (
       <Link href={`/tasks/${id}`}>
         <a className="crm-link underline hover:underline">{subject}</a>
       </Link>

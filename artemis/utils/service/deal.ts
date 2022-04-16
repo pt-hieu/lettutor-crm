@@ -1,8 +1,5 @@
 import axios from 'axios'
 import { API } from 'environment'
-import { DealUpdateFormData } from 'pages/deals/[id]/edit'
-
-import { TData } from '@components/Deals/DealStageMapping/DealStageTable'
 
 import { Deal, DealStage, DealStageData } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
@@ -43,28 +40,13 @@ export const getDeal = (id?: string, token?: string) => () =>
     })
     .then((res) => res.data)
 
-export const updateDeal = async (params: {
-  id: string
-  dealInfo: Partial<DealUpdateFormData>
-}) => {
-  const { id, dealInfo } = params
-  const { data } = await axios.patch<Deal>(API + `/apollo/deal/${id}`, dealInfo)
-
-  return data
-}
-
-export const addDeal = async (dealInfo: DealUpdateFormData) => {
-  const { data } = await axios.post<Deal>(API + `/apollo/deal`, dealInfo)
-  return data
-}
-
 export const batchDelete = (ids: string[]) =>
   axios
     .delete(API + '/apollo/deal/batch', { data: { ids } })
     .then((r) => r.data)
 
 export const getDealStages = (token?: string) => async () => {
-  const { data } = await axios.get<TData[]>(API + '/apollo/deal-stage', {
+  const { data } = await axios.get<any[]>(API + '/apollo/deal-stage', {
     headers: { authorization: `Bearer ${token}` },
   })
 
@@ -76,7 +58,7 @@ export const getRawDealStage = () =>
     .get<Pick<DealStageData, 'id' | 'name'>>(API + '/apollo/deal-stage/raw')
     .then((r) => r.data)
 
-export const updateDealStage = async (datas: TData[]) => {
+export const updateDealStage = async (datas: any[]) => {
   const { data } = await axios.post(API + `/apollo/deal-stage`, {
     items: datas,
   })

@@ -1,12 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 import {
+  IsDate,
   IsNotEmpty,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   ValidateNested,
 } from 'class-validator'
+import { Double } from 'typeorm'
 
 import { FieldMeta } from 'src/module/module.entity'
 
@@ -68,4 +73,32 @@ export class UpdateEnity {
   data?: Record<string, unknown>
 }
 
-export class GetManyEntity extends Paginate {}
+export class GetManyEntity extends Paginate {
+  @ApiPropertyOptional()
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  search?: string
+}
+
+export class ConvertToDeal {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  name: string
+
+  @ApiPropertyOptional({ type: Double })
+  @IsOptional()
+  @IsNumber()
+  amount?: number
+
+  @ApiProperty()
+  @IsDate()
+  @Type(() => Date)
+  closingDate: Date
+
+  @ApiProperty()
+  @IsUUID()
+  stageId: string
+}

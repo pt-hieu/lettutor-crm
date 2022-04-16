@@ -21,7 +21,6 @@ import { useModal } from '@utils/hooks/useModal'
 import { useStore } from '@utils/hooks/useStore'
 import { Attachments } from '@utils/models/note'
 import {
-  Entity,
   addAttachmentAsFile,
   addAttachmentAsLink,
 } from '@utils/service/attachment'
@@ -33,7 +32,7 @@ import Loading from './Loading'
 type TProps = {
   id: string
   data?: Attachments[]
-  entityType: Entity
+  moduleName: string
   entityId: string
 }
 
@@ -41,7 +40,7 @@ export default function AttachmentSection({
   id,
   data,
   entityId,
-  entityType,
+  moduleName,
 }: TProps) {
   const [modal, open, close] = useModal()
 
@@ -53,7 +52,7 @@ export default function AttachmentSection({
     <div className="p-4 border rounded-md">
       <AddAttachmentModal
         entityId={entityId}
-        entityType={entityType}
+        moduleName={moduleName}
         close={close}
         visible={modal}
       />
@@ -77,7 +76,7 @@ export default function AttachmentSection({
         <AttachmentTable
           data={data}
           entityId={entityId}
-          entityType={entityType}
+          moduleName={moduleName}
         />
       )}
     </div>
@@ -87,7 +86,7 @@ export default function AttachmentSection({
 type TModalProps = {
   visible: boolean
   close: () => void
-  entityType: Entity
+  moduleName: string
   entityId: string
 }
 
@@ -259,7 +258,7 @@ function AddAttachmentModal({
   close,
   visible,
   entityId,
-  entityType,
+  moduleName,
 }: TModalProps) {
   const [selectedMode, selectMode] = useState<AddMode>(AddMode.FILE)
 
@@ -289,10 +288,10 @@ function AddAttachmentModal({
   const { isLoading: isUploadFile, mutateAsync: mutateAttachmentAsFile } =
     useMutation(
       'add-attachments-as-file',
-      addAttachmentAsFile(entityId, entityType),
+      addAttachmentAsFile(entityId, moduleName),
       {
         onSuccess(_, files) {
-          client.refetchQueries([entityType, entityId])
+          client.refetchQueries([moduleName, entityId])
           client.removeQueries('store:selected-files')
           dispatch('cmd:clear-temp-attachment')
 
@@ -312,10 +311,10 @@ function AddAttachmentModal({
   const { isLoading: isUploadLink, mutateAsync: mutateAttachmentAsLink } =
     useMutation(
       'add-attachment-as-link',
-      addAttachmentAsLink(entityId, entityType),
+      addAttachmentAsLink(entityId, moduleName),
       {
         onSuccess() {
-          client.refetchQueries([entityType, entityId])
+          client.refetchQueries([moduleName, entityId])
           dispatch('cmd:clear-temp-attachment')
           close()
 
@@ -347,6 +346,7 @@ function AddAttachmentModal({
         <div className="flex items-center mb-4">
           {Object.values(AddMode).map((mode) => (
             <button
+              key={mode}
               onClick={() => selectMode(mode)}
               className={`${
                 mode === selectedMode ? 'crm-button' : 'crm-button-secondary'

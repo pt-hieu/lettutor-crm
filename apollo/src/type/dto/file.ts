@@ -9,8 +9,6 @@ import {
   MaxLength,
 } from 'class-validator'
 
-import { Entity } from '../util'
-
 export class Files {
   @ApiProperty()
   @Allow()
@@ -23,10 +21,6 @@ export class Files {
 }
 
 export class UploadExternalAttachment {
-  @ApiProperty({ type: 'enum', enumName: 'Entity', enum: Entity })
-  @IsEnum(Entity)
-  entity: Entity
-
   @ApiProperty()
   @IsNotEmpty()
   @MaxLength(100)
@@ -36,12 +30,6 @@ export class UploadExternalAttachment {
   @ApiProperty()
   @IsUrl()
   location: string
-}
-
-export class UploadAttachment extends Files {
-  @ApiProperty({ type: 'enum', enumName: 'Entity', enum: Entity })
-  @IsEnum(Entity)
-  entity: Entity
 }
 
 export class UpdateAttachment {

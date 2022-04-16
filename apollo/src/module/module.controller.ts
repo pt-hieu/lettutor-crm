@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
@@ -9,12 +11,9 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import {
-  ApiOperation,
-  ApiProperty,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger'
+import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
+import { plainToInstance } from 'class-transformer'
+import { validate } from 'class-validator'
 
 import { DTO } from 'src/type'
 
@@ -46,6 +45,12 @@ export class ModuleController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.service.updateModule(id, dto)
+  }
+
+  @Get('/entity/raw/create-task')
+  @ApiOperation({ summary: 'to get raw entity for creating task' })
+  getRawEntityForCreatingTask() {
+    return this.service.getRawEntityForTaskCreate()
   }
 
   @Get(':name/raw')
@@ -95,5 +100,32 @@ export class ModuleController {
   @ApiOperation({ summary: 'to batch delete entity' })
   batchDelete(@Body() dto: DTO.BatchDelete) {
     return this.service.batchDeleteEntity(dto)
+  }
+
+  @Post('lead/:id/convert')
+  @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
+  @ApiBody({ required: false, type: DTO.Module.ConvertToDeal })
+  async convert(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: object,
+    @Query('ownerId', new DefaultValuePipe(undefined), ParseUUIDPipe)
+    ownerId?: string,
+  ) {
+    const shouldConvertToDeal = Object.keys(body).length !== 0
+    let dto: DTO.Module.ConvertToDeal
+
+    if (shouldConvertToDeal) {
+      dto = plainToInstance(DTO.Module.ConvertToDeal, body, {
+        ignoreDecorators: false,
+      })
+
+      const errors = await validate('ConvertToDeal', dto)
+      if (errors.length)
+        throw new BadRequestException(
+          errors.map((e) => Object.values(e.constraints)).flat(),
+        )
+    }
+
+    return this.service.convert(id, dto, shouldConvertToDeal, ownerId)
   }
 }

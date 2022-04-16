@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { API } from 'environment'
-import { TaskFormData } from 'pages/tasks/add-task'
+import { TaskFormData } from 'pages/tasks/create'
 
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
@@ -29,6 +29,15 @@ export const getTask = (id?: string, token?: string) => () =>
     })
     .then((res) => res.data)
 
+export const getTaskOfEntity = (id: string, token?: string) => () =>
+  axios
+    .get<Task[]>(API + '/apollo/task/entity/' + id, {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((r) => r.data)
+
 export const addTask = async (taskInfo: TaskFormData) => {
   const { data } = await axios.post<Task>(API + `/apollo/task`, taskInfo)
   return data
@@ -36,7 +45,7 @@ export const addTask = async (taskInfo: TaskFormData) => {
 
 export const getRawTasks = (token?: string) => () =>
   axios
-    .get<Pick<Task, 'id' | 'subject'>[]>(API + '/apollo/task/raw', {
+    .get<Pick<Task, 'id' | 'name'>[]>(API + '/apollo/task/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },

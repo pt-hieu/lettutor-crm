@@ -26,30 +26,31 @@ export class FileService {
   constructor(
     @InjectRepository(File)
     private fileRepo: Repository<File>,
+
     private util: UtilService,
     private http: HttpService,
   ) {}
 
-  async createEntityAttachments(id: string, dto: DTO.File.UploadAttachment) {
+  async createEntityAttachments(
+    entityId: string,
+    dto: DTO.File.Files
+  ) {
     const savedFiles = await this.uploadFile(dto.files)
-
+    
     savedFiles.forEach((file) => {
-      file[dto.entity + 'Id'] = id
+      file.entityId = entityId
     })
 
     return this.fileRepo.save(savedFiles)
   }
 
   createEntityExternalAttachment(
-    id: string,
+    entityId: string,
     dto: DTO.File.UploadExternalAttachment,
   ) {
-    const entityId = dto.entity + 'Id'
-    delete dto.entity
-
     return this.fileRepo.save({
       ...dto,
-      [entityId]: id,
+      entityId,
       external: true,
       size: 0,
     })

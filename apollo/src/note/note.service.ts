@@ -14,10 +14,11 @@ import { File } from 'src/file/file.entity'
 import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
+import { Entity } from 'src/module/module.entity'
 import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
-import { Note, NoteFilter, NoteSort, NoteSource } from './note.entity'
+import { Note, NoteSort, NoteSource } from './note.entity'
 
 @Injectable()
 export class NoteService {
@@ -28,6 +29,9 @@ export class NoteService {
     @InjectRepository(File)
     private fileRepo: Repository<File>,
 
+    @InjectRepository(Entity)
+    private entityRepo: Repository<Entity>,
+
     @Inject(forwardRef(() => TaskService))
     private readonly taskService: TaskService,
 
@@ -37,35 +41,25 @@ export class NoteService {
   ) {}
 
   async addNote(dto: DTO.Note.AddNote) {
-    // let filesToAdd: File[] = []
-    // if (dto.files && dto.files.length > 0) {
-    //   filesToAdd = await this.fileService.uploadFile(dto.files)
-    // }
-    // delete dto.files
-    // if (dto.contactId && dto.source === NoteSource.CONTACT) {
-    //   const contact = await this.contactService.getContactById({
-    //     where: { id: dto.contactId },
-    //   })
-    //   dto.source = NoteSource.CONTACT
-    //   dto.accountId = contact.accountId
-    // }
-    // if (dto.dealId && dto.source === NoteSource.DEAL) {
-    //   const deal = await this.dealService.getDealById({
-    //     where: { id: dto.dealId },
-    //   })
-    //   dto.accountId = deal.accountId
-    // }
-    // if (dto.taskId && dto.source === NoteSource.TASK) {
-    //   const task = await this.taskService.getTaskById({
-    //     where: { id: dto.taskId },
-    //   })
-    //   dto.leadId = task.leadId
-    //   dto.contactId = task.contactId
-    //   dto.accountId = task.accountId
-    //   dto.dealId = task.dealId
-    // }
-    // dto.ownerId = this.payloadService.data.id
-    // return this.noteRepo.save({ ...dto, attachments: filesToAdd })
+    let filesToAdd: File[] = []
+    if (dto.files && dto.files.length > 0) {
+      filesToAdd = await this.fileService.uploadFile(dto.files)
+    }
+    delete dto.files
+
+    if (dto.entityId && dto.source === NoteSource.MODULE) {
+      await this.entityRepo.find({
+        where: { id: dto.entityId },
+      })
+    }
+
+    if (dto.taskId && dto.source === NoteSource.TASK) {
+      await this.taskService.getTaskById({
+        where: { id: dto.taskId },
+      })
+    }
+    dto.ownerId = this.payloadService.data.id
+    return this.noteRepo.save({ ...dto, attachments: filesToAdd })
   }
 
   getMany(query: DTO.Note.GetManyQuery) {
@@ -73,54 +67,33 @@ export class NoteService {
       .createQueryBuilder('note')
       .leftJoinAndSelect('note.attachments', 'attachments')
       .leftJoin('note.owner', 'owner')
-      .leftJoin('note.lead', 'lead')
-      .leftJoin('note.contact', 'contact')
-      .leftJoin('note.account', 'account')
-      .leftJoin('note.deal', 'deal')
+      .leftJoin('note.entity', 'entity')
       .leftJoin('note.task', 'task')
       .addSelect([
         'owner.name',
         'owner.email',
-        'lead.id',
-        'lead.fullName',
-        'contact.id',
-        'contact.fullName',
-        'account.id',
-        'account.fullName',
-        'deal.id',
-        'deal.fullName',
+        'entity.id',
+        'entity.name',
         'task.id',
-        'task.subject',
+        'task.name',
       ])
 
-    if (query.source === NoteSource.LEAD) {
-      q.andWhere('note.leadId = :leadId', {
-        leadId: query.sourceId,
+    if (query.source === NoteSource.MODULE) {
+      q.andWhere('note.entityId = :entityId', {
+        entityId: query.sourceId,
       })
     }
 
-    if (query.source === NoteSource.CONTACT) {
-      q.andWhere('note.contactId = :contactId', {
-        contactId: query.sourceId,
-      })
-    }
-
-    if (query.source === NoteSource.ACCOUNT) {
-      q.andWhere('note.accountId = :accountId', {
-        accountId: query.sourceId,
-      })
-      if (query.filter === NoteFilter.ACCOUNT_ONLY) {
-        q.andWhere('note.source = :source', {
-          source: NoteSource.ACCOUNT,
-        })
-      }
-    }
-
-    if (query.source === NoteSource.DEAL) {
-      q.andWhere('note.dealId = :dealId', {
-        dealId: query.sourceId,
-      })
-    }
+    // if (query.source === NoteSource.ACCOUNT) {
+    //   q.andWhere('note.accountId = :accountId', {
+    //     accountId: query.sourceId,
+    //   })
+    //   if (query.filter === NoteFilter.ACCOUNT_ONLY) {
+    //     q.andWhere('note.source = :source', {
+    //       source: NoteSource.ACCOUNT,
+    //     })
+    //   }
+    // }
 
     if (query.source === NoteSource.TASK) {
       q.andWhere('note.taskId = :taskId', {
@@ -179,6 +152,10 @@ export class NoteService {
       ...dto,
       attachments: [...note.attachments, ...filesToAdd],
     })
+  }
+
+  async updateAllNotes(notes: Note[]) {
+    await this.noteRepo.save(notes)
   }
 
   async batchDelete(ids: string[]) {

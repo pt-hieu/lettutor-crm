@@ -1,16 +1,16 @@
 import { UnprocessableEntityException } from '@nestjs/common'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Exclude, Transform } from 'class-transformer'
+import { Exclude, Transform, Type } from 'class-transformer'
 import {
   Allow,
   IsBoolean,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   isUUID,
 } from 'class-validator'
-import { RegisterOptions } from 'react-hook-form'
 import {
   Column,
   Entity as EntityDecorator,
@@ -18,6 +18,8 @@ import {
   OneToMany,
 } from 'typeorm'
 
+import { Note } from 'src/note/note.entity'
+import { File } from 'src/file/file.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 
 export enum FieldType {
@@ -32,8 +34,13 @@ export enum FieldType {
   RELATION = 'Relation',
 }
 
+export enum RelateType {
+  SINGLE = 'SINGLE',
+  MULTIPLE = 'MULTIPLE',
+}
+
 type Visibility = {
-  [k in 'Overview' | 'Update']?: boolean
+  [k in 'Overview' | 'Update' | 'Create' | 'Detail']?: boolean
 }
 
 export class FieldMeta {
@@ -50,6 +57,18 @@ export class FieldMeta {
   @ApiProperty()
   @IsBoolean()
   required: boolean
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => {
+    try {
+      return JSON.parse(value)
+    } catch (e) {
+      return false
+    }
+  })
+  index?: boolean
 
   @ApiProperty()
   @Allow()
@@ -84,11 +103,39 @@ export class FieldMeta {
   relateTo?: string
 
   @ApiPropertyOptional()
-  @Allow()
-  validation?: Pick<
-    RegisterOptions,
-    'min' | 'max' | 'minLength' | 'maxLength' | 'pattern'
-  >
+  @IsOptional()
+  @IsEnum(RelateType)
+  @Transform(({ value, obj }: { value: unknown; obj: FieldMeta }) => {
+    if (obj.type === FieldType.RELATION && !value)
+      throw new UnprocessableEntityException('Relate type is missing')
+
+    return value
+  })
+  relateType?: RelateType
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  min?: number
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  max?: number
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  minLength?: number
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  maxLength?: number
 }
 
 type Meta = FieldMeta[]
@@ -110,16 +157,77 @@ export class Module extends BaseEntity {
   entities?: Entity[]
 
   public validateEntity(data: Record<string, unknown>): string | null {
-    for (const { name, required, type, options } of this.meta) {
+    for (const {
+      name,
+      required,
+      type,
+      options,
+      relateType,
+      min,
+      max,
+      minLength,
+      maxLength,
+    } of this.meta) {
       if (!data[name] && required) return `${name} is required`
+      if (!data[name] && !required) return null
+
       if (type === FieldType.RELATION && !isUUID(data[name]))
         return `${name} has to be a UUID`
+
+      if (
+        type === FieldType.RELATION &&
+        relateType === RelateType.MULTIPLE &&
+        !Array.isArray(data[name])
+      ) {
+        return `${name} has to be an array`
+      }
+
+      if (
+        type === FieldType.RELATION &&
+        relateType === RelateType.MULTIPLE &&
+        Array.isArray(data[name]) &&
+        (data[name] as string[]).some((id) => !isUUID(id))
+      ) {
+        return `${name} has to be an array of UUID`
+      }
 
       if (
         type === FieldType.SELECT &&
         options.every((option) => option !== data[name])
       ) {
         return `Invalid option for ${data[name]}`
+      }
+
+      if (
+        type === FieldType.NUMBER &&
+        typeof data[name] === 'number' &&
+        data[name] < min
+      ) {
+        return `Invalid value for ${name}, min value is ${min}`
+      }
+
+      if (
+        type === FieldType.NUMBER &&
+        typeof data[name] === 'number' &&
+        data[name] > max
+      ) {
+        return `Invalid value for ${name}, max value is ${max}`
+      }
+
+      if (
+        (type === FieldType.TEXT || type == FieldType.MULTILINE_TEXT) &&
+        typeof data[name] === 'string' &&
+        (data[name] as string).length < minLength
+      ) {
+        return `Invalid value for ${name}, min length is ${minLength}`
+      }
+
+      if (
+        (type === FieldType.TEXT || type == FieldType.MULTILINE_TEXT) &&
+        typeof data[name] === 'string' &&
+        (data[name] as string).length > maxLength
+      ) {
+        return `Invalid value for ${name}, max length is ${maxLength}`
       }
     }
 
@@ -141,4 +249,15 @@ export class Entity extends BaseEntity {
 
   @Column({ type: 'jsonb' })
   data: Record<string, unknown>
+
+  @OneToMany(() => Note, (note) => note.entity, {
+    cascade: true,
+  })
+  notes?: Note[]
+
+  @OneToMany(() => File, (file) => file.entity, {
+    eager: true,
+    cascade: true,
+  })
+  attachments?: File[]
 }

@@ -14,7 +14,7 @@ import { User } from '@utils/models/user'
 export interface TaskFormData
   extends Pick<
     Task,
-    'subject' | 'dueDate' | 'status' | 'priority' | 'description'
+    'name' | 'dueDate' | 'status' | 'priority' | 'description'
   > {
   ownerId: string
 }
@@ -137,12 +137,12 @@ const AddTaskModal = ({
               Subject
             </label>
             <Input
-              error={errors.subject?.message}
+              error={errors.name?.message}
               props={{
                 type: 'text',
                 id: 'name',
                 className: 'w-full',
-                ...register('subject'),
+                ...register('name'),
               }}
             />
           </div>

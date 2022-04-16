@@ -1,9 +1,7 @@
 import { notification } from 'antd'
-import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
-import { AccountDetailSections } from '@components/Accounts/AccountDetailSidebar'
 
 import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
 import DetailPageSidebar, {
@@ -11,19 +9,30 @@ import DetailPageSidebar, {
 } from '@utils/components/DetailPageSidebar'
 import { useModal } from '@utils/hooks/useModal'
 import { TaskStatus } from '@utils/models/task'
-import { getAccount } from '@utils/service/account'
-import { addTask } from '@utils/service/task'
+import { addTask, getTaskOfEntity } from '@utils/service/task'
 
-export const DetailSidebar = () => {
-  const router = useRouter()
-  const accountId = router.query.id as string
+type Props = {
+  paths: string[]
+}
+
+export enum Sections {
+  Notes = 'Notes',
+  Deals = 'Deals',
+  Logs = 'Logs',
+  OpenActivities = 'Open Activities',
+  ClosedActivities = 'Closed Activities',
+  Attachments = 'Attachments',
+}
+
+export const DetailSidebar = ({ paths }: Props) => {
+  const [moduleName, id] = paths
 
   const client = useQueryClient()
   const [createTaskVisible, openCreateTask, closeCreateTask] = useModal()
 
   const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
     onSuccess: () => {
-      client.refetchQueries(['account', accountId])
+      // client.refetchQueries(['account', accountId])
       notification.success({
         message: 'Add task successfully.',
       })
@@ -33,36 +42,26 @@ export const DetailSidebar = () => {
     },
   })
 
-  const { data: account } = useQuery(
-    ['account', accountId],
-    getAccount(accountId),
+  const { data: tasks } = useQuery(
+    [moduleName, id, 'tasks'],
+    getTaskOfEntity(id),
     { enabled: false },
   )
 
   const { open, close } = useMemo(
     () => ({
-      open: account?.tasksToDisplay.filter(
-        (task) => task.status !== TaskStatus.COMPLETED,
-      ).length,
-      close: account?.tasksToDisplay.filter(
-        (task) => task.status === TaskStatus.COMPLETED,
-      ).length,
+      open: tasks?.filter((task) => task.status !== TaskStatus.COMPLETED)
+        .length,
+      close: tasks?.filter((task) => task.status === TaskStatus.COMPLETED)
+        .length,
     }),
-    [account],
+    [tasks],
   )
 
   const createTask = (formData: TaskFormData) => {
     if (!formData.dueDate) {
       formData.dueDate = null
     }
-
-    mutateAsync({
-      ...formData,
-      leadId: null,
-      contactId: null,
-      accountId,
-      dealId: null,
-    })
 
     closeCreateTask()
   }
@@ -72,16 +71,16 @@ export const DetailSidebar = () => {
       title: 'Related List',
       options: [
         {
-          label: AccountDetailSections.Notes,
+          label: Sections.Notes,
         },
         {
-          label: AccountDetailSections.Deals,
+          label: Sections.Deals,
         },
         {
-          id: AccountDetailSections.OpenActivities,
+          id: Sections.OpenActivities,
           label: (
             <span>
-              {AccountDetailSections.OpenActivities}
+              {Sections.OpenActivities}
               {!!open && (
                 <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
                   {open}
@@ -95,10 +94,10 @@ export const DetailSidebar = () => {
           },
         },
         {
-          id: AccountDetailSections.ClosedActivities,
+          id: Sections.ClosedActivities,
           label: (
             <span>
-              {AccountDetailSections.ClosedActivities}
+              {Sections.ClosedActivities}
               {!!close && (
                 <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
                   {close}
@@ -108,15 +107,15 @@ export const DetailSidebar = () => {
           ),
         },
         {
-          id: AccountDetailSections.Attachments,
+          id: Sections.Attachments,
           label: (
             <span>
-              {AccountDetailSections.Attachments}
-              {!!account?.attachments.length && (
+              {Sections.Attachments}
+              {/* {!!account?.attachments.length && (
                 <span className="ml-3 bg-blue-600 text-white rounded-md p-1 px-2">
                   {account.attachments.length}
                 </span>
-              )}
+              )} */}
             </span>
           ),
           extend: {
@@ -126,7 +125,7 @@ export const DetailSidebar = () => {
           },
         },
         {
-          label: AccountDetailSections.Logs,
+          label: Sections.Logs,
         },
       ],
     },

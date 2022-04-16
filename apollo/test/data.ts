@@ -1,15 +1,15 @@
 import { Account, AccountType } from 'src/account/account.entity'
+import { DefaultActions } from 'src/action/default.action'
 import { Contact } from 'src/contact/contact.entity'
 import { Deal, DealStage } from 'src/deal/deal.entity'
 import { Lead, LeadSource, LeadStatus } from 'src/lead/lead.entity'
 import { Note } from 'src/note/note.entity'
 import { Role } from 'src/role/role.entity'
 import { Task, TaskPriority, TaskStatus } from 'src/task/task.entity'
-import { Actions } from 'src/type/action'
 import { User, UserStatus } from 'src/user/user.entity'
 
 export const role: Role = {
-  actions: [Actions.IS_ADMIN],
+  actions: [DefaultActions.IS_ADMIN],
   name: 'Admin',
   children: [],
   id: '24',
@@ -145,7 +145,7 @@ export const task: Task = {
   dealId: deal.id,
   priority: TaskPriority.HIGH,
   status: TaskStatus.NOT_STARTED,
-  subject: 'test',
+  name: 'test',
   dueDate: null,
   description: null,
   createdAt: null,

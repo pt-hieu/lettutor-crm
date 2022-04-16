@@ -1,9 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 
-import { Actions } from 'src/type/action'
-
 import { KEY } from './action.decorator'
+import { ActionType, DefaultActionTarget } from './action/action.entity'
 import { JwtPayload } from './utils/interface'
 
 @Injectable()
@@ -11,10 +10,9 @@ export class ActionGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredActions = this.reflector.getAllAndOverride<Actions[]>(KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ])
+    const requiredActions = this.reflector.getAllAndOverride<
+      { target: String; type: ActionType }[]
+    >(KEY, [context.getHandler(), context.getClass()])
 
     if (!requiredActions) {
       return true
@@ -22,10 +20,15 @@ export class ActionGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest() as { user: JwtPayload }
 
-    return !!requiredActions.filter((action) =>
-      user.roles.some(
-        ({ actions }) =>
-          actions.includes(action) || actions.includes(Actions.IS_ADMIN),
+    return !!requiredActions.filter((requiredAction) =>
+      user.roles.some(({ actions }) =>
+        actions.some(
+          ({ type, target }) =>
+            (target === requiredAction.target &&
+              type === requiredAction.type) ||
+            (target === DefaultActionTarget.ADMIN &&
+              type === ActionType.IS_ADMIN),
+        ),
       ),
     ).length
   }

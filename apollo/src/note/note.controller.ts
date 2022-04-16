@@ -13,8 +13,8 @@ import {
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DefineAction } from 'src/action.decorator'
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
 
 import { NoteService } from './note.service'
 
@@ -27,7 +27,10 @@ export class NoteController {
   constructor(private readonly service: NoteService) {}
 
   @Post()
-  @DefineAction(Actions.CREATE_NEW_NOTE)
+  @DefineAction({
+    target: DefaultActionTarget.NOTE,
+    type: ActionType.CAN_CREATE_NEW,
+  })
   @ApiOperation({ summary: 'to add new note manually' })
   addNote(@Body() dto: DTO.Note.AddNote) {
     if (dto.files.length > MAX_COUNT_OF_FILES) {
@@ -62,6 +65,10 @@ export class NoteController {
   }
 
   @Delete('batch')
+  @DefineAction({
+    target: DefaultActionTarget.NOTE,
+    type: ActionType.CAN_DELETE_ANY,
+  })
   @ApiOperation({ summary: 'to batch delete a note' })
   deleteNote(@Body() dto: DTO.BatchDelete) {
     return this.service.batchDelete(dto.ids)

@@ -17,10 +17,7 @@ import { Paginate } from './paging'
 
 interface IAddNote {
   ownerId?: string
-  leadId?: string
-  contactId?: string
-  accountId?: string
-  dealId?: string
+  entityId?: string
   taskId?: string
   title?: string
   content: string
@@ -37,57 +34,19 @@ export class AddNote extends Files implements IAddNote {
   @IsOptional()
   @IsUUID()
   @Transform(
-    ({ value, obj }: TransformParams<IAddNote, IAddNote['leadId']>) => {
-      if (obj.source !== NoteSource.LEAD) return null
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['entityId']>) => {
+      if (obj.source !== NoteSource.MODULE) return null
       return value
     },
   )
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  @Transform(
-    ({ value, obj }: TransformParams<IAddNote, IAddNote['contactId']>) => {
-      if (obj.source === NoteSource.LEAD && obj.leadId) return null
-      return value
-    },
-  )
-  contactId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  @Transform(
-    ({ value, obj }: TransformParams<IAddNote, IAddNote['accountId']>) => {
-      if (obj.source === NoteSource.LEAD && obj.leadId) return null
-      return value
-    },
-  )
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  @Transform(
-    ({ value, obj }: TransformParams<IAddNote, IAddNote['dealId']>) => {
-      if (
-        (obj.source === NoteSource.LEAD && obj.leadId) ||
-        (obj.source === NoteSource.ACCOUNT && obj.accountId)
-      )
-        return null
-
-      return value
-    },
-  )
-  dealId?: string
+  entityId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
   @Transform(
     ({ value, obj }: TransformParams<IAddNote, IAddNote['taskId']>) => {
-      if (obj.source !== NoteSource.TASK && obj.taskId) return null
+      if (obj.source !== NoteSource.TASK) return null
       return value
     },
   )
@@ -161,57 +120,22 @@ export class UpdateBody extends Files implements IUpdateBody {
   @IsOptional()
   @IsUUID()
   @Transform(
-    ({
-      value,
-      obj,
-    }: TransformParams<IUpdateBody, IUpdateBody['contactId']>) => {
-      if (obj.leadId) return null
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['entityId']>) => {
+      if (obj.source !== NoteSource.MODULE) return null
       return value
     },
   )
-  contactId?: string
+  entityId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
   @Transform(
-    ({ value, obj }: TransformParams<IUpdateBody, IUpdateBody['leadId']>) => {
-      if (obj.accountId || obj.contactId || obj.dealId) return null
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['taskId']>) => {
+      if (obj.source !== NoteSource.TASK) return null
       return value
     },
   )
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  @Transform(
-    ({
-      value,
-      obj,
-    }: TransformParams<IUpdateBody, IUpdateBody['accountId']>) => {
-      if (obj.leadId) return null
-      if (obj.dealId) return null
-      return value
-    },
-  )
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  @Transform(
-    ({ value, obj }: TransformParams<IUpdateBody, IUpdateBody['dealId']>) => {
-      if (obj.leadId) return null
-      if (obj.accountId) return null
-      return value
-    },
-  )
-  dealId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
   taskId?: string
 
   @ApiPropertyOptional()

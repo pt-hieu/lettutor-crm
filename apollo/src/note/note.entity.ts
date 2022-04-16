@@ -2,6 +2,8 @@ import { Exclude } from 'class-transformer'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 import { File } from 'src/file/file.entity'
+import { Module } from 'src/module/module.entity'
+import { Entity as EntityData } from 'src/module/module.entity'
 import { Task } from 'src/task/task.entity'
 import { Ownerful } from 'src/utils/owner.entity'
 
@@ -15,10 +17,7 @@ export enum NoteFilter {
 }
 
 export enum NoteSource {
-  LEAD = 'lead',
-  CONTACT = 'contact',
-  ACCOUNT = 'account',
-  DEAL = 'deal',
+  MODULE = 'module',
   TASK = 'task',
 }
 
@@ -31,6 +30,16 @@ export class Note extends Ownerful {
   @Column({ type: 'uuid', nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   taskId: string | null
+
+  @ManyToOne(() => EntityData, (entity) => entity.notes, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  entity: EntityData
+
+  @Column({ type: 'uuid', nullable: true, default: null })
+  @Exclude({ toPlainOnly: true })
+  entityId: string | null
 
   @Column({ type: 'varchar', default: '' })
   title: string

@@ -11,8 +11,5 @@ export default function RelationCell({ relateTo, targetId }: Props) {
     relateTo,
   ])
   
-  console.log({relationItems, relateTo, targetId});
-  
-
   return <>{relationItems?.find((item) => item.id === targetId)?.name}</>
 }
