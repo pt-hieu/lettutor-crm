@@ -3,8 +3,6 @@ import { Entity } from './module'
 import { Task } from './task'
 import { User } from './user'
 
-export type NoteSource = 'module' | 'task'
-
 export type AddNoteDto = {
   ownerId: string
   entityId?: string
@@ -12,7 +10,7 @@ export type AddNoteDto = {
   title?: string
   content?: string
   files?: File[]
-  source: NoteSource
+  source: string
 }
 
 export interface Attachments extends Base {
@@ -27,7 +25,7 @@ export interface Note extends Base {
   owner: User | null
   title: string
   content: string
-  source: NoteSource
+  source: string
   entity: Pick<Entity, 'id' | 'name'>
   task: Task | null
   attachments: Attachments[]

@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
 import { Entity } from '@utils/models/module'
-import { Attachments, NoteSource } from '@utils/models/note'
+import { Attachments } from '@utils/models/note'
 import { deleteNote, editNote } from '@utils/service/note'
 
 import File from './File'
@@ -21,7 +21,7 @@ interface IProps {
   setShowNoteAdder: (value: boolean) => void
   hideEditButton?: boolean
   noteId: string
-  noteSource: NoteSource
+  noteSource: string
   entity: Pick<Entity, 'id' | 'name'>
   files?: Attachments[]
 }
@@ -130,7 +130,7 @@ export const NoteContent = ({
               <span className="capitalize">{noteSource}</span>
               <span className="px-1"> - </span>
 
-              <Link href={`/${noteSource}s/${entity.id}`}>
+              <Link href={`/${noteSource}/${entity.id}`}>
                 <a className="max-w-[120px] truncate text-blue-600">
                   {entity.name}
                 </a>
