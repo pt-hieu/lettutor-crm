@@ -13,6 +13,7 @@ import TasksViewLayout from '@components/Tasks/TasksViewLayout'
 import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
 import { formatDate } from '@utils/libs/time'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
@@ -106,8 +107,8 @@ export default function TasksView() {
     ],
     getTasks({ limit, page, search, status, priority }),
     {
-      keepPreviousData: true
-    }
+      keepPreviousData: true,
+    },
   )
 
   const [start, end, total] = usePaginateItem(tasks)

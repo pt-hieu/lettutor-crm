@@ -1,5 +1,5 @@
 import { IsEnum } from 'class-validator'
-import { Column, Entity, ManyToMany } from 'typeorm'
+import { Column, Entity, ManyToMany, Unique } from 'typeorm'
 
 import { Role } from 'src/role/role.entity'
 import { BaseEntity } from 'src/utils/base.entity'
@@ -26,6 +26,7 @@ export enum DefaultActionTarget {
 }
 
 @Entity()
+@Unique(['target', 'type'])
 export class Action extends BaseEntity {
   @Column()
   target: String

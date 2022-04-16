@@ -57,6 +57,7 @@ export class AuthService {
   async validate(dto: DTO.Auth.Login, res: Response) {
     const user = await this.userRepo.findOne({
       where: { email: dto.email },
+      relations: ['roles', 'roles.actions'],
     })
 
     if (!user) throw new BadRequestException('Email or password is wrong')
