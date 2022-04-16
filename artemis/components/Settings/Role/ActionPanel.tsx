@@ -1,9 +1,9 @@
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 
-import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
-import { ActionScope, Actions, Role } from '@utils/models/role'
+import ActionType from '@components/Settings/Role/ActionType'
 
-import Action from './Action'
+import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
+import { Role } from '@utils/models/role'
 
 type Props = {
   role?: Role
@@ -11,6 +11,10 @@ type Props = {
 }
 
 export default function ActionPanel({ role, disabled }: Props) {
+  const actionScope = role?.actions
+    ?.map((action) => action.target)
+    .filter((value, index, self) => self.indexOf(value) === index)
+
   return (
     <Droppable droppableId="action" isDropDisabled={disabled}>
       {(provided) => (
@@ -29,13 +33,13 @@ export default function ActionPanel({ role, disabled }: Props) {
           </div>
 
           <div className="mt-4 w-full flex flex-col gap-2">
-            {Object.values(ActionScope).map((scope) => {
-              const actions = Object.values(Actions[scope]).filter(
-                (scopedAction) =>
-                  role?.actions.some((action) => action === scopedAction),
+            {actionScope?.map((scope) => {
+              const actions = role?.actions?.filter(
+                (action) => action.target === scope,
               )
 
-              if (!actions.length) return null
+              if (!actions?.length) return null
+
               return (
                 <div key={scope}>
                   <div className="font-semibold mb-3 pl-[24px] text-[17px]">
@@ -44,9 +48,9 @@ export default function ActionPanel({ role, disabled }: Props) {
                   <div className="flex flex-col gap-2">
                     {actions.map((action, index) => (
                       <Draggable
-                        draggableId={action}
+                        draggableId={action.id}
                         isDragDisabled={disabled}
-                        key={action + 'alreadyhaveaction'}
+                        key={action.id + 'alreadyhaveaction'}
                         index={index}
                       >
                         {(provided) => (
@@ -55,7 +59,7 @@ export default function ActionPanel({ role, disabled }: Props) {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                           >
-                            <Action data={action} />
+                            <ActionType data={action.type} />
                           </div>
                         )}
                       </Draggable>

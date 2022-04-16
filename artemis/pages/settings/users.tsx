@@ -21,7 +21,7 @@ import { useQueryState } from '@utils/hooks/useQueryState'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Actions, Role } from '@utils/models/role'
+import { ActionType, DefaultModule, Role } from '@utils/models/role'
 import { User, UserStatus } from '@utils/models/user'
 import { getRoles } from '@utils/service/role'
 import {
@@ -58,7 +58,10 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    // notFound: await checkActionError(req, Actions.User.VIEW_ALL_USERS),
+    notFound: await checkActionError(req, {
+      action: ActionType.CAN_VIEW_ALL,
+      moduleName: DefaultModule.USER,
+    }),
     props: {
       dehydratedState: dehydrate(client),
     },
@@ -164,7 +167,7 @@ export default function UsersSettings() {
     },
   ]
 
-  if (auth[Actions.User.VIEW_AND_EDIT_ALL_USER_STATUS]) {
+  if (auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, DefaultModule.USER)) {
     columns.push({
       title: 'Action',
       key: 'action',
@@ -239,18 +242,21 @@ export default function UsersSettings() {
         />
 
         <div className="flex gap-2">
-          {!!ids?.length && auth[Actions.User.DELETE_USER] && (
-            <button
-              disabled={isDeleting}
-              onClick={() => deleteUserMutate(ids)}
-              className="crm-button-danger"
-            >
-              <span className="fa fa-trash mr-2" />
-              Delete
-            </button>
-          )}
+          {!!ids?.length &&
+            auth(ActionType.CAN_DELETE_ANY, DefaultModule.USER) && (
+              <button
+                disabled={isDeleting}
+                onClick={() => deleteUserMutate(ids)}
+                className="crm-button-danger"
+              >
+                <span className="fa fa-trash mr-2" />
+                Delete
+              </button>
+            )}
 
-          {auth[Actions.User.CREATE_NEW_USER] && <ButtonAddUser />}
+          {auth(ActionType.CAN_CREATE_NEW, DefaultModule.USER) && (
+            <ButtonAddUser />
+          )}
         </div>
       </div>
 

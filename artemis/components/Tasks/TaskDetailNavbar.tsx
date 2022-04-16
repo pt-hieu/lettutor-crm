@@ -8,7 +8,7 @@ import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useCommand } from '@utils/hooks/useCommand'
 import { useOwnership } from '@utils/hooks/useOwnership'
-import { Actions } from '@utils/models/role'
+import { ActionType, DefaultModule } from '@utils/models/role'
 import { Task } from '@utils/models/task'
 import { batchDelete } from '@utils/service/task'
 
@@ -55,7 +55,7 @@ const TaskDetailNavbar = ({ task }: Props) => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {(auth[Actions.Task.DELETE_TASK] || isOwner) && (
+          {(auth(ActionType.CAN_DELETE_ANY, DefaultModule.TASK) || isOwner) && (
             <Confirm
               onYes={() => mutateAsync([id])}
               message="Are you sure you want to delete this task?"
@@ -71,7 +71,8 @@ const TaskDetailNavbar = ({ task }: Props) => {
             </Confirm>
           )}
 
-          {(auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] || isOwner) && (
+          {(auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, DefaultModule.TASK) ||
+            isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}

@@ -76,15 +76,12 @@ const CreateTaskPage = () => {
 
   const [entityIds, setEntityIds] = useState<string[]>([])
   const submit = useCallback(
-    form.handleSubmit(
-      (data) => {
-        data.entityIds = entityIds
-        if (!data.dueDate) delete data.dueDate
+    form.handleSubmit((data) => {
+      data.entityIds = entityIds
+      if (!data.dueDate) delete data.dueDate
 
-        mutateAsync(data)
-      },
-      (e) => console.log(e),
-    ),
+      mutateAsync(data)
+    }),
     [entityIds],
   )
 

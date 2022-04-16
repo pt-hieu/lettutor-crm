@@ -2,12 +2,12 @@ import { notification } from 'antd'
 import moment from 'moment'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation } from 'react-query'
 
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useOwnership } from '@utils/hooks/useOwnership'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { Actions } from '@utils/models/role'
+import { ActionType, DefaultModule } from '@utils/models/role'
 import { Task, TaskStatus } from '@utils/models/task'
 import { closeTask } from '@utils/service/task'
 
@@ -59,7 +59,8 @@ function TaskInfo(props: TaskProps) {
         </Link>
 
         {status !== TaskStatus.COMPLETED &&
-          (auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] || isOwner) && (
+          (auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, DefaultModule.TASK) ||
+            isOwner) && (
             <Confirm
               message="Are you sure you want to close this task?"
               onYes={() => mutateAsync()}

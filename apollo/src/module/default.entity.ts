@@ -102,7 +102,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
       name: 'closingDate',
       group: 'Deal Information',
       required: true,
-      type: FieldType.TEXT,
+      type: FieldType.DATE,
       visibility: {
         Overview: true,
         Update: true,
