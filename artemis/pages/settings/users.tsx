@@ -58,7 +58,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   }
 
   return {
-    notFound: await checkActionError(req, Actions.User.VIEW_ALL_USERS),
+    // notFound: await checkActionError(req, Actions.User.VIEW_ALL_USERS),
     props: {
       dehydratedState: dehydrate(client),
     },

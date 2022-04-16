@@ -117,6 +117,7 @@ export default function UpdateInformation() {
               type: 'text',
               ...register('name', {
                 required: { value: true, message: 'Name is required' },
+                maxLength: { value: 100, message: 'Name is too long' },
               }),
             }}
           />
