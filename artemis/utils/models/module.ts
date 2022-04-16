@@ -15,6 +15,7 @@ export enum FieldType {
   NUMBER = 'Number',
   SELECT = 'Select',
   RELATION = 'Relation',
+  DATE = 'Date',
 }
 
 export interface FieldMeta {

@@ -8,7 +8,7 @@ import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useCommand } from '@utils/hooks/useCommand'
 import { Entity } from '@utils/models/module'
-import { Actions } from '@utils/models/role'
+import { ActionType } from '@utils/models/role'
 import { batchDeleteEntities } from '@utils/service/module'
 
 type Props = {
@@ -60,7 +60,7 @@ export const DetailNavbar = ({ data }: Props) => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {(auth[Actions.Account.DELETE_ACCOUNT] || isOwner) && (
+          {(auth(ActionType.CAN_DELETE_ANY, module?.name) || isOwner) && (
             <Confirm
               onYes={() => mutateAsync([id || ''])}
               message={`Are you sure you want to delete this ${module?.name}?`}
@@ -76,7 +76,7 @@ export const DetailNavbar = ({ data }: Props) => {
             </Confirm>
           )}
 
-          {(auth[Actions.Account.VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS] ||
+          {(auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, module?.name) ||
             isOwner) && (
             <button
               className="crm-button-secondary"

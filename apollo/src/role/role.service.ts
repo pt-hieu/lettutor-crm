@@ -30,6 +30,7 @@ export class RoleService {
     const qb = this.roleRepo
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.children', 'children')
+      .leftJoinAndSelect('r.actions', 'actions')
       .loadRelationCountAndMap('r.usersCount', 'r.users')
 
     if (dto.shouldNotPaginate) return qb.getMany()
@@ -89,10 +90,15 @@ export class RoleService {
     )
       throw new BadRequestException('Name has been taken')
 
+    const actions = await this.actionRepo.find({
+      where: { id: In(dto.actionsId) },
+    })
+
     return this.roleRepo
       .save({
         ...role,
         ...dto,
+        actions: actions,
       })
       .then((res) => {
         this.eventEmitter.emit('auth.invalidate', id)

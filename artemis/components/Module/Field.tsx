@@ -212,6 +212,19 @@ export default function Field({ data, inlineEdit }: FieldProps) {
           }}
         />
       ),
+      [FieldType.DATE]: (
+        <Input
+          error={errors[name]?.message}
+          editable={!inlineEdit || isEnable}
+          props={{
+            type: 'date',
+            id: name,
+            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+            disabled: inlineEdit && !isEnable,
+            ...registration,
+          }}
+        />
+      ),
     }),
     [
       relationItems,

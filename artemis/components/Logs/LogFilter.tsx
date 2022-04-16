@@ -6,6 +6,7 @@ import { useQuery } from 'react-query'
 import Input from '@utils/components/Input'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { LogAction, LogSource } from '@utils/models/log'
+import { Module } from '@utils/models/module'
 import { getRawUsers } from '@utils/service/user'
 
 type FormData = {
@@ -75,6 +76,11 @@ export default function LogFilter({
     refetch()
   }, [])
 
+  const { data: modules } = useQuery<Pick<Module, 'name'>[]>('modules', {
+    enabled: false,
+    initialData: [],
+  })
+
   const [property, setProperty] = useQueryState('property')
   const [entity, setEntity] = useQueryState('entity')
 
@@ -100,9 +106,9 @@ export default function LogFilter({
                 children: (
                   <>
                     <option value="">All</option>
-                    {Object.values(LogSource).map((source) => (
-                      <option key={source} value={source}>
-                        {source.charAt(0).toUpperCase() + source.slice(1)}
+                    {(modules || []).map(({ name }) => (
+                      <option key={name} value={name}>
+                        {name.charAt(0).toUpperCase() + name.slice(1)}
                       </option>
                     ))}
                   </>

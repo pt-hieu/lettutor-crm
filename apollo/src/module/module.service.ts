@@ -207,9 +207,9 @@ export class ModuleService implements OnApplicationBootstrap {
 
     module.meta
       .filter((field) => field.type === FieldType.SELECT && !!dto[field.name])
-      .forEach(({ name }) => {
-        qb = qb.andWhere(`e.data ->> '${name}' IN (:...options)`, {
-          options: [dto[name]].flat(),
+      .forEach(({ name }, index) => {
+        qb = qb.andWhere(`e.data ->> '${name}' IN (:...options${index})`, {
+          ['options' + index]: [dto[name]].flat(),
         })
       })
 

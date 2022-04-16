@@ -1,6 +1,6 @@
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DragDropContext, OnDragEndResponder } from 'react-beautiful-dnd'
 import { useForm } from 'react-hook-form'
 import {
@@ -22,9 +22,10 @@ import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useModal } from '@utils/hooks/useModal'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
-import { Actions, Role } from '@utils/models/role'
+import { Action, ActionType, DefaultModule, Role } from '@utils/models/role'
 import {
   deleteRole as deleteRoleService,
+  getActions,
   getRoles,
   restore,
   updateRole,
@@ -40,6 +41,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         'roles',
         getRoles({ shouldNotPaginate: true }, token),
       ),
+      client.prefetchQuery('actions', getActions(token)),
     ])
   }
 
@@ -60,6 +62,15 @@ export default function SettingRoles() {
     'roles',
     getRoles<Role[]>({ shouldNotPaginate: true }),
   )
+
+  const { data: actions } = useQuery('actions', getActions())
+  const [availableActions, setAvailableActions] = useState<
+    Action[] | undefined
+  >(undefined)
+
+  const actionScope = actions
+    ?.map((action) => action.target)
+    .filter((value, index, self) => self.indexOf(value) === index)
 
   const [selectedRoleName, setSelectedRoleName] = useQueryState<string>('role')
   const { register, watch } = useForm<FormData>({
@@ -82,7 +93,24 @@ export default function SettingRoles() {
     [selectedRoleName, roles],
   )
 
-  const { mutateAsync, isLoading } = useMutation(
+  useEffect(() => {
+    const updateAvailableActions = () => {
+      const newAvaiableActions = actions?.filter(
+        (action) =>
+          !selectedRole?.actions.some(
+            (roleAction) =>
+              roleAction.target === action.target &&
+              roleAction.type === action.type,
+          ),
+      )
+
+      setAvailableActions(newAvaiableActions)
+    }
+
+    updateAvailableActions()
+  }, [selectedRole])
+
+  const { mutateAsync: updateMutateAsync, isLoading } = useMutation(
     ['update-role', selectedRole?.id],
     updateRole(selectedRole?.id || ''),
     {
@@ -137,16 +165,19 @@ export default function SettingRoles() {
       if (res.source.droppableId === res.destination.droppableId) return
 
       if (res.source.droppableId === 'action') {
-        mutateAsync({
-          actions: selectedRole.actions.filter(
-            (action) => action !== res.draggableId,
-          ),
+        updateMutateAsync({
+          actionsId: selectedRole.actions
+            .map((action) => action.id)
+            .filter((actionId) => actionId !== res.draggableId),
         })
       }
 
       if (res.source.droppableId === 'available-action') {
-        mutateAsync({
-          actions: [...selectedRole.actions, res.draggableId],
+        updateMutateAsync({
+          actionsId: [
+            ...selectedRole.actions.map((action) => action.id),
+            res.draggableId,
+          ],
         })
       }
     },
@@ -178,7 +209,7 @@ export default function SettingRoles() {
           </form>
 
           <div className="flex gap-2">
-            {auth[Actions.Role.DELETE_ROLE] &&
+            {auth(ActionType.CAN_DELETE_ANY, DefaultModule.ROLE) &&
               selectedRole &&
               !selectedRole.default && (
                 <Confirm
@@ -203,18 +234,19 @@ export default function SettingRoles() {
                 </Confirm>
               )}
 
-            {auth[Actions.Role.RESTORE_DEFAULT_ROLE] && selectedRole?.default && (
-              <button
-                disabled={isRestoring}
-                onClick={restoreRole}
-                className="crm-button"
-              >
-                <span className="fa fa-undo mr-2" />
-                Restore
-              </button>
-            )}
+            {auth(ActionType.CAN_RESTORE_REVERSED, DefaultModule.ROLE) &&
+              selectedRole?.default && (
+                <button
+                  disabled={isRestoring}
+                  onClick={restoreRole}
+                  className="crm-button"
+                >
+                  <span className="fa fa-undo mr-2" />
+                  Restore
+                </button>
+              )}
 
-            {auth[Actions.Role.CREATE_NEW_ROLE] && (
+            {auth(ActionType.CAN_CREATE_NEW, DefaultModule.ROLE) && (
               <button onClick={openCreateRole} className="crm-button">
                 <span className="fa fa-plus mr-2" />
                 Add New Role
@@ -228,7 +260,12 @@ export default function SettingRoles() {
           <div className="w-full grid grid-cols-[1fr,30px,1fr] gap-4 h-[calc(100vh-60px-102px)] mt-8 text-gray-700">
             <ActionPanel
               disabled={
-                isLoading || isDeleting || !auth[Actions.Role.EDIT_ROLE]
+                isLoading ||
+                isDeleting ||
+                !auth(
+                  ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+                  DefaultModule.ROLE,
+                )
               }
               role={selectedRole}
             />
@@ -237,9 +274,16 @@ export default function SettingRoles() {
 
             <AvailableActionPanel
               disabled={
-                isLoading || isDeleting || !auth[Actions.Role.EDIT_ROLE]
+                isLoading ||
+                isDeleting ||
+                !auth(
+                  ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+                  DefaultModule.ROLE,
+                )
               }
               data={selectedRole}
+              availableActions={availableActions || []}
+              actionScope={actionScope || []}
             />
           </div>
         </DragDropContext>

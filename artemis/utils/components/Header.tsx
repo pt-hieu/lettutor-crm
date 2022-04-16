@@ -48,21 +48,23 @@ export default function Header() {
 
         <div className="ml-12 flex gap-6">
           {modules &&
-            modules.concat({ name: 'tasks' }).map(({ name }) => (
-              <Link href={`/${name}`} key={name}>
-                <a
-                  className={`relative crm-link font-medium leading-[28px] whitespace-nowrap capitalize ${
-                    name === `${splitPath[1]}` ? 'text-blue-600' : ''
-                  }`}
-                >
-                  {name}
+            modules
+              .concat({ name: 'tasks' }, { name: 'logs' })
+              .map(({ name }) => (
+                <Link href={`/${name}`} key={name}>
+                  <a
+                    className={`relative crm-link font-medium leading-[28px] whitespace-nowrap capitalize ${
+                      name === `${splitPath[1]}` ? 'text-blue-600' : ''
+                    }`}
+                  >
+                    {name}
 
-                  {name === `${splitPath[1]}` && (
-                    <span className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]" />
-                  )}
-                </a>
-              </Link>
-            ))}
+                    {name === `${splitPath[1]}` && (
+                      <span className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]" />
+                    )}
+                  </a>
+                </Link>
+              ))}
         </div>
       </div>
 

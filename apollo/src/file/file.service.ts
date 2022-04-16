@@ -31,12 +31,9 @@ export class FileService {
     private http: HttpService,
   ) {}
 
-  async createEntityAttachments(
-    entityId: string,
-    dto: DTO.File.Files
-  ) {
+  async createEntityAttachments(entityId: string, dto: DTO.File.Files) {
     const savedFiles = await this.uploadFile(dto.files)
-    
+
     savedFiles.forEach((file) => {
       file.entityId = entityId
     })
