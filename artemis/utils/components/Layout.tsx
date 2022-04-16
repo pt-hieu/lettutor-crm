@@ -81,8 +81,6 @@ function Layout({
       {},
     )
 
-    console.log('auth: ', auth)
-
     client.setQueryData(GlobalState.AUTHORIZATION, auth)
   }, [session])
 

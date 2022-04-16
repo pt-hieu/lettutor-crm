@@ -164,8 +164,6 @@ export default function SettingRoles() {
       if (!selectedRole) return
       if (res.source.droppableId === res.destination.droppableId) return
 
-      console.log('I can call API')
-
       if (res.source.droppableId === 'action') {
         updateMutateAsync({
           actionsId: selectedRole.actions
