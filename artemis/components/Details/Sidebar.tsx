@@ -1,15 +1,13 @@
-import { notification } from 'antd'
 import React, { useMemo } from 'react'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 
-
-import AddTaskModal, { TaskFormData } from '@utils/components/AddTaskModal'
+import AddTaskModal from '@utils/components/AddTaskModal'
 import DetailPageSidebar, {
   SidebarStructure,
 } from '@utils/components/DetailPageSidebar'
 import { useModal } from '@utils/hooks/useModal'
 import { TaskStatus } from '@utils/models/task'
-import { addTask, getTaskOfEntity } from '@utils/service/task'
+import { getTaskOfEntity } from '@utils/service/task'
 
 type Props = {
   paths: string[]
@@ -27,20 +25,9 @@ export enum Sections {
 export const DetailSidebar = ({ paths }: Props) => {
   const [moduleName, id] = paths
 
-  const client = useQueryClient()
   const [createTaskVisible, openCreateTask, closeCreateTask] = useModal()
 
-  const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
-    onSuccess: () => {
-      // client.refetchQueries(['account', accountId])
-      notification.success({
-        message: 'Add task successfully.',
-      })
-    },
-    onError: () => {
-      notification.error({ message: 'Add task unsuccessfully.' })
-    },
-  })
+  const client = useQueryClient()
 
   const { data: tasks } = useQuery(
     [moduleName, id, 'tasks'],
@@ -57,14 +44,6 @@ export const DetailSidebar = ({ paths }: Props) => {
     }),
     [tasks],
   )
-
-  const createTask = (formData: TaskFormData) => {
-    if (!formData.dueDate) {
-      formData.dueDate = null
-    }
-
-    closeCreateTask()
-  }
 
   const SideBarItems: SidebarStructure = [
     {
@@ -136,8 +115,8 @@ export const DetailSidebar = ({ paths }: Props) => {
       <AddTaskModal
         visible={createTaskVisible}
         handleClose={closeCreateTask}
-        handleCreateTask={createTask}
-        isLoading={isLoading}
+        moduleName={moduleName}
+        entityId={id}
       />
 
       <DetailPageSidebar data={SideBarItems} />

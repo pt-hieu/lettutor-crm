@@ -1,34 +1,29 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Divider, Modal } from 'antd'
-import { useEffect } from 'react'
+import { Divider, Modal, notification } from 'antd'
+import { TaskFormData } from 'pages/tasks/create'
+import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import * as yup from 'yup'
 
 import Input from '@utils/components/Input'
 import Loading from '@utils/components/Loading'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
+import { TaskPriority, TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
-
-export interface TaskFormData
-  extends Pick<
-    Task,
-    'name' | 'dueDate' | 'status' | 'priority' | 'description'
-  > {
-  ownerId: string
-}
+import { addTask } from '@utils/service/task'
+import { getRawUsers } from '@utils/service/user'
 
 type Props = {
   visible: boolean
   handleClose: () => void
-  handleCreateTask: (data: TaskFormData) => void
-  isLoading: boolean
+  moduleName: string
+  entityId: string
 }
 
 const taskSchema = yup.object().shape({
   ownerId: yup.string().required('Task Owner is required.'),
-  subject: yup
+  name: yup
     .string()
     .required('Subject is required.')
     .max(100, 'Subject must be at most 100 characters.'),
@@ -42,59 +37,66 @@ const taskSchema = yup.object().shape({
 const AddTaskModal = ({
   visible,
   handleClose,
-  handleCreateTask,
-  isLoading,
+  moduleName,
+  entityId,
 }: Props) => {
   const [session] = useTypedSession()
 
-  const { data: taskOwners } = useQuery<User[]>(['users'], { enabled: false })
+  const { data: taskOwners } = useQuery<Pick<User, 'name' | 'id'>[]>(
+    ['users'],
+    getRawUsers(),
+  )
 
   const {
     handleSubmit,
     register,
-    setValue,
     reset,
     formState: { errors },
   } = useForm<TaskFormData>({
     resolver: yupResolver(taskSchema),
-    defaultValues: {
-      ownerId: '',
-      description: '',
-      dueDate: null,
+  })
+
+  const client = useQueryClient()
+
+  const { isLoading, mutateAsync } = useMutation('add-task', addTask, {
+    onSuccess: () => {
+      client.refetchQueries([moduleName, entityId, 'tasks'])
+      notification.success({
+        message: 'Add task successfully.',
+      })
+      handleClose()
+    },
+    onError: () => {
+      notification.error({ message: 'Add task unsuccessfully.' })
     },
   })
 
-  const createTask = handleSubmit(handleCreateTask)
+  const submit = useCallback(
+    handleSubmit((data) => {
+      data.entityIds = [entityId]
+      if (!data.dueDate) delete data.dueDate
 
-  const submitModal = () => {
-    createTask()
-    reset({ ownerId: session?.user.id })
-  }
-
-  const closeModal = () => {
-    handleClose()
-    reset({ ownerId: session?.user.id })
-  }
+      mutateAsync(data)
+    }),
+    [entityId],
+  )
 
   useEffect(() => {
-    setValue('ownerId', session?.user.id || '')
-  }, [session?.user.id])
+    reset({ ownerId: session?.user.id })
+  }, [session?.user.id, visible])
 
   return (
     <Modal
       visible={visible}
-      onCancel={closeModal}
+      onCancel={handleClose}
       centered
+      destroyOnClose
       footer={
         <div className="flex w-full gap-2 justify-end">
-          <button
-            onClick={submitModal}
-            disabled={isLoading}
-            className="crm-button"
-          >
+          <button onClick={submit} disabled={isLoading} className="crm-button">
             <Loading on={isLoading}>Submit</Loading>
           </button>
-          <button onClick={closeModal} className="crm-button-outline">
+          <button onClick={handleClose} className="crm-button-outline">
             Cancel
           </button>
         </div>
@@ -148,7 +150,7 @@ const AddTaskModal = ({
           </div>
 
           <div className="mb-4">
-            <label htmlFor="date" className="crm-label">
+            <label htmlFor="date" className="crm-label after:content-['']">
               Due Date
             </label>
             <Input
