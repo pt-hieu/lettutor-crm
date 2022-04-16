@@ -6,21 +6,21 @@ import { Attachments, Note } from './note'
 import { Task } from './task'
 import { User } from './user'
 
-export enum DealStage {
-  QUALIFICATION = 'Qualification',
-  NEEDS_ANALYSIS = 'Needs Analysis',
-  VALUE_PROPOSITION = 'Value Proposition',
-  IDENTIFY_DECISION_MAKERS = 'Identify Decision Makers',
-  PROPOSAL_PRICE_QUOTE = 'Proposal/Price Quote',
-  NEGOTIATION_REVIEW = 'Negotiation/Review',
-  CLOSED_WON = 'Closed Won',
-  CLOSED_LOST = 'Closed Lost',
-  CLOSED_LOST_TO_COMPETITION = 'Closed-Lost To Competition',
-}
+// export enum DealStage {
+//   QUALIFICATION = 'Qualification',
+//   NEEDS_ANALYSIS = 'Needs Analysis',
+//   VALUE_PROPOSITION = 'Value Proposition',
+//   IDENTIFY_DECISION_MAKERS = 'Identify Decision Makers',
+//   PROPOSAL_PRICE_QUOTE = 'Proposal/Price Quote',
+//   NEGOTIATION_REVIEW = 'Negotiation/Review',
+//   CLOSED_WON = 'Closed Won',
+//   CLOSED_LOST = 'Closed Lost',
+//   CLOSED_LOST_TO_COMPETITION = 'Closed-Lost To Competition',
+// }
 
-export type LossStages =
-  | DealStage.CLOSED_LOST
-  | DealStage.CLOSED_LOST_TO_COMPETITION
+// export type LossStages =
+//   | DealStage.CLOSED_LOST
+//   | DealStage.CLOSED_LOST_TO_COMPETITION
 
 export interface Deal extends Base {
   owner: User | null
@@ -30,7 +30,7 @@ export interface Deal extends Base {
   fullName: string
   amount: number | null
   closingDate: Date
-  stage: DealStageData
+  stage: DealStage
   source: LeadSource
   probability: number
   description: string | null
@@ -60,7 +60,7 @@ export enum DealStageType {
   CLOSED_WON = 'Close Won',
 }
 
-export interface DealStageData {
+export interface DealStage {
   id: string
   name: string
   probability: number
