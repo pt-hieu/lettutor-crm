@@ -8,7 +8,7 @@ import { useKey } from 'react-use'
 import { GlobalState } from '@utils/GlobalStateKey'
 import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { Action, ActionType, DefaultActions } from '@utils/models/role'
+import { Action, ActionType } from '@utils/models/role'
 import { getActions } from '@utils/service/role'
 
 import BugReporter from './BugReporter'

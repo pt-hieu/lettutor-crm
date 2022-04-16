@@ -57,7 +57,7 @@ export class LogService {
 
     if (entity) {
       qb.andWhere('l.entityId IN (:...entities)', {
-        entities: [entity],
+        entities: [entity].flat(),
       })
     }
 
