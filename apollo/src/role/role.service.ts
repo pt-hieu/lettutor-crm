@@ -30,6 +30,7 @@ export class RoleService {
     const qb = this.roleRepo
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.children', 'children')
+      .leftJoinAndSelect('r.actions', 'actions')
       .loadRelationCountAndMap('r.usersCount', 'r.users')
 
     if (dto.shouldNotPaginate) return qb.getMany()

@@ -1,36 +1,28 @@
 import { useMemo } from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
-import { useQuery } from 'react-query'
+
+import ActionType from '@components/Settings/Role/ActionType'
 
 import IndeterminateCheckbox from '@utils/components/IndeterminateCheckbox'
-import { ActionScope, Actions, Role } from '@utils/models/role'
-import { getActions } from '@utils/service/role'
-
-import Action from './Action'
+import { Action, Role } from '@utils/models/role'
 
 type Props = {
   data?: Role
+  availableActions: Action[]
+  actionScope: string[]
   disabled?: boolean
 }
 
-export default function AvailableActionPanel({ data, disabled }: Props) {
-  //const availableActions = useMemo(
-  //() =>
-  //Object.values(Actions)
-  //.map((scope) => Object.values(scope))
-  //.flat()
-  //.filter((action) => !data?.actions.includes(action)),
-  //[data],
-  //)
-
-  const { data: availableActions } = useQuery('actions', getActions)
-
+export default function AvailableActionPanel({
+  data,
+  disabled,
+  availableActions,
+  actionScope,
+}: Props) {
   const isDisabled = useMemo(
     () => !data || !availableActions?.length,
     [data, availableActions],
   )
-
-  console.log(availableActions)
 
   return (
     <Droppable droppableId="available-action" isDropDisabled={disabled}>
@@ -51,13 +43,13 @@ export default function AvailableActionPanel({ data, disabled }: Props) {
           </div>
 
           <div className="mt-4 w-full h-[calc(100vh-60px-145px)] pr-2 crm-scrollbar  flex flex-col gap-2 overflow-auto">
-            {Object.values(ActionScope).map((scope) => {
-              const actions = Object.values(Actions[scope]).filter(
-                (scopedAction) =>
-                  availableActions?.some((action) => action === scopedAction),
+            {actionScope?.map((scope) => {
+              const actions = availableActions?.filter(
+                (action) => action.target === scope,
               )
 
-              if (!actions.length) return null
+              if (!actions?.length) return null
+
               return (
                 <div key={scope}>
                   <div className="font-semibold mb-3 pl-[24px] text-[17px]">
@@ -66,8 +58,8 @@ export default function AvailableActionPanel({ data, disabled }: Props) {
                   <div className="flex flex-col gap-2">
                     {actions.map((action, index) => (
                       <Draggable
-                        draggableId={action}
-                        key={action + 'alreadyhaveaction'}
+                        draggableId={action.id}
+                        key={action.id + 'alreadyhaveaction'}
                         index={index}
                         isDragDisabled={isDisabled || disabled}
                       >
@@ -77,7 +69,10 @@ export default function AvailableActionPanel({ data, disabled }: Props) {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                           >
-                            <Action disabled={isDisabled} data={action} />
+                            <ActionType
+                              disabled={isDisabled}
+                              data={action.type}
+                            />
                           </div>
                         )}
                       </Draggable>

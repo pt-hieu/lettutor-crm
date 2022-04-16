@@ -2,13 +2,14 @@ import { API } from 'environment'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import { ReactNode, useEffect } from 'react'
-import { useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { useKey } from 'react-use'
 
 import { GlobalState } from '@utils/GlobalStateKey'
 import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { Actions } from '@utils/models/role'
+import { Action, ActionType, DefaultActions } from '@utils/models/role'
+import { getActions } from '@utils/service/role'
 
 import BugReporter from './BugReporter'
 import Footer from './Footer'
@@ -59,21 +60,28 @@ function Layout({
     [disableSearch],
   )
 
+  const { data: actions } = useQuery('actions', getActions())
+
   useEffect(() => {
-    const auth = Object.values(Actions)
-      .map((scope) => Object.values(scope))
-      .flat()
-      .reduce(
-        (sum, curr) => ({
-          ...sum,
-          [curr]: session?.user.roles.some(
-            (role) =>
-              role.actions.includes(curr) ||
-              role.actions.includes(Actions.Admin.IS_ADMIN),
-          ),
-        }),
-        {},
-      )
+    let auth: any = actions?.reduce(
+      (result, action) => ({
+        ...result,
+        [action.type + ' ' + action.target]: session?.user.roles.some(
+          (role) =>
+            role.actions.some(
+              (roleAction) => roleAction.type === ActionType.IS_ADMIN,
+            ) ||
+            role.actions.some(
+              (roleAction) =>
+                roleAction.target === action.target &&
+                roleAction.type === action.type,
+            ),
+        ),
+      }),
+      {},
+    )
+
+    console.log('auth: ', auth)
 
     client.setQueryData(GlobalState.AUTHORIZATION, auth)
   }, [session])

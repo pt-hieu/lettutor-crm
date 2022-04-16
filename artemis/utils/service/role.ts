@@ -2,7 +2,7 @@ import axios from 'axios'
 import { API } from 'environment'
 
 import { PagingQuery } from '@utils/models/paging'
-import { Action, Role } from '@utils/models/role'
+import { Action } from '@utils/models/role'
 
 export const getRoles =
   <T>(params: {} & PagingQuery, token?: string) =>
@@ -17,10 +17,10 @@ export const getRoles =
       .then((res) => res.data)
 
 export const updateRole =
-  (id: string) => (data: { name?: string; actions?: string[] }) =>
+  (id: string) => (data: { name?: string; actionsId?: string[] }) =>
     axios.patch(API + '/apollo/role/' + id, data).then((res) => res.data)
 
-export const createRole = (data: Pick<Role, 'actions' | 'name'>) =>
+export const createRole = (data: { name: string; actionsId: string[] }) =>
   axios.post(API + '/apollo/role', data).then((res) => res.data)
 
 export const deleteRole = (id: string) => () =>
@@ -29,5 +29,11 @@ export const deleteRole = (id: string) => () =>
 export const restore = (id: string) =>
   axios.post(API + '/apollo/role/' + id + '/default').then((res) => res.data)
 
-export const getActions = () =>
-  axios.get<Action[]>(API + '/apollo/action').then((res) => res.data)
+export const getActions = (token?: string) => () =>
+  axios
+    .get<Action[]>(API + '/apollo/action', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((res) => res.data)
