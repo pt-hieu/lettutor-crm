@@ -11,6 +11,6 @@ export const useAuthorization = () => {
     { enabled: false },
   )
 
-  return (action: ActionType, moduleName: DefaultModule | string) =>
+  return (action: ActionType, moduleName?: DefaultModule | string) =>
     (data || {})[action + ' ' + moduleName]
 }
