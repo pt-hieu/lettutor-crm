@@ -1,9 +1,9 @@
 import { HttpService } from '@nestjs/axios'
 import { BadRequestException, Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
 import { lastValueFrom, map } from 'rxjs'
-import { Repository } from 'typeorm'
 
+import { LeadSource, LeadStatus, ModuleName } from 'src/module/default.entity'
+import { ModuleService } from 'src/module/module.service'
 import { DTO } from 'src/type'
 
 const ApiVersion = process.env.FACEBOOK_API_VERSION || 'v12.0'
@@ -11,9 +11,7 @@ const ApiVersion = process.env.FACEBOOK_API_VERSION || 'v12.0'
 @Injectable()
 export class WebhookService {
   constructor(
-    // @InjectRepository(Lead)
-    // private leadRepo: Repository<Lead>,
-    // private leadService: LeadService,
+    private moduleService: ModuleService,
     private httpService: HttpService,
   ) {}
 
@@ -29,27 +27,32 @@ export class WebhookService {
       throw new BadRequestException(
         `An invalid response was received from the Facebook API: ${response}`,
       )
+    //start here
+    const fieldMapping: Record<string, string> = {
+      email: 'email',
+      full_name: 'name',
+      phone: 'phone',
+      street_address: 'address',
+    }
 
-    // const fieldMapping: Record<string, keyof DTO.Lead.AddLead> = {
-    //   email: 'email',
-    //   full_name: 'fullName',
-    //   phone: 'phoneNum',
-    //   street_address: 'address',
-    // }
+    const leadInfo: DTO.Module.AddEntity = new DTO.Module.AddEntity()
 
-    // const leadInfo: DTO.Lead.AddLead = new DTO.Lead.AddLead()
+    ;(response.field_data as { name: string; values: string[] }[]).forEach(
+      (field) => {
+        field.name.toLocaleLowerCase() === 'full_name'
+          ? ((leadInfo[
+              fieldMapping[field.name.toLocaleLowerCase()]
+            ] as string) = field.values[0])
+          : ((leadInfo['data'][
+              fieldMapping[field.name.toLocaleLowerCase()]
+            ] as string) = field.values[0])
+      },
+    )
 
-    // ;(response.field_data as { name: string; values: string[] }[]).forEach(
-    //   (field) => {
-    //     ;(leadInfo[fieldMapping[field.name.toLocaleLowerCase()]] as string) =
-    //       field.values[0]
-    //   },
-    // )
+    leadInfo['status'] = LeadStatus.NONE
+    leadInfo['source'] = LeadSource.FACEBOOK
 
-    // leadInfo.status = LeadStatus.NONE
-    // leadInfo.source = LeadSource.FACEBOOK
-
-    // return this.leadService.addLead(leadInfo)
+    return this.moduleService.addEntity(ModuleName.LEAD, leadInfo)
   }
 
   async processStrapiBugCall(dto: DTO.Strapi.Bug) {
