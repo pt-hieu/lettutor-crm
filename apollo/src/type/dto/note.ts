@@ -9,7 +9,7 @@ import {
   MaxLength,
 } from 'class-validator'
 
-import { NoteFilter, NoteSort, NoteSource } from 'src/note/note.entity'
+import { NoteFilter, NoteSort } from 'src/note/note.entity'
 
 import { TransformParams } from '../util'
 import { Files } from './file'
@@ -21,7 +21,7 @@ interface IAddNote {
   taskId?: string
   title?: string
   content: string
-  source?: NoteSource
+  source?: string
 }
 
 export class AddNote extends Files implements IAddNote {
@@ -35,7 +35,7 @@ export class AddNote extends Files implements IAddNote {
   @IsUUID()
   @Transform(
     ({ value, obj }: TransformParams<IAddNote, IAddNote['entityId']>) => {
-      if (obj.source !== NoteSource.MODULE) return null
+      if (obj.source === 'task') return null
       return value
     },
   )
@@ -46,7 +46,7 @@ export class AddNote extends Files implements IAddNote {
   @IsUUID()
   @Transform(
     ({ value, obj }: TransformParams<IAddNote, IAddNote['taskId']>) => {
-      if (obj.source !== NoteSource.TASK) return null
+      if (obj.source !== 'task') return null
       return value
     },
   )
@@ -64,12 +64,9 @@ export class AddNote extends Files implements IAddNote {
   @MaxLength(500)
   content: string
 
-  @ApiPropertyOptional({
-    type: NoteSource,
-    enum: NoteSource,
-  })
+  @ApiPropertyOptional({})
   @IsString()
-  source?: NoteSource
+  source?: string
 }
 
 export class GetManyQuery extends Paginate {
@@ -92,10 +89,7 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   sort?: string
 
-  @ApiPropertyOptional({
-    type: NoteSource,
-    enum: NoteSource,
-  })
+  @ApiPropertyOptional()
   @IsString()
   source?: string
 
@@ -121,7 +115,7 @@ export class UpdateBody extends Files implements IUpdateBody {
   @IsUUID()
   @Transform(
     ({ value, obj }: TransformParams<IAddNote, IAddNote['entityId']>) => {
-      if (obj.source !== NoteSource.MODULE) return null
+      if (obj.source === 'task') return null
       return value
     },
   )
@@ -132,7 +126,7 @@ export class UpdateBody extends Files implements IUpdateBody {
   @IsUUID()
   @Transform(
     ({ value, obj }: TransformParams<IAddNote, IAddNote['taskId']>) => {
-      if (obj.source !== NoteSource.TASK) return null
+      if (obj.source !== 'task') return null
       return value
     },
   )

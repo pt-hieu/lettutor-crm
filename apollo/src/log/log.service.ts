@@ -65,7 +65,7 @@ export class LogService {
       if (entity)
         source = [source].concat(LogSource.NOTE, LogSource.TASK) as any
 
-      qb.andWhere('l.source IN (:...source)', { source })
+      qb.andWhere('l.source IN (:...source)', { source: [source].flat() })
     }
 
     if (action) {
