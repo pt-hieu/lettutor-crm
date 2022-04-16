@@ -18,8 +18,8 @@ import {
   OneToMany,
 } from 'typeorm'
 
-import { Note } from 'src/note/note.entity'
 import { File } from 'src/file/file.entity'
+import { Note } from 'src/note/note.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 
 export enum FieldType {
@@ -27,11 +27,10 @@ export enum FieldType {
   MULTILINE_TEXT = 'Multiline Text',
   PHONE = 'Phone',
   EMAIL = 'Email',
-
   NUMBER = 'Number',
-
   SELECT = 'Select',
   RELATION = 'Relation',
+  DATE = 'Date',
 }
 
 export enum RelateType {
