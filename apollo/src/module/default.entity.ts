@@ -445,6 +445,7 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
         Create: true,
         Detail: true,
       },
+      maxLength: 300,
     },
     {
       name: 'tasks',

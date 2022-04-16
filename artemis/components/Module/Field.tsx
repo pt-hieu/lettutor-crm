@@ -57,28 +57,34 @@ export default function Field({ data, inlineEdit }: FieldProps) {
         required: required
           ? `${toCapitalizedWords(name.replace('Id', ''))} is required`
           : undefined,
-        ...(type === FieldType.TEXT && {
-          minLength: minLength && {
+        ...(max && {
+          max: {
+            value: max,
+            message: `${toCapitalizedWords(
+              name,
+            )} must not be greater than ${max}.`,
+          },
+        }),
+        ...(minLength && {
+          minLength: {
             value: minLength,
             message: `${toCapitalizedWords(
               name,
-            )} is at least ${minLength} characters.`,
+            )} must be longer than ${minLength}.`,
           },
-          maxLength: maxLength && {
+        }),
+        ...(maxLength && {
+          maxLength: {
             value: maxLength,
             message: `${toCapitalizedWords(
               name,
-            )} is at most ${maxLength} characters.`,
+            )} must be shorter than ${maxLength}.`,
           },
         }),
-        ...(type === FieldType.NUMBER && {
-          min: min && {
+        ...(min && {
+          min: {
             value: min,
-            message: `${toCapitalizedWords(name)} must greater than ${min}.`,
-          },
-          max: max && {
-            value: max,
-            message: `${toCapitalizedWords(name)} must less than ${max}.`,
+            message: `${toCapitalizedWords(name)} must be greater than ${min}.`,
           },
         }),
         ...(type === FieldType.EMAIL && {

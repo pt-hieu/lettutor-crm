@@ -45,7 +45,7 @@ export class ModuleService implements OnApplicationBootstrap {
   private async initDefaultModules() {
     if (process.env.NODE_ENV === 'production') return
     const modules = await this.moduleRepo.find()
-    if (modules.length > 0) return
+    // if (modules.length > 0) return
 
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
@@ -184,7 +184,7 @@ export class ModuleService implements OnApplicationBootstrap {
         type: ActionType.CAN_VIEW_ALL,
       })
     ) {
-      qb.andWhere('e.data["ownerId"] = :ownerId', {
+      qb.andWhere("e.data ->> 'ownerId' = :ownerId", {
         ownerId: this.payloadService.data.id,
       })
     }
