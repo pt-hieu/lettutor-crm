@@ -5,6 +5,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { ActionGuard } from './action.guard'
+import { ActionModule } from './action/action.module'
 import { JwtAuthGuard } from './auth.guard'
 import { AuthModule } from './auth/auth.module'
 import { BaseSubscriber } from './base.subscriber'
@@ -19,7 +20,6 @@ import { RoleModule } from './role/role.module'
 import { TaskModule } from './task/task.module'
 import { UserModule } from './user/user.module'
 import { WebhookModule } from './webhook/webhook.module'
-import { ActionModule } from './action/action.module';
 
 @Module({
   imports: [
@@ -50,8 +50,8 @@ import { ActionModule } from './action/action.module';
     GlobalModule,
     FileModule,
     DealStageModule,
-    ModuleModule,
     ActionModule,
+    ModuleModule,
   ],
   providers: [
     BaseSubscriber,

@@ -19,26 +19,26 @@ import { DTO } from 'src/type'
 
 import { ModuleService } from './module.service'
 
-@Controller()
+@Controller('module')
 @ApiTags('module')
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 export class ModuleController {
   constructor(private service: ModuleService) {}
 
-  @Get('module')
+  @Get()
   @ApiOperation({ summary: 'to get many modules' })
   getModule() {
     return this.service.getManyModule()
   }
 
-  @Post('module')
+  @Post()
   @ApiOperation({ summary: 'to create module' })
   createModule(@Body() dto: DTO.Module.CreateModule) {
     return this.service.createModule(dto)
   }
 
-  @Patch('module/:id')
+  @Patch(':id')
   @ApiOperation({ summary: 'to update module' })
   updateModule(
     @Body() dto: DTO.Module.UpdateModule,

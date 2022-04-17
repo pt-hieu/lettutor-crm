@@ -19,13 +19,15 @@ export const createEntity = (moduleName: string) => (data: any) => {
   delete data.name
 
   return axios
-    .post<Entity>(API + '/apollo/' + moduleName, { data, name })
+    .post<Entity>(API + '/apollo/module/' + moduleName, { data, name })
     .then((r) => r.data)
 }
 
 export const getRawEntity = (moduleName: string) => () =>
   axios
-    .get<Pick<Entity, 'id' | 'data'>[]>(API + '/apollo/' + moduleName + '/raw')
+    .get<Pick<Entity, 'id' | 'data'>[]>(
+      API + '/apollo/module/' + moduleName + '/raw',
+    )
     .then((r) => r.data)
 
 export const getEntities =
@@ -35,17 +37,19 @@ export const getEntities =
   ) =>
   () =>
     axios
-      .get<Paginate<Entity>>(API + '/apollo/' + moduleName, { params })
+      .get<Paginate<Entity>>(API + '/apollo/module/' + moduleName, { params })
       .then((r) => r.data)
 
 export const batchDeleteEntities = (ids: string[] | string) =>
   axios
-    .delete(API + '/apollo/entity/batch', { data: { ids: [ids].flat() } })
+    .delete(API + '/apollo/module/entity/batch', {
+      data: { ids: [ids].flat() },
+    })
     .then((r) => r.data)
 
 export const getEntity = (name: string, id: string, token?: string) => () => {
   return axios
-    .get<Entity>(API + `/apollo/${name}/${id}`, {
+    .get<Entity>(API + `/apollo/module/${name}/${id}`, {
       headers: { authorization: `Bearer ${token}` },
     })
     .then((res) => res.data)
@@ -54,7 +58,7 @@ export const getEntity = (name: string, id: string, token?: string) => () => {
 export const updateEntity = (moduleName: string, id: string) => (data: any) => {
   const { name, ...rest } = data
   return axios
-    .patch<Entity>(API + `/apollo/${moduleName}/${id}`, {
+    .patch<Entity>(API + `/apollo/module/${moduleName}/${id}`, {
       name,
       data: rest,
     })
@@ -65,7 +69,7 @@ export const getEntityForTaskCreate = (token?: string) => () =>
   axios
     .get<
       (Pick<Entity, 'id' | 'name'> & { module: Pick<Module, 'id' | 'name'> })[]
-    >(API + '/apollo/entity/raw/create-task', {
+    >(API + '/apollo/module/entity/raw/create-task', {
       headers: {
         authorization: 'Bearer ' + token,
       },
