@@ -14,6 +14,7 @@ export type TFieldData = Omit<FieldMeta, 'group'> & {
 interface FieldProps {
   data: TFieldData
   index: number
+  isPure?: boolean
 }
 
 const MapFieldType: Record<FieldType, ReactNode> = {
@@ -31,7 +32,7 @@ const MapFieldType: Record<FieldType, ReactNode> = {
   [FieldType.RELATION]: 'Lookup',
 }
 
-export const Field = ({ data, index }: FieldProps) => {
+export const Field = ({ data, index, isPure }: FieldProps) => {
   const { id, name, type } = data
 
   const options = [
@@ -51,7 +52,11 @@ export const Field = ({ data, index }: FieldProps) => {
       {({ dragHandleProps, draggableProps, innerRef }, { isDragging }) => (
         <div
           className={`border rounded-sm p-2 mb-2 bg-white flex justify-between items-center hover:border-orange-300 ${
-            isDragging ? 'bg-orange-50 border-orange-400' : undefined
+            isPure ? 'opacity-0 !w-[480px] text-gray-500' : undefined
+          } ${
+            isDragging
+              ? 'bg-orange-50 border-orange-400 opacity-100'
+              : undefined
           }`}
           {...dragHandleProps}
           {...draggableProps}

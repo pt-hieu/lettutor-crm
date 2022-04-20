@@ -1,6 +1,98 @@
 import React from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 
+import { FieldType } from '@utils/models/module'
+
+import { Field, TFieldData } from './Field'
+
+const pureFields: Record<FieldType, TFieldData> = {
+  [FieldType.TEXT]: {
+    id: 'pure-text',
+    name: 'Single Line',
+    required: false,
+    type: FieldType.TEXT,
+    visibility: {},
+  },
+  [FieldType.MULTILINE_TEXT]: {
+    id: 'pure-multi-line',
+    name: 'Multi Line',
+    required: false,
+    type: FieldType.MULTILINE_TEXT,
+    visibility: {},
+  },
+  [FieldType.EMAIL]: {
+    id: 'pure-email',
+    name: 'Email',
+    required: false,
+    type: FieldType.EMAIL,
+    visibility: {},
+  },
+  [FieldType.PHONE]: {
+    id: 'pure-phone',
+    name: 'Phone',
+    required: false,
+    type: FieldType.PHONE,
+    visibility: {},
+  },
+  [FieldType.NUMBER]: {
+    id: 'pure-number',
+    name: 'Number',
+    required: false,
+    type: FieldType.NUMBER,
+    visibility: {},
+  },
+  [FieldType.DATE]: {
+    id: 'pure-date',
+    name: 'Date',
+    required: false,
+    type: FieldType.DATE,
+    visibility: {},
+  },
+  [FieldType.SELECT]: {
+    id: 'pure-select',
+    name: 'Pick List',
+    required: false,
+    type: FieldType.SELECT,
+    visibility: {},
+  },
+  [FieldType.RELATION]: {
+    id: 'pure-relation',
+    name: 'Lookup',
+    required: false,
+    type: FieldType.RELATION,
+    visibility: {},
+  },
+}
+
+const mapIcon: Record<FieldType, string> = {
+  [FieldType.TEXT]: 'fa-minus',
+  [FieldType.EMAIL]: 'fa-envelope',
+  [FieldType.MULTILINE_TEXT]: 'fa-bars',
+  [FieldType.NUMBER]: 'fa-sort-numeric-asc',
+  [FieldType.DATE]: 'fa-calendar',
+  [FieldType.PHONE]: 'fa-phone',
+  [FieldType.SELECT]: 'fa-list-alt',
+  [FieldType.RELATION]: 'fa-eye',
+}
+
+interface ItemProps {
+  data: TFieldData
+  index: number
+}
+const Item = ({ data, index }: ItemProps) => {
+  return (
+    <div className="border rounded-sm relative hover:bg-orange-50 bg-slate-50 px-2 flex items-center">
+      <span className="text-gray-600">
+        <span className={`fa ${mapIcon[data.type]} mr-1`}></span> {data.name}
+      </span>
+
+      <div className="inset-0 absolute">
+        <Field data={data} index={index} isPure={true} />
+      </div>
+    </div>
+  )
+}
+
 export const Sidebar = () => {
   return (
     <div className="bg-gray-600 text-white h-full w-full p-5 flex flex-col gap-2">
@@ -12,8 +104,8 @@ export const Sidebar = () => {
             ref={innerRef}
             {...droppableProps}
           >
-            {[...Array(10).keys()].map((i, index) => (
-              <Item key={i} content={i} index={index} />
+            {Object.entries(pureFields).map(([key, data], index) => (
+              <Item key={key} data={data} index={index} />
             ))}
           </div>
         )}
@@ -52,35 +144,6 @@ export const Sidebar = () => {
           </div>
         )}
       </Droppable>
-    </div>
-  )
-}
-
-interface ItemProps {
-  content: number
-  index: number
-}
-const Item = ({ content, index }: ItemProps) => {
-  return (
-    <div className="border rounded-sm relative hover:bg-orange-50 text-gray-700 bg-slate-50">
-      {content}
-
-      <Draggable draggableId={`i${index}`} index={index}>
-        {({ dragHandleProps, draggableProps, innerRef }, { isDragging }) => (
-          <div
-            {...dragHandleProps}
-            {...draggableProps}
-            ref={innerRef}
-            className={`rounded-sm absolute inset-0 z-[1000] h-10 ${
-              isDragging
-                ? 'bg-orange-50 opacity-100 !w-[460px] border border-orange-300'
-                : 'opacity-0 hover:bg-slate-50'
-            } `}
-          >
-            {content}
-          </div>
-        )}
-      </Draggable>
     </div>
   )
 }

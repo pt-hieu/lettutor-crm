@@ -5,7 +5,6 @@ import { Controller, useForm } from 'react-hook-form'
 
 import Dropdown from '@utils/components/Dropdown'
 import Menu from '@utils/components/Menu'
-import { FieldMeta } from '@utils/models/module'
 
 import { Column } from './Column'
 import { TFieldData } from './Field'
