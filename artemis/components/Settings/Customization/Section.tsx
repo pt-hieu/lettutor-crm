@@ -77,7 +77,7 @@ export const Section = ({
         <div
           ref={innerRef}
           {...draggableProps}
-          className={`my-4 border border-dashed hover:border-gray-400 rounded-sm p-2 relative ${
+          className={`border border-dashed hover:border-gray-400 rounded-sm p-2 relative ${
             isDragging ? 'border-blue-600 bg-slate-50' : ''
           }`}
         >

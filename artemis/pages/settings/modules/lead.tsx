@@ -266,90 +266,81 @@ const Main = () => {
   }
 
   return (
-    <div className="grid grid-cols-[340px,1fr] grid-rows-[60px,1fr] h-screen overflow-hidden">
-      <div className="col-span-2 border-b flex justify-between items-center px-4">
-        <div>Lead</div>
-        <div className="flex gap-4">
-          <button type="button" className="crm-button-outline">
-            <span className="fa fa-times mr-2" />
-            Cancel
-          </button>
+    <Layout requireLogin title={'Lead'} header={false} footer={false}>
+      <div className="grid grid-cols-[340px,1fr] grid-rows-[60px,1fr] h-screen overflow-hidden">
+        <div className="col-span-2 border-b flex justify-between items-center px-4">
+          <div>Lead</div>
+          <div className="flex gap-4">
+            <button type="button" className="crm-button-outline">
+              <span className="fa fa-times mr-2" />
+              Cancel
+            </button>
 
-          <button type="submit" className="crm-button" disabled={disableSave}>
-            <Loading on={false}>
-              <span className="fa fa-check mr-2" />
-              Save
-            </Loading>
-          </button>
+            <button type="submit" className="crm-button" disabled={disableSave}>
+              <Loading on={false}>
+                <span className="fa fa-check mr-2" />
+                Save
+              </Loading>
+            </button>
+          </div>
         </div>
+        <DragDropContext
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <Sidebar />
+          <div className="px-[64px] overflow-hidden grid grid-rows-[60px,1fr] pb-4">
+            <Tabs defaultActiveKey="1">
+              <TabPane tab={<span>CREATE VIEW</span>} key="1"></TabPane>
+              <TabPane tab={<span>DETAIL VIEW</span>} key="2"></TabPane>
+            </Tabs>
+            <SectionsContext.Provider
+              value={{ sections, updateField, preventSubmit }}
+            >
+              <div className="overflow-y-scroll pr-[60px]">
+                <Droppable droppableId="all-sections" type="section">
+                  {({ droppableProps, innerRef, placeholder }) => (
+                    <div
+                      ref={innerRef}
+                      {...droppableProps}
+                      className="h-full flex flex-col gap-4 pt-2"
+                    >
+                      {sectionOrder.map((sectionId, index) => {
+                        const section = sections[sectionId]
+
+                        if (section.action === ActionType.DELETE) return null
+
+                        const mapFields1 = section.fieldIds1.map(
+                          (fieldId) => fields[fieldId as keyof typeof fields],
+                        )
+                        const mapFields2 = section.fieldIds2.map(
+                          (fieldId) => fields[fieldId as keyof typeof fields],
+                        )
+
+                        return (
+                          <Section
+                            onDelete={handleDeleteSection}
+                            onRename={handleRenameSection}
+                            name={section.name}
+                            key={section.id}
+                            id={section.id}
+                            fieldsColumn1={mapFields1}
+                            fieldsColumn2={mapFields2}
+                            index={index}
+                          />
+                        )
+                      })}
+                      {placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            </SectionsContext.Provider>
+          </div>
+        </DragDropContext>
       </div>
-      <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <Sidebar />
-        <div className="px-[64px] overflow-hidden grid grid-rows-[60px,1fr]">
-          <Tabs defaultActiveKey="1">
-            <TabPane tab={<span>CREATE VIEW</span>} key="1"></TabPane>
-            <TabPane tab={<span>DETAIL VIEW</span>} key="2"></TabPane>
-          </Tabs>
-          <SectionsContext.Provider
-            value={{ sections, updateField, preventSubmit }}
-          >
-            <div className="overflow-y-scroll pr-[60px]">
-              <Droppable droppableId="all-sections" type="section">
-                {({ droppableProps, innerRef, placeholder }) => (
-                  <div ref={innerRef} {...droppableProps}>
-                    {sectionOrder.map((sectionId, index) => {
-                      const section = sections[sectionId]
-
-                      if (section.action === ActionType.DELETE) return null
-
-                      const mapFields1 = section.fieldIds1.map(
-                        (fieldId) => fields[fieldId as keyof typeof fields],
-                      )
-                      const mapFields2 = section.fieldIds2.map(
-                        (fieldId) => fields[fieldId as keyof typeof fields],
-                      )
-
-                      return (
-                        <Section
-                          onDelete={handleDeleteSection}
-                          onRename={handleRenameSection}
-                          name={section.name}
-                          key={section.id}
-                          id={section.id}
-                          fieldsColumn1={mapFields1}
-                          fieldsColumn2={mapFields2}
-                          index={index}
-                        />
-                      )
-                    })}
-                    {placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          </SectionsContext.Provider>
-        </div>
-      </DragDropContext>
-    </div>
-  )
-}
-
-interface Props {
-  title?: string
-}
-
-const LeadCustom = ({ title }: Props) => {
-  return (
-    <Layout
-      key="layout"
-      requireLogin
-      title={title}
-      header={false}
-      footer={false}
-    >
-      <Main />
     </Layout>
   )
 }
 
-export default LeadCustom
+export default Main

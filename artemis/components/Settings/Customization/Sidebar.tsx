@@ -12,12 +12,14 @@ export const pureFields: Record<FieldType, TFieldData> = {
     name: 'Single Line',
     required: false,
     type: FieldType.TEXT,
+    maxLength: 100,
     visibility: {},
   },
   [FieldType.MULTILINE_TEXT]: {
     id: FieldType.MULTILINE_TEXT,
     name: 'Multi Line',
     required: false,
+    maxLength: 100,
     type: FieldType.MULTILINE_TEXT,
     visibility: {},
   },
@@ -54,6 +56,7 @@ export const pureFields: Record<FieldType, TFieldData> = {
     name: 'Pick List',
     required: false,
     type: FieldType.SELECT,
+    options: [],
     visibility: {},
   },
   [FieldType.RELATION]: {
