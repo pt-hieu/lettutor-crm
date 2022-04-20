@@ -53,25 +53,25 @@ const initialData = {
   sections: {
     'section-1': {
       id: 'section-1',
-      title: 'To do',
+      name: 'To do',
       fieldIds1: ['field-1', 'field-2', 'field-3', 'field-4'],
       fieldIds2: [],
     },
     'section-2': {
       id: 'section-2',
-      title: 'In progress',
+      name: 'In progress',
       fieldIds1: [],
       fieldIds2: [],
     },
     'section-3': {
       id: 'section-3',
-      title: 'Done',
+      name: 'Done',
       fieldIds1: [],
       fieldIds2: [],
     },
     'section-4': {
       id: 'section-4',
-      title: 'Review',
+      name: 'Review',
       fieldIds1: [],
       fieldIds2: [],
     },
@@ -239,7 +239,7 @@ const Main = () => {
 
   const handleRenameSection = (id: string, name: string) => {
     const newSections = { ...sections }
-    newSections[id].title = name
+    newSections[id].name = name
     setSections(newSections)
   }
 
@@ -297,7 +297,7 @@ const Main = () => {
                         <Section
                           onDelete={handleDeleteSection}
                           onRename={handleRenameSection}
-                          name={section.title}
+                          name={section.name}
                           key={section.id}
                           id={section.id}
                           fieldsColumn1={mapFields1}

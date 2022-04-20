@@ -95,27 +95,45 @@ const FieldItem = ({ data, index }: ItemProps) => {
 
 export type TSection = {
   id: string
-  title: string
+  name: string
   fieldIds1: string[]
   fieldIds2: string[]
 }
 
 export type TSectionData = TSection & { actions?: string }
 
-interface SectionItemProps {
-  data: TFieldData
-  index: number
+export const pureSection: TSectionData = {
+  id: 'pure-section',
+  name: 'New Section',
+  fieldIds1: [],
+  fieldIds2: [],
 }
 
-const SectionItem = ({ data, index }: ItemProps) => {
+const SectionItem = () => {
   return (
-    <div className="border rounded-sm relative hover:bg-orange-50 bg-slate-50 px-2 flex items-center">
-      <span className="text-gray-600">
-        <span className={`fa ${mapIcon[data.type]} mr-1`}></span> {data.name}
-      </span>
+    <div className="border rounded-sm relative border-dashed flex items-center justify-center p-2">
+      <div className="text-white">
+        <span className={`fa fa-plus mr-1`}></span> {pureSection.name}
+      </div>
 
       <div className="inset-0 absolute">
-        <Field data={data} index={index} isPure={true} />
+        <Draggable draggableId={'new-section'} index={1}>
+          {({ draggableProps, innerRef, dragHandleProps }, { isDragging }) => (
+            <div
+              ref={innerRef}
+              {...draggableProps}
+              className={`border border-dashed hover:border-gray-400 rounded-sm opacity-0 ${
+                isDragging
+                  ? 'border-gray-400 bg-orange-50 opacity-100 !w-[960px] !h-[120px]'
+                  : 'border-transparent'
+              }`}
+            >
+              <h3 className="p-2 !cursor-move" {...dragHandleProps}>
+                New Section
+              </h3>
+            </div>
+          )}
+        </Draggable>
       </div>
     </div>
   )
@@ -141,34 +159,7 @@ export const Sidebar = () => {
       <Droppable droppableId="new-section" type="section" isDropDisabled>
         {({ innerRef, droppableProps }) => (
           <div ref={innerRef} {...droppableProps}>
-            <Draggable draggableId={'new-section'} index={1}>
-              {(
-                { draggableProps, innerRef, dragHandleProps },
-                { isDragging },
-              ) => (
-                <div
-                  ref={innerRef}
-                  {...draggableProps}
-                  className={`my-4 border border-dashed hover:border-gray-400 rounded-sm ${
-                    isDragging
-                      ? 'border-gray-400 bg-orange-50'
-                      : 'border-transparent '
-                  }`}
-                >
-                  <h3 className="p-2 !cursor-move" {...dragHandleProps}>
-                    New Section
-                  </h3>
-                  <div className="flex items-stretch">
-                    <div className="flex-1">
-                      {/* <Column id={id + SEPERATOR + 1} fields={fieldsColumn1} /> */}
-                    </div>
-                    <div className="flex-1">
-                      {/* <Column id={id + SEPERATOR + 2} fields={fieldsColumn2} /> */}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </Draggable>
+            <SectionItem />
           </div>
         )}
       </Droppable>
