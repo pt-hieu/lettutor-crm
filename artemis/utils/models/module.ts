@@ -19,6 +19,7 @@ export enum FieldType {
 }
 
 export interface FieldMeta {
+  id?: string
   name: string
   group: string
   required: boolean

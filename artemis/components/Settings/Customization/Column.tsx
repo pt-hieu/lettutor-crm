@@ -1,9 +1,11 @@
 import { Droppable } from 'react-beautiful-dnd'
 
-import { Field, TField } from './Field'
+import { FieldMeta } from '@utils/models/module'
+
+import { Field, TFieldData } from './Field'
 
 interface ColumnProps {
-  fields: TField[]
+  fields: TFieldData[]
   id: string
 }
 

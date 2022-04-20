@@ -1,19 +1,22 @@
 import React from 'react'
 import { Draggable } from 'react-beautiful-dnd'
 
-export type TField = {
+import { ActionType } from '@utils/models/customization'
+import { FieldMeta, FieldType } from '@utils/models/module'
+
+export type TFieldData = Omit<FieldMeta, 'group'> & {
   id: string
-  content: string
+  action?: ActionType
 }
 
 interface FieldProps {
-  data: TField
+  data: TFieldData
   index: number
 }
 
-export const Field = ({ data: task, index }: FieldProps) => {
+export const Field = ({ data, index }: FieldProps) => {
   return (
-    <Draggable draggableId={task.id} index={index}>
+    <Draggable draggableId={data.id} index={index}>
       {({ dragHandleProps, draggableProps, innerRef }, { isDragging }) => (
         <div
           className={`border rounded-sm p-2 mb-2 bg-white ${
@@ -23,7 +26,7 @@ export const Field = ({ data: task, index }: FieldProps) => {
           {...draggableProps}
           ref={innerRef}
         >
-          {task.content}
+          {data.name}
         </div>
       )}
     </Draggable>

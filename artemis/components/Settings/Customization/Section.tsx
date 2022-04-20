@@ -5,9 +5,10 @@ import { Controller, useForm } from 'react-hook-form'
 
 import Dropdown from '@utils/components/Dropdown'
 import Menu from '@utils/components/Menu'
+import { FieldMeta } from '@utils/models/module'
 
 import { Column } from './Column'
-import { TField } from './Field'
+import { TFieldData } from './Field'
 
 const animateVariant = {
   init: { opacity: 0, height: 0, marginTop: 0 },
@@ -17,8 +18,8 @@ const animateVariant = {
 interface SectionProps {
   id: string
   name: string
-  fieldsColumn1: TField[]
-  fieldsColumn2: TField[]
+  fieldsColumn1: TFieldData[]
+  fieldsColumn2: TFieldData[]
   index: number
   onDelete: (id: string) => void
   onRename: (id: string, name: string) => void

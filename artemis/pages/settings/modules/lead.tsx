@@ -2,19 +2,46 @@ import { Tabs } from 'antd'
 import React, { createContext, useState } from 'react'
 import { DragDropContext, DropResult, Droppable } from 'react-beautiful-dnd'
 
+import { TFieldData } from '@components/Settings/Customization/Field'
 import { SEPERATOR, Section } from '@components/Settings/Customization/Section'
 import { Sidebar } from '@components/Settings/Customization/Sidebar'
 
 import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
+import { ActionType } from '@utils/models/customization'
+import { FieldType } from '@utils/models/module'
 
 const { TabPane } = Tabs
 
-const fields = {
-  'field-1': { id: 'field-1', content: 'Take out the garbage' },
-  'field-2': { id: 'field-2', content: 'Watch my favorite show' },
-  'field-3': { id: 'field-3', content: 'Charge my phone' },
-  'field-4': { id: 'field-4', content: 'Cook dinner' },
+const fields: Record<string, TFieldData> = {
+  'field-1': {
+    id: 'field-1',
+    name: 'Mobile Phone',
+    required: false,
+    type: FieldType.PHONE,
+    visibility: {},
+  },
+  'field-2': {
+    id: 'field-2',
+    name: 'Email',
+    required: true,
+    type: FieldType.EMAIL,
+    visibility: {},
+  },
+  'field-3': {
+    id: 'field-3',
+    name: 'Name',
+    required: false,
+    type: FieldType.TEXT,
+    visibility: {},
+  },
+  'field-4': {
+    id: 'field-4',
+    name: 'Date',
+    required: false,
+    type: FieldType.DATE,
+    visibility: {},
+  },
 }
 
 const initialData = {
@@ -46,12 +73,6 @@ const initialData = {
   },
   // Facilitate reordering of the columns
   sectionOrder: ['section-1', 'section-2', 'section-3', 'section-4'],
-}
-
-export enum SectionAction {
-  ADD = 'Add',
-  DELETE = 'Delete',
-  UPDATE = 'Update',
 }
 
 type TSection = {
@@ -183,7 +204,7 @@ const Main = () => {
 
   const handleDeleteSection = (id: string) => {
     const newSections = { ...sections }
-    newSections[id].actions = SectionAction.DELETE
+    newSections[id].actions = ActionType.DELETE
     setSections(newSections)
   }
 
@@ -234,7 +255,7 @@ const Main = () => {
                     {sectionOrder.map((sectionId, index) => {
                       const section = sections[sectionId]
 
-                      if (section.actions === SectionAction.DELETE) return null
+                      if (section.actions === ActionType.DELETE) return null
 
                       const mapFields1 = section.fieldIds1.map(
                         (fieldId) => fields[fieldId as keyof typeof fields],
