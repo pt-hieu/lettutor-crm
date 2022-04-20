@@ -1,15 +1,7 @@
 import { Tabs } from 'antd'
-import { off } from 'process'
-import React, { useState } from 'react'
-import {
-  DragDropContext,
-  Draggable,
-  DropResult,
-  Droppable,
-} from 'react-beautiful-dnd'
+import React, { createContext, useState } from 'react'
+import { DragDropContext, DropResult, Droppable } from 'react-beautiful-dnd'
 
-import { Column } from '@components/Settings/Customization/Column'
-import { TField } from '@components/Settings/Customization/Field'
 import { SEPERATOR, Section } from '@components/Settings/Customization/Section'
 import { Sidebar } from '@components/Settings/Customization/Sidebar'
 
@@ -56,6 +48,12 @@ const initialData = {
   sectionOrder: ['section-1', 'section-2', 'section-3', 'section-4'],
 }
 
+export enum SectionAction {
+  ADD = 'Add',
+  DELETE = 'Delete',
+  UPDATE = 'Update',
+}
+
 type TSection = {
   id: string
   title: string
@@ -63,13 +61,24 @@ type TSection = {
   fieldIds2: string[]
 }
 
+type TSectionData = TSection & { actions?: string }
+
+type TSectionContext = {
+  sections: Record<string, TSectionData>
+  updateField: () => void
+  preventSubmit: (value: boolean) => void
+}
+
+export const SectionsContext = createContext<TSectionContext | null>(null)
+
 const Main = () => {
   const [sectionOrder, setSectionOrder] = useState<string[]>(
     initialData.sectionOrder,
   )
-  const [sections, setSections] = useState<Record<string, TSection>>(
+  const [sections, setSections] = useState<Record<string, TSectionData>>(
     initialData.sections,
   )
+  const [disableSave, setDisableSave] = useState(false)
 
   const handleDragStart = () => {}
 
@@ -172,44 +181,90 @@ const Main = () => {
     })
   }
 
+  const handleDeleteSection = (id: string) => {
+    const newSections = { ...sections }
+    newSections[id].actions = SectionAction.DELETE
+    setSections(newSections)
+  }
+
+  const handleRenameSection = (id: string, name: string) => {
+    const newSections = { ...sections }
+    newSections[id].title = name
+    setSections(newSections)
+  }
+
+  const updateField = () => {}
+
+  const preventSubmit = (value: boolean) => {
+    setDisableSave(value)
+  }
+
   return (
-    <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <Sidebar />
-      <div className="px-[64px] overflow-hidden grid grid-rows-[60px,1fr]">
-        <Tabs defaultActiveKey="1">
-          <TabPane tab={<span>CREATE VIEW</span>} key="1"></TabPane>
-          <TabPane tab={<span>DETAIL VIEW</span>} key="2"></TabPane>
-        </Tabs>
-        <div className="overflow-y-scroll pr-[60px]">
-          <Droppable droppableId="all-sections" type="section">
-            {({ droppableProps, innerRef, placeholder }) => (
-              <div ref={innerRef} {...droppableProps}>
-                {sectionOrder.map((sectionId, index) => {
-                  const section = sections[sectionId]
-                  const mapFields1 = section.fieldIds1.map(
-                    (fieldId) => fields[fieldId as keyof typeof fields],
-                  )
-                  const mapFields2 = section.fieldIds2.map(
-                    (fieldId) => fields[fieldId as keyof typeof fields],
-                  )
-                  return (
-                    <Section
-                      title={section.title}
-                      key={section.id}
-                      id={section.id}
-                      fieldsColumn1={mapFields1}
-                      fieldsColumn2={mapFields2}
-                      index={index}
-                    />
-                  )
-                })}
-                {placeholder}
-              </div>
-            )}
-          </Droppable>
+    <div className="grid grid-cols-[340px,1fr] grid-rows-[60px,1fr] h-screen overflow-hidden">
+      <div className="col-span-2 border-b flex justify-between items-center px-4">
+        <div>Lead</div>
+        <div className="flex gap-4">
+          <button type="button" className="crm-button-outline">
+            <span className="fa fa-times mr-2" />
+            Cancel
+          </button>
+
+          <button type="submit" className="crm-button" disabled={disableSave}>
+            <Loading on={false}>
+              <span className="fa fa-check mr-2" />
+              Save
+            </Loading>
+          </button>
         </div>
       </div>
-    </DragDropContext>
+      <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <Sidebar />
+        <div className="px-[64px] overflow-hidden grid grid-rows-[60px,1fr]">
+          <Tabs defaultActiveKey="1">
+            <TabPane tab={<span>CREATE VIEW</span>} key="1"></TabPane>
+            <TabPane tab={<span>DETAIL VIEW</span>} key="2"></TabPane>
+          </Tabs>
+          <SectionsContext.Provider
+            value={{ sections, updateField, preventSubmit }}
+          >
+            <div className="overflow-y-scroll pr-[60px]">
+              <Droppable droppableId="all-sections" type="section">
+                {({ droppableProps, innerRef, placeholder }) => (
+                  <div ref={innerRef} {...droppableProps}>
+                    {sectionOrder.map((sectionId, index) => {
+                      const section = sections[sectionId]
+
+                      if (section.actions === SectionAction.DELETE) return null
+
+                      const mapFields1 = section.fieldIds1.map(
+                        (fieldId) => fields[fieldId as keyof typeof fields],
+                      )
+                      const mapFields2 = section.fieldIds2.map(
+                        (fieldId) => fields[fieldId as keyof typeof fields],
+                      )
+
+                      return (
+                        <Section
+                          onDelete={handleDeleteSection}
+                          onRename={handleRenameSection}
+                          name={section.title}
+                          key={section.id}
+                          id={section.id}
+                          fieldsColumn1={mapFields1}
+                          fieldsColumn2={mapFields2}
+                          index={index}
+                        />
+                      )
+                    })}
+                    {placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          </SectionsContext.Provider>
+        </div>
+      </DragDropContext>
+    </div>
   )
 }
 
@@ -226,25 +281,7 @@ const LeadCustom = ({ title }: Props) => {
       header={false}
       footer={false}
     >
-      <div className="grid grid-cols-[340px,1fr] grid-rows-[60px,1fr] h-screen overflow-hidden">
-        <div className="col-span-2 border-b flex justify-between items-center px-4">
-          <div>Lead</div>
-          <div className="flex gap-4">
-            <button type="button" className="crm-button-outline">
-              <span className="fa fa-times mr-2" />
-              Cancel
-            </button>
-
-            <button type="submit" className="crm-button">
-              <Loading on={false}>
-                <span className="fa fa-check mr-2" />
-                Save
-              </Loading>
-            </button>
-          </div>
-        </div>
-        <Main />
-      </div>
+      <Main />
     </Layout>
   )
 }
