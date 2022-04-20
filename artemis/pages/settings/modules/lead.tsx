@@ -32,7 +32,7 @@ const fields: Record<string, TFieldData> = {
     id: 'field-3',
     name: 'Name',
     required: false,
-    type: FieldType.TEXT,
+    type: FieldType.SELECT,
     visibility: {},
   },
   'field-4': {
