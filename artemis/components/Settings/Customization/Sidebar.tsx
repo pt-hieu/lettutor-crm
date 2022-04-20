@@ -5,58 +5,58 @@ import { FieldType } from '@utils/models/module'
 
 import { Field, TFieldData } from './Field'
 
-const pureFields: Record<FieldType, TFieldData> = {
+export const pureFields: Record<FieldType, TFieldData> = {
   [FieldType.TEXT]: {
-    id: 'pure-text',
+    id: FieldType.TEXT,
     name: 'Single Line',
     required: false,
     type: FieldType.TEXT,
     visibility: {},
   },
   [FieldType.MULTILINE_TEXT]: {
-    id: 'pure-multi-line',
+    id: FieldType.MULTILINE_TEXT,
     name: 'Multi Line',
     required: false,
     type: FieldType.MULTILINE_TEXT,
     visibility: {},
   },
   [FieldType.EMAIL]: {
-    id: 'pure-email',
+    id: FieldType.EMAIL,
     name: 'Email',
     required: false,
     type: FieldType.EMAIL,
     visibility: {},
   },
   [FieldType.PHONE]: {
-    id: 'pure-phone',
+    id: FieldType.PHONE,
     name: 'Phone',
     required: false,
     type: FieldType.PHONE,
     visibility: {},
   },
   [FieldType.NUMBER]: {
-    id: 'pure-number',
+    id: FieldType.NUMBER,
     name: 'Number',
     required: false,
     type: FieldType.NUMBER,
     visibility: {},
   },
   [FieldType.DATE]: {
-    id: 'pure-date',
+    id: FieldType.DATE,
     name: 'Date',
     required: false,
     type: FieldType.DATE,
     visibility: {},
   },
   [FieldType.SELECT]: {
-    id: 'pure-select',
+    id: FieldType.SELECT,
     name: 'Pick List',
     required: false,
     type: FieldType.SELECT,
     visibility: {},
   },
   [FieldType.RELATION]: {
-    id: 'pure-relation',
+    id: FieldType.RELATION,
     name: 'Lookup',
     required: false,
     type: FieldType.RELATION,
@@ -79,7 +79,35 @@ interface ItemProps {
   data: TFieldData
   index: number
 }
-const Item = ({ data, index }: ItemProps) => {
+const FieldItem = ({ data, index }: ItemProps) => {
+  return (
+    <div className="border rounded-sm relative hover:bg-orange-50 bg-slate-50 px-2 flex items-center">
+      <span className="text-gray-600">
+        <span className={`fa ${mapIcon[data.type]} mr-1`}></span> {data.name}
+      </span>
+
+      <div className="inset-0 absolute">
+        <Field data={data} index={index} isPure={true} />
+      </div>
+    </div>
+  )
+}
+
+export type TSection = {
+  id: string
+  title: string
+  fieldIds1: string[]
+  fieldIds2: string[]
+}
+
+export type TSectionData = TSection & { actions?: string }
+
+interface SectionItemProps {
+  data: TFieldData
+  index: number
+}
+
+const SectionItem = ({ data, index }: ItemProps) => {
   return (
     <div className="border rounded-sm relative hover:bg-orange-50 bg-slate-50 px-2 flex items-center">
       <span className="text-gray-600">
@@ -97,7 +125,7 @@ export const Sidebar = () => {
   return (
     <div className="bg-gray-600 text-white h-full w-full p-5 flex flex-col gap-2">
       <div>Side bar</div>
-      <Droppable droppableId="new-fields" type="field" isDropDisabled>
+      <Droppable droppableId="new-field" type="field" isDropDisabled>
         {({ innerRef, droppableProps }) => (
           <div
             className="grid grid-cols-2 gap-2 auto-rows-[32px]"
@@ -105,7 +133,7 @@ export const Sidebar = () => {
             {...droppableProps}
           >
             {Object.entries(pureFields).map(([key, data], index) => (
-              <Item key={key} data={data} index={index} />
+              <FieldItem key={key} data={data} index={index} />
             ))}
           </div>
         )}

@@ -4,7 +4,12 @@ import { DragDropContext, DropResult, Droppable } from 'react-beautiful-dnd'
 
 import { TFieldData } from '@components/Settings/Customization/Field'
 import { SEPERATOR, Section } from '@components/Settings/Customization/Section'
-import { Sidebar } from '@components/Settings/Customization/Sidebar'
+import {
+  Sidebar,
+  TSection,
+  TSectionData,
+  pureFields,
+} from '@components/Settings/Customization/Sidebar'
 
 import Layout from '@utils/components/Layout'
 import Loading from '@utils/components/Loading'
@@ -13,7 +18,7 @@ import { FieldType } from '@utils/models/module'
 
 const { TabPane } = Tabs
 
-const fields: Record<string, TFieldData> = {
+const initialFields: Record<string, TFieldData> = {
   'field-1': {
     id: 'field-1',
     name: 'Mobile Phone',
@@ -75,15 +80,6 @@ const initialData = {
   sectionOrder: ['section-1', 'section-2', 'section-3', 'section-4'],
 }
 
-type TSection = {
-  id: string
-  title: string
-  fieldIds1: string[]
-  fieldIds2: string[]
-}
-
-type TSectionData = TSection & { actions?: string }
-
 type TSectionContext = {
   sections: Record<string, TSectionData>
   updateField: () => void
@@ -99,6 +95,9 @@ const Main = () => {
   const [sections, setSections] = useState<Record<string, TSectionData>>(
     initialData.sections,
   )
+
+  const [fields, setFields] = useState(initialFields)
+
   const [disableSave, setDisableSave] = useState(false)
 
   const handleDragStart = () => {}
@@ -112,11 +111,7 @@ const Main = () => {
 
     if (destinationId === sourceId && destination.index === source.index) return
 
-    if (sourceId === 'new-fields') {
-      console.log('from new field')
-      return
-    }
-
+    //Moving sections
     if (type === 'section') {
       const newColumnOrder = [...sectionOrder]
       newColumnOrder.splice(source.index, 1)
@@ -133,7 +128,41 @@ const Main = () => {
     const start = sections[sourceSection]
     const finish = sections[destinationSection]
 
-    // In the same column
+    //Add new field
+    if (sourceId === 'new-field') {
+      const newFieldId = new Date().toISOString() + Math.random()
+
+      const newField: TFieldData = {
+        ...pureFields[draggableId as FieldType],
+        id: newFieldId,
+        action: ActionType.ADD,
+      }
+      setFields({ ...fields, [newFieldId]: newField })
+
+      const finishFieldIds = [
+        ...finish[`fieldIds${destinationColumn}` as keyof TSection],
+      ]
+
+      finishFieldIds.splice(destination.index, 0, newFieldId)
+      const newFinish: TSection = {
+        ...finish,
+        [`fieldIds${destinationColumn}` as keyof TSection]: finishFieldIds,
+      }
+
+      setSections({
+        ...sections,
+        [newFinish.id]: newFinish,
+      })
+      return
+    }
+
+    //Add new section
+    if (sourceId === 'new-section') {
+      console.log('from new section')
+      return
+    }
+
+    // Moving field In the same column
     if (sourceId === destinationId) {
       const newFieldIds = [
         ...start[`fieldIds${sourceColumn}` as keyof TSection],
@@ -150,7 +179,7 @@ const Main = () => {
       return
     }
 
-    //In the same section
+    //Moving field In the same section
     if (sourceSection === destinationSection) {
       const startFieldIds = [
         ...start[`fieldIds${sourceColumn}` as keyof TSection],
@@ -175,7 +204,7 @@ const Main = () => {
       return
     }
 
-    //Moving from another section
+    //Moving field from another section
     const startFieldIds = [
       ...start[`fieldIds${sourceColumn}` as keyof TSection],
     ]
