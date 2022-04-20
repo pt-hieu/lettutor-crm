@@ -9,6 +9,7 @@ import {
   TSection,
   TSectionData,
   pureFields,
+  pureSection,
 } from '@components/Settings/Customization/Sidebar'
 
 import Layout from '@utils/components/Layout'
@@ -76,7 +77,7 @@ const initialData = {
       fieldIds2: [],
     },
   },
-  // Facilitate reordering of the columns
+
   sectionOrder: ['section-1', 'section-2', 'section-3', 'section-4'],
 }
 
@@ -112,7 +113,7 @@ const Main = () => {
     if (destinationId === sourceId && destination.index === source.index) return
 
     //Moving sections
-    if (type === 'section') {
+    if (type === 'section' && sourceId !== 'new-section') {
       const newColumnOrder = [...sectionOrder]
       newColumnOrder.splice(source.index, 1)
       newColumnOrder.splice(destination.index, 0, draggableId)
@@ -158,7 +159,21 @@ const Main = () => {
 
     //Add new section
     if (sourceId === 'new-section') {
-      console.log('from new section')
+      const newSectionId = new Date().toISOString() + Math.random()
+
+      const newSection: TSectionData = {
+        ...pureSection,
+        id: newSectionId,
+        action: ActionType.ADD,
+      }
+
+      setSections({ ...sections, [newSectionId]: newSection })
+
+      const newSectionOrder = [...sectionOrder]
+      newSectionOrder.splice(destination.index, 0, newSectionId)
+
+      setSectionOrder(newSectionOrder)
+
       return
     }
 
@@ -167,6 +182,7 @@ const Main = () => {
       const newFieldIds = [
         ...start[`fieldIds${sourceColumn}` as keyof TSection],
       ]
+
       newFieldIds.splice(source.index, 1)
       newFieldIds.splice(destination.index, 0, draggableId)
 
@@ -233,7 +249,7 @@ const Main = () => {
 
   const handleDeleteSection = (id: string) => {
     const newSections = { ...sections }
-    newSections[id].actions = ActionType.DELETE
+    newSections[id].action = ActionType.DELETE
     setSections(newSections)
   }
 
@@ -284,7 +300,7 @@ const Main = () => {
                     {sectionOrder.map((sectionId, index) => {
                       const section = sections[sectionId]
 
-                      if (section.actions === ActionType.DELETE) return null
+                      if (section.action === ActionType.DELETE) return null
 
                       const mapFields1 = section.fieldIds1.map(
                         (fieldId) => fields[fieldId as keyof typeof fields],

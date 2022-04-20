@@ -1,6 +1,7 @@
 import React from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 
+import { ActionType } from '@utils/models/customization'
 import { FieldType } from '@utils/models/module'
 
 import { Field, TFieldData } from './Field'
@@ -100,7 +101,7 @@ export type TSection = {
   fieldIds2: string[]
 }
 
-export type TSectionData = TSection & { actions?: string }
+export type TSectionData = TSection & { action?: ActionType }
 
 export const pureSection: TSectionData = {
   id: 'pure-section',
@@ -111,7 +112,7 @@ export const pureSection: TSectionData = {
 
 const SectionItem = () => {
   return (
-    <div className="border rounded-sm relative border-dashed flex items-center justify-center p-2">
+    <div className="border rounded-sm relative border-dashed flex items-center justify-center p-2 mt-1">
       <div className="text-white">
         <span className={`fa fa-plus mr-1`}></span> {pureSection.name}
       </div>

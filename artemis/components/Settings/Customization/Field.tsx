@@ -52,7 +52,7 @@ export const Field = ({ data, index, isPure }: FieldProps) => {
       {({ dragHandleProps, draggableProps, innerRef }, { isDragging }) => (
         <div
           className={`border rounded-sm p-2 mb-2 bg-white flex justify-between items-center hover:border-orange-300 ${
-            isPure ? 'opacity-0 !w-[480px] text-gray-500' : undefined
+            isPure ? 'opacity-0 !w-[460px] text-gray-500' : undefined
           } ${
             isDragging
               ? 'bg-orange-50 border-orange-400 opacity-100'
