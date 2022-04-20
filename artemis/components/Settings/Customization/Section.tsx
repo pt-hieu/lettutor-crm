@@ -26,8 +26,8 @@ export const Section = ({
         <div
           ref={innerRef}
           {...draggableProps}
-          className={`my-4 border border-dashed hover:border-gray-400 rounded-sm ${
-            isDragging ? 'border-gray-400 bg-orange-50' : 'border-transparent'
+          className={`my-4 border border-dashed hover:border-gray-400 rounded-sm p-2 ${
+            isDragging ? 'border-blue-600 bg-slate-50' : ''
           }`}
         >
           <h3 className="p-2 !cursor-move" {...dragHandleProps}>

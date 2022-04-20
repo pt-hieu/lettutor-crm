@@ -45,9 +45,15 @@ const initialData = {
       fieldIds1: [],
       fieldIds2: [],
     },
+    'section-4': {
+      id: 'section-4',
+      title: 'Review',
+      fieldIds1: [],
+      fieldIds2: [],
+    },
   },
   // Facilitate reordering of the columns
-  sectionOrder: ['section-1', 'section-2', 'section-3'],
+  sectionOrder: ['section-1', 'section-2', 'section-3', 'section-4'],
 }
 
 type TSection = {
@@ -169,13 +175,13 @@ const Main = () => {
   return (
     <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <Sidebar />
-      <div className="px-[64px] overflow-hidden grid grid-rows-[60px,1fr] bg-slate-50">
+      <div className="px-[64px] overflow-hidden grid grid-rows-[60px,1fr]">
         <Tabs defaultActiveKey="1">
           <TabPane tab={<span>CREATE VIEW</span>} key="1"></TabPane>
           <TabPane tab={<span>DETAIL VIEW</span>} key="2"></TabPane>
         </Tabs>
         <div className="overflow-y-scroll pr-[60px]">
-          <Droppable droppableId="all-columns" type="section">
+          <Droppable droppableId="all-sections" type="section">
             {({ droppableProps, innerRef, placeholder }) => (
               <div ref={innerRef} {...droppableProps}>
                 {sectionOrder.map((sectionId, index) => {

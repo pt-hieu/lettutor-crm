@@ -7,16 +7,16 @@ export type TField = {
 }
 
 interface FieldProps {
-  task: TField
+  data: TField
   index: number
 }
 
-export const Field = ({ task, index }: FieldProps) => {
+export const Field = ({ data: task, index }: FieldProps) => {
   return (
     <Draggable draggableId={task.id} index={index}>
       {({ dragHandleProps, draggableProps, innerRef }, { isDragging }) => (
         <div
-          className={`border rounded-sm p-2 mb-2 !w-[480px] bg-white ${
+          className={`border rounded-sm p-2 mb-2 bg-white ${
             isDragging ? 'bg-blue-50' : undefined
           }`}
           {...dragHandleProps}

@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 
 export const Sidebar = () => {
   return (
-    <div className="bg-gray-700 text-white h-full w-full p-5 flex flex-col gap-2">
+    <div className="bg-gray-600 text-white h-full w-full p-5 flex flex-col gap-2">
       <div>Side bar</div>
       <Droppable droppableId="new-fields" type="field" isDropDisabled>
         {({ innerRef, droppableProps }) => (
@@ -18,7 +18,7 @@ export const Sidebar = () => {
           </div>
         )}
       </Droppable>
-      <Droppable droppableId="new-fields" type="section" isDropDisabled>
+      <Droppable droppableId="new-section" type="section" isDropDisabled>
         {({ innerRef, droppableProps }) => (
           <div ref={innerRef} {...droppableProps}>
             <Draggable draggableId={'new-section'} index={1}>
@@ -73,7 +73,7 @@ const Item = ({ content, index }: ItemProps) => {
             ref={innerRef}
             className={`rounded-sm absolute inset-0 z-[1000] h-10 ${
               isDragging
-                ? 'bg-orange-50 opacity-100 !w-[480px] border border-orange-300'
+                ? 'bg-orange-50 opacity-100 !w-[460px] border border-orange-300'
                 : 'opacity-0 hover:bg-slate-50'
             } `}
           >
