@@ -83,7 +83,7 @@ interface ItemProps {
   data: TFieldData
   index: number
 }
-const FieldItem = ({ data, index }: ItemProps) => {
+const FieldItem = React.memo(({ data, index }: ItemProps) => {
   return (
     <div className="border rounded-sm relative hover:bg-orange-50 bg-slate-50 px-2 flex items-center">
       <span className="text-gray-600">
@@ -95,7 +95,7 @@ const FieldItem = ({ data, index }: ItemProps) => {
       </div>
     </div>
   )
-}
+})
 
 export type TSection = {
   id: string
@@ -113,7 +113,7 @@ export const pureSection: TSectionData = {
   fieldIds2: [],
 }
 
-const SectionItem = () => {
+const SectionItem = React.memo(() => {
   return (
     <div className="border rounded-sm relative border-dashed flex items-center justify-center p-2 mt-1">
       <div className="text-white">
@@ -141,7 +141,7 @@ const SectionItem = () => {
       </div>
     </div>
   )
-}
+})
 
 export const Sidebar = () => {
   return (
