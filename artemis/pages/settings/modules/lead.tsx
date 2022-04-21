@@ -47,6 +47,7 @@ const initialFields: Record<string, TFieldData> = {
     required: false,
     type: FieldType.DATE,
     visibility: {},
+    isCustomField: true,
   },
 }
 
@@ -134,6 +135,7 @@ const Main = () => {
         ...pureFields[draggableId as FieldType],
         id: newFieldId,
         action: ActionType.ADD,
+        isCustomField: true,
       }
       setFields({ ...fields, [newFieldId]: newField })
 
@@ -262,7 +264,11 @@ const Main = () => {
   }
 
   const handleUpdateField = (id: string, data: Partial<TFieldData>) => {
-    console.log('update', id)
+    const field: TFieldData = { ...fields[id], ...data }
+    if (field.action !== ActionType.ADD) {
+      field.action === ActionType.UPDATE
+    }
+    setFields({ ...fields, [id]: field })
   }
 
   return (

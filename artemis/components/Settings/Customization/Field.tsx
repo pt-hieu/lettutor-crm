@@ -12,6 +12,7 @@ import { FieldMeta, FieldType } from '@utils/models/module'
 export type TFieldData = Omit<FieldMeta, 'group'> & {
   id: string
   action?: ActionType
+  isCustomField?: boolean
 }
 
 interface FieldProps {
@@ -36,14 +37,28 @@ const MapFieldType: Record<FieldType, ReactNode> = {
 }
 
 export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
-  const { id, name, type } = data
+  const { id, name, type, required, isCustomField } = data
   const { onDelete, onUpdate } = useContext(FieldsContext)!
 
   const [confirm, showConfirm, hideConfirm] = useModal()
 
   const handleDelete = () => onDelete(id)
 
+  const handleUpdate = (data: Partial<TFieldData>) => {
+    onUpdate(id, data)
+  }
+
   const options = [
+    {
+      key: 'Mark Required',
+      title: (
+        <>
+          <span className={`w-4 fa ${required ? 'fa-check' : ''}`}></span> Mark
+          as required
+        </>
+      ),
+      action: () => handleUpdate({ required: !required }),
+    },
     {
       key: 'Delete',
       title: (
@@ -52,6 +67,7 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
         </span>
       ),
       action: showConfirm,
+      disabled: required || !isCustomField,
     },
   ]
 
@@ -60,7 +76,7 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
       <Draggable draggableId={id} index={index}>
         {({ dragHandleProps, draggableProps, innerRef }, { isDragging }) => (
           <div
-            className={`border rounded-sm p-2 mb-2 bg-white flex justify-between items-center hover:border-orange-300 ${
+            className={`border rounded-sm p-2 mb-2 bg-white flex justify-between items-center hover:border-orange-300 relative ${
               isPure ? 'opacity-0 !w-[460px] text-gray-500' : undefined
             } ${
               isDragging
@@ -82,11 +98,8 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
                 options.length ? (
                   <Menu
                     className="min-w-[250px]"
-                    items={options.map(({ key, title, action }) => ({
-                      key,
-                      title,
-                      action,
-                    }))}
+                    itemClassName="text-left"
+                    items={options}
                   />
                 ) : (
                   <div></div>
@@ -97,6 +110,9 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
                 <span className="fa fa-ellipsis-h" />
               </button>
             </Dropdown>
+            {required && (
+              <div className="bg-red-500 w-1 -ml-[2px] rounded-sm absolute top-0 bottom-0 left-0"></div>
+            )}
           </div>
         )}
       </Draggable>
