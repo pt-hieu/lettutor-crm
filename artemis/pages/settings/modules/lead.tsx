@@ -81,13 +81,12 @@ const initialData = {
   sectionOrder: ['section-1', 'section-2', 'section-3', 'section-4'],
 }
 
-type TSectionContext = {
-  sections: Record<string, TSectionData>
-  updateField: () => void
-  preventSubmit: (value: boolean) => void
+type TFieldContext = {
+  onUpdate: (id: string, data: Partial<TFieldData>) => void
+  onDelete: (id: string) => void
 }
 
-export const SectionsContext = createContext<TSectionContext | null>(null)
+export const FieldsContext = createContext<TFieldContext | null>(null)
 
 const Main = () => {
   const [sectionOrder, setSectionOrder] = useState<string[]>(
@@ -98,8 +97,6 @@ const Main = () => {
   )
 
   const [fields, setFields] = useState(initialFields)
-
-  const [disableSave, setDisableSave] = useState(false)
 
   const handleDragStart = () => {}
 
@@ -259,10 +256,13 @@ const Main = () => {
     setSections(newSections)
   }
 
-  const updateField = () => {}
+  const handleDeleteField = (id: string) => {
+    const field: TFieldData = { ...fields[id], action: ActionType.DELETE }
+    setFields({ ...fields, [id]: field })
+  }
 
-  const preventSubmit = (value: boolean) => {
-    setDisableSave(value)
+  const handleUpdateField = (id: string, data: Partial<TFieldData>) => {
+    console.log('update', id)
   }
 
   return (
@@ -276,7 +276,7 @@ const Main = () => {
               Cancel
             </button>
 
-            <button type="submit" className="crm-button" disabled={disableSave}>
+            <button type="submit" className="crm-button">
               <Loading on={false}>
                 <span className="fa fa-check mr-2" />
                 Save
@@ -284,19 +284,22 @@ const Main = () => {
             </button>
           </div>
         </div>
-        <DragDropContext
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
+        <FieldsContext.Provider
+          value={{
+            onDelete: handleDeleteField,
+            onUpdate: handleUpdateField,
+          }}
         >
-          <Sidebar />
-          <div className="px-[64px] overflow-hidden grid grid-rows-[60px,1fr] pb-4">
-            <Tabs defaultActiveKey="1">
-              <TabPane tab={<span>CREATE VIEW</span>} key="1"></TabPane>
-              <TabPane tab={<span>DETAIL VIEW</span>} key="2"></TabPane>
-            </Tabs>
-            <SectionsContext.Provider
-              value={{ sections, updateField, preventSubmit }}
-            >
+          <DragDropContext
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <Sidebar />
+            <div className="px-[64px] overflow-hidden grid grid-rows-[60px,1fr] pb-4">
+              <Tabs defaultActiveKey="1">
+                <TabPane tab={<span>CREATE VIEW</span>} key="1"></TabPane>
+                <TabPane tab={<span>DETAIL VIEW</span>} key="2"></TabPane>
+              </Tabs>
               <div className="overflow-y-scroll pr-[60px]">
                 <Droppable droppableId="all-sections" type="section">
                   {({ droppableProps, innerRef, placeholder }) => (
@@ -310,12 +313,17 @@ const Main = () => {
 
                         if (section.action === ActionType.DELETE) return null
 
-                        const mapFields1 = section.fieldIds1.map(
-                          (fieldId) => fields[fieldId as keyof typeof fields],
-                        )
-                        const mapFields2 = section.fieldIds2.map(
-                          (fieldId) => fields[fieldId as keyof typeof fields],
-                        )
+                        const mapFields1 = section.fieldIds1
+                          .map(
+                            (fieldId) => fields[fieldId as keyof typeof fields],
+                          )
+                          .filter((item) => item.action !== ActionType.DELETE)
+
+                        const mapFields2 = section.fieldIds2
+                          .map(
+                            (fieldId) => fields[fieldId as keyof typeof fields],
+                          )
+                          .filter((item) => item.action !== ActionType.DELETE)
 
                         return (
                           <Section
@@ -335,9 +343,9 @@ const Main = () => {
                   )}
                 </Droppable>
               </div>
-            </SectionsContext.Provider>
-          </div>
-        </DragDropContext>
+            </div>
+          </DragDropContext>
+        </FieldsContext.Provider>
       </div>
     </Layout>
   )
