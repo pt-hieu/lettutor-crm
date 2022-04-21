@@ -53,8 +53,10 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
       key: 'Mark Required',
       title: (
         <>
-          <span className={`w-4 fa ${required ? 'fa-check' : ''}`}></span> Mark
-          as required
+          <span
+            className={`w-4 fa ${required ? 'fa-close' : 'fa-check'}`}
+          ></span>{' '}
+          {required ? 'Unmark' : 'Mark'} as required
         </>
       ),
       action: () => handleUpdate({ required: !required }),
@@ -63,7 +65,7 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
       key: 'Delete',
       title: (
         <span className="text-red-500">
-          <span className="fa fa-trash mr-2"></span>Delete Permanently
+          <span className="fa fa-trash mr-2"></span>Delete Field
         </span>
       ),
       action: showConfirm,
@@ -121,6 +123,8 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
         close={hideConfirm}
         message={`Are you sure you want to remove the field?`}
         onYes={handleDelete}
+        okText="Delete Permanently"
+        danger
       />
     </>
   )
