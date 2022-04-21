@@ -66,6 +66,13 @@ export const pureFields: Record<FieldType, TFieldData> = {
     type: FieldType.RELATION,
     visibility: {},
   },
+  [FieldType.CHECK_BOX]: {
+    id: FieldType.CHECK_BOX,
+    name: 'Check box',
+    required: false,
+    type: FieldType.CHECK_BOX,
+    visibility: {},
+  },
 }
 
 const mapIcon: Record<FieldType, string> = {
@@ -77,6 +84,7 @@ const mapIcon: Record<FieldType, string> = {
   [FieldType.PHONE]: 'fa-phone',
   [FieldType.SELECT]: 'fa-list-alt',
   [FieldType.RELATION]: 'fa-eye',
+  [FieldType.CHECK_BOX]: 'fa-check-square',
 }
 
 interface ItemProps {

@@ -1,9 +1,13 @@
+import { Checkbox } from 'antd'
+import Modal from 'antd/lib/modal/Modal'
 import { FieldsContext } from 'pages/settings/modules/lead'
-import React, { ReactNode, useContext } from 'react'
+import React, { ReactNode, useContext, useEffect } from 'react'
 import { Draggable } from 'react-beautiful-dnd'
+import { Controller, useForm } from 'react-hook-form'
 
 import Confirm from '@utils/components/Confirm'
 import Dropdown from '@utils/components/Dropdown'
+import Input from '@utils/components/Input'
 import Menu from '@utils/components/Menu'
 import { useModal } from '@utils/hooks/useModal'
 import { ActionType } from '@utils/models/customization'
@@ -36,13 +40,21 @@ const MapFieldType: Record<FieldType, ReactNode> = {
     </div>
   ),
   [FieldType.RELATION]: 'Lookup',
+  [FieldType.CHECK_BOX]: (
+    <div>
+      <span className="fa fa-check-square mr-1"></span> Check box
+    </div>
+  ),
 }
 
+const firstShowSettingTypes = [FieldType.SELECT, FieldType.RELATION]
+
 export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
-  const { id, name, type, required, isCustomField } = data
+  const { id, name, type, required, isCustomField, action } = data
   const { onDelete, onUpdate } = useContext(FieldsContext)!
 
   const [confirm, showConfirm, hideConfirm] = useModal()
+  const [setting, showSetting, hideSetting] = useModal()
 
   const handleDelete = () => onDelete(id)
 
@@ -63,6 +75,18 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
       ),
       action: () => handleUpdate({ required: !required }),
     },
+
+    {
+      key: 'Edit Properties',
+      title: (
+        <>
+          <span className={`w-4 fa fa-pencil text-[12px]`}></span> Edit
+          Properties
+        </>
+      ),
+      action: showSetting,
+    },
+
     {
       key: 'Delete',
       title: (
@@ -74,6 +98,29 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
       disabled: required || !isCustomField,
     },
   ]
+
+  useEffect(() => {
+    if (action === ActionType.ADD && firstShowSettingTypes.includes(type)) {
+      showSetting()
+    }
+  }, [])
+
+  const {
+    handleSubmit,
+    register,
+    reset,
+    formState: { errors },
+    control,
+  } = useForm<Partial<FieldMeta>>()
+
+  const submit = handleSubmit((value) => {
+    handleUpdate(value)
+    hideSetting()
+  })
+
+  useEffect(() => {
+    reset({ ...data })
+  }, [setting])
 
   return (
     <>
@@ -136,6 +183,121 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
         okText="Delete Permanently"
         danger
       />
+
+      <Modal
+        visible={setting}
+        title={`${name} Properties`}
+        onCancel={hideSetting}
+        destroyOnClose
+        footer={
+          <div className="flex w-full gap-2 justify-end">
+            <button onClick={submit} className="crm-button">
+              Submit
+            </button>
+            <button onClick={hideSetting} className="crm-button-outline">
+              Cancel
+            </button>
+          </div>
+        }
+      >
+        <div className="max-h-[400px] overflow-y-auto overflow-x-hidden crm-scrollbar pr-2">
+          <form className="rounded-md p-4" onSubmit={(e) => e.preventDefault()}>
+            <div className="mb-4">
+              <label htmlFor="name" className="crm-label">
+                Field label
+              </label>
+              <Input
+                error={errors.name?.message}
+                props={{
+                  type: 'text',
+                  id: 'name',
+                  className: 'w-full',
+                  ...register('name', {
+                    maxLength: {
+                      value: 100,
+                      message: 'Name length must be at most 100',
+                    },
+                    required: {
+                      value: true,
+                      message: 'Name cannot be empty',
+                    },
+                  }),
+                }}
+              />
+            </div>
+
+            {[
+              FieldType.TEXT,
+              FieldType.MULTILINE_TEXT,
+              FieldType.PHONE,
+            ].includes(type) && (
+              <div className="mb-4">
+                <label htmlFor="maxLength" className="crm-label">
+                  Number of characters allowed
+                </label>
+                <Input
+                  error={errors.maxLength?.message}
+                  props={{
+                    type: 'number',
+                    id: 'maxLength',
+                    className: 'w-full',
+                    ...register('maxLength', {
+                      required: {
+                        value: true,
+                        message: 'Max length is required',
+                      },
+                    }),
+                  }}
+                />
+              </div>
+            )}
+
+            {type === FieldType.NUMBER && (
+              <div className="mb-4">
+                <label htmlFor="max" className="crm-label">
+                  Maximum digits allowed
+                </label>
+                <Input
+                  error={errors.max?.message}
+                  props={{
+                    type: 'number',
+                    id: 'max',
+                    className: 'w-full',
+                    ...register('max', {
+                      required: {
+                        value: true,
+                        message: 'Maximum degits is required',
+                      },
+                      min: {
+                        value: 2,
+                        message: 'Maximum degits must not be less than 2',
+                      },
+                      max: {
+                        value: 16,
+                        message: 'Maximum degits must be at most 16',
+                      },
+                    }),
+                  }}
+                />
+              </div>
+            )}
+
+            {type !== FieldType.CHECK_BOX && (
+              <div className="mb-4">
+                <Controller
+                  control={control}
+                  name="required"
+                  render={({ field: { onChange, value, ref } }) => (
+                    <Checkbox onChange={onChange} checked={value} ref={ref}>
+                      Required
+                    </Checkbox>
+                  )}
+                />
+              </div>
+            )}
+          </form>
+        </div>
+      </Modal>
     </>
   )
 })

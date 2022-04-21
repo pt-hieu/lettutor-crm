@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 type Props = {
@@ -21,8 +21,11 @@ export const RenameInput = ({ initialValue, onRename, className }: Props) => {
     reset,
   } = useForm<{ name: string }>({
     mode: 'all',
-    defaultValues: { name: initialValue },
   })
+
+  useEffect(() => {
+    reset({ name: initialValue })
+  }, [initialValue])
 
   const nameRef = useRef<any>()
 
