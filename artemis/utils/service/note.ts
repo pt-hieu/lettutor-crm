@@ -68,5 +68,22 @@ export const editNote = ({
   noteId: string
   dataInfo: INoteData
 }) => {
-  return axios.patch(API + `/apollo/note/${noteId}`, { ...dataInfo })
+  const { files, ...data } = dataInfo
+  const formData = new FormData()
+
+  console.log(dataInfo)
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (value) formData.append(key, value)
+  })
+
+  if (files) {
+    for (const file of files) {
+      formData.append('files', file)
+    }
+  }
+
+  return axios
+    .patch(API + `/apollo/note/${noteId}`, formData)
+    .then((r) => r.data)
 }

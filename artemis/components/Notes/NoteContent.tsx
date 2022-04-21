@@ -70,6 +70,7 @@ export const NoteContent = ({
 
   const handleEditNote = (data: INoteData) => {
     const newData = { ...data }
+
     newData.attachments = data.attachments.map((i) => i.id)
     editNoteService({ noteId, dataInfo: newData })
   }
