@@ -9,6 +9,8 @@ import { useModal } from '@utils/hooks/useModal'
 import { ActionType } from '@utils/models/customization'
 import { FieldMeta, FieldType } from '@utils/models/module'
 
+import { RenameInput } from './RenameInput'
+
 export type TFieldData = Omit<FieldMeta, 'group'> & {
   id: string
   action?: ActionType
@@ -79,7 +81,7 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
         {({ dragHandleProps, draggableProps, innerRef }, { isDragging }) => (
           <div
             className={`border rounded-sm p-2 mb-2 bg-white flex justify-between items-center hover:border-orange-300 relative ${
-              isPure ? 'opacity-0 !w-[460px] text-gray-500' : undefined
+              isPure ? 'opacity-0 !w-[460px] text-gray-500' : ''
             } ${
               isDragging
                 ? 'bg-orange-50 border-orange-400 opacity-100'
@@ -89,7 +91,15 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
             {...draggableProps}
             ref={innerRef}
           >
-            <div className="w-[180px] truncate ml-2">{name}</div>
+            {isPure ? (
+              <div className="w-[180px] truncate ml-2">{name}</div>
+            ) : (
+              <RenameInput
+                initialValue={name}
+                onRename={(name) => handleUpdate({ name })}
+              />
+            )}
+
             <div className="flex-1 mx-2 text-gray-400">
               {MapFieldType[type]}
             </div>

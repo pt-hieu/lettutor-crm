@@ -1,7 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { useRef } from 'react'
 import { Draggable } from 'react-beautiful-dnd'
-import { Controller, useForm } from 'react-hook-form'
 
 import Confirm from '@utils/components/Confirm'
 import Dropdown from '@utils/components/Dropdown'
@@ -10,11 +7,7 @@ import { useModal } from '@utils/hooks/useModal'
 
 import { Column } from './Column'
 import { TFieldData } from './Field'
-
-const animateVariant = {
-  init: { opacity: 0, height: 0, marginTop: 0 },
-  animating: { opacity: 1, height: 'auto', marginTop: 8 },
-}
+import { RenameInput } from './RenameInput'
 
 interface SectionProps {
   id: string
@@ -52,28 +45,6 @@ export const Section = ({
     },
   ]
 
-  const nameRef = useRef<any>()
-
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm<{ name: string }>({ mode: 'all', defaultValues: { name } })
-
-  const handleRename = handleSubmit((data) => {
-    if (data.name !== name) onRename(id, data.name)
-    nameRef?.current?.blur && nameRef.current.blur()
-  })
-
-  const handleOnBlur = () => {
-    if (errors.name) {
-      reset({ name })
-      return
-    }
-    handleRename()
-  }
-
   return (
     <>
       <Draggable draggableId={id} index={index}>
@@ -86,51 +57,11 @@ export const Section = ({
             }`}
           >
             <div className="p-2 !cursor-move flex" {...dragHandleProps}>
-              <form onSubmit={handleRename}>
-                <Controller
-                  name="name"
-                  control={control}
-                  rules={{
-                    maxLength: {
-                      value: 100,
-                      message: 'Section name length must be at most 100',
-                    },
-                    required: {
-                      value: true,
-                      message: 'Section name cannot be empty',
-                    },
-                  }}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      onBlur={() => {
-                        handleOnBlur()
-                      }}
-                      ref={nameRef}
-                      autoComplete="off"
-                      className={`border border-transparent w-[200px] py-1 -ml-2 p-2 rounded-sm outline-none truncate text-gray-700 font-semibold text-[17px] ${
-                        errors.name
-                          ? '!border-red-600'
-                          : 'focus:border-blue-400 hover:border-blue-300'
-                      }`}
-                    />
-                  )}
-                />
-
-                <AnimatePresence presenceAffectsLayout>
-                  {errors.name && (
-                    <motion.div
-                      initial="init"
-                      animate="animating"
-                      exit="init"
-                      variants={animateVariant}
-                      className="text-red-600 overflow-hidden -ml-2"
-                    >
-                      {errors.name.message}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </form>
+              <RenameInput
+                className="text-gray-700 font-semibold text-[17px]"
+                initialValue={name}
+                onRename={(name) => onRename(id, name)}
+              />
             </div>
             <div className="flex items-stretch">
               <div className="flex-1">
