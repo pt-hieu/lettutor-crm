@@ -244,6 +244,7 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
         onCancel={hideSetting}
         destroyOnClose
         centered
+        maskClosable={false}
         footer={
           <div className="flex w-full gap-2 justify-end">
             <button onClick={submit} className="crm-button">

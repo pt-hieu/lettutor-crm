@@ -49,10 +49,12 @@ export const RenameInput = ({
   const nameRef = useRef<any>()
 
   const handleRename = handleSubmit(({ name }) => {
-    const result = onRename(name)
-    if (result === false) {
-      setError('name', { message: 'Name is exist' })
-      return
+    if (name.trim() !== initialValue) {
+      const result = onRename(name)
+      if (result === false) {
+        setError('name', { message: 'Name is exist' })
+        return
+      }
     }
     reset({ name: initialValue })
     nameRef?.current?.blur && nameRef.current.blur()
