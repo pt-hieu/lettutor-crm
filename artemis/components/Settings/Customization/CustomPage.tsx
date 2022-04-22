@@ -1,4 +1,4 @@
-import { Tabs, notification } from 'antd'
+import { Tabs } from 'antd'
 import { useRouter } from 'next/router'
 import React, { createContext, useState } from 'react'
 import { DragDropContext, DropResult, Droppable } from 'react-beautiful-dnd'
@@ -41,6 +41,7 @@ const initialFields: Record<string, TFieldData> = {
     name: 'Name',
     required: false,
     type: FieldType.SELECT,
+    options: ['Name 1', 'Name 2'],
     visibility: {},
   },
   'field-4': {

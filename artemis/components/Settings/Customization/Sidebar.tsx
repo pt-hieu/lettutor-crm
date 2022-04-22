@@ -170,9 +170,10 @@ export const Sidebar = () => {
         )}
       </Droppable>
       <Droppable droppableId="new-section" type="section" isDropDisabled>
-        {({ innerRef, droppableProps }) => (
+        {({ innerRef, droppableProps, placeholder }) => (
           <div ref={innerRef} {...droppableProps}>
             <SectionItem />
+            {placeholder}
           </div>
         )}
       </Droppable>
