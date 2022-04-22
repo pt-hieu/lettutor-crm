@@ -45,6 +45,8 @@ export const Section = ({
     },
   ]
 
+  const totalFields = [...fieldsColumn1, ...fieldsColumn2]
+
   return (
     <>
       <Draggable draggableId={id} index={index}>
@@ -63,13 +65,18 @@ export const Section = ({
                 onRename={(name) => onRename(id, name)}
               />
             </div>
-            <div className="flex items-stretch">
+            <div className="flex items-stretch relative">
               <div className="flex-1">
                 <Column id={id + SEPERATOR + 1} fields={fieldsColumn1} />
               </div>
               <div className="flex-1">
                 <Column id={id + SEPERATOR + 2} fields={fieldsColumn2} />
               </div>
+              {!totalFields.length && (
+                <div className="absolute top-[50%] text-center left-[50%] -translate-x-[50%] -translate-y-[50%] text-gray-400 font-semibold">
+                  Drag and drop your fields here
+                </div>
+              )}
             </div>
             <div className="absolute top-2 right-2">
               <Dropdown
