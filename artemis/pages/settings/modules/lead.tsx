@@ -85,6 +85,8 @@ const initialData = {
 type TFieldContext = {
   onUpdate: (id: string, data: Partial<TFieldData>) => void
   onDelete: (id: string) => void
+  activeField: string | null
+  setActiveField: (value: string | null) => void
 }
 
 export const FieldsContext = createContext<TFieldContext | null>(null)
@@ -96,6 +98,8 @@ const Main = () => {
   const [sections, setSections] = useState<Record<string, TSectionData>>(
     initialData.sections,
   )
+
+  const [activeField, setActiveField] = useState<null | string>(null)
 
   const [fields, setFields] = useState(initialFields)
 
@@ -138,6 +142,7 @@ const Main = () => {
         isCustomField: true,
       }
       setFields({ ...fields, [newFieldId]: newField })
+      setActiveField(newFieldId)
 
       const finishFieldIds = [
         ...finish[`fieldIds${destinationColumn}` as keyof TSection],
@@ -294,6 +299,8 @@ const Main = () => {
           value={{
             onDelete: handleDeleteField,
             onUpdate: handleUpdateField,
+            activeField,
+            setActiveField,
           }}
         >
           <DragDropContext

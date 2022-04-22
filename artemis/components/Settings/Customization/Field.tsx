@@ -50,8 +50,9 @@ const MapFieldType: Record<FieldType, ReactNode> = {
 const firstShowSettingTypes = [FieldType.SELECT, FieldType.RELATION]
 
 export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
-  const { id, name, type, required, isCustomField, action } = data
-  const { onDelete, onUpdate } = useContext(FieldsContext)!
+  const { id, name, type, required, isCustomField } = data
+  const { onDelete, onUpdate, activeField, setActiveField } =
+    useContext(FieldsContext)!
 
   const [confirm, showConfirm, hideConfirm] = useModal()
   const [setting, showSetting, hideSetting] = useModal()
@@ -100,8 +101,9 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
   ]
 
   useEffect(() => {
-    if (action === ActionType.ADD && firstShowSettingTypes.includes(type)) {
-      showSetting()
+    if (activeField === id) {
+      firstShowSettingTypes.includes(type) && showSetting()
+      setActiveField(null)
     }
   }, [])
 
@@ -144,6 +146,9 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
               <RenameInput
                 initialValue={name}
                 onRename={(name) => handleUpdate({ name })}
+                autoFocus={
+                  id === activeField && !firstShowSettingTypes.includes(type)
+                }
               />
             )}
 

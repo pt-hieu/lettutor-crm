@@ -156,7 +156,7 @@ export const Sidebar = () => {
     <div className="bg-gray-600 text-white h-full w-full p-5 flex flex-col gap-2">
       <div>Side bar</div>
       <Droppable droppableId="new-field" type="field" isDropDisabled>
-        {({ innerRef, droppableProps }) => (
+        {({ innerRef, droppableProps, placeholder }) => (
           <div
             className="grid grid-cols-2 gap-2 auto-rows-[32px]"
             ref={innerRef}
@@ -165,6 +165,7 @@ export const Sidebar = () => {
             {Object.entries(pureFields).map(([key, data], index) => (
               <FieldItem key={key} data={data} index={index} />
             ))}
+            {placeholder}
           </div>
         )}
       </Droppable>
