@@ -154,7 +154,7 @@ const SectionItem = React.memo(() => {
 export const Sidebar = () => {
   return (
     <div className="bg-gray-600 text-white h-full w-full p-5 flex flex-col gap-2">
-      <div>Side bar</div>
+      <div className="text-[15px]">New Fields</div>
       <Droppable droppableId="new-field" type="field" isDropDisabled>
         {({ innerRef, droppableProps, placeholder }) => (
           <div

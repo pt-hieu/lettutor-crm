@@ -32,18 +32,28 @@ const ModulesSettings = () => {
     },
     {
       name: 'Contact',
-      options: [],
+      options: [
+        {
+          option: 'Layout',
+          handleClick: () => push('/settings/modules/contact'),
+        },
+      ],
     },
     {
       name: 'Account',
-      options: [],
+      options: [
+        {
+          option: 'Layout',
+          handleClick: () => push('/settings/modules/account'),
+        },
+      ],
     },
     {
       name: 'Deal',
       options: [
         {
-          option: 'Stage-Probability Mapping',
-          handleClick: openModal,
+          option: 'Layout',
+          handleClick: () => push('/settings/modules/deal'),
         },
       ],
     },

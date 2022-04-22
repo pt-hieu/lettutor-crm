@@ -1,6 +1,5 @@
 import { Checkbox } from 'antd'
 import Modal from 'antd/lib/modal/Modal'
-import { FieldsContext } from 'pages/settings/modules/lead'
 import React, { ReactNode, useContext, useEffect } from 'react'
 import { Draggable } from 'react-beautiful-dnd'
 import { Controller, useForm } from 'react-hook-form'
@@ -13,6 +12,7 @@ import { useModal } from '@utils/hooks/useModal'
 import { ActionType } from '@utils/models/customization'
 import { FieldMeta, FieldType } from '@utils/models/module'
 
+import { FieldsContext } from './CustomPage'
 import { RenameInput } from './RenameInput'
 
 export type TFieldData = Omit<FieldMeta, 'group'> & {
