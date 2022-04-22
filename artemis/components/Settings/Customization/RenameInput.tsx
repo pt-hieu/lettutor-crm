@@ -6,6 +6,7 @@ type Props = {
   initialValue: string
   onRename: (name: string) => void
   className?: string
+  autoFocus?: boolean
 }
 
 const animateVariant = {
@@ -13,7 +14,12 @@ const animateVariant = {
   animating: { opacity: 1, height: 'auto', marginTop: 8 },
 }
 
-export const RenameInput = ({ initialValue, onRename, className }: Props) => {
+export const RenameInput = ({
+  initialValue,
+  onRename,
+  className,
+  autoFocus,
+}: Props) => {
   const {
     handleSubmit,
     control,
@@ -21,6 +27,7 @@ export const RenameInput = ({ initialValue, onRename, className }: Props) => {
     reset,
   } = useForm<{ name: string }>({
     mode: 'all',
+    defaultValues: { name: initialValue },
   })
 
   useEffect(() => {
@@ -41,6 +48,13 @@ export const RenameInput = ({ initialValue, onRename, className }: Props) => {
     }
     handleRename()
   }
+
+  useEffect(() => {
+    if (autoFocus) {
+      nameRef?.current?.focus && nameRef.current.focus()
+    }
+  }, [])
+
   return (
     <form onSubmit={handleRename}>
       <Controller
