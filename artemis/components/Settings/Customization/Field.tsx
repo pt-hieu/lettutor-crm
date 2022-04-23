@@ -1,7 +1,12 @@
 import { Checkbox } from 'antd'
 import Modal from 'antd/lib/modal/Modal'
-import { FieldsContext } from 'pages/settings/modules/lead'
-import React, { ReactNode, useContext, useEffect } from 'react'
+import React, {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { Draggable } from 'react-beautiful-dnd'
 import { Controller, useForm } from 'react-hook-form'
 
@@ -13,6 +18,8 @@ import { useModal } from '@utils/hooks/useModal'
 import { ActionType } from '@utils/models/customization'
 import { FieldMeta, FieldType } from '@utils/models/module'
 
+import { FieldsContext } from './CustomPage'
+import { PickList } from './PickList'
 import { RenameInput } from './RenameInput'
 
 export type TFieldData = Omit<FieldMeta, 'group'> & {
@@ -49,8 +56,18 @@ const MapFieldType: Record<FieldType, ReactNode> = {
 
 const firstShowSettingTypes = [FieldType.SELECT, FieldType.RELATION]
 
+type TOptionContext = {
+  onAdd: (index: number) => void
+  onDelete: (index: number) => void
+  onRename: (index: number, data: string) => void
+}
+export const OptionsContext = createContext<TOptionContext | null>(null)
+
 export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
   const { id, name, type, required, isCustomField } = data
+
+  const [options, setOptions] = useState(data.options || [])
+
   const { onDelete, onUpdate, activeField, setActiveField } =
     useContext(FieldsContext)!
 
@@ -63,7 +80,7 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
     onUpdate(id, data)
   }
 
-  const options = [
+  const menuOptions = [
     {
       key: 'Mark Required',
       title: (
@@ -115,13 +132,45 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
     control,
   } = useForm<Partial<FieldMeta>>()
 
+  const handleAddOption = (index: number) => {
+    if (options.includes('')) return
+
+    const newOptions = [...(options || [])]
+    newOptions.splice(index, 0, '')
+    setOptions(newOptions)
+
+    return true
+  }
+
+  const handleDeleteOption = (index: number) => {
+    const newOptions = [...(options || [])]
+    newOptions.splice(index, 1)
+    setOptions(newOptions)
+  }
+
+  const handleRenameOption = (index: number, data: string) => {
+    if (options.includes(data)) return false
+
+    const newOptions = [...(options || [])]
+    newOptions.splice(index, 1, data)
+    setOptions(newOptions)
+  }
+
+  const handleReOrderOptions = (newOptions: string[]) => {
+    setOptions(newOptions)
+  }
+
   const submit = handleSubmit((value) => {
+    if (value.type === FieldType.SELECT) {
+      value.options = options.filter((i) => !!i)
+    }
     handleUpdate(value)
     hideSetting()
   })
 
   useEffect(() => {
     reset({ ...data })
+    setOptions(data.options || [])
   }, [setting])
 
   return (
@@ -159,11 +208,11 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
               key={'dropdown' + index}
               triggerOnHover={false}
               overlay={
-                options.length ? (
+                menuOptions.length ? (
                   <Menu
                     className="min-w-[250px]"
                     itemClassName="text-left"
-                    items={options}
+                    items={menuOptions}
                   />
                 ) : (
                   <div></div>
@@ -194,6 +243,8 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
         title={`${name} Properties`}
         onCancel={hideSetting}
         destroyOnClose
+        centered
+        maskClosable={false}
         footer={
           <div className="flex w-full gap-2 justify-end">
             <button onClick={submit} className="crm-button">
@@ -205,102 +256,116 @@ export const Field = React.memo(({ data, index, isPure }: FieldProps) => {
           </div>
         }
       >
-        <div className="max-h-[400px] overflow-y-auto overflow-x-hidden crm-scrollbar pr-2">
-          <form className="rounded-md p-4" onSubmit={(e) => e.preventDefault()}>
+        <div className="max-h-[500px] overflow-y-auto overflow-x-hidden crm-scrollbar px-2">
+          <div className="mb-4">
+            <label htmlFor="name" className="crm-label">
+              Field label
+            </label>
+            <Input
+              error={errors.name?.message}
+              props={{
+                type: 'text',
+                id: 'name',
+                className: 'w-full',
+                ...register('name', {
+                  maxLength: {
+                    value: 100,
+                    message: 'Name length must be at most 100',
+                  },
+                  required: {
+                    value: true,
+                    message: 'Name cannot be empty',
+                  },
+                }),
+              }}
+            />
+          </div>
+
+          {type === FieldType.SELECT && (
+            <OptionsContext.Provider
+              value={{
+                onAdd: handleAddOption,
+                onDelete: handleDeleteOption,
+                onRename: handleRenameOption,
+              }}
+            >
+              <div className="mb-4">
+                <label>Pick List</label>
+                <PickList
+                  options={options || []}
+                  onChange={handleReOrderOptions}
+                />
+              </div>
+            </OptionsContext.Provider>
+          )}
+
+          {[FieldType.TEXT, FieldType.MULTILINE_TEXT, FieldType.PHONE].includes(
+            type,
+          ) && (
             <div className="mb-4">
-              <label htmlFor="name" className="crm-label">
-                Field label
+              <label htmlFor="maxLength" className="crm-label">
+                Number of characters allowed
               </label>
               <Input
-                error={errors.name?.message}
+                error={errors.maxLength?.message}
                 props={{
-                  type: 'text',
-                  id: 'name',
+                  type: 'number',
+                  id: 'maxLength',
                   className: 'w-full',
-                  ...register('name', {
-                    maxLength: {
-                      value: 100,
-                      message: 'Name length must be at most 100',
-                    },
+                  ...register('maxLength', {
                     required: {
                       value: true,
-                      message: 'Name cannot be empty',
+                      message: 'Max length is required',
                     },
                   }),
                 }}
               />
             </div>
+          )}
 
-            {[
-              FieldType.TEXT,
-              FieldType.MULTILINE_TEXT,
-              FieldType.PHONE,
-            ].includes(type) && (
-              <div className="mb-4">
-                <label htmlFor="maxLength" className="crm-label">
-                  Number of characters allowed
-                </label>
-                <Input
-                  error={errors.maxLength?.message}
-                  props={{
-                    type: 'number',
-                    id: 'maxLength',
-                    className: 'w-full',
-                    ...register('maxLength', {
-                      required: {
-                        value: true,
-                        message: 'Max length is required',
-                      },
-                    }),
-                  }}
-                />
-              </div>
-            )}
+          {type === FieldType.NUMBER && (
+            <div className="mb-4">
+              <label htmlFor="max" className="crm-label">
+                Maximum digits allowed
+              </label>
+              <Input
+                error={errors.max?.message}
+                props={{
+                  type: 'number',
+                  id: 'max',
+                  className: 'w-full',
+                  ...register('max', {
+                    required: {
+                      value: true,
+                      message: 'Maximum degits is required',
+                    },
+                    min: {
+                      value: 2,
+                      message: 'Maximum degits must not be less than 2',
+                    },
+                    max: {
+                      value: 16,
+                      message: 'Maximum degits must be at most 16',
+                    },
+                  }),
+                }}
+              />
+            </div>
+          )}
 
-            {type === FieldType.NUMBER && (
-              <div className="mb-4">
-                <label htmlFor="max" className="crm-label">
-                  Maximum digits allowed
-                </label>
-                <Input
-                  error={errors.max?.message}
-                  props={{
-                    type: 'number',
-                    id: 'max',
-                    className: 'w-full',
-                    ...register('max', {
-                      required: {
-                        value: true,
-                        message: 'Maximum degits is required',
-                      },
-                      min: {
-                        value: 2,
-                        message: 'Maximum degits must not be less than 2',
-                      },
-                      max: {
-                        value: 16,
-                        message: 'Maximum degits must be at most 16',
-                      },
-                    }),
-                  }}
-                />
-              </div>
-            )}
-
-            {type !== FieldType.CHECK_BOX && (
-              <div className="mb-4">
-                <Controller
-                  control={control}
-                  name="required"
-                  render={({ field: { onChange, value, ref } }) => (
-                    <Checkbox onChange={onChange} checked={value} ref={ref}>
-                      Required
-                    </Checkbox>
-                  )}
-                />
-              </div>
-            )}
-          </form>
+          {type !== FieldType.CHECK_BOX && (
+            <div className="mb-4">
+              <Controller
+                control={control}
+                name="required"
+                render={({ field: { onChange, value, ref } }) => (
+                  <Checkbox onChange={onChange} checked={value} ref={ref}>
+                    Required
+                  </Checkbox>
+                )}
+              />
+            </div>
+          )}
         </div>
       </Modal>
     </>

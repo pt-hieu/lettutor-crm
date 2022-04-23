@@ -1,10 +1,20 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useEffect, useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import * as yup from 'yup'
+
+const nameSchema = yup.object().shape({
+  name: yup
+    .string()
+    .trim()
+    .required('Name is required')
+    .max(100, 'Name must be at most 100 characters.'),
+})
 
 type Props = {
   initialValue: string
-  onRename: (name: string) => void
+  onRename: (name: string) => void | boolean
   className?: string
   autoFocus?: boolean
 }
@@ -25,9 +35,11 @@ export const RenameInput = ({
     control,
     formState: { errors },
     reset,
+    setError,
   } = useForm<{ name: string }>({
     mode: 'all',
     defaultValues: { name: initialValue },
+    resolver: yupResolver(nameSchema),
   })
 
   useEffect(() => {
@@ -37,7 +49,14 @@ export const RenameInput = ({
   const nameRef = useRef<any>()
 
   const handleRename = handleSubmit(({ name }) => {
-    if (name !== initialValue) onRename(name)
+    if (name.trim() !== initialValue) {
+      const result = onRename(name)
+      if (result === false) {
+        setError('name', { message: 'Name is exist' })
+        return
+      }
+    }
+    reset({ name: initialValue })
     nameRef?.current?.blur && nameRef.current.blur()
   })
 
@@ -60,16 +79,6 @@ export const RenameInput = ({
       <Controller
         name="name"
         control={control}
-        rules={{
-          maxLength: {
-            value: 100,
-            message: 'Name length must be at most 100',
-          },
-          required: {
-            value: true,
-            message: 'Name cannot be empty',
-          },
-        }}
         render={({ field }) => (
           <input
             {...field}
