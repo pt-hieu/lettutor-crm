@@ -33,6 +33,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
     register,
     setValue,
     formState: { errors },
+    resetField,
   } = useFormContext()
 
   const [isEnable, enable, disable] = useModal()
@@ -238,7 +239,10 @@ export default function Field({ data, inlineEdit }: FieldProps) {
   )
 
   const containerRef = useRef<HTMLDivElement>(null)
-  useClickAway(containerRef, disable)
+  useClickAway(containerRef, () => {
+    disable()
+    resetField(name)
+  })
 
   return (
     <div
