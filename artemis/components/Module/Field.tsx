@@ -225,6 +225,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
           }}
         />
       ),
+      [FieldType.CHECK_BOX]: <></>,
     }),
     [
       relationItems,

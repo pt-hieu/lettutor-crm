@@ -16,9 +16,11 @@ export enum FieldType {
   SELECT = 'Select',
   RELATION = 'Relation',
   DATE = 'Date',
+  CHECK_BOX = 'Check Box',
 }
 
 export interface FieldMeta {
+  id?: string
   name: string
   group: string
   required: boolean

@@ -1,4 +1,5 @@
 import { List } from 'antd'
+import { useRouter } from 'next/router'
 
 import { DealStageModal } from '@components/DealStage/DealStageModal'
 import SettingsLayout from '@components/Settings/SettingsLayout'
@@ -17,26 +18,42 @@ type ModulesList = {
 
 const ModulesSettings = () => {
   const [showStageMappingModal, openModal, closeModal] = useModal()
+  const { push } = useRouter()
 
   const modulesList: ModulesList = [
     {
       name: 'Lead',
-      options: [],
+      options: [
+        {
+          option: 'Layout',
+          handleClick: () => push('/settings/modules/lead'),
+        },
+      ],
     },
     {
       name: 'Contact',
-      options: [],
+      options: [
+        {
+          option: 'Layout',
+          handleClick: () => push('/settings/modules/contact'),
+        },
+      ],
     },
     {
       name: 'Account',
-      options: [],
+      options: [
+        {
+          option: 'Layout',
+          handleClick: () => push('/settings/modules/account'),
+        },
+      ],
     },
     {
       name: 'Deal',
       options: [
         {
-          option: 'Stage-Probability Mapping',
-          handleClick: openModal,
+          option: 'Layout',
+          handleClick: () => push('/settings/modules/deal'),
         },
       ],
     },

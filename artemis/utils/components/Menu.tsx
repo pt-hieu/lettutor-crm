@@ -4,6 +4,7 @@ type Item = {
   key: Key
   title: string | ReactNode
   action: MouseEventHandler<HTMLButtonElement>
+  disabled?: boolean
 }
 
 type Props = {
@@ -33,18 +34,21 @@ export default function Menu({
       onClick={handleContainerClick}
       className={`py-2 border rounded-md bg-white ${className || ''}`}
     >
-      {(items.filter((x) => !!x) as Item[]).map(({ key, action, title }) => (
-        <button
-          type="button"
-          className={`px-5 py-2 font-semibold text-sm text-gray-700 hover:bg-gray-200 w-full ${
-            itemClassName || ''
-          }`}
-          onClick={action}
-          key={key}
-        >
-          {title}
-        </button>
-      ))}
+      {(items.filter((x) => !!x) as Item[]).map(
+        ({ key, action, title, disabled }) => (
+          <button
+            type="button"
+            className={`px-5 py-2 font-semibold text-sm text-gray-700 w-full ${
+              itemClassName || ''
+            } ${disabled ? 'opacity-50' : 'hover:bg-gray-200'}`}
+            onClick={action}
+            key={key}
+            disabled={disabled}
+          >
+            {title}
+          </button>
+        ),
+      )}
 
       {!items.length && (
         <div

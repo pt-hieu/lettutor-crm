@@ -16,6 +16,8 @@ type Props = {
   title?: string
   shouldStopPropagation?: boolean
   asInform?: boolean
+  okText?: string
+  danger?: boolean
 } & (
   | { visible: boolean; close: () => void; children?: never }
   | { visible?: undefined; close?: never; children: ReactNode }
@@ -30,6 +32,8 @@ const Confirm = ({
   visible,
   close,
   asInform,
+  okText,
+  danger,
 }: Props) => {
   const [modalVisibility, setModalVisibility] = useState(visible)
 
@@ -78,13 +82,15 @@ const Confirm = ({
           <div className="space-x-2">
             {!asInform && (
               <button
-                className="crm-button w-24"
+                className={`${
+                  danger ? 'crm-button-danger' : 'crm-button'
+                } min-w-24`}
                 onClick={(e) => {
                   onYes()
                   closeModal(e)
                 }}
               >
-                OK
+                {okText ? okText : 'OK'}
               </button>
             )}
             <button className="crm-button-outline w-24" onClick={closeModal}>
