@@ -185,7 +185,7 @@ const TaskDetail = () => {
   const [sortNote, setSortNote] = useState<SortNoteType>('first')
   const [viewAllNote, setViewAllNote] = useState(false)
 
-  const { data: notes } = useQuery<any>(
+  const { data: notes } = useQuery(
     ['task', id, 'notes', sortNote, viewAllNote],
     getNotes({
       source: 'task',
@@ -261,8 +261,6 @@ const TaskDetail = () => {
       },
     },
   )
-
-  const auth = useAuthorization()
 
   const submit = useCallback(
     handleSubmit((data) => {
@@ -399,13 +397,13 @@ const TaskDetail = () => {
 
                     <NoteSection
                       id={Sections.Notes}
-                      moduleName={'Task'}
+                      moduleName={'task'}
                       entityId={id}
                       hasFilter={false}
                     />
 
                     <AttachmentSection
-                      moduleName={'Tasks'}
+                      moduleName={'task'}
                       entityId={id}
                       id={Sections.Attachments}
                       data={task?.attachments}

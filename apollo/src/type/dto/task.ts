@@ -82,6 +82,11 @@ export class UpdateBody {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsUUID(undefined, { each: true })
+  entityIds?: string[]
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
@@ -92,26 +97,6 @@ export class UpdateBody {
   @IsDate()
   @Type(() => Date)
   dueDate?: Date
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  contactId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  dealId?: string
 
   @ApiPropertyOptional({ type: TaskPriority, enum: TaskPriority })
   @IsOptional()

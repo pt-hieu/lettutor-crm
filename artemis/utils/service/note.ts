@@ -71,8 +71,6 @@ export const editNote = ({
   const { files, ...data } = dataInfo
   const formData = new FormData()
 
-  console.log(dataInfo)
-
   Object.entries(data).forEach(([key, value]) => {
     if (value) formData.append(key, value)
   })

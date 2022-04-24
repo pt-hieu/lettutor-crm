@@ -9,6 +9,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { In, Repository } from 'typeorm'
 
 import { UtilService } from 'src/global/util.service'
+import { Entity } from 'src/module/module.entity'
+import { Task } from 'src/task/task.entity'
 import { DTO } from 'src/type'
 
 import { File } from './file.entity'
@@ -27,6 +29,9 @@ export class FileService {
     @InjectRepository(File)
     private fileRepo: Repository<File>,
 
+    @InjectRepository(Entity) private entityRepo: Repository<Entity>,
+    @InjectRepository(Task) private taskRepo: Repository<Task>,
+
     private util: UtilService,
     private http: HttpService,
   ) {}
@@ -34,8 +39,18 @@ export class FileService {
   async createEntityAttachments(entityId: string, dto: DTO.File.Files) {
     const savedFiles = await this.uploadFile(dto.files)
 
+    const [entity, task] = await Promise.all([
+      this.entityRepo.findOne({ where: { id: entityId } }),
+      this.taskRepo.findOne({
+        where: {
+          id: entityId,
+        },
+      }),
+    ])
+
     savedFiles.forEach((file) => {
-      file.entityId = entityId
+      if (entity) file.entityId = entityId
+      if (task) file.taskId = entityId
     })
 
     return this.fileRepo.save(savedFiles)

@@ -145,7 +145,64 @@ export class TaskService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async update(id: string, dto: DTO.Task.UpdateBody) {}
+  async update(id: string, dto: DTO.Task.UpdateBody) {
+    const task = await this.taskRepo.findOne({ where: { id } })
+    if (!task) throw new NotFoundException('Task not found')
+
+    if (dto.entityIds) {
+      const oldEntities = (await this.entityRepo
+        .createQueryBuilder('e')
+        .addFrom('json_each_text(e.data)', 'entity_data')
+        .where('e_data.value = :id', { id })
+        .getMany()) as Entity[]
+
+      oldEntities.forEach((entity) => {
+        const field = entity.module.meta.find(
+          (field) =>
+            field.type === FieldType.RELATION && field.relateTo === 'task',
+        )
+
+        if (!field) return
+        if (field.relateType === RelateType.SINGLE) {
+          delete entity.data[field.name]
+          return
+        }
+
+        entity.data[field.name] = (entity.data[field.name] as string[]).filter(
+          (entityId) => entityId !== id,
+        )
+      })
+
+      await this.entityRepo.save(oldEntities)
+
+      const entities = await this.entityRepo.find({
+        where: { id: In(dto.entityIds) },
+      })
+
+      entities.forEach((entity) => {
+        const taskField = entity.module.meta.find(
+          (field) =>
+            field.type === FieldType.RELATION && field.relateTo === 'task',
+        )
+
+        if (!taskField) return
+        if (taskField.relateType === RelateType.SINGLE) {
+          entity.data[taskField.name] = task.id
+          return
+        }
+
+        entity.data[taskField.name] = [
+          ...((entity.data[taskField.name] || []) as string[]),
+          task.id,
+        ]
+      })
+
+      await this.entityRepo.save(entities)
+    }
+
+    delete dto.entityIds
+    return this.taskRepo.save({ ...task, ...dto })
+  }
 
   async batchDelete(ids: string[]) {
     const tasks = await this.taskRepo.find({ where: { id: In(ids) } })

@@ -28,6 +28,7 @@ export class File extends BaseEntity {
 
   @ManyToOne(() => EntityModule, (entity) => entity.attachments, {
     onDelete: 'CASCADE',
+    nullable: true,
   })
   @JoinColumn()
   entity: EntityModule

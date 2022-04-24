@@ -2,7 +2,6 @@ import { Exclude } from 'class-transformer'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
 
 import { File } from 'src/file/file.entity'
-import { Module } from 'src/module/module.entity'
 import { Entity as EntityData } from 'src/module/module.entity'
 import { Task } from 'src/task/task.entity'
 import { Ownerful } from 'src/utils/owner.entity'
@@ -28,6 +27,7 @@ export class Note extends Ownerful {
 
   @ManyToOne(() => EntityData, (entity) => entity.notes, {
     onDelete: 'CASCADE',
+    nullable: true,
   })
   @JoinColumn()
   entity: EntityData
