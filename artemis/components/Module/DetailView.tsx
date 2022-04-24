@@ -116,9 +116,10 @@ export default function DetailView({ paths }: TProps) {
                     data={{
                       group: '',
                       name: 'name',
-                      required: false,
+                      required: true,
                       type: FieldType.TEXT,
                       visibility: { Overview: true, Update: true },
+                      maxLength: 30,
                     }}
                     inlineEdit
                   />

@@ -82,6 +82,7 @@ export default function CreateView({ module }: Props) {
                         required: true,
                         visibility: { Overview: true, Update: true },
                         type: FieldType.TEXT,
+                        maxLength: 30,
                       }}
                     />
                   )}
