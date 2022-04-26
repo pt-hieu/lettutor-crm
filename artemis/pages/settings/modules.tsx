@@ -55,6 +55,10 @@ const ModulesSettings = () => {
           option: 'Layout',
           handleClick: () => push('/settings/modules/deal'),
         },
+        {
+          option: 'Stage-Probability Mapping',
+          handleClick: openModal,
+        },
       ],
     },
   ]
@@ -81,12 +85,13 @@ const ModulesSettings = () => {
                 overlay={
                   item.options.length ? (
                     <Menu
-                      className="min-w-[250px]"
+                      className="min-w-[200px]"
                       items={item.options.map((option) => ({
                         key: option.option,
                         title: option.option,
                         action: option.handleClick,
                       }))}
+                      itemClassName="text-left whitespace-nowrap"
                     />
                   ) : (
                     <div></div>
