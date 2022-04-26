@@ -11,6 +11,7 @@ export * as Strapi from './strapi'
 export * as Log from './log'
 export * as DealStage from './deal-stage'
 export * as File from './file'
+export * as Section from './module-section'
 export * as Module from './module'
 export * as Auth from './auth'
 

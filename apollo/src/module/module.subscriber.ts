@@ -15,12 +15,15 @@ import { LogAction, LogSource } from 'src/log/log.entity'
 import { Module } from './module.entity'
 import { ModuleService } from './module.service'
 
+export const default_module = ['deal', 'lead', 'contact', 'account']
+
 @EventSubscriber()
 export class ModuleSubscriber implements EntitySubscriberInterface<Module> {
   constructor(
     conection: Connection,
     private util: UtilService,
     private payload: PayloadService,
+    private service: ModuleService,
   ) {
     conection.subscribers.push(this)
   }
@@ -32,6 +35,9 @@ export class ModuleSubscriber implements EntitySubscriberInterface<Module> {
 
   async afterInsert(event: InsertEvent<Module>): Promise<any> {
     if (!event.entity) return
+    if (default_module.find((e) => e === event.entity.name)) {
+      this.service.updateDefaultModule(event.entity)
+    }
 
     return this.util.emitLog({
       entityId: event.entity.id,
@@ -73,7 +79,7 @@ export class ModuleSubscriber implements EntitySubscriberInterface<Module> {
     return this.util.emitLog({
       entityId: event.entity.id,
       entityName: event.entity.name,
-      ownerId: this.payload.data.id,
+      ownerId: this.payload?.data?.id,
       source: LogSource.MODULE,
       action: LogAction.UPDATE,
       changes: this.util.compare(event.databaseEntity, event.entity, ['meta']),

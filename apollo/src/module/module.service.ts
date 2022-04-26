@@ -14,14 +14,24 @@ import { FindOneOptions, In, Repository } from 'typeorm'
 import { Action, ActionType } from 'src/action/action.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
+import { Section } from 'src/module-section/module-section.entity'
 import { Note } from 'src/note/note.entity'
 import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
 import { User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 
-import { account, contact, deal, lead } from './default.entity'
-import { Entity, FieldType, Module } from './module.entity'
+import {
+  account,
+  account_section,
+  contact,
+  contact_section,
+  deal,
+  deal_section,
+  lead,
+  lead_section,
+} from './default.entity'
+import { CoLumn, Entity, FieldMeta, FieldType, Module } from './module.entity'
 
 // import { File } from 'src/file/file.entity'
 
@@ -34,23 +44,70 @@ export class ModuleService implements OnApplicationBootstrap {
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
     // @InjectRepository(File) private fileRepo: Repository<File>,
     @InjectRepository(Action) private actionRepo: Repository<Action>,
+    @InjectRepository(Section) private sectionRepo: Repository<Section>,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
   ) {}
 
   async onApplicationBootstrap() {
     await this.initDefaultModules()
+    await this.initDefaultSections()
   }
 
   private async initDefaultModules() {
     if (process.env.NODE_ENV === 'production') return
     const modules = await this.moduleRepo.find()
-    // if (modules.length > 0) return
+    if (modules.length > 0) return
 
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
       skipUpdateIfNoValuesChanged: true,
     })
+  }
+
+  private async initDefaultSections() {
+    if (process.env.NODE_ENV === 'production') return
+    const sections = await this.sectionRepo.find()
+    if (sections.length > 0) return
+
+    this.sectionRepo.upsert(
+      [lead_section, deal_section, account_section, contact_section],
+      {
+        conflictPaths: ['id'],
+        skipUpdateIfNoValuesChanged: true,
+      },
+    )
+  }
+
+  async updateDefaultSection(data: Section) {
+    const default_module = await this.moduleRepo.findOne({
+      where: { name: data.name.split(' ')[0].toLowerCase() },
+    })
+    if (!default_module) return
+
+    data.moduleId = default_module.id
+
+    return this.sectionRepo.save(data)
+  }
+
+  async updateDefaultModule(data: DTO.Module.UpdateModule) {
+    const default_module = await this.moduleRepo.findOne({
+      where: { name: data.name },
+    })
+    const Module_Section = await this.sectionRepo.findOne({
+      where: {
+        name:
+          data.name.charAt(0).toUpperCase() +
+          data.name.slice(1) +
+          ' Information',
+      },
+    })
+
+    if (!Module_Section) return
+
+    data.meta.forEach((field) => (field.groupId = Module_Section.id))
+
+    return this.moduleRepo.save({ ...default_module, ...data })
   }
 
   getManyModule() {
@@ -177,6 +234,24 @@ export class ModuleService implements OnApplicationBootstrap {
       .addSelect(['module.id', 'module.name'])
 
     return qb.getMany()
+  }
+
+  async getManyMetaBySection(
+    moduleId: string,
+    groupId: string,
+    column: CoLumn,
+  ) {
+    const module = await this.getOneModule(moduleId)
+    if (!module) return
+
+    const metaForSection: FieldMeta[] = []
+    module.meta.forEach((field) => {
+      if (field.groupId === groupId && field.column === column) {
+        metaForSection.push(field)
+      }
+    })
+
+    return metaForSection.sort((a, b) => a.order - b.order)
   }
 
   async getManyEntity(

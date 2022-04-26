@@ -9,6 +9,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   isUUID,
 } from 'class-validator'
 import {
@@ -19,6 +20,7 @@ import {
 } from 'typeorm'
 
 import { File } from 'src/file/file.entity'
+import { Section } from 'src/module-section/module-section.entity'
 import { Note } from 'src/note/note.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 
@@ -31,6 +33,11 @@ export enum FieldType {
   SELECT = 'Select',
   RELATION = 'Relation',
   DATE = 'Date',
+}
+
+export enum CoLumn {
+  LEFT = 'left',
+  RIGHT = 'right',
 }
 
 export enum RelateType {
@@ -49,9 +56,16 @@ export class FieldMeta {
   name: string
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  group: string
+  @IsUUID()
+  groupId: string
+
+  @ApiProperty()
+  @IsEnum(CoLumn)
+  column: CoLumn
+
+  @ApiProperty()
+  @IsNumber()
+  order: number
 
   @ApiProperty()
   @IsBoolean()
@@ -150,10 +164,16 @@ export class Module extends BaseEntity {
   @Column({ type: 'jsonb', nullable: true })
   meta: Meta | null
 
+  @OneToMany(() => Section, (section) => section.module, {
+    cascade: true,
+  })
+  sections: Section[]
+
   @OneToMany(() => Entity, (e) => e.module, {
     cascade: true,
   })
   entities?: Entity[]
+  data: any
 
   public validateEntity(data: Record<string, unknown>): string | null {
     for (const {

@@ -1,4 +1,6 @@
-import { FieldType, Module, RelateType } from './module.entity'
+import { Section } from 'src/module-section/module-section.entity'
+
+import { CoLumn, FieldType, Module, RelateType } from './module.entity'
 
 export enum LeadStatus {
   NONE = 'None',
@@ -47,7 +49,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
   meta: [
     {
       name: 'ownerId',
-      group: 'Deal Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 1,
       required: true,
       type: FieldType.RELATION,
       relateTo: 'user',
@@ -60,7 +64,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'accountId',
-      group: 'Deal Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 2,
       required: true,
       type: FieldType.RELATION,
       relateTo: 'account',
@@ -74,7 +80,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'contactId',
-      group: 'Deal Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 3,
       required: false,
       type: FieldType.RELATION,
       relateTo: 'contact',
@@ -88,7 +96,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'amount',
-      group: 'Deal Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 4,
       required: false,
       type: FieldType.NUMBER,
       visibility: {
@@ -100,7 +110,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'closingDate',
-      group: 'Deal Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 5,
       required: true,
       type: FieldType.DATE,
       visibility: {
@@ -112,7 +124,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'stageId',
-      group: 'Deal Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 6,
       required: true,
       type: FieldType.RELATION,
       relateTo: 'dealstage',
@@ -126,7 +140,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'source',
-      group: 'Deal Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 7,
       required: true,
       type: FieldType.SELECT,
       options: Object.values(LeadSource),
@@ -138,7 +154,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'probability',
-      group: 'Deal Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 8,
       required: false,
       type: FieldType.NUMBER,
       visibility: {
@@ -149,7 +167,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'description',
-      group: 'Description Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 9,
       required: false,
       type: FieldType.MULTILINE_TEXT,
       visibility: {
@@ -162,7 +182,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'tasks',
-      group: '',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 10,
       required: false,
       type: FieldType.RELATION,
       relateTo: 'task',
@@ -177,7 +199,9 @@ export const account: Pick<Module, 'name' | 'meta'> = {
   meta: [
     {
       name: 'ownerId',
-      group: 'Account Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 0,
       required: true,
       type: FieldType.RELATION,
       relateTo: 'user',
@@ -191,7 +215,9 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'phone',
-      group: 'Account Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 1,
       required: true,
       type: FieldType.PHONE,
       visibility: {
@@ -203,7 +229,9 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'type',
-      group: 'Account Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 2,
       required: true,
       type: FieldType.SELECT,
       options: Object.values(AccountType),
@@ -216,7 +244,9 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'address',
-      group: 'Address Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 3,
       required: false,
       type: FieldType.TEXT,
       visibility: {
@@ -229,7 +259,9 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'description',
-      group: 'Description Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 4,
       required: false,
       type: FieldType.MULTILINE_TEXT,
       visibility: {
@@ -242,7 +274,9 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'tasks',
-      group: '',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 5,
       required: false,
       type: FieldType.RELATION,
       relateTo: 'task',
@@ -257,7 +291,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
   meta: [
     {
       name: 'ownerId',
-      group: 'Contact Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 0,
       required: true,
       type: FieldType.RELATION,
       relateType: RelateType.SINGLE,
@@ -271,7 +307,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'phone',
-      group: 'Contact Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 1,
       required: true,
       type: FieldType.PHONE,
       visibility: {
@@ -283,7 +321,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'email',
-      group: 'Contact Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 2,
       required: true,
       type: FieldType.EMAIL,
       visibility: {
@@ -295,7 +335,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'source',
-      group: 'Contact Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 3,
       required: true,
       type: FieldType.SELECT,
       options: Object.values(LeadSource),
@@ -308,7 +350,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'accountId',
-      group: 'Contact Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 4,
       required: false,
       type: FieldType.RELATION,
       relateTo: 'account',
@@ -321,7 +365,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'address',
-      group: 'Address Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 5,
       required: false,
       type: FieldType.MULTILINE_TEXT,
       visibility: {
@@ -332,7 +378,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'description',
-      group: 'Description Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 6,
       required: false,
       type: FieldType.MULTILINE_TEXT,
       visibility: {
@@ -343,7 +391,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'tasks',
-      group: '',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 7,
       required: false,
       type: FieldType.RELATION,
       relateTo: 'task',
@@ -358,7 +408,9 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
   meta: [
     {
       name: 'ownerId',
-      group: 'Lead Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 0,
       required: true,
       type: FieldType.RELATION,
       relateTo: 'user',
@@ -372,7 +424,9 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'phone',
-      group: 'Lead Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 1,
       required: true,
       type: FieldType.PHONE,
       visibility: {
@@ -384,7 +438,9 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'status',
-      group: 'Lead Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 2,
       required: true,
       type: FieldType.SELECT,
       options: Object.values(LeadStatus),
@@ -397,7 +453,9 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'email',
-      group: 'Lead Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 3,
       required: true,
       type: FieldType.EMAIL,
       visibility: {
@@ -409,7 +467,9 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'source',
-      group: 'Lead Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 4,
       required: true,
       type: FieldType.SELECT,
       options: Object.values(LeadSource),
@@ -423,7 +483,9 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
 
     {
       name: 'address',
-      group: 'Address Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 5,
       required: false,
       type: FieldType.TEXT,
       visibility: {
@@ -437,7 +499,9 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
 
     {
       name: 'description',
-      group: 'Description Information',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 6,
       required: false,
       type: FieldType.MULTILINE_TEXT,
       visibility: {
@@ -449,7 +513,9 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'tasks',
-      group: '',
+      groupId: null,
+      column: CoLumn.LEFT,
+      order: 7,
       required: false,
       type: FieldType.RELATION,
       relateTo: 'task',
@@ -457,4 +523,28 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
       visibility: {},
     },
   ],
+}
+
+export const deal_section: Pick<Section, 'name' | 'moduleId' | 'order'> = {
+  name: 'Deal Information',
+  moduleId: null,
+  order: 0,
+}
+
+export const account_section: Pick<Section, 'name' | 'moduleId' | 'order'> = {
+  name: 'Account Information',
+  moduleId: null,
+  order: 0,
+}
+
+export const contact_section: Pick<Section, 'name' | 'moduleId' | 'order'> = {
+  name: 'Contact Information',
+  moduleId: null,
+  order: 0,
+}
+
+export const lead_section: Pick<Section, 'name' | 'moduleId' | 'order'> = {
+  name: 'Lead Information',
+  moduleId: null,
+  order: 0,
 }

@@ -14,6 +14,7 @@ import { FileModule } from './file/file.module'
 import { GlobalModule } from './global/global.module'
 import { LogModule } from './log/log.module'
 import { MailModule } from './mail/mail.module'
+import { SectionModule } from './module-section/module-section.module'
 import { ModuleModule } from './module/module.module'
 import { NoteModule } from './note/note.module'
 import { RoleModule } from './role/role.module'
@@ -52,6 +53,7 @@ import { WebhookModule } from './webhook/webhook.module'
     DealStageModule,
     ActionModule,
     ModuleModule,
+    SectionModule,
   ],
   providers: [
     BaseSubscriber,
