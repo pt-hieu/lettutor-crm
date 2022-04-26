@@ -17,9 +17,9 @@ export enum SectionAction {
 
 export class ModifySection {
   @ApiPropertyOptional()
-  @IsOptional()
+  @IsNotEmpty()
   @IsUUID()
-  id?: string
+  id: string
 
   @ApiProperty()
   @IsNotEmpty()
