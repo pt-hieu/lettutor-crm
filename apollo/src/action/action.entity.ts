@@ -31,8 +31,10 @@ export class Action extends BaseEntity {
   @Column()
   target: String
 
-  @Column()
-  @IsEnum(ActionType)
+  @Column({
+    enum: ActionType,
+    type: 'enum',
+  })
   type: ActionType
 
   @ManyToMany(() => Role, (r) => r.actions)
