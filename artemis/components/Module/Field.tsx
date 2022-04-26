@@ -240,6 +240,8 @@ export default function Field({ data, inlineEdit }: FieldProps) {
 
   const containerRef = useRef<HTMLDivElement>(null)
   useClickAway(containerRef, () => {
+    if (!inlineEdit) return
+
     disable()
     resetField(name)
   })
