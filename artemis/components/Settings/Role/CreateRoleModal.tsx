@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Divider, Modal, notification } from 'antd'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import * as yup from 'yup'
@@ -32,6 +32,7 @@ export default function CreateRoleModal({ close, visible }: Props) {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(schema),
@@ -59,6 +60,10 @@ export default function CreateRoleModal({ close, visible }: Props) {
     }),
     [],
   )
+
+  useEffect(() => {
+    reset({ actionsId: [] })
+  }, [visible])
 
   return (
     <Modal
