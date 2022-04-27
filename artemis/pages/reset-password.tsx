@@ -113,9 +113,9 @@ export default function ResetPassword({ isValidToken }: Props) {
           setState(State.INPUT_PASSWORD_SUCCESS)
         }
       },
-      onError() {
+      onError(error: any) {
         notification.error({
-          message: state + ' unsuccessfully',
+          message: error.response?.data?.message || state + ' unsuccessfully',
         })
       },
     },
