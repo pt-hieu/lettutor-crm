@@ -22,6 +22,7 @@ type FormData = {
 const schema = yup.object().shape({
   name: yup
     .string()
+    .required('Name must not be empty')
     .typeError('Name must be a string')
     .max(100, 'Name must be at max 100 characters'),
 })
