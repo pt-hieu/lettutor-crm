@@ -16,6 +16,7 @@ import Animate from '@utils/components/Animate'
 import Confirm from '@utils/components/Confirm'
 import Paginate from '@utils/components/Paginate'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useModal } from '@utils/hooks/useModal'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
@@ -77,6 +78,8 @@ export default function UsersSettings() {
   const [search, setSearch] = useQueryState<string>('query')
   const [role, setRole] = useQueryState<string>('role')
   const [status, setStatus] = useQueryState<UserStatus>('status')
+
+  const [confirm, openConfirm, closeConfirm] = useModal()
 
   const [session] = useTypedSession()
   const id = session?.user.id
@@ -214,6 +217,7 @@ export default function UsersSettings() {
   const { data: ids } = useQuery<string[]>('selected-userIds', {
     enabled: false,
   })
+
   const { mutateAsync: deleteUserMutate, isLoading: isDeleting } = useMutation(
     'delete-users',
     batchDelete,
@@ -246,7 +250,7 @@ export default function UsersSettings() {
             auth(ActionType.CAN_DELETE_ANY, DefaultModule.USER) && (
               <button
                 disabled={isDeleting}
-                onClick={() => deleteUserMutate(ids)}
+                onClick={openConfirm}
                 className="crm-button-danger"
               >
                 <span className="fa fa-trash mr-2" />
@@ -305,6 +309,14 @@ export default function UsersSettings() {
           />
         </div>
       </div>
+      <Confirm
+        visible={confirm}
+        close={closeConfirm}
+        danger
+        message="These selected users will be deleted permanently"
+        okText="Yes, I understand"
+        onYes={() => deleteUserMutate(ids || [])}
+      />
     </SettingsLayout>
   )
 }
