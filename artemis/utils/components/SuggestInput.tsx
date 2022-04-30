@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { unstable_batchedUpdates } from 'react-dom'
+import { useFirstMountState } from 'react-use'
 
 import { useModal } from '@utils/hooks/useModal'
 
@@ -48,15 +49,17 @@ export default function SuggestInput<T>({
   mapValue,
 }: TProps<T>) {
   const [data, setData] = useState(getData)
-  const [value, setValue] = useState<string>('')
-  const [displayValue, setDisplayValue] = useState<string>('')
+  const [value, setValue] = useState('')
+  const [displayValue, setDisplayValue] = useState('')
 
   useEffect(() => {
     setData(getData)
   }, [getData])
 
   const filteredData = useMemo<T[]>(() => {
-    return data?.filter?.((item) => filter(item, value.toLocaleLowerCase())) || []
+    return (
+      data?.filter?.((item) => filter(item, value.toLocaleLowerCase())) || []
+    )
   }, [value, data])
 
   const [popup, open, close] = useModal()
@@ -88,7 +91,10 @@ export default function SuggestInput<T>({
     [data, mapValue],
   )
 
+  const isFirstMount = useFirstMountState()
   useEffect(() => {
+    if (isFirstMount) return
+
     const value = (
       document.getElementById(
         inputProps.name + 'hidden' || '',

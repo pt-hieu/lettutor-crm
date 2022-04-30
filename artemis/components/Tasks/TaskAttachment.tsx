@@ -1,5 +1,14 @@
-import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
+import { uniqueId } from 'lodash'
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { useQuery } from 'react-query'
+import { useFirstMountState } from 'react-use'
 
 import { toCapitalizedWords } from '@components/Module/OverviewView'
 
@@ -21,22 +30,32 @@ export default function TaskAttachments({ entityIds, setEntityIds }: Props) {
 
   const modules = useMemo(
     () => [...new Map(entities!.map((e) => [e.module.id, e.module])).values()],
-    [],
+    [entities],
   )
 
   const selectItem = useCallback((id: string) => {
-    setEntityIds((ids) => [...ids, id])
+    setEntityIds((ids) => [...new Set([...ids, id])])
   }, [])
+
+  const [keys, setKeys] = useState(() =>
+    entityIds.map(() => uniqueId()).concat(uniqueId()),
+  )
+
+  const isFirstMount = useFirstMountState()
+  useEffect(() => {
+    if (isFirstMount) return
+    setKeys((keys) => [...keys, uniqueId()])
+  }, [entityIds])
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-semibold text-lg text-gray-700">Task Attachment</h1>
+      <h1 className="font-semibold text-lg text-gray-700">Task Relations</h1>
 
       <div className="grid grid-cols-2 gap-4">
-        {entityIds.concat('').map((value, index) => (
+        {keys.map((value, index) => (
           <AttachmentInput
-            key={index}
-            value={value}
+            key={value}
+            value={entityIds[index] || ''}
             selectedIds={entityIds}
             modules={modules}
             onItemSelect={selectItem}
@@ -73,7 +92,7 @@ function AttachmentInput({
       entities?.filter(
         (e) => e.module.id === selectedModuleId && !selectedIds.includes(e.id),
       ) || [],
-    [selectedModuleId, selectedIds],
+    [selectedModuleId, selectedIds, entities],
   )
 
   return (
@@ -87,8 +106,10 @@ function AttachmentInput({
         }}
         getData={modules || []}
         getKey={(module) => module.id}
-        mapValue={(id, modules) =>
-          toCapitalizedWords(modules?.find((u) => u.id === id)?.name || '')
+        mapValue={() =>
+          toCapitalizedWords(
+            modules.find((u) => u.id === selectedModuleId)?.name || '',
+          )
         }
         onItemSelect={({ id }) => setSelectedModuleId(id)}
         render={(module) => <span>{toCapitalizedWords(module.name)}</span>}

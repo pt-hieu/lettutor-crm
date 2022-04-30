@@ -164,8 +164,6 @@ export class TaskService {
       })
       .select(['e.name', 'e.id', 'module.name'])
 
-    console.log(qb.getQueryAndParameters())
-
     return qb.getMany()
   }
 
@@ -176,8 +174,20 @@ export class TaskService {
     if (dto.entityIds) {
       const oldEntities = (await this.entityRepo
         .createQueryBuilder('e')
-        .addFrom('json_each_text(e.data)', 'e_data')
-        .where('e_data.value = :id', { id })
+        .leftJoin('e.module', 'module')
+        .leftJoin(
+          (qb) =>
+            qb
+              .disableEscaping()
+              .from('entity', 'e')
+              .addFrom('jsonb_each(e.data)', 'e_data')
+              .select(['e_data.value', 'e.id']),
+          'e_data',
+          'e.id=e_id',
+        )
+        .orWhere('e_data.value @> to_jsonb(:id::text)', {
+          id,
+        })
         .getMany()) as Entity[]
 
       oldEntities.forEach((entity) => {
