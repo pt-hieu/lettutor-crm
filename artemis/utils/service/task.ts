@@ -2,6 +2,7 @@ import axios from 'axios'
 import { API } from 'environment'
 import { TaskFormData } from 'pages/tasks/create'
 
+import { Entity, Module } from '@utils/models/module'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 
@@ -66,4 +67,11 @@ export const closeTask = (id: string, ownerId: string) => () =>
 export const batchDelete = (ids: string[]) =>
   axios
     .delete(API + '/apollo/task/batch', { data: { ids } })
+    .then((r) => r.data)
+
+export const getRelation = (id: string) => () =>
+  axios
+    .get<(Pick<Entity, 'name' | 'id'> & { module: Pick<Module, 'name'> })[]>(
+      API + '/apollo/task/' + id + '/relations',
+    )
     .then((r) => r.data)

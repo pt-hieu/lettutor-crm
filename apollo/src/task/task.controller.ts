@@ -61,6 +61,12 @@ export class TaskController {
     })
   }
 
+  @Get(':id/relations')
+  @ApiOperation({ summary: 'to get task relation' })
+  getTaskRelation(@Param('id', ParseUUIDPipe) id: string) {
+    return this.service.getTaskRelation(id)
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'to edit a task' })
   updateContact(

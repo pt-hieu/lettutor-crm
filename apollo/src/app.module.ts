@@ -33,7 +33,7 @@ import { WebhookModule } from './webhook/webhook.module'
       entities: [],
       synchronize: process.env.NODE_ENV !== 'production',
       autoLoadEntities: true,
-      logging: false,
+      logging: ['error', 'migration', 'schema'],
     }),
     EventEmitterModule.forRoot(),
     UserModule,

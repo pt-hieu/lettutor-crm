@@ -1,6 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { notification } from 'antd'
+import { Divider, notification } from 'antd'
 import { GetServerSideProps } from 'next'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FieldErrors, UseFormRegister, useForm } from 'react-hook-form'
@@ -42,7 +43,12 @@ import {
   editNote,
   getNotes,
 } from '@utils/service/note'
-import { closeTask, getTask, updateTask } from '@utils/service/task'
+import {
+  closeTask,
+  getRelation,
+  getTask,
+  updateTask,
+} from '@utils/service/task'
 import { getRawUsers } from '@utils/service/user'
 
 import { TaskFormData, taskSchema } from '../create'
@@ -179,23 +185,6 @@ const TaskDetail = () => {
   const { data: users } = useQuery<User[]>('users', { enabled: false })
   const { data: task } = useQuery<Task>(['task', id], getTask(id))
 
-  const client = useQueryClient()
-  const [session] = useTypedSession()
-
-  const [sortNote, setSortNote] = useState<SortNoteType>('first')
-  const [viewAllNote, setViewAllNote] = useState(false)
-
-  const { data: notes } = useQuery(
-    ['task', id, 'notes', sortNote, viewAllNote],
-    getNotes({
-      source: 'task',
-      sourceId: id,
-      sort: sortNote,
-      shouldNotPaginate: viewAllNote,
-      nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
-    }),
-  )
-
   const isOwner = useOwnership(task)
   const isCompleted = task?.status === TaskStatus.COMPLETED
 
@@ -272,72 +261,10 @@ const TaskDetail = () => {
     [id],
   )
 
-  const { mutateAsync: addNoteService } = useMutation(
-    'add-note-task',
-    addNote,
-    {
-      onSuccess() {
-        client.refetchQueries(['task', id, 'notes'])
-        client.refetchQueries([id, 'detail-log'])
-      },
-      onError() {
-        notification.error({ message: 'Add note unsuccessfully' })
-      },
-    },
+  const { data: relations } = useQuery(
+    ['task', 'relation', id],
+    getRelation(id),
   )
-
-  const handleAddNote = (data: INoteData) => {
-    const dataInfo: AddNoteDto = {
-      ownerId: session?.user.id as string,
-      taskId: task?.id,
-      source: 'task',
-      ...data,
-    }
-    addNoteService(dataInfo)
-  }
-
-  const { mutateAsync: editNoteService } = useMutation(
-    'edit-note-task',
-    editNote,
-    {
-      onSuccess() {
-        client.refetchQueries(['task', id, 'notes'])
-        client.refetchQueries([id, 'detail-log'])
-
-        notification.success({ message: 'Edit note successfully' })
-      },
-      onError() {
-        notification.error({ message: 'Edit note unsuccessfully' })
-      },
-    },
-  )
-  const handleEditNote = (noteId: string, data: INoteData) => {
-    editNoteService({ noteId, dataInfo: data })
-  }
-
-  const { mutateAsync: deleteNoteService } = useMutation(
-    'delete-note-contact',
-    deleteNote,
-    {
-      onSuccess() {
-        client.refetchQueries(['task', id, 'notes'])
-        client.refetchQueries([id, 'detail-log'])
-
-        notification.success({ message: 'Delete note successfully' })
-      },
-      onError() {
-        notification.error({ message: 'Delete note unsuccessfully' })
-      },
-    },
-  )
-
-  const handleDeleteNote = (noteId: string) => {
-    deleteNoteService({ noteId })
-  }
-
-  const handleChangeFilterSort = ({ sort }: { sort: SortNoteType }) => {
-    setSortNote(sort)
-  }
 
   return (
     <Layout title={`CRM | Task | ${task?.name}`} requireLogin>
@@ -348,73 +275,87 @@ const TaskDetail = () => {
           <div className="flex flex-col divide-y gap-4">
             <div className="grid grid-cols-[8fr,2fr]">
               <div>
-                <div>
-                  <div className="font-semibold mb-4 text-[17px]">Overview</div>
-                  <div className="flex flex-col gap-2">
-                    {/* {relatives.map(
-                      ({ relative, value }) =>
-                        task &&
-                        task[relative] && (
-                          <div
-                            key={relative}
-                            className="grid grid-cols-[250px,350px] gap-4 pb-[16px] hover:cursor-not-allowed"
+                <div className="font-semibold mb-4 text-[17px]">Overview</div>
+
+                <div className="flex flex-col gap-4">
+                  <form onSubmit={submit} className="flex flex-col gap-2">
+                    {fields({
+                      register,
+                      errors,
+                      users: users || [],
+                      disabled:
+                        // !auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] &&
+                        !isOwner,
+                    }).map(({ label, props }) => (
+                      <div
+                        key={label}
+                        className="grid grid-cols-[250px,350px] gap-4"
+                      >
+                        <span className="inline-block text-right font-medium pt-[10px]">
+                          {label}
+                        </span>
+
+                        <InlineEdit
+                          onEditCancel={() => reset(defaultValues)}
+                          onEditComplete={submit}
+                          {...props}
+                        />
+                      </div>
+                    ))}
+                  </form>
+
+                  <Divider />
+
+                  <div>
+                    <div className="font-semibold mb-4 text-[17px]">
+                      Relations
+                    </div>
+
+                    <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,250px))] gap-2">
+                      {relations?.map(
+                        ({ name, id, module: { name: moduleName } }) => (
+                          <Link
+                            key={id}
+                            href={{
+                              pathname: '/[...path]',
+                              query: { path: [moduleName, id] },
+                            }}
                           >
-                            <span className="inline-block text-right font-medium first-letter:uppercase">
-                              {relative}
-                            </span>
-                            <span className="inline-block pl-3">{value}</span>
-                          </div>
+                            <a className="min-h-[80px] border rounded-md px-3 hover:shadow-md crm-transition grid place-content-center hover:text-current">
+                              <div>
+                                <span className="font-medium capitalize">
+                                  {moduleName}:
+                                </span>{' '}
+                                {name}
+                              </div>
+                            </a>
+                          </Link>
                         ),
-                    )} */}
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex flex-col gap-4 divide-y">
-                    <form onSubmit={submit} className="flex flex-col gap-2">
-                      {fields({
-                        register,
-                        errors,
-                        users: users || [],
-                        disabled:
-                          // !auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] &&
-                          !isOwner,
-                      }).map(({ label, props }) => (
-                        <div
-                          key={label}
-                          className="grid grid-cols-[250px,350px] gap-4"
-                        >
-                          <span className="inline-block text-right font-medium pt-[10px]">
-                            {label}
-                          </span>
+                  <Divider />
 
-                          <InlineEdit
-                            onEditCancel={() => reset(defaultValues)}
-                            onEditComplete={submit}
-                            {...props}
-                          />
-                        </div>
-                      ))}
-                    </form>
+                  <NoteSection
+                    id={Sections.Notes}
+                    moduleName={'task'}
+                    entityId={id}
+                    hasFilter={false}
+                  />
 
-                    <NoteSection
-                      id={Sections.Notes}
-                      moduleName={'task'}
-                      entityId={id}
-                      hasFilter={false}
-                    />
+                  <AttachmentSection
+                    moduleName={'task'}
+                    entityId={id}
+                    id={Sections.Attachments}
+                    data={task?.attachments}
+                  />
 
-                    <AttachmentSection
-                      moduleName={'task'}
-                      entityId={id}
-                      id={Sections.Attachments}
-                      data={task?.attachments}
-                    />
-
-                    <LogSection
-                      source={LogSource.TASK}
-                      entityId={id}
-                      title="Logs"
-                    />
-                  </div>
+                  <LogSection
+                    source={LogSource.TASK}
+                    entityId={id}
+                    title="Logs"
+                  />
                 </div>
               </div>
 

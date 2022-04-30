@@ -23,9 +23,6 @@ const TaskDetailSidebar = () => {
           label: 'Notes',
         },
         {
-          label: 'Logs',
-        },
-        {
           id: 'Attachments',
           label: (
             <span>
@@ -42,6 +39,9 @@ const TaskDetailSidebar = () => {
             onClick: () =>
               client.setQueryData('cmd:add-attachment', Date.now()),
           },
+        },
+        {
+          label: 'Logs',
         },
       ],
     },

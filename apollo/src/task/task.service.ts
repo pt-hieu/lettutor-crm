@@ -145,6 +145,30 @@ export class TaskService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
+  getTaskRelation(taskId: string) {
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .leftJoin(
+        (qb) =>
+          qb
+            .disableEscaping()
+            .from('entity', 'e')
+            .addFrom('jsonb_each(e.data)', 'e_data')
+            .select(['e_data.value', 'e.id']),
+        'e_data',
+        'e.id=e_id',
+      )
+      .orWhere('e_data.value @> to_jsonb(:id::text)', {
+        id: taskId,
+      })
+      .select(['e.name', 'e.id', 'module.name'])
+
+    console.log(qb.getQueryAndParameters())
+
+    return qb.getMany()
+  }
+
   async update(id: string, dto: DTO.Task.UpdateBody) {
     const task = await this.taskRepo.findOne({ where: { id } })
     if (!task) throw new NotFoundException('Task not found')
@@ -152,7 +176,7 @@ export class TaskService {
     if (dto.entityIds) {
       const oldEntities = (await this.entityRepo
         .createQueryBuilder('e')
-        .addFrom('json_each_text(e.data)', 'entity_data')
+        .addFrom('json_each_text(e.data)', 'e_data')
         .where('e_data.value = :id', { id })
         .getMany()) as Entity[]
 
