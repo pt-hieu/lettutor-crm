@@ -56,7 +56,7 @@ export default function SuggestInput<T>({
   }, [getData])
 
   const filteredData = useMemo<T[]>(() => {
-    return data.filter((item) => filter(item, value.toLocaleLowerCase()))
+    return data?.filter?.((item) => filter(item, value.toLocaleLowerCase())) || []
   }, [value, data])
 
   const [popup, open, close] = useModal()

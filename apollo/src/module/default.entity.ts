@@ -162,7 +162,7 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'tasks',
-      group: '',
+      group: 'Others',
       required: false,
       type: FieldType.RELATION,
       relateTo: 'task',
@@ -242,7 +242,7 @@ export const account: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'tasks',
-      group: '',
+      group: 'Others',
       required: false,
       type: FieldType.RELATION,
       relateTo: 'task',
@@ -343,7 +343,7 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'tasks',
-      group: '',
+      group: 'Others',
       required: false,
       type: FieldType.RELATION,
       relateTo: 'task',
@@ -449,7 +449,7 @@ export const lead: Pick<Module, 'name' | 'meta'> = {
     },
     {
       name: 'tasks',
-      group: '',
+      group: 'Others',
       required: false,
       type: FieldType.RELATION,
       relateTo: 'task',

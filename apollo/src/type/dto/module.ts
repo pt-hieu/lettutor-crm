@@ -42,9 +42,11 @@ export class UpdateModule {
   @IsNotEmpty()
   @IsString()
   @MaxLength(120)
+  @IsOptional()
   description?: string
 
   @ApiPropertyOptional()
+  @IsOptional()
   @ValidateNested({ each: true })
   meta: FieldMeta[]
 }

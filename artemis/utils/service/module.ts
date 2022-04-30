@@ -14,6 +14,13 @@ export const getModules = (token?: string) => () =>
     })
     .then((r) => r.data)
 
+export const updateModule = (id: string) => (data: Partial<Module>) =>
+  axios.patch(API + '/apollo/module/' + id, data).then((r) => r.data)
+
+export const createModule = (
+  data: Pick<Module, 'name'> & Pick<Partial<Module>, 'description'>,
+) => axios.post(API + '/apollo/module/', data).then((res) => res.data)
+
 export const createEntity = (moduleName: string) => (data: any) => {
   const name = data.name
   delete data.name

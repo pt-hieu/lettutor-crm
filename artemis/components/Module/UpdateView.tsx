@@ -92,7 +92,7 @@ export default function UpdateView({ module }: Props) {
                   {groupName}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 gap-x-12">
                   {!index && (
                     <Field
                       data={{

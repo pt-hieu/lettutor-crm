@@ -15,9 +15,14 @@ import { toCapitalizedWords } from './OverviewView'
 type FieldProps = {
   data: FieldMeta
   inlineEdit?: boolean
+  containerClassname?: string
 }
 
-export default function Field({ data, inlineEdit }: FieldProps) {
+export default function Field({
+  data,
+  inlineEdit,
+  containerClassname,
+}: FieldProps) {
   const {
     name,
     required,
@@ -181,7 +186,7 @@ export default function Field({ data, inlineEdit }: FieldProps) {
             item.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())
           }
           mapValue={(v, items) => {
-            const item = items?.find((item) => item.id === v)
+            const item = items?.find?.((item) => item.id === v)
             return item?.name
           }}
           getKey={(item) => item.id}
@@ -252,12 +257,12 @@ export default function Field({ data, inlineEdit }: FieldProps) {
       className={`grid ${
         inlineEdit
           ? 'grid-cols-[200px,1fr] relative group'
-          : 'grid-cols-[1fr,2fr]'
-      } mb-6 gap-6`}
+          : 'grid-cols-[1fr,3fr]'
+      } mb-6 gap-6 ${containerClassname || ''}`}
     >
       <label
         htmlFor={name}
-        className={`mt-[10px] crm-label text-right ${
+        className={`mt-[10px] crm-label ${
           required && !inlineEdit ? '' : "after:content-['']"
         } `}
       >

@@ -1,5 +1,3 @@
-import { RegisterOptions } from 'react-hook-form'
-
 import { Base } from '@utils/models/base'
 import { Attachments } from '@utils/models/note'
 
@@ -19,6 +17,11 @@ export enum FieldType {
   CHECK_BOX = 'Check Box',
 }
 
+export enum RelateType {
+  SINGLE = 'SINGLE',
+  MULTIPLE = 'MULTIPLE',
+}
+
 export interface FieldMeta {
   id?: string
   name: string
@@ -28,6 +31,8 @@ export interface FieldMeta {
   visibility: TVisibility
   options?: string[]
   relateTo?: string
+  relateType?: RelateType
+  index?: boolean
   min?: number
   max?: number
   minLength?: number

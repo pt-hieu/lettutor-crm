@@ -26,7 +26,7 @@ export enum DefaultActionTarget {
 }
 
 @Entity()
-@Unique(['target', 'type'])
+// @Unique(['target', 'type'])
 export class Action extends BaseEntity {
   @Column()
   target: String
