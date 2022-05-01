@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  OnApplicationBootstrap,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { FindOneOptions, In, Repository } from 'typeorm'
@@ -13,15 +14,31 @@ import { DTO } from 'src/type'
 import { DealStageAction } from 'src/type/dto/deal-stage'
 
 import { DealStage, DealStageType } from './deal-stage.entity'
+import { defaultDealStages } from './default.deal-stage'
 
 @Injectable()
-export class DealStageService {
+export class DealStageService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(DealStage)
     private dealStageRepo: Repository<DealStage>,
     private readonly utilService: UtilService,
     private readonly moduleService: ModuleService,
   ) {}
+
+  async onApplicationBootstrap() {
+    await this.initDefaultDealStages()
+  }
+
+  private async initDefaultDealStages() {
+    if (process.env.NODE_ENV === 'production') return
+    const dealStages = await this.dealStageRepo.find()
+    if (dealStages.length > 0) return
+
+    return this.dealStageRepo.upsert(defaultDealStages, {
+      conflictPaths: ['id'],
+      skipUpdateIfNoValuesChanged: true,
+    })
+  }
 
   async getDealStageById(option: FindOneOptions<DealStage>, trace?: boolean) {
     const dealStage = await this.dealStageRepo.findOne(option)
