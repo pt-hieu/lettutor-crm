@@ -34,15 +34,10 @@ import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
 import { LogSource } from '@utils/models/log'
 import { AddNoteDto } from '@utils/models/note'
+import { ActionType, DefaultModule } from '@utils/models/role'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { User } from '@utils/models/user'
-import {
-  SortNoteType,
-  addNote,
-  deleteNote,
-  editNote,
-  getNotes,
-} from '@utils/service/note'
+import { getNotes } from '@utils/service/note'
 import {
   closeTask,
   getRelation,
@@ -52,13 +47,6 @@ import {
 import { getRawUsers } from '@utils/service/user'
 
 import { TaskFormData, taskSchema } from '../create'
-
-enum Relatives {
-  LEAD = 'lead',
-  CONTACT = 'contact',
-  ACCOUNT = 'account',
-  DEAL = 'deal',
-}
 
 type TaskInfo = {
   label: string
@@ -187,6 +175,7 @@ const TaskDetail = () => {
 
   const isOwner = useOwnership(task)
   const isCompleted = task?.status === TaskStatus.COMPLETED
+  const auth = useAuthorization()
 
   const queryClient = useQueryClient()
   const { mutateAsync } = useMutation(
@@ -287,8 +276,10 @@ const TaskDetail = () => {
                       errors,
                       users: users || [],
                       disabled:
-                        // !auth[Actions.Task.VIEW_AND_EDIT_ALL_TASK_DETAILS] &&
-                        !isOwner,
+                        !auth(
+                          ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+                          DefaultModule.TASK,
+                        ) && !isOwner,
                     }).map(({ label, props }) => (
                       <div
                         key={label}

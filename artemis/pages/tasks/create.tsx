@@ -87,11 +87,15 @@ const CreateTaskPage = ({ task, entityIds: initIds = [] }: Props) => {
     task ? updateTask(task.id) : addTask,
     {
       onSuccess(res) {
-        notification.success({ message: 'Create task successfully' })
+        notification.success({
+          message: `${task ? 'Update' : 'Create'} task successfully`,
+        })
         push(`/tasks/${res.id}`)
       },
       onError() {
-        notification.error({ message: 'Create task unsuccessfully' })
+        notification.error({
+          message: `${task ? 'Update' : 'Create'} task unsuccessfully`,
+        })
       },
     },
   )
