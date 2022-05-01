@@ -13,7 +13,7 @@ export class CreateDefaultDealStage1650736582755 implements MigrationInterface {
     const closeWonStage = {
       id: 'd69e4d28-fe6f-4fd1-a06c-5105353ad495',
       name: 'Stage 2',
-      type: 'Open',
+      type: 'Close Won',
       probability: 100,
       order: 2,
     }
@@ -21,7 +21,7 @@ export class CreateDefaultDealStage1650736582755 implements MigrationInterface {
     const closeLostStage = {
       id: 'c407fa3c-02e2-4622-96d1-cd43bb780ef1',
       name: 'Stage 3',
-      type: 'Open',
+      type: 'Close Lost',
       probability: 0,
       order: 3,
     }
