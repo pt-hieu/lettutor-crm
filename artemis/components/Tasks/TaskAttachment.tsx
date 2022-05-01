@@ -1,4 +1,5 @@
 import { uniqueId } from 'lodash'
+import { useRouter } from 'next/router'
 import {
   Dispatch,
   SetStateAction,
@@ -15,6 +16,7 @@ import { toCapitalizedWords } from '@components/Module/OverviewView'
 import SuggestInput from '@utils/components/SuggestInput'
 import { Module } from '@utils/models/module'
 import { getEntityForTaskCreate } from '@utils/service/module'
+import { getRelation } from '@utils/service/task'
 
 type Props = {
   entityIds: string[]
@@ -29,7 +31,7 @@ export default function TaskAttachments({ entityIds, setEntityIds }: Props) {
   )
 
   const modules = useMemo(
-    () => [...new Map(entities!.map((e) => [e.module.id, e.module])).values()],
+    () => [...new Map(entities?.map((e) => [e.module.id, e.module])).values()],
     [entities],
   )
 
@@ -44,7 +46,7 @@ export default function TaskAttachments({ entityIds, setEntityIds }: Props) {
   const isFirstMount = useFirstMountState()
   useEffect(() => {
     if (isFirstMount) return
-    setKeys((keys) => [...keys, uniqueId()])
+    setKeys((keys) => [...keys.slice(0, entityIds.length), uniqueId()])
   }, [entityIds])
 
   return (
@@ -59,6 +61,11 @@ export default function TaskAttachments({ entityIds, setEntityIds }: Props) {
             selectedIds={entityIds}
             modules={modules}
             onItemSelect={selectItem}
+            onItemRemove={(id) =>
+              setEntityIds((ids) =>
+                ids.filter((selectedId) => selectedId !== id),
+              )
+            }
           />
         ))}
       </div>
@@ -71,6 +78,7 @@ type AttachmentInputProps = {
   selectedIds: string[]
   value: string
   onItemSelect: (id: string) => void
+  onItemRemove?: (id: string) => void
 }
 
 function AttachmentInput({
@@ -78,8 +86,27 @@ function AttachmentInput({
   selectedIds,
   value,
   onItemSelect: selectItem,
+  onItemRemove: removeItem,
 }: AttachmentInputProps) {
+  const { query } = useRouter()
+  const id = query.id as string
+
+  const { data: relations } = useQuery(
+    ['task', id, 'relations'],
+    getRelation(id),
+    { enabled: false },
+  )
   const [selectedModuleId, setSelectedModuleId] = useState<string>()
+
+  useEffect(() => {
+    if (!relations) return
+    if (!value) {
+      setSelectedModuleId(undefined)
+      return
+    }
+
+    setSelectedModuleId(relations.find((item) => item.id === value)?.module.id)
+  }, [relations, value])
 
   const { data: entities } = useQuery(
     'raw-entity-task-create',
@@ -97,26 +124,36 @@ function AttachmentInput({
 
   return (
     <div className="grid grid-cols-[1fr,2fr] mb-6 gap-6">
-      <SuggestInput
-        showError={false}
-        wrapperClassname="!w-full"
-        inputProps={{
-          className: 'w-full text-right',
-          value: selectedModuleId,
-        }}
-        getData={modules || []}
-        getKey={(module) => module.id}
-        mapValue={() =>
-          toCapitalizedWords(
-            modules.find((u) => u.id === selectedModuleId)?.name || '',
-          )
-        }
-        onItemSelect={({ id }) => setSelectedModuleId(id)}
-        render={(module) => <span>{toCapitalizedWords(module.name)}</span>}
-        filter={(module, query) =>
-          module.name.toLocaleLowerCase().includes(query)
-        }
-      />
+      <div className="flex gap-2 items-center group">
+        {id && (
+          <button
+            type="button"
+            onClick={() => removeItem?.(value)}
+            className="fa fa-times w-8 aspect-square rounded-full opacity-0 group-hover:opacity-100 hover:bg-gray-300"
+          />
+        )}
+
+        <SuggestInput
+          showError={false}
+          wrapperClassname="!w-full"
+          inputProps={{
+            className: 'w-full text-right',
+            value: selectedModuleId,
+          }}
+          getData={modules || []}
+          getKey={(module) => module.id}
+          mapValue={() =>
+            toCapitalizedWords(
+              modules.find((u) => u.id === selectedModuleId)?.name || '',
+            )
+          }
+          onItemSelect={({ id }) => setSelectedModuleId(id)}
+          render={(module) => <span>{toCapitalizedWords(module.name)}</span>}
+          filter={(module, query) =>
+            module.name.toLocaleLowerCase().includes(query)
+          }
+        />
+      </div>
 
       <SuggestInput
         showError={false}

@@ -8,7 +8,6 @@ import {
   useState,
 } from 'react'
 import { unstable_batchedUpdates } from 'react-dom'
-import { useFirstMountState } from 'react-use'
 
 import { useModal } from '@utils/hooks/useModal'
 
@@ -91,10 +90,7 @@ export default function SuggestInput<T>({
     [data, mapValue],
   )
 
-  const isFirstMount = useFirstMountState()
   useEffect(() => {
-    if (isFirstMount) return
-
     const value = (
       document.getElementById(
         inputProps.name + 'hidden' || '',

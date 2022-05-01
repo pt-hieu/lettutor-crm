@@ -262,8 +262,11 @@ const TaskDetail = () => {
   )
 
   const { data: relations } = useQuery(
-    ['task', 'relation', id],
+    ['task', id, 'relations'],
     getRelation(id),
+    {
+      enabled: false,
+    },
   )
 
   return (
@@ -402,6 +405,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (token) {
     await Promise.all([
       client.prefetchQuery(['task', id], getTask(id, token)),
+      client.prefetchQuery(['task', id, 'relations'], getRelation(id, token)),
       client.prefetchQuery('users', getRawUsers(token)),
       client.prefetchQuery(
         ['task', id, 'notes', 'first', false],

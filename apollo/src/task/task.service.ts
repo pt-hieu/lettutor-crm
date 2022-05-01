@@ -162,7 +162,7 @@ export class TaskService {
       .orWhere('e_data.value @> to_jsonb(:id::text)', {
         id: taskId,
       })
-      .select(['e.name', 'e.id', 'module.name'])
+      .select(['e.name', 'e.id', 'module.name', 'module.id'])
 
     return qb.getMany()
   }
@@ -171,10 +171,12 @@ export class TaskService {
     const task = await this.taskRepo.findOne({ where: { id } })
     if (!task) throw new NotFoundException('Task not found')
 
+    console.log(dto)
+
     if (dto.entityIds) {
       const oldEntities = (await this.entityRepo
         .createQueryBuilder('e')
-        .leftJoin('e.module', 'module')
+        .leftJoinAndSelect('e.module', 'module')
         .leftJoin(
           (qb) =>
             qb

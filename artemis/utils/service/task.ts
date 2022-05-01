@@ -69,9 +69,13 @@ export const batchDelete = (ids: string[]) =>
     .delete(API + '/apollo/task/batch', { data: { ids } })
     .then((r) => r.data)
 
-export const getRelation = (id: string) => () =>
+export const getRelation = (id: string, token?: string) => () =>
   axios
-    .get<(Pick<Entity, 'name' | 'id'> & { module: Pick<Module, 'name'> })[]>(
-      API + '/apollo/task/' + id + '/relations',
-    )
+    .get<
+      (Pick<Entity, 'name' | 'id'> & { module: Pick<Module, 'name' | 'id'> })[]
+    >(API + '/apollo/task/' + id + '/relations', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
     .then((r) => r.data)

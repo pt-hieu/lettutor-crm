@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { notification } from 'antd'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { QueryClient, dehydrate, useMutation, useQuery } from 'react-query'
 import * as yup from 'yup'
@@ -16,7 +16,7 @@ import SuggestInput from '@utils/components/SuggestInput'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { getEntityForTaskCreate } from '@utils/service/module'
-import { addTask } from '@utils/service/task'
+import { addTask, updateTask } from '@utils/service/task'
 import { getRawUsers } from '@utils/service/user'
 
 export interface TaskFormData
@@ -58,27 +58,52 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 }
 
-const CreateTaskPage = () => {
+type Props = {
+  task?: Task
+  entityIds?: string[]
+}
+
+const CreateTaskPage = ({ task, entityIds: initIds = [] }: Props) => {
   const { back, push } = useRouter()
   const form = useForm<TaskFormData>({
     resolver: yupResolver(taskSchema),
-  })
-
-  const { mutateAsync, isLoading } = useMutation('update-task', addTask, {
-    onSuccess(res) {
-      notification.success({ message: 'Create task successfully' })
-      push(`/tasks/${res.id}`)
-    },
-    onError() {
-      notification.error({ message: 'Create task unsuccessfully' })
+    // @ts-ignore
+    defaultValues: {
+      ...task,
+      ownerId: task?.owner.id,
     },
   })
 
-  const [entityIds, setEntityIds] = useState<string[]>([])
+  useEffect(() => {
+    // @ts-ignore
+    form.reset({
+      ...task,
+      ownerId: task?.owner.id,
+    })
+  }, [task])
+
+  const { mutateAsync, isLoading } = useMutation(
+    'create-task',
+    task ? updateTask(task.id) : addTask,
+    {
+      onSuccess(res) {
+        notification.success({ message: 'Create task successfully' })
+        push(`/tasks/${res.id}`)
+      },
+      onError() {
+        notification.error({ message: 'Create task unsuccessfully' })
+      },
+    },
+  )
+
+  const [entityIds, setEntityIds] = useState<string[]>(initIds)
   const submit = useCallback(
     form.handleSubmit((data) => {
       data.entityIds = entityIds
       if (!data.dueDate) delete data.dueDate
+
+      // @ts-ignore
+      delete data.owner
 
       mutateAsync(data)
     }),
@@ -86,7 +111,7 @@ const CreateTaskPage = () => {
   )
 
   return (
-    <Layout title="CRM | Create Task">
+    <Layout title={task ? `CRM | Update ${task.name}` : 'CRM | Create Task'}>
       <form
         noValidate
         onSubmit={submit}
@@ -108,8 +133,8 @@ const CreateTaskPage = () => {
 
           <button disabled={isLoading} type="submit" className="crm-button">
             <Loading on={isLoading}>
-              <span className="fa fa-plus mr-2" />
-              Create
+              <span className="fa fa-check mr-2" />
+              Submit
             </Loading>
           </button>
         </div>
