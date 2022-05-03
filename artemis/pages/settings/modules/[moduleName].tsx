@@ -88,7 +88,7 @@ export default function ModuleView() {
 
         return {
           ...module!,
-          meta: [...module.meta],
+          meta: module?.meta.map((field) => ({ ...field })) || [],
         }
       })
     }
@@ -110,7 +110,7 @@ export default function ModuleView() {
 
         return {
           ...module!,
-          meta: [...(module?.meta || [])],
+          meta: module?.meta?.map((field) => ({ ...field })) || [],
         }
       })
     },
