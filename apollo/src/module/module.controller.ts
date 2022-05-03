@@ -87,6 +87,14 @@ export class ModuleController {
     return this.service.batchConvert(dto, sourceId)
   }
 
+  @Get(':source_name/convertable_modules')
+  @ApiOperation({
+    summary: 'to get modules which can be converted from the source module',
+  })
+  getConvertableModules(@Param('source_name') sourceModuleName: string) {
+    return this.service.getConvertableModules(sourceModuleName)
+  }
+
   @Get(':name/:id')
   @ApiOperation({ summary: 'to get one entity at module' })
   getOneEntity(

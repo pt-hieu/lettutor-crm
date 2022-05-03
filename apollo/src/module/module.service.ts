@@ -211,6 +211,19 @@ export class ModuleService implements OnApplicationBootstrap {
     )
   }
 
+  getConvertableModules(sourceModuleName: string) {
+    const qb = this.moduleRepo
+      .createQueryBuilder('m')
+      .where(
+        `jsonb_path_query_array(m.convert_meta, '$[*] ? (@.source == "${sourceModuleName}")') @> :query::jsonb`,
+        {
+          query: JSON.stringify([{ source: sourceModuleName }]),
+        },
+      )
+
+    return qb.getMany()
+  }
+
   async getRawEntity(moduleName: string) {
     const module = await this.moduleRepo.findOne({
       where: { name: moduleName },
