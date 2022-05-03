@@ -149,7 +149,10 @@ export default function DetailView({ paths }: TProps) {
               </div>
 
               {openTasks && openTasks.length > 0 ? (
-                <TaskList onCloseTask={() => refetch()} tasks={openTasks} />
+                <TaskList
+                  onCloseTask={() => refetchTasks()}
+                  tasks={openTasks}
+                />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
@@ -164,7 +167,10 @@ export default function DetailView({ paths }: TProps) {
               </div>
 
               {closedTasks && closedTasks.length > 0 ? (
-                <TaskList onCloseTask={() => refetch()} tasks={closedTasks} />
+                <TaskList
+                  onCloseTask={() => refetchTasks()}
+                  tasks={closedTasks}
+                />
               ) : (
                 <p className="text-gray-500 font-medium">No records found</p>
               )}
