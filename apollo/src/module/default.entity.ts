@@ -42,8 +42,20 @@ export enum ModuleName {
   LEAD = 'lead',
 }
 
-export const deal: Pick<Module, 'name' | 'meta'> = {
+export const deal: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
   name: ModuleName.DEAL,
+  convert_meta: [
+    {
+      source: ModuleName.LEAD,
+      should_convert_attachment: true,
+      should_convert_note: true,
+      meta: {
+        ownerId: 'ownerId',
+        source: 'source',
+        tasks: 'tasks',
+      },
+    },
+  ],
   meta: [
     {
       name: 'ownerId',
@@ -172,8 +184,9 @@ export const deal: Pick<Module, 'name' | 'meta'> = {
   ],
 }
 
-export const account: Pick<Module, 'name' | 'meta'> = {
+export const account: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
   name: ModuleName.ACCOUNT,
+  convert_meta: [],
   meta: [
     {
       name: 'ownerId',
@@ -252,8 +265,9 @@ export const account: Pick<Module, 'name' | 'meta'> = {
   ],
 }
 
-export const contact: Pick<Module, 'name' | 'meta'> = {
+export const contact: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
   name: ModuleName.CONTACT,
+  convert_meta: [],
   meta: [
     {
       name: 'ownerId',
@@ -353,8 +367,9 @@ export const contact: Pick<Module, 'name' | 'meta'> = {
   ],
 }
 
-export const lead: Pick<Module, 'name' | 'meta'> = {
+export const lead: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
   name: ModuleName.LEAD,
+  convert_meta: [],
   meta: [
     {
       name: 'ownerId',

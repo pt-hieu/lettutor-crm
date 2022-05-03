@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
@@ -77,6 +78,15 @@ export class ModuleController {
     return this.service.addEntity(moduleName, dto)
   }
 
+  @Put('convert/:source_id')
+  @ApiOperation({ summary: 'to convert entity' })
+  convert(
+    @Body() dto: DTO.Module.BatchConvert[],
+    @Param('source_id', ParseUUIDPipe) sourceId: string,
+  ) {
+    return this.service.batchConvert(dto, sourceId)
+  }
+
   @Get(':name/:id')
   @ApiOperation({ summary: 'to get one entity at module' })
   getOneEntity(
@@ -100,32 +110,5 @@ export class ModuleController {
   @ApiOperation({ summary: 'to batch delete entity' })
   batchDelete(@Body() dto: DTO.BatchDelete) {
     return this.service.batchDeleteEntity(dto)
-  }
-
-  @Post('lead/:id/convert')
-  @ApiOperation({ summary: 'to convert lead to account, contact and lead' })
-  @ApiBody({ required: false, type: DTO.Module.ConvertToDeal })
-  async convert(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() body: object,
-    @Query('ownerId', new DefaultValuePipe(undefined), ParseUUIDPipe)
-    ownerId?: string,
-  ) {
-    const shouldConvertToDeal = Object.keys(body).length !== 0
-    let dto: DTO.Module.ConvertToDeal
-
-    if (shouldConvertToDeal) {
-      dto = plainToInstance(DTO.Module.ConvertToDeal, body, {
-        ignoreDecorators: false,
-      })
-
-      const errors = await validate('ConvertToDeal', dto)
-      if (errors.length)
-        throw new BadRequestException(
-          errors.map((e) => Object.values(e.constraints)).flat(),
-        )
-    }
-
-    return this.service.convert(id, dto, shouldConvertToDeal, ownerId)
   }
 }
