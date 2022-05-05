@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import {
+  IsBoolean,
   IsDate,
   IsNotEmpty,
   IsNumber,
@@ -103,4 +104,15 @@ export class ConvertToDeal {
   @ApiProperty()
   @IsUUID()
   stageId: string
+}
+
+export class BatchConvert {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  module_name: string
+
+  @ApiProperty()
+  @IsObject()
+  dto: Record<string, any>
 }

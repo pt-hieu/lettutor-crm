@@ -8,22 +8,21 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { clone, omit } from 'lodash'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { Action, ActionType } from 'src/action/action.entity'
+import { File } from 'src/file/file.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
-import { User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 
 import { account, contact, deal, lead } from './default.entity'
 import { Entity, FieldType, Module } from './module.entity'
-
-// import { File } from 'src/file/file.entity'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -31,8 +30,9 @@ export class ModuleService implements OnApplicationBootstrap {
     private readonly userService: UserService,
     private readonly noteService: NoteService,
     @InjectRepository(Module) private moduleRepo: Repository<Module>,
+    @InjectRepository(Note) private noteRepo: Repository<Note>,
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
-    // @InjectRepository(File) private fileRepo: Repository<File>,
+    @InjectRepository(File) private fileRepo: Repository<File>,
     @InjectRepository(Action) private actionRepo: Repository<Action>,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
@@ -126,6 +126,102 @@ export class ModuleService implements OnApplicationBootstrap {
 
     if (validateMessage) throw new UnprocessableEntityException(validateMessage)
     return this.entityRepo.save({ ...dto, moduleId: module.id })
+  }
+
+  async convert(
+    targetModuleName: string,
+    sourceId: string,
+    dto: Record<string, any>,
+  ) {
+    const [targetModule, sourceEntity] = await Promise.all([
+      this.moduleRepo.findOne({ where: { name: targetModuleName } }),
+      this.entityRepo.findOne({ where: { id: sourceId } }),
+    ])
+
+    if (!targetModule) throw new NotFoundException('Module not exist')
+    if (!sourceEntity) throw new NotFoundException('Entity not exist')
+
+    const meta = targetModule.convert_meta.find(
+      (meta) => meta.source === sourceEntity.module.name,
+    )
+
+    if (!meta) {
+      throw new BadRequestException(
+        `${targetModuleName} can not be converted from ${sourceEntity.module.name}`,
+      )
+    }
+
+    let targetEntity = new Entity()
+    targetEntity.moduleId = targetModule.id
+    targetEntity.name = `${sourceEntity.name} ${targetModule.name}`
+
+    Object.entries(meta.meta)
+      .filter(([_, targetProp]) =>
+        targetModule.meta.some((field) => field.name === targetProp),
+      )
+      .forEach(([sourceProp, targetProp]) => {
+        targetEntity.data[targetProp] = sourceEntity.data[sourceProp]
+      })
+
+    Object.entries(dto)
+      .filter(([_, targetProp]) =>
+        targetModule.meta.some((field) => field.name === targetProp),
+      )
+      .forEach(([key, value]) => {
+        targetEntity.data[key] = value
+      })
+
+    const error = targetModule.validateEntity(targetEntity.data)
+    if (error) {
+      throw new UnprocessableEntityException(`Convert error: ${error}`)
+    }
+
+    targetEntity = await this.entityRepo.save(targetEntity)
+
+    if (meta.should_convert_note) {
+      let notes = await this.noteRepo.find({
+        where: { entityId: sourceEntity.id },
+      })
+
+      // @ts-ignore
+      notes = notes.map((note) => clone(omit(note, ['id'])))
+      await this.noteRepo.save(notes)
+    }
+
+    if (meta.should_convert_attachment) {
+      let files = await this.fileRepo.find({
+        where: { entityId: sourceEntity.id },
+      })
+
+      // @ts-ignore
+      files = files.map((file) => clone(omit(file, ['id'])))
+      await this.fileRepo.save(files)
+    }
+
+    await this.entityRepo.softDelete({ id: sourceEntity.id })
+
+    return targetEntity
+  }
+
+  batchConvert(dtos: DTO.Module.BatchConvert[], sourceId: string) {
+    return Promise.all(
+      dtos.map(({ dto, module_name }) =>
+        this.convert(module_name, sourceId, dto),
+      ),
+    )
+  }
+
+  getConvertableModules(sourceModuleName: string) {
+    const qb = this.moduleRepo
+      .createQueryBuilder('m')
+      .where(
+        `jsonb_path_query_array(m.convert_meta, '$[*] ? (@.source == "${sourceModuleName}")') @> :query::jsonb`,
+        {
+          query: JSON.stringify([{ source: sourceModuleName }]),
+        },
+      )
+
+    return qb.getMany()
   }
 
   async getRawEntity(moduleName: string) {
@@ -304,88 +400,5 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     return entity
-  }
-
-  async convert(
-    id: string,
-    dealDto: DTO.Module.ConvertToDeal,
-    shouldConvertToDeal: boolean,
-    ownerId: string,
-  ) {
-    const lead = await this.getEntityById({
-      where: { id },
-      relations: ['owner', 'tasks', 'tasks.owner'],
-    })
-
-    let newOwner: User
-    if (ownerId) {
-      newOwner = await this.userService.getOneUserById({
-        where: { id: ownerId },
-      })
-    }
-
-    const accountDto: DTO.Module.AddEntity = {
-      name: lead.name + ' Account',
-      data: {
-        ownerId: newOwner
-          ? newOwner.id
-          : lead.data.ownerId
-          ? lead.data.ownerId
-          : null,
-        phone: lead.data.phone,
-        address: lead.data.address ? lead.data.address : null,
-        description: lead.data.description ? lead.data.description : null,
-        tasks: shouldConvertToDeal ? null : lead.data.tasks,
-      },
-    }
-
-    const account = await this.addEntity('account', accountDto)
-
-    const contactDto: DTO.Module.AddEntity = {
-      name: lead.name,
-      data: {
-        ownerId: newOwner
-          ? newOwner.id
-          : lead.data.ownerId
-          ? lead.data.ownerId
-          : null,
-        accountId: account.id,
-        phone: lead.data.phone,
-        email: lead.data.email,
-        source: lead.data.source,
-        tasks: lead.data.tasks,
-      },
-    }
-
-    const contact = await this.addEntity('contact', contactDto)
-
-    let deal: Entity | null = null
-    delete dealDto.name
-    const { name } = dealDto
-    delete dealDto.name
-    if (shouldConvertToDeal) {
-      const dto: DTO.Module.AddEntity = {
-        name,
-        data: {
-          accountId: account.id,
-          contactId: contact.id,
-          ownerId: lead.data.ownerId ? lead.data.ownerId : null,
-          tasks: lead.data.tasks,
-          ...dealDto,
-        },
-      }
-
-      deal = await this.addEntity('deal', dto)
-    }
-
-    const notes: Note[] = lead.notes
-    notes.forEach((note) => {
-      note.entityId = contact.id
-    })
-
-    await this.noteService.updateAllNotes(notes)
-    await this.batchDeleteEntity({ ids: [lead.id] })
-
-    return [account, contact, deal] as const
   }
 }

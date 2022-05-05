@@ -88,7 +88,7 @@ export default function ModuleView() {
 
         return {
           ...module!,
-          meta: [...module.meta],
+          meta: module?.meta.map((field) => ({ ...field })) || [],
         }
       })
     }
@@ -110,11 +110,28 @@ export default function ModuleView() {
 
         return {
           ...module!,
-          meta: [...(module?.meta || [])],
+          meta: module?.meta?.map((field) => ({ ...field })) || [],
         }
       })
     },
   )
+
+  useCommand<{ name: string }>('cmd:delete-group', (received) => {
+    if (!received) return
+    const {
+      payload: { name },
+    } = received
+
+    setLocalModule((module) => {
+      return {
+        ...module!,
+        meta:
+          module?.meta
+            ?.filter((field) => field.group !== name)
+            .map((field) => ({ ...field })) || [],
+      }
+    })
+  })
 
   useCommand<{ name: string; type: 'up' | 'down' }>(
     'cmd:change-group-order',

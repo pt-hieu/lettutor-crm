@@ -58,6 +58,13 @@ export default function Group({
             onClick={() => editGroup(name)}
             className="fa fa-edit w-8 aspect-square opacity-0 rounded-full group-hover:opacity-100 hover:bg-gray-300"
           />
+
+          <Confirm
+            message="Are you sure you want to delete this group and all of its descendant fields?"
+            onYes={() => dispatch('cmd:delete-group', { name })}
+          >
+            <button className="fa fa-trash w-8 aspect-square opacity-0 rounded-full group-hover:opacity-100 hover:bg-gray-300" />
+          </Confirm>
         </div>
 
         <div className="flex gap-2 items-center opacity-0 group-hover:opacity-100">

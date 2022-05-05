@@ -7,6 +7,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   isUUID,
@@ -137,6 +138,39 @@ export class FieldMeta {
   maxLength?: number
 }
 
+export class ConvertMeta {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  source: string
+
+  @ApiProperty()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    try {
+      return JSON.parse(value)
+    } catch (e) {
+      return false
+    }
+  })
+  should_convert_note: boolean
+
+  @ApiProperty()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    try {
+      return JSON.parse(value)
+    } catch (e) {
+      return false
+    }
+  })
+  should_convert_attachment: boolean
+
+  @ApiProperty()
+  @IsObject()
+  meta: Record<string, string>
+}
+
 type Meta = FieldMeta[]
 
 @EntityDecorator()
@@ -149,6 +183,9 @@ export class Module extends BaseEntity {
 
   @Column({ type: 'jsonb', nullable: true })
   meta: Meta | null
+
+  @Column({ type: 'jsonb', default: [] })
+  convert_meta: ConvertMeta[]
 
   @OneToMany(() => Entity, (e) => e.module, {
     cascade: true,
