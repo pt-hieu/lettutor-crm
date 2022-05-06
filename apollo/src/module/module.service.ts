@@ -154,6 +154,7 @@ export class ModuleService implements OnApplicationBootstrap {
     let targetEntity = new Entity()
     targetEntity.moduleId = targetModule.id
     targetEntity.name = `${sourceEntity.name} ${targetModule.name}`
+    targetEntity.data = {}
 
     Object.entries(meta.meta)
       .filter(([_, targetProp]) =>
@@ -164,7 +165,7 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
     Object.entries(dto)
-      .filter(([_, targetProp]) =>
+      .filter(([targetProp, _]) =>
         targetModule.meta.some((field) => field.name === targetProp),
       )
       .forEach(([key, value]) => {
@@ -200,7 +201,10 @@ export class ModuleService implements OnApplicationBootstrap {
 
     await this.entityRepo.softDelete({ id: sourceEntity.id })
 
-    return targetEntity
+    return this.entityRepo.findOne({
+      where: { id: targetEntity.id },
+      relations: ['module'],
+    })
   }
 
   batchConvert(dtos: DTO.Module.BatchConvert[], sourceId: string) {

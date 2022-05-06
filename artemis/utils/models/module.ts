@@ -46,6 +46,14 @@ export interface Module extends Base {
   description: string | null
   meta: Meta | null
   entities?: Entity[]
+  convert_meta: ConvertMeta[]
+}
+
+type ConvertMeta = {
+  source: string
+  should_conver_note: boolean
+  should_conver_attachment: boolean
+  meta: Record<string, string>
 }
 
 export interface Entity extends Base {

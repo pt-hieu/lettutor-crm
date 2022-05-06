@@ -67,34 +67,37 @@ export default function CreateView({ module }: Props) {
       >
         <div>
           <FormProvider {...form}>
-            {Object.entries(parsedMeta).map(([groupName, fields], index) => (
-              <div className="flex flex-col gap-6" key={groupName}>
-                <div className="font-semibold text-lg text-gray-700">
-                  {groupName}
-                </div>
+            {Object.entries(parsedMeta).map(
+              ([groupName, fields], index) =>
+                !!fields.length && (
+                  <div className="flex flex-col gap-6" key={groupName}>
+                    <div className="font-semibold text-lg text-gray-700">
+                      {groupName}
+                    </div>
 
-                <div className="grid grid-cols-2 gap-4 gap-x-12">
-                  {!index && (
-                    <Field
-                      data={{
-                        name: 'name',
-                        group: groupName,
-                        required: true,
-                        visibility: { Overview: true, Update: true },
-                        type: FieldType.TEXT,
-                        maxLength: 30,
-                      }}
-                    />
-                  )}
+                    <div className="grid grid-cols-2 gap-4 gap-x-12">
+                      {!index && (
+                        <Field
+                          data={{
+                            name: 'name',
+                            group: groupName,
+                            required: true,
+                            visibility: { Overview: true, Update: true },
+                            type: FieldType.TEXT,
+                            maxLength: 30,
+                          }}
+                        />
+                      )}
 
-                  {fields
-                    .filter((field) => !!field.visibility.Create)
-                    .map((field) => (
-                      <Field data={field} key={field.name} />
-                    ))}
-                </div>
-              </div>
-            ))}
+                      {fields
+                        .filter((field) => !!field.visibility.Create)
+                        .map((field) => (
+                          <Field data={field} key={field.name} />
+                        ))}
+                    </div>
+                  </div>
+                ),
+            )}
           </FormProvider>
         </div>
 

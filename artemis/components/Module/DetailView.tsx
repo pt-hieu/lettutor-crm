@@ -12,7 +12,7 @@ import AttachmentSection from '@utils/components/AttachmentSection'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
 import { useRelationField } from '@utils/hooks/useRelationField'
-import { FieldType } from '@utils/models/module'
+import { FieldType, Module } from '@utils/models/module'
 import { TaskStatus } from '@utils/models/task'
 import { getEntity, updateEntity } from '@utils/service/module'
 import { getTaskOfEntity } from '@utils/service/task'
@@ -83,6 +83,7 @@ export default function DetailView({ paths }: TProps) {
     getTaskOfEntity(id),
     { enabled: false },
   )
+
   const { open: openTasks, close: closedTasks } = useMemo(
     () => ({
       open: tasks?.filter((task) => task.status !== TaskStatus.COMPLETED),
@@ -90,6 +91,7 @@ export default function DetailView({ paths }: TProps) {
     }),
     [tasks],
   )
+
 
   return (
     <Layout title={`CRM | ${capitalize(moduleName)} | ${entity?.name}`}>

@@ -16,12 +16,18 @@ type FieldProps = {
   data: FieldMeta
   inlineEdit?: boolean
   containerClassname?: string
+  registerName?: string
+}
+
+function index(obj: Record<any, any>, notation: string) {
+  return notation.split('.').reduce((res, curr) => res?.[curr], { ...obj })
 }
 
 export default function Field({
   data,
   inlineEdit,
   containerClassname,
+  registerName,
 }: FieldProps) {
   const {
     name,
@@ -59,7 +65,7 @@ export default function Field({
   const { data: relationItems } = useStore<any[]>(['relation-data', relateTo])
   const registration = useMemo(
     () =>
-      register(name, {
+      register(registerName || name, {
         required: required
           ? `${toCapitalizedWords(name.replace('Id', ''))} is required`
           : undefined,
@@ -113,7 +119,7 @@ export default function Field({
     () => ({
       [FieldType.TEXT]: (
         <Input
-          error={errors[name]?.message}
+          error={index(errors, registerName || name)?.message}
           editable={!inlineEdit || isEnable}
           props={{
             type: 'text',
@@ -126,7 +132,7 @@ export default function Field({
       ),
       [FieldType.EMAIL]: (
         <Input
-          error={errors[name]?.message}
+          error={index(errors, registerName || name)?.message}
           editable={!inlineEdit || isEnable}
           props={{
             type: 'email',
@@ -139,7 +145,7 @@ export default function Field({
       ),
       [FieldType.MULTILINE_TEXT]: (
         <Input
-          error={errors[name]?.message}
+          error={index(errors, registerName || name)?.message}
           editable={!inlineEdit || isEnable}
           as="textarea"
           props={{
@@ -152,7 +158,7 @@ export default function Field({
       ),
       [FieldType.NUMBER]: (
         <Input
-          error={errors[name]?.message}
+          error={index(errors, registerName || name)?.message}
           editable={!inlineEdit || isEnable}
           props={{
             type: 'number',
@@ -165,7 +171,7 @@ export default function Field({
       ),
       [FieldType.PHONE]: (
         <Input
-          error={errors[name]?.message}
+          error={index(errors, registerName || name)?.message}
           editable={!inlineEdit || isEnable}
           props={{
             type: 'tel',
@@ -179,8 +185,8 @@ export default function Field({
       [FieldType.RELATION]: (
         <SuggestInput
           wrapperClassname={inlineEdit ? '' : '!w-full'}
-          error={errors[name]?.message}
-          onItemSelect={(item) => setValue(name, item.id)}
+          error={index(errors, registerName || name)?.message}
+          onItemSelect={(item) => setValue(registerName || name, item.id)}
           getData={relationItems || []}
           filter={(item, query) =>
             item.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())
@@ -202,8 +208,8 @@ export default function Field({
       [FieldType.SELECT]: (
         <SuggestInput
           wrapperClassname={inlineEdit ? '' : '!w-full'}
-          error={errors[name]?.message}
-          onItemSelect={(item) => setValue(name, item)}
+          error={index(errors, registerName || name)?.message}
+          onItemSelect={(item) => setValue(registerName || name, item)}
           getData={options || []}
           filter={(item, query) =>
             item.toLocaleLowerCase().includes(query.toLocaleLowerCase())
@@ -220,7 +226,7 @@ export default function Field({
       ),
       [FieldType.DATE]: (
         <Input
-          error={errors[name]?.message}
+          error={index(errors, registerName || name)?.message}
           editable={!inlineEdit || isEnable}
           props={{
             type: 'date',
@@ -236,7 +242,7 @@ export default function Field({
     [
       relationItems,
       data,
-      errors[name]?.message,
+      index(errors, registerName || name)?.message,
       registration,
       isEnable,
       inlineEdit,

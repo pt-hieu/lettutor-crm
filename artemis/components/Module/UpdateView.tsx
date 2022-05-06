@@ -19,7 +19,7 @@ type Props = {
 }
 
 export default function UpdateView({ module }: Props) {
-  const { push, query } = useRouter()
+  const { push, query, back } = useRouter()
   const paths = query.path as string[]
 
   const moduleName = paths[0]
@@ -117,11 +117,7 @@ export default function UpdateView({ module }: Props) {
         </div>
 
         <div className="flex justify-end sticky top-[72px] gap-3 max-h-[40px]">
-          <button
-            type="button"
-            className="crm-button-outline"
-            onClick={() => push(`/${module.name}`)}
-          >
+          <button type="button" className="crm-button-outline" onClick={back}>
             <span className="fa fa-times mr-2" />
             Cancel
           </button>

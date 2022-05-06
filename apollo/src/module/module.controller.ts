@@ -84,7 +84,7 @@ export class ModuleController {
     @Body() dto: DTO.Module.BatchConvert[],
     @Param('source_id', ParseUUIDPipe) sourceId: string,
   ) {
-    return this.service.batchConvert(dto, sourceId)
+    return this.service.batchConvert(Object.values(dto), sourceId)
   }
 
   @Get(':source_name/convertable_modules')

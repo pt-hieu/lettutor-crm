@@ -186,7 +186,17 @@ export const deal: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
 
 export const account: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
   name: ModuleName.ACCOUNT,
-  convert_meta: [],
+  convert_meta: [
+    {
+      source: ModuleName.LEAD,
+      should_convert_attachment: true,
+      should_convert_note: true,
+      meta: {
+        ownerId: 'ownerId',
+        tasks: 'tasks',
+      },
+    },
+  ],
   meta: [
     {
       name: 'ownerId',
@@ -267,7 +277,17 @@ export const account: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
 
 export const contact: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
   name: ModuleName.CONTACT,
-  convert_meta: [],
+  convert_meta: [
+    {
+      source: ModuleName.LEAD,
+      should_convert_attachment: true,
+      should_convert_note: true,
+      meta: {
+        ownerId: 'ownerId',
+        tasks: 'tasks',
+      },
+    },
+  ],
   meta: [
     {
       name: 'ownerId',

@@ -82,3 +82,20 @@ export const getEntityForTaskCreate = (token?: string) => () =>
       },
     })
     .then((r) => r.data)
+
+export const getConvertableModules =
+  (sourceName: string, token?: string) => () =>
+    axios
+      .get<Module[]>(API + `/apollo/module/${sourceName}/convertable_modules`, {
+        headers: {
+          authorization: 'Bearer ' + token,
+        },
+      })
+      .then((r) => r.data)
+
+export const convert =
+  (sourceId: string) =>
+  (data: { module_name: string; dto: Record<string, any> }[]) =>
+    axios
+      .put<Entity[]>(API + '/apollo/module/convert/' + sourceId, data)
+      .then((res) => res.data)

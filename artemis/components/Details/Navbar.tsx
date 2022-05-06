@@ -1,13 +1,15 @@
 import { notification } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useRef } from 'react'
-import { useMutation } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 
 import Confirm from '@utils/components/Confirm'
+import ConvertModal from '@utils/components/ConvertModal'
 import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useCommand } from '@utils/hooks/useCommand'
-import { Entity } from '@utils/models/module'
+import { useModal } from '@utils/hooks/useModal'
+import { Entity, Module } from '@utils/models/module'
 import { ActionType } from '@utils/models/role'
 import { batchDeleteEntities } from '@utils/service/module'
 
@@ -49,6 +51,15 @@ export const DetailNavbar = ({ data }: Props) => {
     deleteButtonRef.current?.click()
   })
 
+  const { data: convertableModules } = useQuery<Module[]>(
+    ['convertable_modules', data?.module.name],
+    { enabled: false },
+  )
+  const canBeConvertedToOthersModules =
+    convertableModules && !!convertableModules.length
+
+  const [converModal, open, close] = useModal()
+
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px] crm-self-container">
       <div className="flex justify-between items-center">
@@ -59,7 +70,14 @@ export const DetailNavbar = ({ data }: Props) => {
           <TraceInfo entity={data} />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <ConvertModal
+          sourceId={id || ''}
+          visible={converModal}
+          close={close}
+          moduleName={data?.module.name || ''}
+        />
+
+        <div className="grid grid-cols-3 gap-3" style={{ direction: 'rtl' }}>
           {(auth(ActionType.CAN_DELETE_ANY, module?.name) || isOwner) && (
             <Confirm
               onYes={() => mutateAsync([id || ''])}
@@ -69,6 +87,7 @@ export const DetailNavbar = ({ data }: Props) => {
                 ref={deleteButtonRef}
                 disabled={isLoading}
                 className="crm-button-danger"
+                style={{ direction: 'ltr' }}
               >
                 <span className="fa fa-trash mr-2" />
                 Delete
@@ -76,11 +95,23 @@ export const DetailNavbar = ({ data }: Props) => {
             </Confirm>
           )}
 
+          {(auth(ActionType.CAN_CONVERT_ANY, module?.name) || isOwner) &&
+            canBeConvertedToOthersModules && (
+              <button
+                className="crm-button-secondary"
+                style={{ direction: 'ltr' }}
+                onClick={open}
+              >
+                <span className="fa fa-exchange mr-2" /> Convert
+              </button>
+            )}
+
           {(auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, module?.name) ||
             isOwner) && (
             <button
               className="crm-button-secondary"
               onClick={navigateToEditPage}
+              style={{ direction: 'ltr' }}
             >
               <span className="fa fa-edit mr-2" /> Edit
             </button>

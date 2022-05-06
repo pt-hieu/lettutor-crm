@@ -1,7 +1,7 @@
 import { isUUID } from 'class-validator'
 import { GetServerSideProps } from 'next'
-import { ReactNode, useMemo } from 'react'
-import { QueryClient, dehydrate } from 'react-query'
+import { ReactNode, useEffect, useMemo } from 'react'
+import { QueryClient, dehydrate, useQuery } from 'react-query'
 
 import CreateView from '@components/Module/CreateView'
 import DetailView from '@components/Module/DetailView'
@@ -10,7 +10,11 @@ import UpdateView from '@components/Module/UpdateView'
 
 import { getSessionToken } from '@utils/libs/getToken'
 import { Module } from '@utils/models/module'
-import { getEntity, getModules } from '@utils/service/module'
+import {
+  getConvertableModules,
+  getEntity,
+  getModules,
+} from '@utils/service/module'
 import { getTaskOfEntity } from '@utils/service/task'
 
 enum View {
@@ -93,6 +97,17 @@ export default function DynamicModule({ module, render, paths }: Props) {
     }),
     [module],
   )
+
+  const { data, refetch } = useQuery(
+    ['convertable_modules', module?.name],
+    getConvertableModules(module?.name || ''),
+    { enabled: false },
+  )
+
+  useEffect(() => {
+    if (data) return
+    refetch()
+  }, [module?.name])
 
   return renderView[render]
 }
