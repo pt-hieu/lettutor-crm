@@ -265,7 +265,7 @@ export default function ModuleView() {
         </div>
       </div>
 
-      <div className="crm-container grid grid-cols-[300px,1fr] gap-8">
+      <div className="crm-container grid grid-cols-[300px,1fr] gap-8 mb-4">
         <DragDropContext onDragEnd={handleDrop}>
           <FieldSelector />
 
@@ -275,24 +275,6 @@ export default function ModuleView() {
               onEditField={editField}
               onRemoveField={removeField}
             />
-
-            <div className="flex items-center gap-2 mt-8">
-              <button onClick={back} className="crm-button-outline">
-                <span className="fa fa-times mr-2" />
-                Cancel
-              </button>
-
-              <button
-                disabled={isLoading}
-                onClick={() => mutateAsync(localModule || {})}
-                className="crm-button"
-              >
-                <Loading on={isLoading}>
-                  <span className="fa fa-check mr-2" />
-                  Save
-                </Loading>
-              </button>
-            </div>
           </div>
         </DragDropContext>
       </div>
