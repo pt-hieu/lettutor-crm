@@ -244,7 +244,7 @@ export default function Field({
       ),
       [FieldType.CHECK_BOX]: (
         <Input
-          error={errors[name]?.message}
+          error={index(errors, registerName || name)?.message}
           editable={!inlineEdit || isEnable}
           props={{
             id: name,
