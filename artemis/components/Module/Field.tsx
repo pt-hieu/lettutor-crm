@@ -56,6 +56,11 @@ export default function Field({
     const element = document.getElementById(name)
     if (!element) return
 
+    if (type === FieldType.CHECK_BOX) {
+      setLeft(240 + element.offsetWidth + 'px')
+      return
+    }
+
     const valueLength = (element as HTMLInputElement).value.length
     element.style.minWidth = Math.min(Math.max(valueLength, 40), 60) + 'ch'
 
@@ -237,7 +242,21 @@ export default function Field({
           }}
         />
       ),
-      [FieldType.CHECK_BOX]: <></>,
+      [FieldType.CHECK_BOX]: (
+        <Input
+          error={errors[name]?.message}
+          editable={!inlineEdit || isEnable}
+          props={{
+            id: name,
+            className: `rounded-lg w-[40px] h-[40px] ${
+              inlineEdit ? 'mx-2' : ''
+            }`,
+            disabled: inlineEdit && !isEnable,
+            type: 'checkbox',
+            ...registration,
+          }}
+        />
+      ),
     }),
     [
       relationItems,
