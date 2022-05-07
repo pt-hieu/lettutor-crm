@@ -43,6 +43,13 @@ type Visibility = {
   [k in 'Overview' | 'Update' | 'Create' | 'Detail']?: boolean
 }
 
+export enum AggregateType {
+  SUM = 'SUM',
+  AVG = 'AVG',
+  MIN = 'MIN',
+  MAX = 'MAX',
+}
+
 export class FieldMeta {
   @ApiProperty()
   @IsString()
@@ -138,6 +145,22 @@ export class FieldMeta {
   maxLength?: number
 }
 
+export class KanbanMeta {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  field: string
+
+  @ApiPropertyOptional({ enum: AggregateType })
+  @IsEnum(AggregateType)
+  aggregate_type?: AggregateType
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsNotEmpty()
+  aggregate_field?: string
+}
+
 export class ConvertMeta {
   @ApiProperty()
   @IsString()
@@ -186,6 +209,9 @@ export class Module extends BaseEntity {
 
   @Column({ type: 'jsonb', default: [] })
   convert_meta: ConvertMeta[]
+
+  @Column({ type: 'jsonb', nullable: true })
+  kanban_meta: KanbanMeta | null
 
   @OneToMany(() => Entity, (e) => e.module, {
     cascade: true,

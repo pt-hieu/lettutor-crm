@@ -1,4 +1,4 @@
-import { notification } from 'antd'
+import { Switch, notification } from 'antd'
 import { capitalize } from 'lodash'
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -10,16 +10,22 @@ import Input from '@utils/components/Input'
 import { Module } from '@utils/models/module'
 import { batchDeleteEntities } from '@utils/service/module'
 
+import { MODE } from './OverviewView'
+
 type Props = {
   module: Module
   onSearchChange?: (v: string) => void
   search?: string
+  onModeChange: (mode: MODE) => void
+  mode: MODE
 }
 
 export default function ModuleHeader({
   module,
   onSearchChange,
   search,
+  onModeChange: changeMode,
+  mode,
 }: Props) {
   const client = useQueryClient()
   const { data: ids } = useQuery<string[]>(['selected-ids', module.name], {
@@ -28,6 +34,7 @@ export default function ModuleHeader({
 
   const { register, handleSubmit, setValue } = useForm<{ search?: string }>({
     defaultValues: { search },
+    shouldUnregister: true,
   })
 
   useEffect(() => {
@@ -48,10 +55,10 @@ export default function ModuleHeader({
     {
       onSuccess() {
         client.setQueryData(['selected-ids', module.name], [])
-        notification.success({ message: 'Delete account succesfully' })
+        notification.success({ message: `Delete ${module.name} succesfully` })
       },
       onError() {
-        notification.error({ message: 'Delete account unsuccesfully' })
+        notification.error({ message: `Delete ${module.name} unsuccesfully` })
       },
       onSettled() {
         client.refetchQueries(module.name)
@@ -76,11 +83,18 @@ export default function ModuleHeader({
         </button>
       </form>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
+        {module.kanban_meta && (
+          <Switch
+            checked={mode === MODE.KANBAN}
+            onChange={(v) => changeMode(v ? MODE.KANBAN : MODE.DEFAULT)}
+          />
+        )}
+
         {!!ids?.length && (
           <Confirm
             onYes={() => mutateAsync(ids)}
-            message={`Are you sure you want to delete ${ids.length} selected leads?`}
+            message={`Are you sure you want to delete ${ids.length} selected ${module.name}?`}
           >
             <button disabled={isLoading} className="crm-button-danger">
               <span className="fa fa-trash mr-2" /> Delete

@@ -43,7 +43,7 @@ export default function ModuleFilter({
   }, [form.watch])
 
   return (
-    <div className="text-gray-700 border flex flex-col gap-3 p-4 pt-2 rounded-md">
+    <div className="text-gray-700 border flex flex-col gap-3 p-4 pt-2 rounded-md h-fit">
       <div className="font-semibold text-[17px] border-b pb-2 mb-2">
         Filters
       </div>

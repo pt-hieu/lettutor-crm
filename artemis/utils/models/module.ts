@@ -47,6 +47,7 @@ export interface Module extends Base {
   meta: Meta | null
   entities?: Entity[]
   convert_meta: ConvertMeta[]
+  kanban_meta: KanbanMeta | null
 }
 
 type ConvertMeta = {
@@ -54,6 +55,19 @@ type ConvertMeta = {
   should_conver_note: boolean
   should_conver_attachment: boolean
   meta: Record<string, string>
+}
+
+export enum AggregateType {
+  SUM = 'SUM',
+  AVG = 'AVG',
+  MIN = 'MIN',
+  MAX = 'MAX',
+}
+
+type KanbanMeta = {
+  field: string
+  aggregate_type?: AggregateType
+  aggregate_field?: string
 }
 
 export interface Entity extends Base {

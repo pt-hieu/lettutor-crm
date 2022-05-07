@@ -86,33 +86,36 @@ export default function UpdateView({ module }: Props) {
       >
         <div>
           <FormProvider {...form}>
-            {Object.entries(parsedMeta).map(([groupName, fields], index) => (
-              <div className="flex flex-col gap-6" key={groupName}>
-                <div className="font-semibold text-lg text-gray-700">
-                  {groupName}
-                </div>
+            {Object.entries(parsedMeta).map(
+              ([groupName, fields], index) =>
+                !!fields.length && (
+                  <div className="flex flex-col gap-6" key={groupName}>
+                    <div className="font-semibold text-lg text-gray-700">
+                      {groupName}
+                    </div>
 
-                <div className="grid grid-cols-2 gap-4 gap-x-12">
-                  {!index && (
-                    <Field
-                      data={{
-                        name: 'name',
-                        group: groupName,
-                        required: true,
-                        visibility: { Overview: true, Update: true },
-                        type: FieldType.TEXT,
-                      }}
-                    />
-                  )}
+                    <div className="grid grid-cols-2 gap-4 gap-x-12">
+                      {!index && (
+                        <Field
+                          data={{
+                            name: 'name',
+                            group: groupName,
+                            required: true,
+                            visibility: { Overview: true, Update: true },
+                            type: FieldType.TEXT,
+                          }}
+                        />
+                      )}
 
-                  {fields
-                    .filter(({ visibility }) => !!visibility.Update)
-                    .map((field) => (
-                      <Field data={field} key={field.name} />
-                    ))}
-                </div>
-              </div>
-            ))}
+                      {fields
+                        .filter(({ visibility }) => !!visibility.Update)
+                        .map((field) => (
+                          <Field data={field} key={field.name} />
+                        ))}
+                    </div>
+                  </div>
+                ),
+            )}
           </FormProvider>
         </div>
 

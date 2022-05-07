@@ -2,7 +2,7 @@ import { Avatar } from 'antd'
 import { signOut } from 'next-auth/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useQuery } from 'react-query'
 
 import { useModal } from '@utils/hooks/useModal'
@@ -22,7 +22,7 @@ export default function Header() {
   const [confirm, openConfirm, closeConfirm] = useModal()
 
   const [session] = useTypedSession()
-  const splitPath = useMemo(() => asPath.split('/'), [asPath])
+  const splitPath = useMemo(() => asPath.split('?')[0].split('/'), [asPath])
 
   const { data: modules, refetch } = useQuery<Pick<Module, 'name'>[]>(
     'modules',

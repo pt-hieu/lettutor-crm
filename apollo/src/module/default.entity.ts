@@ -1,4 +1,4 @@
-import { FieldType, Module, RelateType } from './module.entity'
+import { AggregateType, FieldType, Module, RelateType } from './module.entity'
 
 export enum LeadStatus {
   NONE = 'None',
@@ -42,7 +42,10 @@ export enum ModuleName {
   LEAD = 'lead',
 }
 
-export const deal: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
+export const deal: Pick<
+  Module,
+  'name' | 'meta' | 'convert_meta' | 'kanban_meta'
+> = {
   name: ModuleName.DEAL,
   convert_meta: [
     {
@@ -56,6 +59,11 @@ export const deal: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
       },
     },
   ],
+  kanban_meta: {
+    field: 'stageId',
+    aggregate_type: AggregateType.SUM,
+    aggregate_field: 'amount',
+  },
   meta: [
     {
       name: 'ownerId',
@@ -184,7 +192,10 @@ export const deal: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
   ],
 }
 
-export const account: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
+export const account: Pick<
+  Module,
+  'name' | 'meta' | 'convert_meta' | 'kanban_meta'
+> = {
   name: ModuleName.ACCOUNT,
   convert_meta: [
     {
@@ -197,6 +208,9 @@ export const account: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
       },
     },
   ],
+  kanban_meta: {
+    field: 'type',
+  },
   meta: [
     {
       name: 'ownerId',

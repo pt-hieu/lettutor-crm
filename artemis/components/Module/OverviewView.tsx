@@ -1,7 +1,7 @@
 import { Table, TableColumnType } from 'antd'
 import { capitalize } from 'lodash'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 
 import Layout from '@utils/components/Layout'
@@ -12,6 +12,7 @@ import { useRelationField } from '@utils/hooks/useRelationField'
 import { FieldType, Module } from '@utils/models/module'
 import { getEntities } from '@utils/service/module'
 
+import KanbanMode from './KanbanMode'
 import ModuleFilter from './ModuleFilter'
 import ModuleHeader from './ModuleHeader'
 import RelationCell from './RelationCell'
@@ -23,6 +24,11 @@ type Props = {
 export function toCapitalizedWords(name: string) {
   const words = name.match(/[A-Za-z][a-z]*/g) || []
   return words.map(capitalize).join(' ')
+}
+
+export enum MODE {
+  KANBAN = 'kanban',
+  DEFAULT = 'default',
 }
 
 export default function OverviewView({ module }: Props) {
@@ -75,61 +81,86 @@ export default function OverviewView({ module }: Props) {
     [module],
   )
 
+  const key = [
+    name,
+    page || 1,
+    limit || 10,
+    search || '',
+    ...Object.values(filter),
+  ]
+
   const { data, isLoading } = useQuery(
-    [name, page || 1, limit || 10, search || '', ...Object.values(filter)],
+    key,
     getEntities(name, { page, limit, search, ...filter }),
     {
       keepPreviousData: true,
     },
   )
 
+  const [mode, setMode] = useQueryState<MODE>('mode', MODE.DEFAULT)
+  useEffect(() => {
+    setMode(MODE.DEFAULT)
+  }, [module])
+
   return (
     <Layout title={`${capitalize(name)} | CRM`}>
-      <div className="crm-container grid grid-cols-[300px,1fr] gap-4">
+      <div className="crm-container grid grid-cols-[300px,1fr] gap-4 h-full">
         <ModuleFilter
           filter={filter}
           onFilterChange={setFilter}
           module={module}
         />
 
-        <div className="overflow-x-hidden">
+        <div className="overflow-x-hidden h-[calc(100vh-175px)]">
           <ModuleHeader
+            onModeChange={setMode}
+            mode={mode!}
             search={search}
             onSearchChange={setSearch}
             module={module}
           />
 
-          <div className="mt-4">
-            <div className="w-full flex flex-col gap-4">
-              <Table
-                showSorterTooltip={false}
-                columns={colums}
-                dataSource={data?.items}
-                rowKey={(u) => u.id}
-                loading={isLoading}
-                rowSelection={{
-                  type: 'checkbox',
-                  onChange: (ids) => {
-                    client.setQueryData(
-                      ['selected-ids', module.name],
-                      ids.map((id) => id.toString()),
-                    )
-                  },
-                }}
-                bordered
-                pagination={false}
-              />
+          <div className="mt-4 h-[calc(100vh-252px)]">
+            {mode !== MODE.KANBAN && (
+              <div className="w-full flex flex-col gap-4">
+                <Table
+                  showSorterTooltip={false}
+                  columns={colums}
+                  dataSource={data?.items}
+                  rowKey={(u) => u.id}
+                  loading={isLoading}
+                  rowSelection={{
+                    type: 'checkbox',
+                    onChange: (ids) => {
+                      client.setQueryData(
+                        ['selected-ids', module.name],
+                        ids.map((id) => id.toString()),
+                      )
+                    },
+                  }}
+                  bordered
+                  pagination={false}
+                />
 
-              <Paginate
-                containerClassName="self-end"
-                pageSize={limit || 10}
-                currentPage={page || 1}
-                totalPage={data?.meta.totalPages}
-                onPageChange={setPage}
-                showJumpToHead
-                showQuickJump
+                <Paginate
+                  containerClassName="self-end"
+                  pageSize={limit || 10}
+                  currentPage={page || 1}
+                  totalPage={data?.meta.totalPages}
+                  onPageChange={setPage}
+                  showJumpToHead
+                  showQuickJump
+                />
+              </div>
+            )}
+
+            {mode === MODE.KANBAN && (
+              <KanbanMode
+                dataKey={key}
+                entities={data?.items || []}
+                module={module}
               />
-            </div>
+            )}
           </div>
         </div>
       </div>
