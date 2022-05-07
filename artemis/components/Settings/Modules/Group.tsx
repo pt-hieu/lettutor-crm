@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import Field from '@components/Module/Field'
-
 import Confirm from '@utils/components/Confirm'
 import { useDispatch } from '@utils/hooks/useDispatch'
 import { FieldMeta, FieldType } from '@utils/models/module'
+
+import { FieldPresentation } from './FieldPresentation'
 
 type Props = {
   name: string | undefined
@@ -112,7 +112,8 @@ export default function Group({
                         className="w-8 aspect-square hover:bg-gray-300 grid place-content-center rounded-full fa fa-bars ml-2 mt-[5px]"
                         {...dragHandleProps}
                       />
-                      <Field data={field} containerClassname="!mb-0" />
+
+                      <FieldPresentation field={field} />
 
                       {field.name !== 'name' && (
                         <div className="flex gap-2 group-hover:opacity-100 opacity-0">

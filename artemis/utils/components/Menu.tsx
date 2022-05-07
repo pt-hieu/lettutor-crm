@@ -41,7 +41,7 @@ export default function Menu({
             className={`px-5 py-2 font-semibold text-sm text-gray-700 w-full ${
               itemClassName || ''
             } ${disabled ? 'opacity-50' : 'hover:bg-gray-200'}`}
-            onClick={action}
+            onMouseDown={action}
             key={key}
             disabled={disabled}
           >
