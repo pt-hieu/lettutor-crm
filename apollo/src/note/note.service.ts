@@ -133,6 +133,10 @@ export class NoteService {
   async update(id: string, dto: DTO.Note.UpdateBody) {
     let note = await this.getNoteById({ where: { id } })
 
+    if (!dto.attachments) {
+      dto.attachments = []
+    }
+
     let filesToAdd: File[] = []
     if (dto.files && dto.files.length > 0) {
       filesToAdd = await this.fileService.uploadFile(dto.files)

@@ -61,7 +61,7 @@ export const deleteNote = ({ noteId }: { noteId: string }) =>
     })
     .then((r) => r.data)
 
-export const editNote = ({
+export const editNote = async ({
   noteId,
   dataInfo,
 }: {
@@ -74,6 +74,14 @@ export const editNote = ({
   Object.entries(data).forEach(([key, value]) => {
     if (value) formData.append(key, value)
   })
+
+  formData.delete('attachments')
+
+  if (data.attachments.length) {
+    for (const file of data.attachments) {
+      formData.append('attachments', file)
+    }
+  }
 
   if (files) {
     for (const file of files) {
