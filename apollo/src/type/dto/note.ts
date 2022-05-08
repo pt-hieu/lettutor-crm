@@ -144,6 +144,7 @@ export class UpdateBody extends Files implements IUpdateBody {
   content: string
 
   @ApiProperty()
+  @IsOptional()
   @IsUUID(undefined, { each: true })
-  attachments: string[]
+  attachments?: string[]
 }
