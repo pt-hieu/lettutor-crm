@@ -107,7 +107,7 @@ export class UtilService {
   }
 
   public checkRoleAction(
-    ...requiredActions: { target: String; type: ActionType }[]
+    ...requiredActions: { target: string; type: ActionType }[]
   ) {
     if (!this.payloadService.data) return false
 

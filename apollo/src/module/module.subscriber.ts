@@ -13,7 +13,6 @@ import { UtilService } from 'src/global/util.service'
 import { LogAction, LogSource } from 'src/log/log.entity'
 
 import { Module } from './module.entity'
-import { ModuleService } from './module.service'
 
 @EventSubscriber()
 export class ModuleSubscriber implements EntitySubscriberInterface<Module> {
@@ -76,7 +75,11 @@ export class ModuleSubscriber implements EntitySubscriberInterface<Module> {
       ownerId: this.payload.data.id,
       source: LogSource.MODULE,
       action: LogAction.UPDATE,
-      changes: this.util.compare(event.databaseEntity, event.entity, ['meta']),
+      changes: this.util.compare(event.databaseEntity, event.entity, [
+        'meta',
+        'convert_meta',
+        'kanban_meta',
+      ]),
     })
   }
 }
