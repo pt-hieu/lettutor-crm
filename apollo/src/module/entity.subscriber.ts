@@ -79,11 +79,13 @@ export class EntitySubscriber implements EntitySubscriberInterface<Entity> {
 
     const changes = this.util.compare(event.databaseEntity, event.entity, [
       'data',
+      'module',
     ])
 
     const dataChanges = this.util.compare(
       event.databaseEntity.data,
       event.entity.data,
+      ['tasks'],
     )
 
     return this.util.emitLog({
