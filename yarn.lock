@@ -12905,10 +12905,10 @@ react-helmet@^6.1.0:
     react-fast-compare "^3.1.1"
     react-side-effect "^2.1.0"
 
-react-hook-form@7.21.1:
-  version "7.21.1"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.21.1.tgz#9c6bbcf28fb3271ec60067ae420798964d81cb3e"
-  integrity sha512-XnTqR3uFqqmuqgyq6MEaZe++YcncK6FJgxlMBD1et4jtcWvZPRaGbdWUvvz1DT19A/idn8oiSXJcIZMjIT686g==
+react-hook-form@7.31.1:
+  version "7.31.1"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.31.1.tgz#16c357dd366bc226172e6acbb5a1672873bbfb28"
+  integrity sha512-QjtjZ8r8KtEBWWpcXLyQordCraTFxILtyQpaz5KLLxN2YzcC+FZ9LLtOnNGuOnzZo9gCoB+viK3ZHV9Mb2htmQ==
 
 react-input-autosize@^3.0.0:
   version "3.0.0"
