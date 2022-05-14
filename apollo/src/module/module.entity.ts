@@ -50,6 +50,10 @@ export enum AggregateType {
   MAX = 'MAX',
 }
 
+export enum ReportType {
+  TODAY_SALES = 'Today Sales',
+}
+
 export class FieldMeta {
   @ApiProperty()
   @IsString()

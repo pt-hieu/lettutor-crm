@@ -13,6 +13,7 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { Action, ActionType } from 'src/action/action.entity'
+import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
 import { File } from 'src/file/file.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
@@ -22,18 +23,17 @@ import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
 
 import { account, contact, deal, lead } from './default.entity'
-import { Entity, FieldType, Module } from './module.entity'
+import { Entity, FieldType, Module, ReportType } from './module.entity'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
   constructor(
-    private readonly userService: UserService,
-    private readonly noteService: NoteService,
     @InjectRepository(Module) private moduleRepo: Repository<Module>,
     @InjectRepository(Note) private noteRepo: Repository<Note>,
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
     @InjectRepository(File) private fileRepo: Repository<File>,
     @InjectRepository(Action) private actionRepo: Repository<Action>,
+    @InjectRepository(DealStage) private dealStageRepo: Repository<DealStage>,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
   ) {}
@@ -404,5 +404,35 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     return entity
+  }
+
+  async getReport(type: ReportType) {
+    switch (type) {
+      case ReportType.TODAY_SALES:
+        return this.getTodaySalesReport()
+      default:
+        throw new BadRequestException(`Cannot find report with type ${type}`)
+    }
+  }
+
+  async getTodaySalesReport() {
+    // find deal stage with close won type
+    let dealStageQuery = this.dealStageRepo
+      .createQueryBuilder('e')
+      .where('e.type = :type', { type: DealStageType.CLOSE_WON })
+      .select('e.id')
+
+    const dealStageIds = await dealStageQuery.getMany()
+    const ids = []
+    dealStageIds.forEach((stage) => ids.push(stage.id))
+
+    let qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .orderBy('e.createdAt', 'DESC')
+      .where('module.name = :name', { name: 'deal' })
+      .andWhere("e.data ->> 'stageId' IN (:...ids) ", { ids: ids })
+
+    return qb.getMany()
   }
 }
