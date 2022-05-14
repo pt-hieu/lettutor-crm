@@ -51,10 +51,10 @@ export class ModuleController {
     return this.service.getRawEntityForTaskCreate()
   }
 
-  @Get('/entity/report/:type')
-  @ApiOperation({ summary: 'to get report' })
-  getReport(@Param('type') type: ReportType) {
-    return this.service.getReport(type)
+  @Get('/entity/report/deal')
+  @ApiOperation({ summary: 'to get deal related report' })
+  getReport(@Query() dto: DTO.Module.DealReportFilter) {
+    return this.service.getReport(dto)
   }
 
   @Get(':name/raw')

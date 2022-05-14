@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { clone, omit } from 'lodash'
+import moment from 'moment'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
@@ -18,12 +19,16 @@ import { File } from 'src/file/file.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
-import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
-import { UserService } from 'src/user/user.service'
 
 import { account, contact, deal, lead } from './default.entity'
-import { Entity, FieldType, Module, ReportType } from './module.entity'
+import {
+  Entity,
+  FieldType,
+  Module,
+  ReportType,
+  TimeFieldType,
+} from './module.entity'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -406,33 +411,89 @@ export class ModuleService implements OnApplicationBootstrap {
     return entity
   }
 
-  async getReport(type: ReportType) {
-    switch (type) {
+  async getManyDealStagesByType(type: DealStageType) {
+    return this.dealStageRepo
+      .createQueryBuilder('e')
+      .where('e.type = :type', { type: type })
+      .getMany()
+  }
+
+  async getReport(filterDto: DTO.Module.DealReportFilter) {
+    switch (filterDto.reportType) {
       case ReportType.TODAY_SALES:
-        return this.getTodaySalesReport()
+        return this.getDealsReport(DealStageType.CLOSE_WON, filterDto)
       default:
-        throw new BadRequestException(`Cannot find report with type ${type}`)
+        throw new BadRequestException(
+          `Cannot find report with type ${filterDto.reportType}`,
+        )
     }
   }
 
-  async getTodaySalesReport() {
-    // find deal stage with close won type
-    let dealStageQuery = this.dealStageRepo
-      .createQueryBuilder('e')
-      .where('e.type = :type', { type: DealStageType.CLOSE_WON })
-      .select('e.id')
-
-    const dealStageIds = await dealStageQuery.getMany()
+  async getDealsReport(
+    dealStageType: DealStageType,
+    {
+      limit,
+      page,
+      shouldNotPaginate,
+      ...filterDto
+    }: DTO.Module.DealReportFilter,
+  ) {
     const ids = []
-    dealStageIds.forEach((stage) => ids.push(stage.id))
+    const dealStages = await this.getManyDealStagesByType(dealStageType)
+    dealStages.forEach(({ id }) => ids.push(id))
 
-    let qb = this.entityRepo
+    const qb = this.entityRepo
       .createQueryBuilder('e')
-      .leftJoin('e.module', 'module')
       .orderBy('e.createdAt', 'DESC')
-      .where('module.name = :name', { name: 'deal' })
-      .andWhere("e.data ->> 'stageId' IN (:...ids) ", { ids: ids })
+      .where("e.data ->> 'stageId' IN (:...ids)", { ids: ids })
 
-    return qb.getMany()
+    switch (filterDto.timeFieldType) {
+      case TimeFieldType.EXACT: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' = '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.BETWEEN: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+            filterDto.startDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+            filterDto.endDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_AFTER: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_BEFORE: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      default:
+        break
+    }
+
+    if (shouldNotPaginate) return qb.getMany()
+    return paginate(qb, { limit, page })
   }
 }
