@@ -99,7 +99,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./apollo
+          context: ./
           file: ./docker/Dockerfile.apollo.prod
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:apollo-prod
@@ -166,7 +166,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./artemis
+          context: ./
           file: ./docker/Dockerfile.artemis.prod
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:artemis-prod
@@ -200,7 +200,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./poseidon
+          context: ./
           file: ./docker/Dockerfile.poseidon
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:poseidon
@@ -240,7 +240,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./zeus
+          context: ./
           file: ./docker/Dockerfile.zeus.prod
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:zeus-prod
