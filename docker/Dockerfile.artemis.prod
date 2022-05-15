@@ -11,7 +11,7 @@ RUN yarn install
 COPY ./artemis ./artemis
 
 RUN npm install -g typescript
-RUN yarn crm build artemis -D && yarn --production --ignore-scripts --prefer-offline
+RUN yarn crm build artemis && yarn --production --ignore-scripts --prefer-offline
 
 FROM node:alpine AS runner
 WORKDIR /app

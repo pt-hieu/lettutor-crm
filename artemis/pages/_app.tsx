@@ -11,8 +11,6 @@ import { Hydrate } from 'react-query/hydration'
 
 import OpenGraph from '@utils/components/OpenGraph'
 import QueryUpdater from '@utils/components/QueryUpdater'
-import { getSessionToken } from '@utils/libs/getToken'
-import { getModules } from '@utils/service/module'
 
 import '../styles/global.scss'
 import '../styles/markdown.css'
