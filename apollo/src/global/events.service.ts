@@ -33,6 +33,6 @@ export class EventsService {
 
   @OnEvent('auth.invalidate', { async: true })
   invalidateSession(payload: unknown) {
-    return this.pushEventToGateway(OpCode.INVALIDATE_SESSION, payload)
+    // return this.pushEventToGateway(OpCode.INVALIDATE_SESSION, payload)
   }
 }
