@@ -4,16 +4,18 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, Repository } from 'typeorm'
-import { User, UserStatus } from './user.entity'
+import { compare, hash } from 'bcryptjs'
 import { randomBytes } from 'crypto'
-import { DTO } from 'src/type'
 import moment from 'moment'
-import { MailService } from 'src/mail/mail.service'
-import { compare, hash } from 'bcrypt'
-import { JwtPayload } from 'src/utils/interface'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
+
+import { MailService } from 'src/mail/mail.service'
 import { Role } from 'src/role/role.entity'
+import { DTO } from 'src/type'
+import { JwtPayload } from 'src/utils/interface'
+
+import { User, UserStatus } from './user.entity'
 
 const PWD_TOKEN_EXPIRATION = 5 //in days
 
@@ -133,9 +135,34 @@ export class UserService {
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)
   }
 
+  async invalidateAddUserToken(id: string, fromUser: string) {
+    let user = await this.userRepo.findOne(id)
+
+    if (!user) {
+      throw new NotFoundException(
+        `User you want to re-send invitation email wasn't invited yet.`,
+      )
+    }
+
+    if (user.status !== UserStatus.UNCONFIRMED) {
+      throw new BadRequestException(`User has been confirmed.`)
+    }
+
+    const newToken = randomBytes(48).toString('base64url')
+
+    await this.userRepo.save({
+      ...user,
+      passwordToken: newToken,
+      tokenExpiration: moment().add(PWD_TOKEN_EXPIRATION, 'days').toDate(),
+    })
+
+    return this.mailService.sendAddPwdMail(fromUser, user, newToken)
+  }
+
   getManyRaw() {
     return this.userRepo.find({
       select: ['id', 'name'],
+      loadEagerRelations: false,
     })
   }
 
@@ -151,6 +178,7 @@ export class UserService {
       .createQueryBuilder('u')
       .addSelect(['u.id', 'u.name', 'u.email', 'u.status'])
       .leftJoinAndSelect('u.roles', 'roles')
+      .orderBy('u.createdAt', 'DESC')
 
     if (role) {
       q = q.where('roles.name=:role', { role })
@@ -186,5 +214,10 @@ export class UserService {
 
     user.status = dto.status
     return this.userRepo.save(user)
+  }
+
+  async batchDelete(ids: string[]) {
+    const users = await this.userRepo.find({ where: { id: In(ids) } })
+    return this.userRepo.softRemove(users)
   }
 }

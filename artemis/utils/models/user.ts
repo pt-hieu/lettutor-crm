@@ -1,6 +1,6 @@
 import { Base } from './base'
-import { Lead } from './lead';
-import { Role } from './role';
+import { Lead } from './lead'
+import { Role } from './role'
 
 export enum UserStatus {
   ACTIVE = 'Active',

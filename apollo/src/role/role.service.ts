@@ -1,27 +1,53 @@
 import {
   BadRequestException,
-  UnprocessableEntityException,
   Injectable,
+  OnApplicationBootstrap,
+  UnprocessableEntityException,
 } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { In, Not, Repository } from 'typeorm'
+
+import {
+  Action,
+  ActionType,
+  DefaultActionTarget,
+} from 'src/action/action.entity'
 import { DTO } from 'src/type'
-import { Not, Repository } from 'typeorm'
+
 import { Role } from './role.entity'
-import { RoleActionMapping } from './role.subscriber'
+import { DefaultRoleName } from './role.subscriber'
 
 @Injectable()
-export class RoleService {
+export class RoleService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(Role) private roleRepo: Repository<Role>,
+    @InjectRepository(Action) private actionRepo: Repository<Action>,
     private eventEmitter: EventEmitter2,
   ) {}
+
+  async onApplicationBootstrap() {
+    const adminRole = await this.roleRepo.findOne({ where: { name: 'Admin' } })
+
+    if (!adminRole) return
+    if (adminRole.actions.length) return
+
+    const adminAction = await this.actionRepo.findOne({
+      where: { target: DefaultActionTarget.ADMIN, type: ActionType.IS_ADMIN },
+    })
+
+    if (!adminAction) return
+    adminRole.actions = [adminAction]
+
+    return this.roleRepo.save(adminRole)
+  }
 
   getManyRole(dto: DTO.Role.GetManyRole) {
     const qb = this.roleRepo
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.children', 'children')
+      .leftJoinAndSelect('r.actions', 'actions')
       .loadRelationCountAndMap('r.usersCount', 'r.users')
 
     if (dto.shouldNotPaginate) return qb.getMany()
@@ -32,10 +58,14 @@ export class RoleService {
     const role = await this.roleRepo.findOne({ where: { name: dto.name } })
     if (role) throw new BadRequestException('Role existed')
 
+    const actions = await this.actionRepo.find({
+      where: { id: In(dto.actionsId) },
+    })
+
     return this.roleRepo.save({
       name: dto.name,
       childrenIds: dto.childrenIds,
-      actions: dto.actions,
+      actions: actions,
     })
   }
 
@@ -45,7 +75,21 @@ export class RoleService {
     if (!role.default)
       throw new UnprocessableEntityException('Role is not default')
 
-    role.actions = RoleActionMapping[role.name]
+    if (role.name === DefaultRoleName.ADMIN) {
+      role.actions = await this.actionRepo.find({
+        where: { target: DefaultActionTarget.ADMIN, type: ActionType.IS_ADMIN },
+      })
+    } else if (role.name === DefaultRoleName.SALE) {
+      role.actions = (
+        await this.actionRepo.find({
+          where: { type: ActionType.CAN_CREATE_NEW },
+        })
+      ).filter(
+        ({ target }) =>
+          target !== DefaultActionTarget.USER &&
+          target !== DefaultActionTarget.ROLE,
+      )
+    }
 
     return this.roleRepo.save(role).then((res) => {
       this.eventEmitter.emit('auth.invalidate', id)
@@ -63,10 +107,15 @@ export class RoleService {
     )
       throw new BadRequestException('Name has been taken')
 
+    const actions = await this.actionRepo.find({
+      where: { id: In(dto.actionsId) },
+    })
+
     return this.roleRepo
       .save({
         ...role,
         ...dto,
+        actions: actions,
       })
       .then((res) => {
         this.eventEmitter.emit('auth.invalidate', id)

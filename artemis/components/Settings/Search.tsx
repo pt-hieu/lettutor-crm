@@ -1,12 +1,13 @@
-import Input from '@utils/components/Input'
-import Loading from '@utils/components/Loading'
-import { UserStatus } from '@utils/models/user'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery } from 'react-query'
+
+import Input from '@utils/components/Input'
+import Loading from '@utils/components/Loading'
 import { Role } from '@utils/models/role'
+import { UserStatus } from '@utils/models/user'
 
 type FormData = {
   query?: string

@@ -1,33 +1,56 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator'
-import { NoteFilter, NoteSort, NoteSource } from 'src/note/note.entity'
+import { Transform, Type } from 'class-transformer'
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+} from 'class-validator'
+
+import { NoteFilter, NoteSort } from 'src/note/note.entity'
+
+import { TransformParams } from '../util'
+import { Files } from './file'
 import { Paginate } from './paging'
 
-export class AddNote {
+interface IAddNote {
+  ownerId?: string
+  entityId?: string
+  taskId?: string
+  title?: string
+  content: string
+  source?: string
+}
+
+export class AddNote extends Files implements IAddNote {
+  @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  ownerId: string
+  ownerId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  leadId?: string
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['entityId']>) => {
+      if (obj.source === 'task') return null
+      return value
+    },
+  )
+  entityId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  contactId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  dealId?: string
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['taskId']>) => {
+      if (obj.source !== 'task') return null
+      return value
+    },
+  )
+  taskId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -37,17 +60,14 @@ export class AddNote {
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   @MaxLength(500)
-  content?: string
+  content: string
 
-  @ApiPropertyOptional({
-    type: NoteSource,
-    enum: NoteSource,
-  })
+  @ApiPropertyOptional({})
   @IsString()
   source?: string
 }
-
 
 export class GetManyQuery extends Paginate {
   @ApiPropertyOptional()
@@ -69,10 +89,7 @@ export class GetManyQuery extends Paginate {
   @IsOptional()
   sort?: string
 
-  @ApiPropertyOptional({
-    type: NoteSource,
-    enum: NoteSource,
-  })
+  @ApiPropertyOptional()
   @IsString()
   source?: string
 
@@ -87,30 +104,33 @@ export class GetManyQuery extends Paginate {
   })
   @IsOptional()
   @IsString()
-  filter?: string
+  filter?: NoteFilter
 }
 
+interface IUpdateBody extends Omit<IAddNote, 'source' | 'ownerId'> {}
 
-export class UpdateBody {
+export class UpdateBody extends Files implements IUpdateBody {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  contactId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  accountId?: string
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['entityId']>) => {
+      if (obj.source === 'task') return null
+      return value
+    },
+  )
+  entityId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  dealId?: string
+  @Transform(
+    ({ value, obj }: TransformParams<IAddNote, IAddNote['taskId']>) => {
+      if (obj.source !== 'task') return null
+      return value
+    },
+  )
+  taskId?: string
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -121,5 +141,10 @@ export class UpdateBody {
   @ApiProperty()
   @IsString()
   @MaxLength(500)
-  content?: string
+  content: string
+
+  @ApiProperty()
+  @IsOptional()
+  @IsUUID(undefined, { each: true })
+  attachments?: string[]
 }

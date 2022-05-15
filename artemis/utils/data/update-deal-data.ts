@@ -1,4 +1,3 @@
-import { DealStage } from '@utils/models/deal'
 import { LeadSource } from '@utils/models/lead'
 
 export type Field = {
@@ -56,9 +55,8 @@ export const DealUpdateData: UpdateDealTemplate = [
       },
       {
         label: 'Stage',
-        name: 'stage',
+        name: 'stageId',
         as: 'select',
-        selectSource: Object.values(DealStage),
         required: true,
       },
       {

@@ -1,6 +1,7 @@
-import { Deal } from '@utils/models/deal'
 import moment from 'moment'
 import Link from 'next/link'
+
+import { Deal } from '@utils/models/deal'
 
 type Props = Pick<Deal, 'id' | 'fullName' | 'amount' | 'stage' | 'closingDate'>
 

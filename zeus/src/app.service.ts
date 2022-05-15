@@ -1,21 +1,28 @@
 import { HttpService } from '@nestjs/axios'
-import type { AxiosResponse } from 'axios'
 import {
   HttpException,
-  ServiceUnavailableException,
   Injectable,
   InternalServerErrorException,
+  ServiceUnavailableException,
 } from '@nestjs/common'
+import type { AxiosResponse } from 'axios'
 import { Request } from 'express'
-import { catchError, first, lastValueFrom, map, Observable } from 'rxjs'
-import { EnvService } from './env.service'
 import { stringify } from 'querystring'
+import { Observable, catchError, first, lastValueFrom, map } from 'rxjs'
+
+import { EnvService } from './env.service'
 import { ParsedResponses, StrapiEntity, StrapiResponse } from './model'
 
 type TPayload = {
   path: string
   req: Request
   query: any
+  files?: Array<Express.Multer.File>
+}
+
+type TFile = {
+  name: string
+  buffer: string
 }
 
 export type TMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
@@ -40,13 +47,23 @@ export class AppService {
     )
   }
 
-  private handleApolloRequest({ req, path, query }: TPayload) {
+  private handleApolloRequest({ req, path, query, files }: TPayload) {
     path = path.slice('apollo'.length)
+
+    const filesToSend = files?.map(
+      (file): TFile => ({
+        name: file.originalname,
+        buffer: file.buffer.toString('base64'),
+      }),
+    )
 
     return this.wrap(
       this.http.request({
         method: req.method as TMethod,
-        data: req.body,
+        data: {
+          ...req.body,
+          files: filesToSend,
+        },
         url: this.env.apolloService + path + '?' + stringify(query),
         headers: {
           'x-api-key': this.env.apiKey,

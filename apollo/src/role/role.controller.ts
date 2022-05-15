@@ -9,10 +9,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
+
 import { DefineAction } from 'src/action.decorator'
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
+
 import { RoleService } from './role.service'
 
 @Controller('role')
@@ -23,21 +25,26 @@ export class RoleController {
   constructor(private service: RoleService) {}
 
   @Get()
-  @ApiQuery({ type: DTO.Role.GetManyRole })
   @ApiOperation({ summary: 'to get all role' })
   getMany(@Query() query: DTO.Role.GetManyRole) {
     return this.service.getManyRole(query)
   }
 
   @Post()
-  @DefineAction(Actions.CREATE_NEW_ROLE)
+  @DefineAction({
+    target: DefaultActionTarget.ROLE,
+    type: ActionType.CAN_CREATE_NEW,
+  })
   @ApiOperation({ summary: 'to create a role' })
   create(@Body() dto: DTO.Role.CreateRole) {
     return this.service.createRole(dto)
   }
 
   @Patch(':id')
-  @DefineAction(Actions.EDIT_ROLE)
+  @DefineAction({
+    target: DefaultActionTarget.ROLE,
+    type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+  })
   @ApiOperation({ summary: 'to update a role' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -47,14 +54,20 @@ export class RoleController {
   }
 
   @Delete(':id')
-  @DefineAction(Actions.DELETE_ROLE)
+  @DefineAction({
+    target: DefaultActionTarget.ROLE,
+    type: ActionType.CAN_DELETE_ANY,
+  })
   @ApiOperation({ summary: 'to delete a role' })
   delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.removeRole(id)
   }
 
   @Post(':id/default')
-  @DefineAction(Actions.RESTORE_DEFAULT_ROLE)
+  @DefineAction({
+    target: DefaultActionTarget.ROLE,
+    type: ActionType.CAN_RESTORE_REVERSED,
+  })
   @ApiOperation({ summary: 'to restore default action for role' })
   restore(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.restoreDefault(id)

@@ -1,13 +1,18 @@
-import { User, UserStatus } from 'src/user/user.entity'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { compare, hash } from 'bcrypt'
-import { DTO } from 'src/type'
+import { compare, hash } from 'bcryptjs'
 import { Response } from 'express'
-import { JwtPayload } from 'src/utils/interface'
-import { Actions } from 'src/type/action'
+import { Repository } from 'typeorm'
+
+import {
+  Action,
+  ActionType,
+  DefaultActionTarget,
+} from 'src/action/action.entity'
 import { Role } from 'src/role/role.entity'
+import { DTO } from 'src/type'
+import { User, UserStatus } from 'src/user/user.entity'
+import { JwtPayload } from 'src/utils/interface'
 
 const ADMINISTRATIVE_ROLE_NAME = 'Admin'
 
@@ -16,6 +21,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Role) private roleRepo: Repository<Role>,
+    @InjectRepository(Action) private actionRepo: Repository<Action>,
   ) {}
 
   async signup(dto: DTO.Auth.SignUp) {
@@ -28,9 +34,16 @@ export class AuthService {
     })
 
     if (!role) {
+      const action = await this.actionRepo.findOne({
+        where: {
+          target: DefaultActionTarget.ADMIN,
+          type: ActionType.IS_ADMIN,
+        },
+      })
+
       role = await this.roleRepo.save({
         name: ADMINISTRATIVE_ROLE_NAME,
-        actions: [Actions.IS_ADMIN],
+        actions: [action],
       })
     }
 
@@ -44,11 +57,13 @@ export class AuthService {
   async validate(dto: DTO.Auth.Login, res: Response) {
     const user = await this.userRepo.findOne({
       where: { email: dto.email },
+      relations: ['roles', 'roles.actions'],
     })
 
     if (!user) throw new BadRequestException('Email or password is wrong')
 
-    if (user.status != UserStatus.ACTIVE) throw new BadRequestException('Inactive Account')
+    if (user.status != UserStatus.ACTIVE)
+      throw new BadRequestException('Inactive Account')
 
     if (!(await compare(dto.password, user.password)))
       throw new BadRequestException('Email or password is wrong')

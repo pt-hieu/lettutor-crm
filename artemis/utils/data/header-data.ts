@@ -29,7 +29,11 @@ export const data: Array<Item> = [
     title: 'Tasks',
   },
   {
-    title: "Documents",
-    link: "/documents",
-  }
+    link: '/logs',
+    title: 'Logs',
+  },
+  {
+    title: 'Documents',
+    link: '/documents',
+  },
 ]

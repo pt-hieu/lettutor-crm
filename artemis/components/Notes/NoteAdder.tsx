@@ -1,9 +1,17 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import { notification } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQueryClient } from 'react-query'
 import * as yup from 'yup'
-import Input from '../../utils/components/Input'
+
+import Input from '@utils/components/Input'
+import Loading from '@utils/components/Loading'
+import Tooltip from '@utils/components/Tooltip'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { AddNoteDto, Attachments } from '@utils/models/note'
+import { addNote } from '@utils/service/note'
 
 export const noteShema = yup.object().shape({
   content: yup
@@ -13,16 +21,24 @@ export const noteShema = yup.object().shape({
     .max(500, 'Note must be at most 500 characters'),
 })
 
+const MAX_NUM_FILE = 5
+const MAX_MB_SIZE = 20
+const MAX_SIZE_FILE = MAX_MB_SIZE * 1024 * 1024 // 20 MB
+
 export interface INoteData {
   title?: string
   content: string
+  files?: File[]
+  attachments: any[]
 }
 
 interface ITextboxProps {
   onCancel: () => void
   onSave: (data: INoteData) => void
+  isLoading: boolean
   defaultTitle?: string
   defaultNote?: string
+  defaultFiles?: Attachments[]
 }
 
 const animateVariant = {
@@ -32,12 +48,19 @@ const animateVariant = {
 
 export const NoteTextBox = ({
   onCancel,
-  onSave,
+  onSave: saveNote,
+  isLoading,
   defaultTitle,
   defaultNote,
+  defaultFiles: defaultFile,
 }: ITextboxProps) => {
   const [hasTitle, setHasTitle] = useState(!!defaultTitle)
   const [title, setTitle] = useState(defaultTitle || '')
+  const [attachments, setAttachments] = useState<Attachments[]>(
+    defaultFile || [],
+  )
+
+  const [files, setFiles] = useState<File[]>([])
 
   const {
     register,
@@ -55,26 +78,90 @@ export const NoteTextBox = ({
   const noteRef = useRef<any>(null)
   const { ref, ...rest } = register('content')
 
-  const handleAddTitle = () => {
+  const turnOnTitle = useCallback(() => {
     setHasTitle(true)
-  }
+  }, [])
 
   const handleTitleInputBlur = () => {
     if (title.trim()) return
+
     setHasTitle(false)
     setTitle('')
   }
 
-  const handleSave = handleSubmit((data) => {
-    if (title.length > 100) {
-      setError('content', { message: 'Title must be at most 100 characters' })
+  const submitNote = useCallback(
+    handleSubmit((data) => {
+      if (title.length > 100) {
+        setError('content', { message: 'Title must be at most 100 characters' })
+        return
+      }
+
+      if (hasTitle) {
+        data.title = title
+      }
+
+      data.attachments = attachments
+      data.files = files
+
+      saveNote(data)
+    }),
+    [saveNote, title, files, attachments],
+  )
+
+  //File
+  const handleSelectFiles = (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files || [])
+    event.target.value = ''
+
+    //Check exist empty file
+    for (let file of selectedFiles) {
+      if (!file.size) {
+        notification.error({
+          message: `The file ${file.name} is not supported`,
+        })
+
+        return
+      }
+    }
+
+    const currentFilesLength = attachments.length
+    const selectedFilesLength = selectedFiles.length
+
+    if (selectedFilesLength + currentFilesLength > MAX_NUM_FILE) {
+      notification.error({
+        message: `You can upload maximum ${MAX_NUM_FILE} files only`,
+      })
+
       return
     }
-    if (hasTitle) {
-      data.title = title
+
+    const currentFilesSize =
+      attachments.reduce((totalSize, file) => totalSize + file.size, 0) +
+      files.reduce((size, file) => size + file.size, 0)
+
+    const selectedFilesSize = selectedFiles.reduce(
+      (totalSize, file) => totalSize + file.size,
+      0,
+    )
+
+    if (selectedFilesSize + currentFilesSize > MAX_SIZE_FILE) {
+      notification.error({
+        message: `The total file size exceeds the allowed limit of ${MAX_MB_SIZE} MB`,
+      })
+
+      return
     }
-    onSave(data)
-  })
+
+    setFiles([...files, ...selectedFiles])
+  }
+
+  const removeAttachment = useCallback((index: number) => {
+    setAttachments((attachments) => attachments?.filter((_, i) => i !== index))
+  }, [])
+
+  const removeFile = useCallback((index: number) => {
+    setFiles((files) => files.filter((_, i) => i !== index))
+  }, [])
 
   useEffect(() => {
     if (!title.trim() && hasTitle) {
@@ -108,6 +195,7 @@ export const NoteTextBox = ({
             </motion.div>
           )}
         </AnimatePresence>
+
         <textarea
           placeholder="Add a note"
           className="border-transparent focus:border-transparent focus:ring-0 w-full min-h-[40px] pl-2 pt-1"
@@ -115,9 +203,10 @@ export const NoteTextBox = ({
           name="content"
           ref={(e) => {
             ref(e)
-            noteRef.current = e // you can still assign to ref
+            noteRef.current = e
           }}
         />
+
         <AnimatePresence presenceAffectsLayout>
           {errors.content && (
             <motion.div
@@ -134,23 +223,66 @@ export const NoteTextBox = ({
       </div>
 
       <div className="border-b"></div>
-      <div className="flex flex-row gap-2 p-2 pl-4 justify-between items-center">
-        {!hasTitle ? (
-          <div
-            className="crm-button-secondary bg-transparent cursor-pointer hover:bg-gray-100"
-            onClick={handleAddTitle}
-          >
-            <i className="fa fa-thumb-tack mr-2"></i>Add title
-          </div>
-        ) : (
-          <div></div>
-        )}
+      <div className="flex flex-row gap-2 p-2 pl-4 justify-between items-start">
+        <div className="mt-2">
+          <Tooltip title="Upload file">
+            <label
+              className="fa fa-thumb-tack cursor-pointer hover:text-gray-600"
+              htmlFor="file"
+            />
+          </Tooltip>
+
+          <input
+            type="file"
+            name="file"
+            id="file"
+            hidden
+            onChange={handleSelectFiles}
+            multiple
+          />
+
+          {!hasTitle && (
+            <>
+              <span className="mx-3">|</span>
+              <span
+                className="cursor-pointer hover:text-gray-600"
+                onClick={turnOnTitle}
+              >
+                Add title
+              </span>
+            </>
+          )}
+        </div>
+
+        <div className="flex flex-col flex-1 gap-1 items-center self-center">
+          {attachments.map(({ key, size }, index) => (
+            <FileAttachment
+              index={index}
+              name={key}
+              size={size}
+              key={key}
+              onRemoveFile={removeAttachment}
+            />
+          ))}
+
+          {files.map(({ size, name }, index) => (
+            <FileAttachment
+              key={name}
+              onRemoveFile={removeFile}
+              size={size}
+              name={name}
+              index={index}
+            />
+          ))}
+        </div>
+
         <div className="flex flex-row gap-2">
           <button className="crm-button-secondary" onClick={onCancel}>
-            Cancle
+            Cancel
           </button>
-          <button className="crm-button" onClick={handleSave}>
-            Save
+
+          <button className="crm-button" onClick={submitNote}>
+            {isLoading ? <Loading /> : 'Save'}
           </button>
         </div>
       </div>
@@ -159,16 +291,44 @@ export const NoteTextBox = ({
 }
 
 interface INoteAdderProps {
-  onAddNote: (data: INoteData) => void
   active?: boolean
+  entityId: string
+  source: string
 }
 
-export const NoteAdder = ({ onAddNote, active = false }: INoteAdderProps) => {
+export const NoteAdder = ({
+  active = false,
+  entityId,
+  source,
+}: INoteAdderProps) => {
   const [isActive, setIsActive] = useState(active)
 
+  const client = useQueryClient()
+  const [session] = useTypedSession()
+
+  const { mutateAsync: addNoteService, isLoading } = useMutation(
+    'add-note',
+    addNote,
+    {
+      onSuccess() {
+        client.refetchQueries([entityId, 'notes'])
+        setIsActive(false)
+      },
+      onError() {
+        notification.error({ message: 'Add note unsuccessfully' })
+      },
+    },
+  )
+
   const handleAddNote = (data: INoteData) => {
-    onAddNote(data)
-    setIsActive(false)
+    const dataInfo: AddNoteDto = {
+      ...data,
+      ownerId: session?.user.id as string,
+      source,
+      taskId: source === 'task' ? entityId : undefined,
+      entityId: source === 'task' ? undefined : entityId,
+    }
+    addNoteService(dataInfo)
   }
 
   return (
@@ -177,6 +337,7 @@ export const NoteAdder = ({ onAddNote, active = false }: INoteAdderProps) => {
         <NoteTextBox
           onCancel={() => setIsActive(false)}
           onSave={handleAddNote}
+          isLoading={isLoading}
         />
       ) : (
         <Input
@@ -190,6 +351,52 @@ export const NoteAdder = ({ onAddNote, active = false }: INoteAdderProps) => {
           showError={false}
         />
       )}
+    </div>
+  )
+}
+
+function formatBytes(bytes: number, decimals = 2) {
+  if (bytes === 0) return '0 Bytes'
+
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+}
+
+type AttachmentProps = {
+  index: number
+  name: string
+  size: number
+  onRemoveFile: (index: number) => void
+}
+
+function FileAttachment({
+  index,
+  name,
+  size,
+  onRemoveFile: removeFile,
+}: AttachmentProps) {
+  return (
+    <div
+      key={index}
+      className="flex w-[300px] p-1 px-2 rounded bg-slate-50 justify-between items-center text-[12px]"
+      title={name}
+    >
+      <div className="flex flex-row">
+        <span className="text-blue-600 mr-2 max-w-[180px] truncate">
+          {name}
+        </span>
+        <span>({formatBytes(size)})</span>
+      </div>
+
+      <i
+        className="fa fa-times-circle text-gray-500 hover:text-red-500 cursor-pointer"
+        onClick={() => removeFile(index)}
+      />
     </div>
   )
 }

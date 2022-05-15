@@ -1,8 +1,8 @@
-import Input, { Props as InputProps } from './Input'
 import { useEffect, useState } from 'react'
-import Animate from './Animate'
 import { UseFormReset } from 'react-hook-form'
-import useGlobalDate from '@utils/hooks/useGlobalDate'
+
+import Animate from './Animate'
+import Input, { Props as InputProps } from './Input'
 
 type Props<T> = {
   onEditComplete: (e: any) => void
@@ -15,30 +15,39 @@ export default function InlineEdit<
   T extends 'select' | 'input' | 'textarea' | undefined,
 >({ onEditComplete: submit, onEditCancel: cancel, ...inputProps }: Props<T>) {
   const [enabled, setEnabled] = useState(false)
-  const { effect } = useGlobalDate({
-    callback: () => {
-      setEnabled(false)
-      cancel()
-    },
-  })
 
   useEffect(() => {
     if (!enabled) return
     document.getElementById(inputProps.props.id || '')?.focus()
-
-    effect()
   }, [enabled])
 
   const [left, setLeft] = useState<string>()
   useEffect(() => {
     const element = document.getElementById(inputProps.props.id || '')
-    setLeft(8 + (element?.offsetWidth || 0) + 'px')
-  }, [])
+    if (!element) return
+
+    const valueLength = (element as HTMLInputElement).value.length
+
+    element.style.minWidth =
+      (inputProps.as === 'textarea'
+        ? 40
+        : Math.min(Math.max(valueLength, 40), 60)) + 'ch'
+
+    setLeft(8 + (element.offsetWidth || 0) + 'px')
+  }, [inputProps.props.value])
 
   return (
     <div className="flex gap-2 relative group">
       {/* @ts-ignore */}
-      <Input editable={enabled} {...inputProps} showError={enabled} />
+      <Input
+        editable={enabled}
+        {...inputProps}
+        props={{
+          ...inputProps.props,
+          placeholder: enabled ? undefined : '______',
+        }}
+        showError={enabled}
+      />
 
       <Animate
         shouldAnimateOnExit

@@ -2,5 +2,9 @@
   "singleQuote": true,
   "trailingComma": "all",
   "semi": false,
-  "bracketSpacing": true
+  "bracketSpacing": true,
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^src/(.*)$", "^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderParserPlugins": ["decorators-legacy", "typescript", "jsx"]
 }

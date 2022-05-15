@@ -1,32 +1,24 @@
-import ActionPanel from '@components/Settings/Role/ActionPanel'
-import AvailableActionPanel from '@components/Settings/Role/AvailableActionPanel'
-import SettingsLayout from '@components/Settings/SettingsLayout'
-import Confirm from '@utils/components/Confirm'
-import Input from '@utils/components/Input'
-import { useQueryState } from '@utils/hooks/useQueryState'
-import { getSessionToken } from '@utils/libs/getToken'
-import { Actions, Role } from '@utils/models/role'
-import {
-  deleteRole as deleteRoleService,
-  getRoles,
-  restore,
-  updateRole,
-} from '@utils/service/role'
+import { Space, Table, TableColumnType, notification } from 'antd'
 import { GetServerSideProps } from 'next'
-import { useEffect, useMemo, useCallback } from 'react'
-import { useForm } from 'react-hook-form'
-import { useModal } from '@utils/hooks/useModal'
+import { useCallback, useState } from 'react'
 import {
-  dehydrate,
   QueryClient,
-  useQuery,
+  dehydrate,
   useMutation,
+  useQuery,
   useQueryClient,
 } from 'react-query'
-import { DragDropContext, OnDragEndResponder } from 'react-beautiful-dnd'
-import { notification } from 'antd'
+
 import CreateRoleModal from '@components/Settings/Role/CreateRoleModal'
+import UpdateRoleModal from '@components/Settings/Role/UpdateRoleModal'
+import SettingsLayout from '@components/Settings/SettingsLayout'
+
+import Confirm from '@utils/components/Confirm'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { useModal } from '@utils/hooks/useModal'
+import { getSessionToken } from '@utils/libs/getToken'
+import { ActionType, DefaultModule, Role } from '@utils/models/role'
+import { deleteRole as deleteRoleService, getRoles } from '@utils/service/role'
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const client = new QueryClient()
@@ -48,58 +40,25 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
 }
 
-type FormData = {
-  role: string
-}
-
 export default function SettingRoles() {
   const client = useQueryClient()
-  const { data: roles } = useQuery(
+  const { data: roles, isLoading } = useQuery(
     'roles',
     getRoles<Role[]>({ shouldNotPaginate: true }),
   )
 
-  const [selectedRoleName, setSelectedRoleName] = useQueryState<string>('role')
-  const { register, watch } = useForm<FormData>({
-    defaultValues: {
-      role: selectedRoleName,
-    },
-  })
-
-  const changedRole = watch('role')
-  useEffect(() => {
-    setSelectedRoleName(changedRole)
-  }, [changedRole])
-
+  const [selectedRole, setSelectedRole] = useState<Role | undefined>(undefined)
   const [createRole, openCreateRole, closeCreateRole] = useModal()
+  const [updateRoleVisible, openUpdateRole, closeUpdateRole] = useModal()
 
   const auth = useAuthorization()
 
-  const selectedRole = useMemo(
-    () => roles?.find((role) => role.name === selectedRoleName),
-    [selectedRoleName, roles],
-  )
-
-  const { mutateAsync, isLoading } = useMutation(
-    ['update-role', selectedRole?.id],
-    updateRole(selectedRole?.id || ''),
-    {
-      onSuccess() {
-        client.invalidateQueries('roles')
-        notification.success({ message: 'Update role successfully' })
-      },
-      onError() {
-        notification.error({ message: 'Update role unsuccessfully' })
-      },
-    },
-  )
-
   const { mutateAsync: deleteMutateAsync, isLoading: isDeleting } = useMutation(
-    ['delete-role', selectedRole?.id],
-    deleteRoleService(selectedRole?.id || ''),
+    'delete-role',
+    deleteRoleService,
     {
       onSuccess() {
-        client.invalidateQueries('roles')
+        client.refetchQueries('roles')
         notification.success({ message: 'Delete role successfully' })
       },
       onError() {
@@ -108,89 +67,49 @@ export default function SettingRoles() {
     },
   )
 
-  const { mutateAsync: restoreMutateAsync, isLoading: isRestoring } =
-    useMutation(['restore-role'], restore, {
-      onSuccess() {
-        client.invalidateQueries('roles')
-        notification.success({ message: 'Restore role successfully' })
-      },
-      onError() {
-        notification.error({ message: 'Restore role unsuccessfully' })
-      },
-    })
-
-  const restoreRole = useCallback(() => {
-    if (!selectedRole) return
-    restoreMutateAsync(selectedRole.id)
-  }, [selectedRole])
-
-  const deleteRole = useCallback(() => {
-    deleteMutateAsync()
-  }, [])
-
-  const dndUpdate: OnDragEndResponder = useCallback(
-    (res) => {
-      if (!res.destination) return
-      if (!selectedRole) return
-      if (res.source.droppableId === res.destination.droppableId) return
-
-      if (res.source.droppableId === 'action') {
-        mutateAsync({
-          actions: selectedRole.actions.filter(
-            (action) => action !== res.draggableId,
-          ),
-        })
-      }
-
-      if (res.source.droppableId === 'available-action') {
-        mutateAsync({
-          actions: [...selectedRole.actions, res.draggableId],
-        })
-      }
+  const deleteRole = useCallback(
+    (id: string) => () => {
+      deleteMutateAsync({ id })
     },
-    [selectedRole],
+    [],
   )
 
-  return (
-    <SettingsLayout title="Roles | CRM">
-      <>
-        <div className="flex justify-between">
-          <form>
-            <Input
-              as="select"
-              showError={false}
-              props={{
-                ...register('role'),
-                children: (
-                  <>
-                    <option value="">Select a role</option>
-                    {roles?.map(({ id, name }) => (
-                      <option value={name} key={id}>
-                        {name}
-                      </option>
-                    ))}
-                  </>
-                ),
-              }}
-            />
-          </form>
+  const updateRole = (updatedRole: Role) => () => {
+    setSelectedRole(updatedRole)
+    openUpdateRole()
+  }
 
-          <div className="flex gap-2">
-            {auth[Actions.Role.DELETE_ROLE] &&
-              selectedRole &&
-              !selectedRole.default && (
+  const columns: TableColumnType<Role>[] = [
+    Table.SELECTION_COLUMN,
+    Table.EXPAND_COLUMN,
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      sorter: { compare: (a, b) => a.name.localeCompare(b.name) },
+    },
+    Table.SELECTION_COLUMN,
+  ]
+
+  if (auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, DefaultModule.ROLE)) {
+    columns.push({
+      title: 'Action',
+      key: 'action',
+      render: (_, record: Role) => (
+        <>
+          <Space>
+            {auth(ActionType.CAN_DELETE_ANY, DefaultModule.ROLE) &&
+              !record.default && (
                 <Confirm
-                  asInform={
-                    (selectedRole?.usersCount || 0) > 0 || selectedRole.default
-                  }
+                  asInform={(record?.usersCount || 0) > 0 || record.default}
                   message={
-                    (selectedRole?.usersCount || 0) > 0
-                      ? `This role can not be deleted. There still ${selectedRole?.usersCount} users attached to this role.`
-                      : selectedRole.default
+                    (record?.usersCount || 0) > 0
+                      ? `This role can not be deleted. There still ${record?.usersCount} users attached to this role.`
+                      : record.default
                       ? "This role can not be deleted since it's reserved"
                       : 'Are you sure you want to delete this role'
                   }
-                  onYes={deleteRole}
+                  onYes={deleteRole(record.id)}
                 >
                   <button
                     disabled={isLoading || isDeleting}
@@ -201,46 +120,104 @@ export default function SettingRoles() {
                 </Confirm>
               )}
 
-            {auth[Actions.Role.RESTORE_DEFAULT_ROLE] && selectedRole?.default && (
-              <button
-                disabled={isRestoring}
-                onClick={restoreRole}
-                className="crm-button"
-              >
-                <span className="fa fa-undo mr-2" />
-                Restore
-              </button>
-            )}
+            {auth(
+              ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+              DefaultModule.ROLE,
+            ) &&
+              !record.default && (
+                <button onClick={updateRole(record)} className="crm-button">
+                  Edit
+                </button>
+              )}
+          </Space>
+        </>
+      ),
+    })
+  }
 
-            {auth[Actions.Role.CREATE_NEW_ROLE] && (
+  return (
+    <SettingsLayout title="Roles | CRM">
+      <>
+        <div className="flex justify-between">
+          <div className="flex gap-2">
+            {auth(ActionType.CAN_CREATE_NEW, DefaultModule.ROLE) && (
               <button onClick={openCreateRole} className="crm-button">
                 <span className="fa fa-plus mr-2" />
                 Add New Role
               </button>
             )}
             <CreateRoleModal visible={createRole} close={closeCreateRole} />
+            {selectedRole && (
+              <UpdateRoleModal
+                role={selectedRole}
+                visible={updateRoleVisible}
+                close={closeUpdateRole}
+              />
+            )}
           </div>
         </div>
 
-        <DragDropContext onDragEnd={dndUpdate}>
-          <div className="w-full grid grid-cols-[1fr,30px,1fr] gap-4 h-[calc(100vh-60px-102px)] mt-8 text-gray-700">
-            <ActionPanel
-              disabled={
-                isLoading || isDeleting || !auth[Actions.Role.EDIT_ROLE]
-              }
-              role={selectedRole}
-            />
+        <div className="mt-4">
+          <div className="w-full flex flex-col gap-4">
+            <Table
+              showSorterTooltip={false}
+              columns={columns}
+              loading={isLoading}
+              dataSource={roles}
+              rowKey={(u) => u.id}
+              rowSelection={{
+                type: 'checkbox',
+                onChange: (keys) =>
+                  client.setQueryData(
+                    'selected-userIds',
+                    keys.map((k) => k.toString()),
+                  ),
+              }}
+              bordered
+              pagination={false}
+              expandable={{
+                expandedRowRender: (record) => {
+                  const actionTargets = record.actions
+                    ?.map((action) => action.target)
+                    .filter(
+                      (value, index, self) => self.indexOf(value) === index,
+                    )
 
-            <div className=""></div>
+                  return (
+                    <div>
+                      {actionTargets.map((target) => {
+                        const action = record.actions?.filter(
+                          (action) => action.target === target,
+                        )
 
-            <AvailableActionPanel
-              disabled={
-                isLoading || isDeleting || !auth[Actions.Role.EDIT_ROLE]
-              }
-              data={selectedRole}
+                        return (
+                          <div>
+                            <h2 className="font-semibold mb-3 text-[17px] capitalize">
+                              {target}
+                            </h2>
+                            {action?.map(({ id, type, target }, index) => (
+                              <div
+                                key={id + 'select'}
+                                className="flex gap-2 items-center mb-2"
+                              >
+                                <label
+                                  htmlFor={id + index + 'select'}
+                                  className="crm-label after:content-[''] mb-0"
+                                >
+                                  {type}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                },
+              }}
             />
           </div>
-        </DragDropContext>
+        </div>
       </>
     </SettingsLayout>
   )

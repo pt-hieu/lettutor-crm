@@ -1,16 +1,22 @@
-import { AppProps } from 'next/app'
+import { notification } from 'antd'
+import 'antd/dist/antd.css'
+import axios from 'axios'
+import { GetServerSideProps } from 'next'
 import { Provider as NextAuthProvider } from 'next-auth/client'
-import '../styles/tailwind.css'
+import { AppProps } from 'next/app'
+import App, { AppContext } from 'next/app'
+import { useState } from 'react'
+import { QueryClient, QueryClientProvider, dehydrate } from 'react-query'
+import { Hydrate } from 'react-query/hydration'
+
+import OpenGraph from '@utils/components/OpenGraph'
+import QueryUpdater from '@utils/components/QueryUpdater'
+import { getSessionToken } from '@utils/libs/getToken'
+import { getModules } from '@utils/service/module'
+
 import '../styles/global.scss'
 import '../styles/markdown.css'
-import 'antd/dist/antd.css'
-import { QueryClient, QueryClientProvider } from 'react-query'
-import { Hydrate } from 'react-query/hydration'
-import { useState } from 'react'
-import axios from 'axios'
-import { notification } from 'antd'
-import OpenGraph from '@utils/components/OpenGraph'
-import Head from 'next/head'
+import '../styles/tailwind.css'
 
 axios.defaults.withCredentials = true
 
@@ -48,6 +54,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           </Head> */}
           <Component {...pageProps} />
           <OpenGraph />
+          <QueryUpdater />
         </Hydrate>
       </QueryClientProvider>
     </NextAuthProvider>

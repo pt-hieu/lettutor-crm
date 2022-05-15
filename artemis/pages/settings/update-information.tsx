@@ -1,20 +1,22 @@
-import SettingsLayout from '@components/Settings/SettingsLayout'
-import Input from '@utils/components/Input'
-import { useModal } from '@utils/hooks/useModal'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { useCallback, useEffect } from 'react'
+import { notification } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
+import { GetServerSideProps } from 'next'
+import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import {
-  dehydrate,
   QueryClient,
+  dehydrate,
   useMutation,
   useQuery,
   useQueryClient,
 } from 'react-query'
-import { notification } from 'antd'
+
+import SettingsLayout from '@components/Settings/SettingsLayout'
+
+import Input from '@utils/components/Input'
 import Loading from '@utils/components/Loading'
-import { GetServerSideProps } from 'next'
+import { useModal } from '@utils/hooks/useModal'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getSessionToken } from '@utils/libs/getToken'
 import { getSelf, updateUserInformation } from '@utils/service/user'
 
@@ -61,7 +63,7 @@ export default function UpdateInformation() {
         })
         turnOff()
         reset({ name: data.name })
-        client.invalidateQueries('self-info')
+        client.refetchQueries('self-info')
       },
       onError() {
         notification.error({
@@ -115,6 +117,7 @@ export default function UpdateInformation() {
               type: 'text',
               ...register('name', {
                 required: { value: true, message: 'Name is required' },
+                maxLength: { value: 100, message: 'Name is too long' },
               }),
             }}
           />

@@ -12,30 +12,6 @@ updates:
       prefix: 'deps'
       include: 'scope'
       
-  - package-ecosystem: 'npm'
-    directory: '/artemis'
-    schedule:
-      interval: 'daily'
-    assignees:
-      - 'pt-hieu'
-    reviewers:
-      - 'pt-hieu'
-    commit-message:
-      prefix: 'deps'
-      include: 'scope'
-      
-  - package-ecosystem: 'npm'
-    directory: '/apollo'
-    schedule:
-      interval: 'daily'
-    assignees:
-      - 'pt-hieu'
-    reviewers:
-      - 'pt-hieu'
-    commit-message:
-      prefix: 'deps'
-      include: 'scope'
-
   - package-ecosystem: 'docker'
     directory: '/'
     schedule:

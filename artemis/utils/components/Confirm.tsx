@@ -1,13 +1,13 @@
-import { Modal, Divider } from 'antd'
+import { Divider, Modal } from 'antd'
 import React, {
-  useState,
   Children,
-  cloneElement,
-  SyntheticEvent,
   ReactElement,
   ReactNode,
-  useEffect,
+  SyntheticEvent,
+  cloneElement,
   useCallback,
+  useEffect,
+  useState,
 } from 'react'
 
 type Props = {
@@ -16,6 +16,8 @@ type Props = {
   title?: string
   shouldStopPropagation?: boolean
   asInform?: boolean
+  okText?: string
+  danger?: boolean
 } & (
   | { visible: boolean; close: () => void; children?: never }
   | { visible?: undefined; close?: never; children: ReactNode }
@@ -30,6 +32,8 @@ const Confirm = ({
   visible,
   close,
   asInform,
+  okText,
+  danger,
 }: Props) => {
   const [modalVisibility, setModalVisibility] = useState(visible)
 
@@ -78,13 +82,15 @@ const Confirm = ({
           <div className="space-x-2">
             {!asInform && (
               <button
-                className="crm-button w-24"
+                className={`${
+                  danger ? 'crm-button-danger' : 'crm-button'
+                } min-w-24`}
                 onClick={(e) => {
                   onYes()
                   closeModal(e)
                 }}
               >
-                OK
+                {okText ? okText : 'OK'}
               </button>
             )}
             <button className="crm-button-outline w-24" onClick={closeModal}>
@@ -95,7 +101,7 @@ const Confirm = ({
       >
         <div onClick={stopPropagation}>
           <h4 className="font-medium text-xl">{title || 'Warning'}</h4>
-          <div className='mt-2' >{message}</div>
+          <div className="mt-2">{message}</div>
         </div>
       </Modal>
     </>

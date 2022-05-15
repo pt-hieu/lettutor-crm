@@ -1,88 +1,35 @@
 import { Base } from './base'
 import { User } from './user'
 
-export enum ActionScope {
-  ADMIN = 'Admin',
-  USER = 'User',
-  ROLE = 'Role',
-  LEAD = 'Lead',
-  CONTACT = 'Contact',
-  ACCOUNT = 'Account',
-  DEAL = 'Deal',
-  TASK = 'Task',
-  NOTE = 'Note',
+export enum ActionType {
+  IS_ADMIN = 'Can do anything',
+  CAN_VIEW_ALL = 'Can view all',
+  CAN_VIEW_DETAIL_ANY = 'Can view detail any',
+  CAN_VIEW_DETAIL_AND_EDIT_ANY = 'Can view detail and edit any',
+  CAN_CREATE_NEW = 'Can create new',
+  CAN_DELETE_ANY = 'Can delete any',
+  CAN_RESTORE_REVERSED = 'Can restore reserved',
+  CAN_CONVERT_ANY = 'Can convert any',
+  CAN_CLOSE_ANY = 'Can close any',
 }
 
-export const Actions = {
-  [ActionScope.ADMIN]: {
-    IS_ADMIN: 'Can do anything',
-  } as const,
-
-  [ActionScope.USER]: {
-    VIEW_ALL_USERS: 'Can view all users',
-    VIEW_ALL_USER_DETAILS: 'Can view any user details',
-    VIEW_AND_EDIT_ALL_USER_STATUS: 'Can view and edit any user status',
-    CREATE_NEW_USER: 'Can create new user',
-  } as const,
-
-  [ActionScope.ROLE]: {
-    EDIT_ROLE: 'Can edit any roles',
-    DELETE_ROLE: 'Can delete any roles',
-    CREATE_NEW_ROLE: 'Can create new role',
-    RESTORE_DEFAULT_ROLE: 'Can restore reserved role',
-  } as const,
-
-  [ActionScope.LEAD]: {
-    VIEW_ALL_LEADS: 'Can view all leads',
-    VIEW_ALL_LEAD_DETAILS: 'Can view any lead details',
-    VIEW_AND_EDIT_ALL_LEAD_DETAILS: 'Can view and edit any lead details',
-    CREATE_NEW_LEAD: 'Can create new lead',
-    VIEW_AND_CONVERT_LEAD_DETAILS: 'Can convert any leads',
-  } as const,
-
-  [ActionScope.CONTACT]: {
-    VIEW_ALL_CONTACTS: 'Can view all contacts',
-    VIEW_ALL_CONTACT_DETAILS: 'Can view any contact details',
-    VIEW_AND_EDIT_ALL_CONTACT_DETAILS: 'Can view and edit any contact details',
-    CREATE_NEW_CONTACT: 'Can create new contacts',
-  } as const,
-
-  [ActionScope.ACCOUNT]: {
-    VIEW_ALL_ACCOUNTS: 'Can view all accounts',
-    VIEW_ALL_ACCOUNT_DETAILS: 'Can view any account details',
-    VIEW_AND_EDIT_ALL_ACCOUNT_DETAILS: 'Can view and edit any account details',
-    CREATE_NEW_ACCOUNT: 'Can create new account',
-  } as const,
-
-  [ActionScope.DEAL]: {
-    VIEW_ALL_DEALS: 'Can view all deals',
-    VIEW_ALL_DEAL_DETAILS: 'Can view any deal details',
-    VIEW_AND_EDIT_ALL_DEAL_DETAILS: 'Can view and edit any deal details',
-    CREATE_NEW_DEAL: 'Can create new deal',
-  } as const,
-
-  [ActionScope.TASK]: {
-    VIEW_ALL_TASKS: 'Can view all tasks',
-    VIEW_ALL_TASK_DETAILS: 'Can view any task details',
-    VIEW_AND_EDIT_ALL_TASK_DETAILS: 'Can view and edit any task details',
-    CREATE_NEW_TASK: 'Can create new task',
-    CLOSE_TASK: 'Can close any task',
-  } as const,
-
-  [ActionScope.NOTE]: {
-    VIEW_ALL_NOTES: 'Can view all notes',
-    CREATE_NEW_NOTE: 'Can create new note',
-  } as const,
+export enum DefaultModule {
+  USER = 'user',
+  ROLE = 'role',
+  TASK = 'task',
+  NOTE = 'note',
+  DEAL_STAGE = 'deal stage',
 }
 
-export type Actions = typeof Actions[keyof typeof Actions]
-
-type Values<T> = T extends T ? T[keyof T] : never
-export type ActionValues = Values<Actions>
+export type Action = {
+  id: string
+  target: string
+  type: ActionType
+}
 
 export interface Role extends Base {
   name: string
-  actions: ActionValues[]
+  actions: Action[]
   parent: Role
   children: Role[]
   users: User[]

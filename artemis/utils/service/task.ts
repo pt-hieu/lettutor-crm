@@ -1,8 +1,10 @@
+import axios from 'axios'
+import { API } from 'environment'
+import { TaskFormData } from 'pages/tasks/create'
+
+import { Entity, Module } from '@utils/models/module'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
-import { API } from 'environment'
-import axios from 'axios'
-import { TaskFormData } from 'pages/tasks/add-task'
 
 export const getTasks =
   (
@@ -28,6 +30,15 @@ export const getTask = (id?: string, token?: string) => () =>
     })
     .then((res) => res.data)
 
+export const getTaskOfEntity = (id: string, token?: string) => () =>
+  axios
+    .get<Task[]>(API + '/apollo/task/entity/' + id, {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((r) => r.data)
+
 export const addTask = async (taskInfo: TaskFormData) => {
   const { data } = await axios.post<Task>(API + `/apollo/task`, taskInfo)
   return data
@@ -35,7 +46,7 @@ export const addTask = async (taskInfo: TaskFormData) => {
 
 export const getRawTasks = (token?: string) => () =>
   axios
-    .get<Pick<Task, 'id' | 'subject'>[]>(API + '/apollo/task/raw', {
+    .get<Pick<Task, 'id' | 'name'>[]>(API + '/apollo/task/raw', {
       headers: {
         authorization: 'Bearer ' + token,
       },
@@ -47,5 +58,24 @@ export const updateTask = (id: string) => (data: TaskFormData) =>
 
 export const closeTask = (id: string, ownerId: string) => () =>
   axios
-    .patch(API + '/apollo/task/' + id, { status: TaskStatus.COMPLETED, ownerId })
+    .patch(API + '/apollo/task/' + id, {
+      status: TaskStatus.COMPLETED,
+      ownerId,
+    })
     .then((res) => res.data)
+
+export const batchDelete = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/task/batch', { data: { ids } })
+    .then((r) => r.data)
+
+export const getRelation = (id: string, token?: string) => () =>
+  axios
+    .get<
+      (Pick<Entity, 'name' | 'id'> & { module: Pick<Module, 'name' | 'id'> })[]
+    >(API + '/apollo/task/' + id + '/relations', {
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    })
+    .then((r) => r.data)

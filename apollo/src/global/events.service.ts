@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common'
-import { OpCode } from 'src/type/opcode'
-import { OnEvent } from '@nestjs/event-emitter'
 import { HttpService } from '@nestjs/axios'
+import { Injectable } from '@nestjs/common'
+import { OnEvent } from '@nestjs/event-emitter'
 import { catchError, first, lastValueFrom } from 'rxjs'
+
+import { OpCode } from 'src/type/opcode'
 
 @Injectable()
 export class EventsService {
@@ -32,6 +33,6 @@ export class EventsService {
 
   @OnEvent('auth.invalidate', { async: true })
   invalidateSession(payload: unknown) {
-    return this.pushEventToGateway(OpCode.INVALIDATE_SESSION, payload)
+    // return this.pushEventToGateway(OpCode.INVALIDATE_SESSION, payload)
   }
 }

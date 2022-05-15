@@ -1,64 +1,44 @@
 import { Avatar } from 'antd'
-import { MouseEvent, useCallback, useEffect, useState, useMemo } from 'react'
-import Confirm from './Confirm'
 import { signOut } from 'next-auth/client'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useModal } from '@utils/hooks/useModal'
-import { data } from '@utils/data/header-data'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import SettingMenu from './SettingMenu'
-import useGlobalDate from '@utils/hooks/useGlobalDate'
+import { useEffect, useMemo } from 'react'
+import { useQuery } from 'react-query'
+
+import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { Module } from '@utils/models/module'
+import { getModules } from '@utils/service/module'
+
+import Confirm from './Confirm'
+import Dropdown from './Dropdown'
+import SettingMenu from './SettingMenu'
 
 export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
 
 export default function Header() {
-  const [seed] = useState(Math.random())
-  const { pathname } = useRouter()
-  const [visible, setVisible] = useState(false)
-  const [settingMenu, setSettingMenu] = useState(false)
+  const { asPath } = useRouter()
   const [confirm, openConfirm, closeConfirm] = useModal()
 
   const [session] = useTypedSession()
-  const splitPath = useMemo(() => pathname.split('/'), [pathname])
+  const splitPath = useMemo(() => asPath.split('?')[0].split('/'), [asPath])
 
-  const { effect } = useGlobalDate({
-    callback: () => {
-      setVisible(false)
+  const { data: modules, refetch } = useQuery<Pick<Module, 'name'>[]>(
+    'modules',
+    getModules(),
+    {
+      enabled: false,
+      initialData: [],
     },
-  })
+  )
 
   useEffect(() => {
-    if (!visible) return
-    effect()
-  }, [visible])
-
-  const toggle = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    setVisible((v) => !v)
-  }, [])
-
-  const toggleSettingMenu = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    setSettingMenu((v) => !v)
-  }, [])
-
-  useEffect(() => {
-    const close = () => {
-      setVisible(false)
-      setSettingMenu(false)
-    }
-
-    document.addEventListener('click', close)
-    return () => {
-      document.removeEventListener('click', close)
-    }
+    refetch()
   }, [])
 
   return (
-    <header className="z-[100] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
+    <header className="z-[1000] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
       <div className="flex">
         <Link href="/">
           <a className="font-semibold text-xl !text-blue-600 crm-link">
@@ -67,65 +47,55 @@ export default function Header() {
         </Link>
 
         <div className="ml-12 flex gap-6">
-          {data.map(({ link, title }) => (
-            <Link href={link} key={link}>
-              <a
-                className={`relative crm-link font-medium leading-[28px] whitespace-nowrap ${
-                  link === `/${splitPath[1]}` ? 'text-blue-600' : ''
-                }`}
-              >
-                {title}
+          {modules &&
+            modules
+              .concat({ name: 'tasks' }, { name: 'logs' })
+              .map(({ name }) => (
+                <Link href={`/${name}`} key={name}>
+                  <a
+                    className={`relative crm-link font-medium leading-[28px] whitespace-nowrap capitalize ${
+                      name === `${splitPath[1]}` ? 'text-blue-600' : ''
+                    }`}
+                  >
+                    {name}
 
-                {link === `/${splitPath[1]}` && (
-                  <motion.span
-                    layoutId="underline"
-                    className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]"
-                  />
-                )}
-              </a>
-            </Link>
-          ))}
+                    {name === `${splitPath[1]}` && (
+                      <span className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]" />
+                    )}
+                  </a>
+                </Link>
+              ))}
         </div>
       </div>
 
       <div className="flex gap-3 items-center relative z-20">
-        <div className="relative">
-          <button
-            className="text-blue-600 border border-blue-600 px-2 py-1.5 rounded-md"
-            onClick={toggleSettingMenu}
-          >
+        <div className="font-medium mr-4">
+          Press <kbd className="p-1 border rounded-md">Ctrl</kbd> +{' '}
+          <kbd className="p-1 border rounded-md">/</kbd> to open search box
+        </div>
+
+        <Dropdown triggerOnHover={false} overlay={<SettingMenu />}>
+          <button className="text-blue-600 border border-blue-600 px-2 py-1.5 rounded-md">
             <span className="fa fa-cog mr-2" />
             Settings
           </button>
-
-          <SettingMenu setVisible={setSettingMenu} visible={settingMenu} />
-        </div>
+        </Dropdown>
 
         <span>|</span>
 
-        <button onClick={toggle}>
-          <Avatar src={`https://avatars.dicebear.com/api/bottts/${seed}.svg`} />
-        </button>
-
-        <Confirm
-          visible={confirm}
-          close={closeConfirm}
-          message="You are about to sign out"
-          onYes={signOut}
-        />
-
-        <AnimatePresence exitBeforeEnter>
-          {visible && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="absolute border top-[120%] right-0 bg-white rounded-md shadow-md py-2 min-w-[150px] whitespace-nowrap flex flex-col h-auto"
-            >
-              <div className={menuItemClass + " border-b-[1.5px] cursor-default hover:bg-white"}>
+        <Dropdown
+          triggerOnHover={false}
+          overlay={
+            <div className="border bg-white rounded-md shadow-md py-2 min-w-[150px] whitespace-nowrap flex flex-col h-auto">
+              <div
+                className={
+                  menuItemClass +
+                  ' border-b-[1.5px] cursor-default hover:bg-white'
+                }
+              >
                 <span className="fa fa-user mr-2" />
-                {session?.user.name}</div>
+                {session?.user.name}
+              </div>
 
               <Link href="/change-password">
                 <a className={menuItemClass}>
@@ -143,9 +113,21 @@ export default function Header() {
                 <span className="fa fa-sign-out-alt mr-2" />
                 Sign Out
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          }
+        >
+          <Avatar
+            className="cursor-pointer"
+            src={`https://avatars.dicebear.com/api/bottts/${new Date().getDate()}.svg`}
+          />
+        </Dropdown>
+
+        <Confirm
+          visible={confirm}
+          close={closeConfirm}
+          message="You are about to sign out"
+          onYes={signOut}
+        />
       </div>
     </header>
   )

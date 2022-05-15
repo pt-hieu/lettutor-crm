@@ -6,6 +6,7 @@ import {
 import { AuthGuard } from '@nestjs/passport'
 import { Request } from 'express'
 import { isObservable, lastValueFrom } from 'rxjs'
+
 import { PUBLIC_ROUTES } from './publics'
 
 @Injectable()

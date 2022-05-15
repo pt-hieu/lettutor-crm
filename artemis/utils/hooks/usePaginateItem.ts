@@ -1,5 +1,6 @@
-import { Paginate } from '@utils/models/paging'
 import { useMemo } from 'react'
+
+import { Paginate } from '@utils/models/paging'
 
 export const usePaginateItem = <T>(response: Paginate<T> | undefined) => {
   const meta = response?.meta || {

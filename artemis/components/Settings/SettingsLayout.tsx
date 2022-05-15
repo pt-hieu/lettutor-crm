@@ -1,6 +1,8 @@
-import Layout from '@utils/components/Layout'
-import Sidebar from '@components/Settings/Sidebar'
 import { ReactNode } from 'react'
+
+import Sidebar from '@components/Settings/Sidebar'
+
+import Layout from '@utils/components/Layout'
 
 interface Props {
   children: ReactNode

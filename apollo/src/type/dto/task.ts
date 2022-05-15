@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
   IsDate,
   IsEnum,
@@ -9,33 +9,15 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator'
+
 import { TaskPriority, TaskStatus } from 'src/task/task.entity'
+
 import { Paginate } from './paging'
 
 export class AddTask {
   @ApiProperty()
   @IsUUID()
   ownerId: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  contactId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  dealId?: string
 
   @ApiPropertyOptional({ enum: TaskPriority, enumName: 'Task Priority' })
   @IsOptional()
@@ -51,7 +33,7 @@ export class AddTask {
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  subject: string
+  name: string
 
   @ApiPropertyOptional({ type: Date })
   @IsOptional()
@@ -64,6 +46,10 @@ export class AddTask {
   @IsString()
   @MaxLength(500)
   description?: string
+
+  @ApiProperty()
+  @IsUUID(undefined, { each: true })
+  entityIds: string[]
 }
 
 export class GetManyQuery extends Paginate {
@@ -79,11 +65,13 @@ export class GetManyQuery extends Paginate {
   })
   @IsOptional()
   @IsEnum(TaskPriority, { each: true })
+  @Transform(({ value }) => [value].flat())
   priority?: TaskPriority[]
 
   @ApiPropertyOptional({ type: TaskStatus, enum: TaskStatus, isArray: true })
   @IsOptional()
   @IsEnum(TaskStatus, { each: true })
+  @Transform(({ value }) => [value].flat())
   status?: TaskStatus[]
 }
 
@@ -91,6 +79,11 @@ export class UpdateBody {
   @ApiProperty()
   @IsUUID()
   ownerId: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID(undefined, { each: true })
+  entityIds?: string[]
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -104,26 +97,6 @@ export class UpdateBody {
   @IsDate()
   @Type(() => Date)
   dueDate?: Date
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  contactId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  leadId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  accountId?: string
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  dealId?: string
 
   @ApiPropertyOptional({ type: TaskPriority, enum: TaskPriority })
   @IsOptional()

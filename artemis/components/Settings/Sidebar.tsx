@@ -1,8 +1,9 @@
-import { SettingData } from '@utils/data/setting-data'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useCallback, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useCallback, useState } from 'react'
+
+import { SettingData } from '@utils/data/setting-data'
 
 const variants = {
   notExpand: {

@@ -1,7 +1,8 @@
-import { Paginate, PagingQuery } from '@utils/models/paging'
-import { User, UserStatus } from '@utils/models/user'
 import axios from 'axios'
 import { API } from 'environment'
+
+import { Paginate, PagingQuery } from '@utils/models/paging'
+import { User, UserStatus } from '@utils/models/user'
 
 export const requestResetEmail = (data: { email: string }) =>
   axios.post(API + '/apollo/user/reset-password', data)
@@ -73,3 +74,15 @@ export const updateStatus = async (data: {
     .patch(API + `/apollo/user/${userId}/activate`, { status })
     .then((res) => res.data)
 }
+
+export const invalidateAddUserToken = async (data: { userId: string }) => {
+  const { userId } = data
+  return axios
+    .get(API + `/apollo/user/${userId}/invalidate`)
+    .then((res) => res.data)
+}
+
+export const batchDelete = (ids: string[]) =>
+  axios
+    .delete(API + '/apollo/user/batch', { data: { ids } })
+    .then((r) => r.data)

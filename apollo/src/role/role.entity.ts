@@ -1,14 +1,16 @@
-import { Actions } from 'src/type/action'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
 import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   OneToMany,
 } from 'typeorm'
+
+import { Action } from 'src/action/action.entity'
+import { User } from 'src/user/user.entity'
+import { BaseEntity } from 'src/utils/base.entity'
 
 @Entity()
 export class Role extends BaseEntity {
@@ -17,9 +19,6 @@ export class Role extends BaseEntity {
 
   @Column({ default: false })
   default: boolean
-
-  @Column({ type: 'varchar', array: true, default: [] })
-  actions: Actions[]
 
   @ManyToOne(() => Role, (r) => r.children)
   parent: Role
@@ -30,4 +29,8 @@ export class Role extends BaseEntity {
 
   @ManyToMany(() => User, (u) => u.roles)
   users: User[]
+
+  @ManyToMany(() => Action, (a) => a.roles, { eager: true })
+  @JoinTable()
+  actions: Action[]
 }

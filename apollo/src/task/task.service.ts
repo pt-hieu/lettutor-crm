@@ -1,23 +1,19 @@
 import {
   ForbiddenException,
-  forwardRef,
-  Inject,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
-import { AccountService } from 'src/account/account.service'
-import { ContactService } from 'src/contact/contact.service'
-import { DealService } from 'src/deal/deal.service'
-import { LeadService } from 'src/lead/lead.service'
-import { UtilService } from 'src/global/util.service'
-import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
-import { UserService } from 'src/user/user.service'
-import { Brackets, FindOneOptions, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
+
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { PayloadService } from 'src/global/payload.service'
+import { UtilService } from 'src/global/util.service'
+import { Entity, FieldType, RelateType } from 'src/module/module.entity'
+import { DTO } from 'src/type'
+
 import { Task } from './task.entity'
 
 @Injectable()
@@ -25,63 +21,58 @@ export class TaskService {
   constructor(
     @InjectRepository(Task)
     private taskRepo: Repository<Task>,
-    private readonly accountService: AccountService,
-    private readonly userService: UserService,
-    private readonly contactService: ContactService,
-    @Inject(forwardRef(() => LeadService))
-    private readonly leadService: LeadService,
-    private readonly dealService: DealService,
+
+    @InjectRepository(Entity)
+    private entityRepo: Repository<Entity>,
+
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) { }
+  ) {}
 
-  async addTask(dto: DTO.Task.AddTask) {
-    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
+  async addTask({ entityIds, ...dto }: DTO.Task.AddTask) {
+    const [task, entities] = await Promise.all([
+      this.taskRepo.save(dto),
+      this.entityRepo.find({
+        where: { id: In(entityIds) },
+      }),
+    ])
 
-    if (dto.leadId) {
-      await this.leadService.getLeadById({
-        where: { id: dto.leadId },
-      })
-      dto.accountId = null
-      dto.contactId = null
-      dto.dealId = null
-    } else {
-      dto.leadId = null
+    entities.forEach((entity) => {
+      const taskField = entity.module.meta.find(
+        (field) =>
+          field.type === FieldType.RELATION && field.relateTo === 'task',
+      )
 
-      if (dto.contactId) {
-        const contact = await this.contactService.getContactById({
-          where: { id: dto.contactId },
-        })
-
-        dto.accountId = contact.accountId
+      if (!taskField) return
+      if (taskField.relateType === RelateType.SINGLE) {
+        entity.data[taskField.name] = task.id
+        return
       }
 
-      if (dto.accountId) {
-        dto.dealId = null
-      } else if (dto.dealId) {
-        const deal = await this.dealService.getDealById({
-          where: { id: dto.dealId },
-        })
+      entity.data[taskField.name] = [
+        ...((entity.data[taskField.name] || []) as string[]),
+        task.id,
+      ]
+    })
 
-        dto.accountId = deal.accountId
-      }
+    await this.entityRepo.save(entities)
+    return task
+  }
 
-      await Promise.all([
-        dto.contactId
-          ? this.contactService.getContactById({
-            where: { id: dto.contactId },
-          })
-          : undefined,
-        dto.accountId
-          ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-          : undefined,
-        dto.dealId
-          ? this.dealService.getDealById({ where: { id: dto.dealId } })
-          : undefined,
-      ])
-    }
+  async getTaskOfEntity(id: string) {
+    const entity = await this.entityRepo.findOne({ where: { id } })
+    const taskField = entity.module.meta.find(
+      ({ type, relateTo }) =>
+        type === FieldType.RELATION && relateTo === 'task',
+    )
 
-    return this.taskRepo.save(dto)
+    if (!taskField) return []
+    const ids = entity.data[taskField.name]
+
+    return this.taskRepo.find({
+      where: { id: In([ids].flat()) },
+      loadEagerRelations: false,
+    })
   }
 
   async getTaskById(option: FindOneOptions<Task>) {
@@ -93,10 +84,15 @@ export class TaskService {
     }
 
     if (
-      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
       !this.utilService.checkOwnership(task) &&
-      !this.utilService.checkRoleAction(Actions.VIEW_ALL_TASK_DETAILS) &&
-      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
+      !this.utilService.checkRoleAction({
+        target: DefaultActionTarget.TASK,
+        type: ActionType.CAN_VIEW_ALL,
+      }) &&
+      !this.utilService.checkRoleAction({
+        target: DefaultActionTarget.TASK,
+        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+      })
     ) {
       throw new ForbiddenException()
     }
@@ -106,7 +102,8 @@ export class TaskService {
 
   getManyRaw() {
     return this.taskRepo.find({
-      select: ['id', 'subject']
+      select: ['id', 'name'],
+      loadEagerRelations: false,
     })
   }
 
@@ -114,18 +111,15 @@ export class TaskService {
     let q = this.taskRepo
       .createQueryBuilder('t')
       .leftJoin('t.owner', 'owner')
-      .leftJoin('t.lead', 'lead')
-      .leftJoin('t.account', 'account')
-      .leftJoin('t.deal', 'deal')
-      .addSelect([
-        'owner.name',
-        'owner.email',
-        'lead.fullName',
-        'account.fullName',
-        'deal.fullName',
-      ])
+      .addSelect(['owner.name', 'owner.email'])
+      .orderBy('t.createdAt', 'DESC')
 
-    if (!this.utilService.checkRoleAction(Actions.VIEW_ALL_ACCOUNTS)) {
+    if (
+      !this.utilService.checkRoleAction({
+        target: DefaultActionTarget.TASK,
+        type: ActionType.CAN_VIEW_ALL,
+      })
+    ) {
       q.andWhere('owner.id = :ownerId', {
         ownerId: this.payloadService.data.id,
       })
@@ -140,8 +134,8 @@ export class TaskService {
     if (query.search) {
       q = q.andWhere(
         new Brackets((qb) =>
-          qb.andWhere('t.subject ILIKE :subject', {
-            subject: `%${query.search}%`,
+          qb.andWhere('t.name ILIKE :name', {
+            name: `%${query.search}%`,
           }),
         ),
       )
@@ -151,54 +145,103 @@ export class TaskService {
     return paginate(q, { limit: query.limit, page: query.page })
   }
 
-  async update(id: string, dto: DTO.Task.UpdateBody) {
-    const task = await this.getTaskById({ where: { id } })
-
-    if (
-      !this.utilService.checkRoleAction(Actions.IS_ADMIN) &&
-      !this.utilService.checkOwnership(task) &&
-      !this.utilService.checkRoleAction(Actions.VIEW_AND_EDIT_ALL_TASK_DETAILS)
-    ) {
-      throw new ForbiddenException()
-    }
-
-    await this.userService.getOneUserById({ where: { id: dto.ownerId } })
-
-    if (dto.leadId) {
-      await this.leadService.getLeadById({
-        where: { id: dto.leadId },
+  getTaskRelation(taskId: string) {
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .leftJoin(
+        (qb) =>
+          qb
+            .disableEscaping()
+            .from('entity', 'e')
+            .addFrom('jsonb_each(e.data)', 'e_data')
+            .select(['e_data.value', 'e.id']),
+        'e_data',
+        'e.id=e_id',
+      )
+      .orWhere('e_data.value @> to_jsonb(:id::text)', {
+        id: taskId,
       })
-      dto.contactId = null
-      dto.accountId = null
-      dto.dealId = null
-      return this.taskRepo.save({ ...task, ...dto })
+      .select(['e.name', 'e.id', 'module.name', 'module.id'])
+
+    return qb.getMany()
+  }
+
+  async update(id: string, dto: DTO.Task.UpdateBody) {
+    const task = await this.taskRepo.findOne({ where: { id } })
+    if (!task) throw new NotFoundException('Task not found')
+
+    console.log(dto)
+
+    if (dto.entityIds) {
+      const oldEntities = (await this.entityRepo
+        .createQueryBuilder('e')
+        .leftJoinAndSelect('e.module', 'module')
+        .leftJoin(
+          (qb) =>
+            qb
+              .disableEscaping()
+              .from('entity', 'e')
+              .addFrom('jsonb_each(e.data)', 'e_data')
+              .select(['e_data.value', 'e.id']),
+          'e_data',
+          'e.id=e_id',
+        )
+        .orWhere('e_data.value @> to_jsonb(:id::text)', {
+          id,
+        })
+        .getMany()) as Entity[]
+
+      oldEntities.forEach((entity) => {
+        const field = entity.module.meta.find(
+          (field) =>
+            field.type === FieldType.RELATION && field.relateTo === 'task',
+        )
+
+        if (!field) return
+        if (field.relateType === RelateType.SINGLE) {
+          delete entity.data[field.name]
+          return
+        }
+
+        entity.data[field.name] = (entity.data[field.name] as string[]).filter(
+          (entityId) => entityId !== id,
+        )
+      })
+
+      await this.entityRepo.save(oldEntities)
+
+      const entities = await this.entityRepo.find({
+        where: { id: In(dto.entityIds) },
+      })
+
+      entities.forEach((entity) => {
+        const taskField = entity.module.meta.find(
+          (field) =>
+            field.type === FieldType.RELATION && field.relateTo === 'task',
+        )
+
+        if (!taskField) return
+        if (taskField.relateType === RelateType.SINGLE) {
+          entity.data[taskField.name] = task.id
+          return
+        }
+
+        entity.data[taskField.name] = [
+          ...((entity.data[taskField.name] || []) as string[]),
+          task.id,
+        ]
+      })
+
+      await this.entityRepo.save(entities)
     }
 
-    if (dto.contactId || dto.accountId || dto.dealId) {
-      dto.leadId = null
-      dto.accountId
-        ? (dto.dealId = null)
-        : dto.dealId
-          ? (dto.accountId = null)
-          : undefined
-
-      await Promise.all([
-        dto.contactId
-          ? this.contactService.getContactById({ where: { id: dto.contactId } })
-          : undefined,
-        dto.accountId
-          ? this.accountService.getAccountById({ where: { id: dto.accountId } })
-          : undefined,
-        dto.dealId
-          ? this.dealService.getDealById({ where: { id: dto.dealId } })
-          : undefined,
-      ])
-    }
-
+    delete dto.entityIds
     return this.taskRepo.save({ ...task, ...dto })
   }
 
-  async updateAllTasks(tasks: Task[]) {
-    await this.taskRepo.save(tasks)
+  async batchDelete(ids: string[]) {
+    const tasks = await this.taskRepo.find({ where: { id: In(ids) } })
+    return this.taskRepo.softRemove(tasks)
   }
 }

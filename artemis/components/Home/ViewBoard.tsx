@@ -1,11 +1,13 @@
+import { Empty, Pagination, Table, TableColumnType } from 'antd'
+import { useEffect, useState } from 'react'
+
 import Loading from '@utils/components/Loading'
+import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { Deal } from '@utils/models/deal'
 import { Lead } from '@utils/models/lead'
-import { Paginate } from '@utils/models/paging'
+import { Paginate as TPaginate } from '@utils/models/paging'
 import { Task } from '@utils/models/task'
-import { Empty, Pagination, Table, TableColumnType } from 'antd'
-import { useEffect, useState } from 'react'
 
 const LIMIT_ITEMS = 10
 
@@ -13,7 +15,7 @@ type ViewProps<T> = {
   title: string
   isLoading: boolean
   page: number
-  data: Paginate<T> | undefined
+  data: TPaginate<T> | undefined
   columns: TableColumnType<T>[]
   tableWidth?: number
   onChangePage: (page: number) => void
@@ -78,22 +80,15 @@ export function ViewBoard<T extends Task | Lead | Deal>({
       <ContentByStatus />
 
       {!isNoData && !isFirstLoading && (
-        <div className="flex place-self-end pt-4">
-          <Pagination
-            size="small"
-            current={page}
-            defaultCurrent={1}
-            defaultPageSize={LIMIT_ITEMS}
+        <div className="flex items-center gap-2 place-self-end pt-4">
+          <span className="text-blue-500">
+            Showing from {start} to {end} of {total} results
+          </span>
+          <Paginate
+            currentPage={page}
             pageSize={LIMIT_ITEMS}
-            total={data?.meta.totalItems}
-            showTotal={() => (
-              <span className="text-blue-500">
-                Showing from {start} to {end} of {total} results
-              </span>
-            )}
-            onChange={(page) => {
-              onChangePage(page)
-            }}
+            totalPage={data?.meta.totalPages}
+            onPageChange={onChangePage}
           />
         </div>
       )}

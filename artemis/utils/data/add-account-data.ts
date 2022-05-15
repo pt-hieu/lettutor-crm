@@ -1,4 +1,5 @@
 import { AccountType } from '@utils/models/account'
+
 import { SectionTemplate } from './update-lead-data'
 
 type AddAccountTemplate = SectionTemplate[]

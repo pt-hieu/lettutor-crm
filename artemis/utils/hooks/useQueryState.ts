@@ -1,97 +1,63 @@
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { stringifyUrl } from 'query-string'
+import { useCallback, useDebugValue, useEffect, useRef, useState } from 'react'
+import { useQueryClient } from 'react-query'
 
-export type TUseQueryStateOptions = {
-  isArray?: boolean
-}
+import { useStore } from './useStore'
 
-export const useQueryState = <T extends string | string[] | number>(
+export const useQueryState = <T extends string | string[] | number | Date>(
   /**The name of the query on the url */
   name: string,
   /**The default value which is given to the hook `setState`.
    * This value would be overwritten by the value of the query on url
    */
   defaultValue?: T,
-  options?: TUseQueryStateOptions,
 ): [T | undefined, (v: T | undefined) => void] => {
-  const memoizedOptions = useMemo(() => options, [])
-
-  const { query, pathname, asPath, replace } = useRouter()
   const [state, setState] = useState<T>()
+  const client = useQueryClient()
 
-  const hookedSetState = useCallback((value: T | undefined) => {
-    shouldUpdateUrl.current = true
-    setState(value)
-  }, [])
+  const { data: queryStore } =
+    useStore<Record<string, unknown>>('store:query-store')
 
-  const shouldUpdateUrl = useRef(false)
-  useEffect(() => {
-    let value = query[name]
-    if (memoizedOptions?.isArray) {
-      value = (value as string)?.split(',')
-    }
-
-    setState(value as unknown as T)
-    shouldUpdateUrl.current = false
-  }, [query])
+  const hasInitialEffectRun = useRef(false)
+  const [canSubscribeEffectRun, setCanSubscribeEffectRun] = useState(false)
 
   useEffect(() => {
-    if (!shouldUpdateUrl.current) return
+    if (hasInitialEffectRun.current) return
+    if (!queryStore) return
 
-    const newQuery = { ...query }
+    hasInitialEffectRun.current = true
 
-    if (state) {
-      newQuery[name] = state + ''
-    }
-
-    if (!state && newQuery[name]) {
-      delete newQuery[name]
-    }
-
-    // @ts-expect-error
-    if (memoizedOptions?.isArray && state?.length === 0) {
-      delete newQuery[name]
-    }
-
-    const newPathname = stringifyUrl(
-      {
-        url: pathname,
-        query: newQuery,
-      },
-      { encode: true },
-    )
-
-    const newAsPath = stringifyUrl(
-      {
-        url: asPath.split('?')[0],
-        query: newQuery,
-      },
-      { encode: true },
-    )
-
-    replace(newPathname, newAsPath, { shallow: true })
-  }, [state])
-
-  const hasEffectRun = useRef(false)
-  useEffect(() => {
-    if (hasEffectRun.current) return
-
-    hasEffectRun.current = true
-    shouldUpdateUrl.current= true
-
-    if (query[name]) {
-      let value = query[name]
-      if (memoizedOptions?.isArray) {
-        value = (value as string).split(',')
-      }
-
-      setState(value as unknown as T)
+    if (queryStore[name]) {
+      setState(queryStore[name] as T)
       return
     }
 
-    setState(defaultValue)
-  }, [query])
+    if (!defaultValue) return
 
+    setState(defaultValue)
+    client.setQueryData('store:query-store', (oldQuery: any) => ({
+      ...(oldQuery || {}),
+      [name]: defaultValue,
+    }))
+
+    setCanSubscribeEffectRun(true)
+  }, [queryStore])
+
+  useEffect(() => {
+    if (canSubscribeEffectRun === false) return
+    if (!queryStore) return
+
+    setState(queryStore[name] as T)
+  }, [queryStore])
+
+  const hookedSetState = useCallback((value: T | undefined) => {
+    client.setQueryData('store:query-store', (oldQuery: any) => ({
+      ...(oldQuery || {}),
+      [name]: value,
+    }))
+
+    setState(value)
+  }, [])
+
+  useDebugValue(state)
   return [state, hookedSetState]
 }

@@ -7,7 +7,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator'
-import { Actions } from '../action'
+
 import { Paginate } from './paging'
 
 export class CreateRole {
@@ -16,10 +16,10 @@ export class CreateRole {
   @IsNotEmpty()
   name: string
 
-  @ApiProperty({ enum: Actions, enumName: 'Action', isArray: true })
-  @IsArray()
-  @IsEnum(Actions, { each: true })
-  actions: Actions[]
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID(undefined, { each: true })
+  actionsId?: string[]
 
   // @ApiPropertyOptional()
   // @IsOptional()
@@ -39,11 +39,10 @@ export class UpdateRole {
   @IsNotEmpty()
   name?: string
 
-  @ApiPropertyOptional({ enum: Actions, enumName: 'Action', isArray: true })
+  @ApiPropertyOptional()
   @IsOptional()
-  @IsArray()
-  @IsEnum(Actions, { each: true })
-  actions?: Actions[]
+  @IsUUID(undefined, { each: true })
+  actionsId?: string[]
 
   // @ApiPropertyOptional()
   // @IsOptional()

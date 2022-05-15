@@ -1,18 +1,20 @@
+import { BadRequestException } from '@nestjs/common'
+import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Test, TestingModule } from '@nestjs/testing'
+import { getRepositoryToken } from '@nestjs/typeorm'
+import moment from 'moment'
+import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
+import { Repository } from 'typeorm'
+
 import { MailService } from 'src/mail/mail.service'
+import { Role } from 'src/role/role.entity'
 import { DTO } from 'src/type'
 import { User, UserStatus } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
-import { Test, TestingModule } from '@nestjs/testing'
-import { getRepositoryToken } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { role, user } from './data'
-import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
-import moment from 'moment'
-import { BadRequestException } from '@nestjs/common'
 import { JwtPayload } from 'src/utils/interface'
-import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
-import { EventEmitterModule } from '@nestjs/event-emitter'
-import { Role } from 'src/role/role.entity'
+
+import { role, user } from './data'
+import { MockType, mockQueryBuilder, repositoryMockFactory } from './utils'
 
 describe('user service', () => {
   let usersRepo: MockType<Repository<User>>

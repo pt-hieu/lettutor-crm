@@ -1,30 +1,32 @@
-import { Account } from './account'
 import { Base } from './base'
-import { Contact } from './contact'
-import { Deal } from './deal'
-import { Lead } from './lead'
+import { Entity } from './module'
+import { Task } from './task'
 import { User } from './user'
-
-export type NoteSource = 'lead' | 'contact' | 'account' | 'deal'
 
 export type AddNoteDto = {
   ownerId: string
-  dealId?: string
-  leadId?: string
-  contactId?: string
-  accountId?: string
+  entityId?: string
+  taskId?: string
   title?: string
   content?: string
-  source?: NoteSource
+  files?: File[]
+  source: string
+}
+
+export interface Attachments extends Base {
+  key: string
+  location: string
+  size: number
+  external: boolean
+  attachedById: string
 }
 
 export interface Note extends Base {
   owner: User | null
-  deal: Deal
   title: string
   content: string
-  source: NoteSource
-  lead?: Lead
-  contact?: Contact
-  account?: Account
+  source: string
+  entity: Pick<Entity, 'id' | 'name'>
+  task: Task | null
+  attachments: Attachments[]
 }

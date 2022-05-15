@@ -1,15 +1,21 @@
-import { ReactNode, useEffect } from 'react'
-import Head from 'next/head'
-import dynamic from 'next/dynamic'
-import Header from './Header'
-import Footer from './Footer'
-import { OG } from './OpenGraph'
-import { useQueryClient } from 'react-query'
-import { GlobalState } from '@utils/GlobalStateKey'
-import BugReporter from './BugReporter'
-import { Actions } from '@utils/models/role'
-import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { API } from 'environment'
+import dynamic from 'next/dynamic'
+import Head from 'next/head'
+import { ReactNode, useEffect } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
+import { useKey } from 'react-use'
+
+import { GlobalState } from '@utils/GlobalStateKey'
+import { useModal } from '@utils/hooks/useModal'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { Action, ActionType } from '@utils/models/role'
+import { getActions } from '@utils/service/role'
+
+import BugReporter from './BugReporter'
+import Footer from './Footer'
+import Header from './Header'
+import { OG } from './OpenGraph'
+import Search from './Search'
 import SessionInvalidate from './SessionInvalidate'
 
 const RequireLogin = dynamic(() => import('./RequireLogin'), { ssr: false })
@@ -21,6 +27,7 @@ type Props = {
   children: ReactNode
   footer?: boolean
   og?: Partial<OG>
+  disableSearch?: boolean
 } & (
   | { requireLogin: true; header?: boolean }
   | { requireLogin?: false; header: false }
@@ -35,25 +42,44 @@ function Layout({
   og,
   description,
   keywords,
+  disableSearch,
 }: Props) {
   const [session] = useTypedSession()
   const client = useQueryClient()
 
+  const [search, openSearch, closeSearch] = useModal()
+  useKey(
+    '/',
+    (event) => {
+      if (disableSearch) return
+      if (!event.ctrlKey) return
+
+      openSearch()
+    },
+    { event: 'keydown' },
+    [disableSearch],
+  )
+
+  const { data: actions } = useQuery('actions', getActions())
+
   useEffect(() => {
-    const auth = Object.values(Actions)
-      .map((scope) => Object.values(scope))
-      .flat()
-      .reduce(
-        (sum, curr) => ({
-          ...sum,
-          [curr]: session?.user.roles.some(
-            (role) =>
-              role.actions.includes(curr) ||
-              role.actions.includes(Actions.Admin.IS_ADMIN),
-          ),
-        }),
-        {},
-      )
+    let auth: any = actions?.reduce(
+      (result, action) => ({
+        ...result,
+        [action.type + ' ' + action.target]: session?.user.roles.some(
+          (role) =>
+            role.actions.some(
+              (roleAction) => roleAction.type === ActionType.IS_ADMIN,
+            ) ||
+            role.actions.some(
+              (roleAction) =>
+                roleAction.target === action.target &&
+                roleAction.type === action.type,
+            ),
+        ),
+      }),
+      {},
+    )
 
     client.setQueryData(GlobalState.AUTHORIZATION, auth)
   }, [session])
@@ -67,8 +93,6 @@ function Layout({
 
     if (!eventSource) return
     eventSource.onmessage = ({ data }: MessageEvent) => {
-      console.log({ data })
-
       client.setQueryData(GlobalState.SUBSCRIPTION, JSON.parse(data))
     }
 
@@ -102,6 +126,7 @@ function Layout({
       </Head>
 
       <SessionInvalidate />
+      {/* {!disableSearch && <Search close={closeSearch} visible={search} />} */}
 
       {process.env.NODE_ENV === 'production' && <BugReporter />}
       {requireLogin && <RequireLogin />}

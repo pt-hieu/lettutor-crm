@@ -1,7 +1,8 @@
-import { GlobalState } from '@utils/GlobalStateKey'
 import { ARTEMIS_URL } from 'environment'
 import Head from 'next/head'
 import { useQuery } from 'react-query'
+
+import { GlobalState } from '@utils/GlobalStateKey'
 
 export type OG = {
   title: string

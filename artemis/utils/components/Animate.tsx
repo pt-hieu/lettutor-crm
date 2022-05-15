@@ -1,8 +1,8 @@
 import {
-  motion,
   AnimatePresence,
   AnimatePresenceProps,
   Transition,
+  motion,
 } from 'framer-motion'
 import {
   CSSProperties,
@@ -11,12 +11,17 @@ import {
   useMemo,
 } from 'react'
 
+type CustomCSSProperties = {
+  x?: number
+  y?: number
+} & CSSProperties
+
 export type Animation = {
-  start: CSSProperties
-  animate: CSSProperties
+  start: CustomCSSProperties
+  animate: CustomCSSProperties
 }
 
-export type AnimationWithExit = Animation & { end: CSSProperties }
+export type AnimationWithExit = Animation & { end: CustomCSSProperties }
 
 type Props = DetailedHTMLProps<
   HTMLAttributes<HTMLDivElement>,

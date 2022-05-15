@@ -1,27 +1,29 @@
-import { DTO } from 'src/type'
-import { Test, TestingModule } from '@nestjs/testing'
-import { mockQueryBuilder, MockType, repositoryMockFactory } from './utils'
-import { Repository } from 'typeorm'
-import { account, contact, deal, note, task, user } from './data'
-import { Deal } from 'src/deal/deal.entity'
-import { DealService } from 'src/deal/deal.service'
-import { getRepositoryToken } from '@nestjs/typeorm'
 import { NotFoundException } from '@nestjs/common'
-import { MailService } from 'src/mail/mail.service'
+import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Test, TestingModule } from '@nestjs/testing'
+import { getRepositoryToken } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+
 import { Account } from 'src/account/account.entity'
 import { AccountService } from 'src/account/account.service'
+import { Contact } from 'src/contact/contact.entity'
+import { ContactService } from 'src/contact/contact.service'
+import { Deal } from 'src/deal/deal.entity'
+import { DealService } from 'src/deal/deal.service'
+import { PayloadService } from 'src/global/payload.service'
+import { UtilService } from 'src/global/util.service'
+import { Lead } from 'src/lead/lead.entity'
+import { LeadService } from 'src/lead/lead.service'
+import { MailService } from 'src/mail/mail.service'
+import { Note } from 'src/note/note.entity'
+import { NoteService } from 'src/note/note.service'
+import { Role } from 'src/role/role.entity'
+import { DTO } from 'src/type'
 import { User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
-import { ContactService } from 'src/contact/contact.service'
-import { LeadService } from 'src/lead/lead.service'
-import { Lead } from 'src/lead/lead.entity'
-import { Contact } from 'src/contact/contact.entity'
-import { UtilService } from 'src/global/util.service'
-import { NoteService } from 'src/note/note.service'
-import { PayloadService } from 'src/global/payload.service'
-import { EventEmitterModule } from '@nestjs/event-emitter'
-import { Role } from 'src/role/role.entity'
-import { Note } from 'src/note/note.entity'
+
+import { account, contact, deal, note, task, user } from './data'
+import { MockType, mockQueryBuilder, repositoryMockFactory } from './utils'
 
 describe('note service', () => {
   let noteRepo: MockType<Repository<Note>>
@@ -107,7 +109,7 @@ describe('note service', () => {
       const dto: DTO.Note.AddNote = {
         ownerId: note.ownerId,
         leadId: note.leadId,
-        content: note.content
+        content: note.content,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -121,7 +123,7 @@ describe('note service', () => {
         ownerId: note.ownerId,
         leadId: note.leadId,
         title: note.title,
-        content: note.content
+        content: note.content,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -135,7 +137,7 @@ describe('note service', () => {
         ownerId: note.ownerId,
         contactId: note.contactId,
         title: note.title,
-        content: note.content
+        content: note.content,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -149,7 +151,7 @@ describe('note service', () => {
       const dto: DTO.Note.AddNote = {
         ownerId: note.ownerId,
         title: note.title,
-        content: note.content
+        content: note.content,
       }
       userRepo.findOne.mockReturnValue(undefined)
 
@@ -158,13 +160,12 @@ describe('note service', () => {
       )
     })
 
-
     it('should throw not found exception when contact not found', async () => {
       const dto: DTO.Note.AddNote = {
         ownerId: note.ownerId,
         title: note.title,
         content: note.content,
-        contactId: note.contactId
+        contactId: note.contactId,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -181,7 +182,7 @@ describe('note service', () => {
         contactId: note.contactId,
         accountId: note.accountId,
         title: note.title,
-        content: note.content
+        content: note.content,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -198,7 +199,7 @@ describe('note service', () => {
         ownerId: note.ownerId,
         dealId: note.dealId,
         title: note.title,
-        content: note.content
+        content: note.content,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -221,8 +222,7 @@ describe('note service', () => {
 
       mockQueryBuilder.getMany.mockReturnValue([note])
 
-      expect((await noteService.getMany(dto))).toEqual([note])
+      expect(await noteService.getMany(dto)).toEqual([note])
     })
   })
-
 })

@@ -1,13 +1,13 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   DetailedHTMLProps,
   InputHTMLAttributes,
-  forwardRef,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
+  forwardRef,
 } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 
-type InputProps = DetailedHTMLProps<
+export type InputProps = DetailedHTMLProps<
   InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >
@@ -92,6 +92,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
         disabled={!!disabled || editable === false}
         {...rest}
       />
+
       <AnimatePresence presenceAffectsLayout>
         {(showError ?? true) && error && (
           <motion.div

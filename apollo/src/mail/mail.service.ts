@@ -1,18 +1,20 @@
-import { User } from 'src/user/user.entity'
 import { MailerService } from '@nestjs-modules/mailer'
 import { Injectable } from '@nestjs/common'
+
+import { User } from 'src/user/user.entity'
 
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  sendResetPwdMail(target: User, token: string) {
+  async sendResetPwdMail(target: User, token: string) {
     const link = process.env.FE_URL + '/reset-password?token=' + token
 
     return this.mailerService.sendMail({
       to: target.email,
       subject: 'CRM - Password Reset',
-      html: 'Click the following link to reset your password: ' + link,
+      template: 'reset-password',
+      context: { link },
     })
   }
 

@@ -1,5 +1,4 @@
 import { ValidationSchema } from 'class-validator'
-import { DealStage } from 'src/deal/deal.entity'
 
 export const ConvertToDealSchema: ValidationSchema = {
   name: 'ConvertToDeal',
@@ -32,13 +31,12 @@ export const ConvertToDealSchema: ValidationSchema = {
         type: 'isDate',
       },
     ],
-    stage: [
+    stageId: [
       {
-        type: 'isOptional',
+        type: 'isUUID',
       },
       {
-        type: 'isEnum',
-        constraints: [DealStage],
+        type: 'isRequired',
       },
     ],
   },

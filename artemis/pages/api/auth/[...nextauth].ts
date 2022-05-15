@@ -1,10 +1,11 @@
+import axios from 'axios'
+import { API } from 'environment'
 import jwt from 'jsonwebtoken'
 import NextAuth from 'next-auth'
 import { JWT } from 'next-auth/jwt'
 import Providers from 'next-auth/providers'
-import axios from 'axios'
+
 import { asyncTryCatch } from '@utils/libs/functionalTryCatch'
-import { API } from 'environment'
 
 export default NextAuth({
   providers: [

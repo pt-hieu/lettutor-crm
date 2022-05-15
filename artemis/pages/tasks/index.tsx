@@ -1,26 +1,32 @@
-import Search from '@components/Tasks/Search'
-import TasksSidebar from '@components/Tasks/Sidebar'
-import TasksViewLayout from '@components/Tasks/TasksViewLayout'
-import { usePaginateItem } from '@utils/hooks/usePaginateItem'
-import { useQueryState } from '@utils/hooks/useQueryState'
-import { getSessionToken } from '@utils/libs/getToken'
 import { Table, TableColumnType } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
-import { dehydrate, QueryClient, useQuery } from 'react-query'
+import { useCallback } from 'react'
+import { unstable_batchedUpdates } from 'react-dom'
+import { QueryClient, dehydrate, useQuery, useQueryClient } from 'react-query'
+
+import Search from '@components/Tasks/Search'
+import TasksSidebar from '@components/Tasks/Sidebar'
+import TasksViewLayout from '@components/Tasks/TasksViewLayout'
+
+import Paginate from '@utils/components/Paginate'
+import { usePaginateItem } from '@utils/hooks/usePaginateItem'
+import { useQueryState } from '@utils/hooks/useQueryState'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { getSessionToken } from '@utils/libs/getToken'
+import { formatDate } from '@utils/libs/time'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
 import { getTasks } from '@utils/service/task'
-import { formatDate } from '@utils/libs/time'
 
 export const taskColumns: TableColumnType<Task>[] = [
   {
     title: 'Subject',
     dataIndex: 'subject',
     key: 'subject',
-    sorter: { compare: (a, b) => a.subject.localeCompare(b.subject) },
+    sorter: { compare: (a, b) => a.name.localeCompare(b.name) },
     fixed: 'left',
-    render: (_, { id, subject }) => (
+    render: (_, { id, name: subject }) => (
       <Link href={`/tasks/${id}`}>
         <a className="crm-link underline hover:underline">{subject}</a>
       </Link>
@@ -62,38 +68,33 @@ export const taskColumns: TableColumnType<Task>[] = [
 ]
 
 export default function TasksView() {
+  const client = useQueryClient()
+
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
   const [search, setSearch] = useQueryState<string>('search')
-  const [status, setStatus] = useQueryState<Array<TaskStatus>>(
-    'status',
-    undefined,
-    {
-      isArray: true,
-    },
-  )
-  const [priority, setPriority] = useQueryState<Array<TaskPriority>>(
-    'priority',
-    undefined,
-    {
-      isArray: true,
-    },
-  )
+  const [status, setStatus] = useQueryState<Array<TaskStatus>>('status')
+  const [priority, setPriority] = useQueryState<Array<TaskPriority>>('priority')
 
   const applySearch = (keyword: string | undefined) => {
     setPage(1)
     setSearch(keyword)
   }
 
-  const applyFilter = (
-    status: TaskStatus[] | undefined,
-    priority: TaskPriority[] | undefined,
-  ) => {
-    setPage(1)
-    setStatus(status)
-    setPriority(priority)
-  }
+  const applyFilter = useCallback(
+    (
+      status: TaskStatus[] | undefined,
+      priority: TaskPriority[] | undefined,
+    ) => {
+      unstable_batchedUpdates(() => {
+        setPage(1)
+        status && setStatus(status)
+        priority && setPriority(priority)
+      })
+    },
+    [],
+  )
 
   const { data: tasks, isLoading } = useQuery(
     [
@@ -105,6 +106,9 @@ export default function TasksView() {
       priority || [],
     ],
     getTasks({ limit, page, search, status, priority }),
+    {
+      keepPreviousData: true,
+    },
   )
 
   const [start, end, total] = usePaginateItem(tasks)
@@ -136,7 +140,8 @@ export default function TasksView() {
             </motion.div>
           )}
         </AnimatePresence>
-        <div className="w-full">
+
+        <div className="w-full flex flex-col gap-4">
           <Table
             showSorterTooltip={false}
             columns={taskColumns}
@@ -145,18 +150,24 @@ export default function TasksView() {
             rowKey={(u) => u.id}
             rowSelection={{
               type: 'checkbox',
+              onChange: (keys) =>
+                client.setQueryData(
+                  'selected-taskIds',
+                  keys.map((k) => k.toString()),
+                ),
             }}
             bordered
-            pagination={{
-              current: page,
-              pageSize: limit,
-              total: tasks?.meta.totalItems,
-              defaultPageSize: 10,
-              onChange: (page, limit) => {
-                setPage(page)
-                setLimit(limit || 10)
-              },
-            }}
+            pagination={false}
+          />
+
+          <Paginate
+            containerClassName="self-end"
+            pageSize={limit || 10}
+            currentPage={page || 1}
+            totalPage={tasks?.meta.totalPages}
+            onPageChange={setPage}
+            showJumpToHead
+            showQuickJump
           />
         </div>
       </div>

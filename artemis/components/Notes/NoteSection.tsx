@@ -1,85 +1,72 @@
-import { LeadDetailSections } from '@components/Leads/LeadDetailSidebar'
-import { Note, NoteSource } from '@utils/models/note'
-import { FilterNoteType, SortNoteType } from '@utils/service/note'
 import { Select } from 'antd'
 import { useEffect, useState } from 'react'
-import { INoteData, NoteAdder } from './NoteAdder'
+import { useQuery } from 'react-query'
+
+import { Sections } from '@components/Details/Sidebar'
+import { toCapitalizedWords } from '@components/Module/OverviewView'
+
+import { Note } from '@utils/models/note'
+import { SortNoteType, getNotes } from '@utils/service/note'
+
+import { NoteAdder } from './NoteAdder'
 import { NoteContent } from './NoteContent'
+
 const { Option, OptGroup } = Select
 
-enum Filter {
-  All = 'All',
-  Only = 'Only',
-}
-
-enum Sort {
-  RecentFirst = 'Recent First',
-  RecentLast = 'Recent Last',
-}
-
 interface IProps {
-  noteFor: NoteSource
+  id: Sections
+  entityId: string
+  moduleName: string
   hasFilter?: boolean
-  onAddNote: (data: INoteData) => void
-  onEditNote: (noteId: string, data: INoteData) => void
-  onDeleteNote: (noteId: string) => void
-  onChangeFilterSort: ({
-    sort,
-    filter,
-  }: {
-    sort: SortNoteType
-    filter?: FilterNoteType
-  }) => void
-  onViewAllNote: (value: boolean) => void
-  notes: Note[]
-  totalNotes: number
 }
 
 export const DEFAULT_NUM_NOTE = 3
 
 export const NoteSection = ({
-  noteFor,
+  id,
+  entityId,
   hasFilter = false,
-  onAddNote,
-  onEditNote,
-  onDeleteNote,
-  onChangeFilterSort,
-  onViewAllNote,
-  notes,
-  totalNotes,
+  moduleName,
 }: IProps) => {
   const [showNoteAdder, setShowNoteAdder] = useState(true)
-  const [filter, setFilter] = useState<Filter>(Filter.All)
-  const [sort, setSort] = useState<Sort>(Sort.RecentFirst)
+  const [filter, setFilter] = useState<string>()
+  const [sort, setSort] = useState<SortNoteType>('first')
   const [showPrevious, setShowPrevious] = useState(true)
+  const [viewAllNote, setViewAllNote] = useState(false)
+
+  const { data, refetch } = useQuery<any>(
+    [entityId, 'notes'],
+    getNotes({
+      source: moduleName,
+      sourceId: entityId,
+      sort,
+      filter,
+      shouldNotPaginate: viewAllNote,
+      nTopRecent: viewAllNote ? undefined : DEFAULT_NUM_NOTE,
+    }),
+    { enabled: false },
+  )
+
+  useEffect(() => {
+    refetch()
+  }, [moduleName, entityId, sort, filter, viewAllNote])
+
+  const notes = viewAllNote ? data || [] : data?.items || []
+  const totalNotes = data?.meta?.totalItems || 0
 
   function handleChangeSelect(value: string) {
-    if (Object.values(Sort).includes(value as Sort)) {
-      setSort(value as Sort)
-      const filterParam = filter === Filter.All ? undefined : noteFor
-      if (value === Sort.RecentFirst) {
-        onChangeFilterSort({ sort: 'first', filter: filterParam })
-      } else if (value === Sort.RecentLast) {
-        onChangeFilterSort({ sort: 'last', filter: filterParam })
-      }
+    if (['first', 'last'].includes(value)) {
+      setSort(value as SortNoteType)
+    } else {
+      setFilter(value)
     }
 
-    if (Object.values(Filter).includes(value as Filter)) {
-      setFilter(value as Filter)
-      const sortParam = sort === Sort.RecentFirst ? 'first' : 'last'
-      if (value === Filter.All) {
-        onChangeFilterSort({ sort: sortParam, filter: undefined })
-      } else if (value === Filter.Only) {
-        onChangeFilterSort({ sort: sortParam, filter: noteFor })
-      }
-    }
-
-    onViewAllNote(false)
+    setViewAllNote(false)
     setShowPrevious(true)
   }
 
   const handleViewPrevious = () => {
-    onViewAllNote(true)
+    setViewAllNote(true)
     setShowPrevious(false)
   }
 
@@ -87,8 +74,8 @@ export const NoteSection = ({
     return showPrevious && notes.length > 0 && totalNotes > DEFAULT_NUM_NOTE
   }
 
-  const PreviousNotes = () => (
-    <div
+  const PreviousNotes = (
+    <button
       className="w-full bg-[#f8f8f8] flex flex-row py-2 px-4 mb-4 justify-between group relative cursor-pointer text-[12px]"
       onClick={handleViewPrevious}
     >
@@ -97,16 +84,16 @@ export const NoteSection = ({
         {DEFAULT_NUM_NOTE} of {totalNotes}
       </div>
       <div className="group-hover:bg-gray-200 group-hover:h-[1px] absolute bottom-0 w-full left-0"></div>
-    </div>
+    </button>
   )
 
   return (
-    <div className="pt-4">
+    <div className="p-4 border rounded-md">
       <div
         className="font-semibold mb-4 max-w-[720px] flex flex-row justify-between"
-        id={LeadDetailSections.Notes}
+        id={id}
       >
-        <div className="text-[17px]">{LeadDetailSections.Notes}</div>
+        <div className="text-[17px]">{id}</div>
         <Select
           defaultValue={sort}
           onChange={handleChangeSelect}
@@ -115,54 +102,58 @@ export const NoteSection = ({
         >
           {hasFilter && (
             <OptGroup label="Filter">
-              {Object.values(Filter).map((item) => (
-                <Option value={item} key={item}>
-                  <span className="capitalize">
-                    {item === Filter.Only ? `${noteFor} ${item}` : item}
-                  </span>
-                </Option>
-              ))}
+              <Option value={moduleName}>
+                {toCapitalizedWords(`${moduleName} Only`)}
+              </Option>
+              <Option value={undefined}>All</Option>
             </OptGroup>
           )}
           <OptGroup label="Sort">
-            {Object.values(Sort).map((item) => (
-              <Option value={item} key={item}>
-                {item}
-              </Option>
-            ))}
+            <Option value="first">Recent First</Option>
+            <Option value="last">Recent Last</Option>
           </OptGroup>
         </Select>
       </div>
       <div
         className={`max-w-[720px] flex gap-3 ${
-          sort === Sort.RecentFirst ? 'flex-col' : 'flex-col-reverse'
+          sort === 'first' ? 'flex-col' : 'flex-col-reverse'
         }`}
       >
-        {showNoteAdder && <NoteAdder onAddNote={onAddNote} />}
+        {showNoteAdder && <NoteAdder entityId={entityId} source={moduleName} />}
 
         <div className="mb-2 flex flex-col gap-4">
-          {notes.map((item) => {
-            const { createdAt, owner, content, title, id, source } = item
-            return (
-              <NoteContent
-                key={id}
-                time={createdAt}
-                author={owner?.name || 'Unknown User'}
-                note={content}
-                title={title}
-                setShowNoteAdder={setShowNoteAdder}
-                hideEditButton={!showNoteAdder}
-                onEditNote={onEditNote}
-                onDeleteNote={onDeleteNote}
-                noteId={id}
-                noteSource={source}
-                sourceName={item[source]?.fullName as string}
-                sourceId={item[source]?.id as string}
-              />
-            )
-          })}
+          {notes.length
+            ? notes.map((item: Note) => {
+                const {
+                  createdAt,
+                  owner,
+                  content,
+                  title,
+                  id,
+                  source,
+                  attachments,
+                  entity,
+                  task,
+                } = item
+                return (
+                  <NoteContent
+                    key={id}
+                    time={createdAt}
+                    author={owner?.name || 'Unknown User'}
+                    note={content}
+                    title={title}
+                    setShowNoteAdder={setShowNoteAdder}
+                    hideEditButton={!showNoteAdder}
+                    noteId={id}
+                    noteSource={source}
+                    entity={entity || task}
+                    files={attachments}
+                  />
+                )
+              })
+            : null}
         </div>
-        {checkShowPreviousNotes() && <PreviousNotes />}
+        {checkShowPreviousNotes() && PreviousNotes}
       </div>
     </div>
   )

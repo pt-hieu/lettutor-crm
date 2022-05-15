@@ -1,12 +1,9 @@
 import { Exclude } from 'class-transformer'
-import { Account } from 'src/account/account.entity'
-import { Contact } from 'src/contact/contact.entity'
-import { Deal } from 'src/deal/deal.entity'
-import { Lead } from 'src/lead/lead.entity'
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
+
 import { Role } from 'src/role/role.entity'
 import { Task } from 'src/task/task.entity'
 import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
 
 export enum UserStatus {
   ACTIVE = 'Active',
@@ -38,23 +35,7 @@ export class User extends BaseEntity {
   @Column({ enum: UserStatus, type: 'enum', default: UserStatus.ACTIVE })
   status: UserStatus
 
-  @OneToMany(() => Lead, (lead) => lead.owner)
-  @Exclude({ toPlainOnly: true })
-  leads: Lead[]
-
-  @OneToMany(() => Contact, (contact) => contact.owner)
-  @Exclude({ toPlainOnly: true })
-  contacts: Contact[]
-
-  @OneToMany(() => Deal, (deal) => deal.owner)
-  @Exclude({ toPlainOnly: true })
-  deals: Deal[]
-
-  @OneToMany(() => Account, (account) => account.owner)
-  @Exclude({ toPlainOnly: true })
-  accounts: Account[]
-
-  @OneToMany(() => Task, (task) => task.owner)
+  @OneToMany(() => Task, (task) => task.owner, { cascade: true })
   @Exclude({ toPlainOnly: true })
   tasks: Task[]
 

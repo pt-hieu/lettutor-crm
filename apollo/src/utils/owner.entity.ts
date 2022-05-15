@@ -1,10 +1,12 @@
 import { Exclude } from 'class-transformer'
-import { User } from 'src/user/user.entity'
 import { Column, JoinColumn, ManyToOne } from 'typeorm'
+
+import { User } from 'src/user/user.entity'
+
 import { BaseEntity } from './base.entity'
 
 export class Ownerful extends BaseEntity {
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   owner: User | null
 

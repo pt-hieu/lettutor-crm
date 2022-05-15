@@ -1,10 +1,19 @@
-import { Actions } from 'src/type/action'
+import { InjectRepository } from '@nestjs/typeorm'
 import {
   Connection,
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
+  Repository,
 } from 'typeorm'
+
+import {
+  Action,
+  ActionType,
+  DefaultActionTarget,
+} from 'src/action/action.entity'
+import { ActionService } from 'src/action/action.service'
+
 import { Role } from './role.entity'
 
 export enum DefaultRoleName {
@@ -12,20 +21,12 @@ export enum DefaultRoleName {
   SALE = 'Sale',
 }
 
-export const RoleActionMapping: Record<DefaultRoleName, Actions[]> = {
-  [DefaultRoleName.ADMIN]: [Actions.IS_ADMIN],
-  [DefaultRoleName.SALE]: [
-    Actions.CREATE_NEW_TASK,
-    Actions.CREATE_NEW_ACCOUNT,
-    Actions.CREATE_NEW_CONTACT,
-    Actions.CREATE_NEW_DEAL,
-    Actions.CREATE_NEW_LEAD,
-  ],
-}
-
 @EventSubscriber()
 export class RoleSubscriber implements EntitySubscriberInterface<Role> {
-  constructor(connection: Connection) {
+  constructor(
+    connection: Connection,
+    @InjectRepository(Action) private actionRepo: Repository<Action>,
+  ) {
     connection.subscribers.push(this)
   }
 
@@ -34,12 +35,31 @@ export class RoleSubscriber implements EntitySubscriberInterface<Role> {
     return Role
   }
 
-  beforeInsert(event: InsertEvent<Role>): void | Promise<any> {
+  async beforeInsert(event: InsertEvent<Role>): Promise<any> {
     if (
       Object.values(DefaultRoleName).some((name) => name === event.entity.name)
     ) {
       event.entity.default = true
-      event.entity.actions = RoleActionMapping[event.entity.name]
+      if (event.entity.name === DefaultRoleName.ADMIN) {
+        event.entity.actions = [
+          await this.actionRepo.findOne({
+            where: {
+              target: DefaultActionTarget.ADMIN,
+              type: ActionType.IS_ADMIN,
+            },
+          }),
+        ]
+      } else if (event.entity.name === DefaultRoleName.SALE) {
+        event.entity.actions = (
+          await this.actionRepo.find({
+            where: { type: ActionType.CAN_CREATE_NEW },
+          })
+        ).filter(
+          ({ target }) =>
+            target !== DefaultActionTarget.USER &&
+            target !== DefaultActionTarget.ROLE,
+        )
+      }
     }
   }
 }

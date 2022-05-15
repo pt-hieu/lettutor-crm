@@ -1,22 +1,42 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
+
 import { DefineAction } from 'src/action.decorator'
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { DTO } from 'src/type'
-import { Actions } from 'src/type/action'
-import { Public } from 'src/utils/decorators/public.decorator'
+
 import { NoteService } from './note.service'
 
+const MAX_COUNT_OF_FILES = 5
 @ApiTags('note')
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 @Controller('note')
 export class NoteController {
-  constructor(private readonly service: NoteService) { }
+  constructor(private readonly service: NoteService) {}
 
   @Post()
-  @DefineAction(Actions.CREATE_NEW_NOTE)
+  @DefineAction({
+    target: DefaultActionTarget.NOTE,
+    type: ActionType.CAN_CREATE_NEW,
+  })
   @ApiOperation({ summary: 'to add new note manually' })
   addNote(@Body() dto: DTO.Note.AddNote) {
+    if (dto.files.length > MAX_COUNT_OF_FILES) {
+      throw new BadRequestException('The number of file exceeds the limitation')
+    }
+
     return this.service.addNote(dto)
   }
 
@@ -44,12 +64,13 @@ export class NoteController {
     return this.service.update(id, dto)
   }
 
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'to delete a note' })
-  deleteNote(
-    @Param('id', ParseUUIDPipe) id: string
-  ) {
-    return this.service.delete(id)
+  @Delete('batch')
+  @DefineAction({
+    target: DefaultActionTarget.NOTE,
+    type: ActionType.CAN_DELETE_ANY,
+  })
+  @ApiOperation({ summary: 'to batch delete a note' })
+  deleteNote(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

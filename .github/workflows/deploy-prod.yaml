@@ -51,6 +51,14 @@ jobs:
             zeus/*.{js,json}
           SET_ENV_NAME: ZEUS_DIFF
 
+      - name: Get Diff On Ares
+        uses: technote-space/get-diff-action@v6.0.1
+        with:
+          PATTERNS: |
+            ares/src/**/*.ts
+            ares/*.{js,json}
+          SET_ENV_NAME: ARES_DIFF
+
       - name: Determine Output
         id: result
         run: |
@@ -59,9 +67,9 @@ jobs:
           [[ "${{ env.ARTEMIS_DIFF }}" != "" ]] && params+=(artemis)
           [[ "${{ env.POSEIDON_DIFF }}" != "" ]] && params+=(poseidon)
           [[ "${{ env.ZEUS_DIFF }}" != "" ]] && params+=(zeus)
+          [[ "${{ env.ARES_DIFF }}" != "" ]] && params+=(ares)
 
           echo "::set-output name=components::"${params[@]}""
-
 
   apollo:
     runs-on: ubuntu-latest
@@ -95,6 +103,39 @@ jobs:
           file: ./docker/Dockerfile.apollo.prod
           push: true
           tags: ghcr.io/pt-hieu/lettutor-crm:apollo-prod
+          labels: ${{ steps.meta.outputs.labels }}
+  ares:
+    runs-on: ubuntu-latest
+    needs: check-diff
+    if: ${{ contains(needs.check-diff.outputs.components, 'ares') }}
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: ./
+          file: ./docker/Dockerfile.ares.prod
+          push: true
+          tags: ghcr.io/pt-hieu/lettutor-crm:ares-prod
           labels: ${{ steps.meta.outputs.labels }}
 
   artemis:
@@ -216,9 +257,24 @@ jobs:
           PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          
+
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
             cd ~/lettutor-crm && ./start-prod.sh artemis
+
+  deploy-ares:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: ares
+    steps:
+      - uses: actions/checkout@v2
+      - name: deploy on ec2
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
+            cd ~/lettutor-crm && ./start-prod.sh ares
           '
 
   deploy-apollo:
@@ -232,11 +288,11 @@ jobs:
           PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          
+
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
             cd ~/lettutor-crm && ./start-prod.sh apollo
           '
- 
+
   deploy-zeus:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -248,7 +304,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          
+
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
             cd ~/lettutor-crm && ./start-prod.sh zeus
           '
@@ -264,7 +320,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.AWS_PRIVATE }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          
+
           ssh -o StrictHostKeyChecking=no -i private_key ubuntu@16.162.104.246 '
             cd ~/lettutor-crm && ./start-prod.sh poseidon
           '

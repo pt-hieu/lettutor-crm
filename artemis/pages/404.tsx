@@ -1,9 +1,10 @@
-import Layout from '@utils/components/Layout'
 import Link from 'next/link'
+
+import Layout from '@utils/components/Layout'
 
 export default function NotFound() {
   return (
-    <Layout requireLogin header={false} title="CRM | Not Found">
+    <Layout requireLogin header={false} footer={false} title="CRM | Not Found">
       <div className="grid place-content-center h-screen">
         <div className="flex flex-col items-center gap-8">
           <img

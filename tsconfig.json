@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
-    "lib": [
-      "ESNext",
-      "dom"
-    ],
-    "outDir": "lib", 
+    "lib": ["ESNext", "dom"],
+    "outDir": "lib",
     "removeComments": true,
     "target": "ES6",
     "baseUrl": "./",
@@ -16,6 +13,7 @@
     "alwaysStrict": true,
     "allowUnreachableCode": false,
     "noImplicitAny": true,
+    "resolveJsonModule": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
@@ -23,7 +21,5 @@
     "noUnusedParameters": true
   },
   "include": ["./*.ts"],
-  "exclude": [
-    "node_modules/**/*"
-  ]
+  "exclude": ["node_modules/**/*"]
 }

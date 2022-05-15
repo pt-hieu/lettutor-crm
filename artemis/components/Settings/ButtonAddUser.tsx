@@ -1,3 +1,10 @@
+import { Divider, Modal, notification } from 'antd'
+import { requireRule } from 'pages/change-password'
+import { emailReg } from 'pages/reset-password'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+
 import ButtonAdd from '@utils/components/ButtonAdd'
 import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
@@ -6,12 +13,6 @@ import { useModal } from '@utils/hooks/useModal'
 import { IErrorResponse } from '@utils/libs/functionalTryCatch'
 import { Role } from '@utils/models/role'
 import { addUser as addUserService } from '@utils/service/user'
-import { Divider, Modal, notification } from 'antd'
-import { requireRule } from 'pages/change-password'
-import { emailReg } from 'pages/reset-password'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 interface FormData {
   name: string
@@ -54,7 +55,7 @@ const ButtonAddUser = () => {
 
   const { isLoading, mutateAsync } = useMutation('add-user', addUserService, {
     onSuccess: () => {
-      queryClient.invalidateQueries('users')
+      queryClient.refetchQueries('users')
       reset(initialValue)
       hideModal()
       notification.success({

@@ -1,14 +1,16 @@
+import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { AuthService } from 'src/auth/auth.service'
-import { User, UserStatus } from 'src/user/user.entity'
-import { Repository } from 'typeorm'
-import { MockType, repositoryMockFactory } from './utils'
-import { role, user } from './data'
-import { DTO } from 'src/type'
-import { BadRequestException } from '@nestjs/common'
 import { Response } from 'express'
+import { Repository } from 'typeorm'
+
+import { AuthService } from 'src/auth/auth.service'
 import { Role } from 'src/role/role.entity'
+import { DTO } from 'src/type'
+import { User, UserStatus } from 'src/user/user.entity'
+
+import { role, user } from './data'
+import { MockType, repositoryMockFactory } from './utils'
 
 describe('auth service', () => {
   let usersRepo: MockType<Repository<User>>

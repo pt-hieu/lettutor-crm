@@ -1,11 +1,10 @@
 import { Exclude } from 'class-transformer'
-import { Account } from 'src/account/account.entity'
-import { Contact } from 'src/contact/contact.entity'
-import { Deal } from 'src/deal/deal.entity'
-import { Lead } from 'src/lead/lead.entity'
-import { User } from 'src/user/user.entity'
-import { BaseEntity } from 'src/utils/base.entity'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm'
+
+import { File } from 'src/file/file.entity'
+import { Entity as EntityData } from 'src/module/module.entity'
+import { Task } from 'src/task/task.entity'
+import { Ownerful } from 'src/utils/owner.entity'
 
 export enum NoteSort {
   LAST = 'last',
@@ -16,56 +15,28 @@ export enum NoteFilter {
   ACCOUNT_ONLY = 'account',
 }
 
-export enum NoteSource {
-  LEAD = 'lead',
-  CONTACT = 'contact',
-  ACCOUNT = 'account',
-  DEAL = 'deal',
-}
-
 @Entity({ name: 'note' })
-export class Note extends BaseEntity {
-  @ManyToOne(() => User, (u) => u.deals)
+export class Note extends Ownerful {
+  @ManyToOne(() => Task, (task) => task.notes, { onDelete: 'CASCADE' })
   @JoinColumn()
-  owner: User | null
-
-  @Column({ type: 'uuid', nullable: true })
-  @Exclude({ toPlainOnly: true })
-  ownerId: string | null
-
-  @ManyToOne(() => Lead, (lead) => lead.notes)
-  @JoinColumn()
-  lead: Lead
+  task: Task
 
   @Column({ type: 'uuid', nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
-  leadId: string | null
+  taskId: string | null
 
-  @ManyToOne(() => Contact, (contact) => contact.notes)
+  @ManyToOne(() => EntityData, (entity) => entity.notes, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
   @JoinColumn()
-  contact: Contact
+  entity: EntityData
 
   @Column({ type: 'uuid', nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
-  contactId: string | null
+  entityId: string | null
 
-  @ManyToOne(() => Account, (account) => account.notes)
-  @JoinColumn()
-  account: Account
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  accountId: string
-
-  @ManyToOne(() => Deal, (deal) => deal.notes)
-  @JoinColumn()
-  deal: Deal
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  dealId: string | null
-
-  @Column({ type: 'varchar', default: "" })
+  @Column({ type: 'varchar', default: '' })
   title: string
 
   @Column({ type: 'varchar' })
@@ -73,4 +44,10 @@ export class Note extends BaseEntity {
 
   @Column({ type: 'varchar', default: null })
   source: string | null
+
+  @OneToMany(() => File, (file) => file.note, {
+    eager: true,
+    cascade: true,
+  })
+  attachments: File[]
 }

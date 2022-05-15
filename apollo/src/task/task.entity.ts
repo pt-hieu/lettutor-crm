@@ -1,10 +1,8 @@
-import { Exclude } from 'class-transformer'
-import { Account } from 'src/account/account.entity'
-import { Contact } from 'src/contact/contact.entity'
-import { Deal } from 'src/deal/deal.entity'
-import { Lead } from 'src/lead/lead.entity'
+import { Column, Entity, OneToMany } from 'typeorm'
+
+import { File } from 'src/file/file.entity'
+import { Note } from 'src/note/note.entity'
 import { Ownerful } from 'src/utils/owner.entity'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 export enum TaskPriority {
   HIGH = 'High',
@@ -24,38 +22,6 @@ export enum TaskStatus {
 
 @Entity({ name: 'task' })
 export class Task extends Ownerful {
-  @ManyToOne(() => Lead, (lead) => lead.tasks)
-  @JoinColumn()
-  lead: Lead
-
-  @ManyToOne(() => Contact, (contact) => contact.tasks)
-  @JoinColumn()
-  contact: Contact
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  contactId: string | null
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  leadId: string | null
-
-  @ManyToOne(() => Account, (account) => account.tasks)
-  @JoinColumn()
-  account: Account
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  accountId: string
-
-  @ManyToOne(() => Deal, (deal) => deal.tasks)
-  @JoinColumn()
-  deal: Deal
-
-  @Column({ type: 'uuid', nullable: true, default: null })
-  @Exclude({ toPlainOnly: true })
-  dealId: string
-
   @Column({ enum: TaskPriority, type: 'enum', default: TaskPriority.HIGH })
   priority: TaskPriority
 
@@ -63,11 +29,17 @@ export class Task extends Ownerful {
   status: TaskStatus
 
   @Column({ type: 'varchar' })
-  subject: string
+  name: string
 
   @Column({ type: 'date', nullable: true, default: null })
   dueDate: Date | null
 
   @Column({ type: 'varchar', nullable: true, default: null })
   description: string | null
+
+  @OneToMany(() => Note, (note) => note.task, { cascade: true })
+  notes: Note[]
+
+  @OneToMany(() => File, (f) => f.task, { cascade: true, eager: true })
+  attachments: File
 }

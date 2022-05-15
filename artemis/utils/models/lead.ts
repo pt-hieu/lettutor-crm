@@ -1,5 +1,6 @@
 import { Account } from './account'
 import { Base } from './base'
+import { Attachments } from './note'
 import { Task } from './task'
 import { User } from './user'
 
@@ -35,4 +36,5 @@ export interface Lead extends Base {
   phoneNum: string | null
   socialAccount: string | null
   tasks: Task[]
+  attachments: Attachments[]
 }

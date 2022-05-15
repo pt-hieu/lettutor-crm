@@ -1,5 +1,6 @@
-import Input from '@utils/components/Input'
 import { useFormContext } from 'react-hook-form'
+
+import Input from '@utils/components/Input'
 
 type Props = {
   type: 'checkbox' | 'radio'
@@ -23,7 +24,7 @@ export default function MultipleQuery({ options, type, name }: Props) {
               type,
               value,
               ...register(name),
-              id: (value + name).replaceAll(reg, ' '),
+              id: `${value} ${name}`.replaceAll?.(reg, ' ') || '',
             }}
           />
           <label

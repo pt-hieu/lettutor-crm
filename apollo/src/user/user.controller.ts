@@ -1,17 +1,30 @@
-import { DTO } from 'src/type'
-import { Public } from 'src/utils/decorators/public.decorator'
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common'
 import {
   ApiExtraModels,
   ApiOperation,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger'
-import { UserService } from './user.service'
-import { Payload } from 'src/utils/decorators/payload.decorator'
-import { JwtPayload } from 'src/utils/interface'
+
 import { DefineAction } from 'src/action.decorator'
-import { Actions } from 'src/type/action'
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
+import { DTO } from 'src/type'
+import { Payload } from 'src/utils/decorators/payload.decorator'
+import { Public } from 'src/utils/decorators/public.decorator'
+import { JwtPayload } from 'src/utils/interface'
+
+import { UserService } from './user.service'
 
 @ApiTags('user')
 @ApiSecurity('x-api-key')
@@ -55,10 +68,26 @@ export class UserController {
   }
 
   @Post()
-  @DefineAction(Actions.CREATE_NEW_USER)
+  @DefineAction({
+    target: DefaultActionTarget.USER,
+    type: ActionType.CAN_CREATE_NEW,
+  })
   @ApiOperation({ summary: 'to add a new user and send invitation mail' })
   addUser(@Body() dto: DTO.User.AddUser, @Payload() payload: JwtPayload) {
     return this.service.addUser(dto, payload.name)
+  }
+
+  @Get(':id/invalidate')
+  @DefineAction({
+    target: DefaultActionTarget.ADMIN,
+    type: ActionType.IS_ADMIN,
+  })
+  @ApiOperation({ summary: 'to resend invitation add user mail' })
+  invalidateAddUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Payload() payload: JwtPayload,
+  ) {
+    return this.service.invalidateAddUserToken(id, payload.name)
   }
 
   @Patch()
@@ -80,12 +109,25 @@ export class UserController {
   }
 
   @Patch(':id/activate')
-  @DefineAction(Actions.IS_ADMIN)
+  @DefineAction({
+    target: DefaultActionTarget.ADMIN,
+    type: ActionType.IS_ADMIN,
+  })
   @ApiOperation({ summary: 'to activate-deactivate user' })
   activateUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: DTO.User.ActivateUser,
   ) {
     return this.service.activateUser(id, dto)
+  }
+
+  @Delete('batch')
+  @ApiOperation({ summary: 'to batch delete users' })
+  @DefineAction({
+    target: DefaultActionTarget.USER,
+    type: ActionType.CAN_DELETE_ANY,
+  })
+  batchDeleteUser(@Body() dto: DTO.BatchDelete) {
+    return this.service.batchDelete(dto.ids)
   }
 }

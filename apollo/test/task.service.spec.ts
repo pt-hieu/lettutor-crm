@@ -1,29 +1,31 @@
-import { DTO } from 'src/type'
-import { Test, TestingModule } from '@nestjs/testing'
-import { MockType, repositoryMockFactory, mockQueryBuilder } from './utils'
-import { Repository } from 'typeorm'
-import { account, contact, deal, task, user } from './data'
-import { Deal } from 'src/deal/deal.entity'
-import { DealService } from 'src/deal/deal.service'
-import { getRepositoryToken } from '@nestjs/typeorm'
 import { NotFoundException } from '@nestjs/common'
-import { MailService } from 'src/mail/mail.service'
+import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Test, TestingModule } from '@nestjs/testing'
+import { getRepositoryToken } from '@nestjs/typeorm'
+import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
+import { Repository } from 'typeorm'
+
 import { Account } from 'src/account/account.entity'
 import { AccountService } from 'src/account/account.service'
+import { Contact } from 'src/contact/contact.entity'
+import { ContactService } from 'src/contact/contact.service'
+import { Deal } from 'src/deal/deal.entity'
+import { DealService } from 'src/deal/deal.service'
+import { PayloadService } from 'src/global/payload.service'
+import { UtilService } from 'src/global/util.service'
+import { Lead } from 'src/lead/lead.entity'
+import { LeadService } from 'src/lead/lead.service'
+import { MailService } from 'src/mail/mail.service'
+import { NoteService } from 'src/note/note.service'
+import { Role } from 'src/role/role.entity'
+import { Task } from 'src/task/task.entity'
+import { TaskService } from 'src/task/task.service'
+import { DTO } from 'src/type'
 import { User } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
-import { TaskService } from 'src/task/task.service'
-import { Task } from 'src/task/task.entity'
-import { IPaginationMeta, Pagination } from 'nestjs-typeorm-paginate'
-import { ContactService } from 'src/contact/contact.service'
-import { LeadService } from 'src/lead/lead.service'
-import { Lead } from 'src/lead/lead.entity'
-import { Contact } from 'src/contact/contact.entity'
-import { UtilService } from 'src/global/util.service'
-import { NoteService } from 'src/note/note.service'
-import { PayloadService } from 'src/global/payload.service'
-import { EventEmitterModule } from '@nestjs/event-emitter'
-import { Role } from 'src/role/role.entity'
+
+import { account, contact, deal, task, user } from './data'
+import { MockType, mockQueryBuilder, repositoryMockFactory } from './utils'
 
 describe('task service', () => {
   let taskRepo: MockType<Repository<Deal>>
@@ -113,7 +115,7 @@ describe('task service', () => {
       const dto: DTO.Task.AddTask = {
         ownerId: task.ownerId,
         leadId: task.leadId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -127,7 +129,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         accountId: task.accountId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -143,7 +145,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         dealId: task.dealId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -157,7 +159,7 @@ describe('task service', () => {
     it('should throw not found exception when owner not found', async () => {
       const dto: DTO.Task.AddTask = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue(undefined)
@@ -187,7 +189,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         accountId: task.accountId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -204,7 +206,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         accountId: task.accountId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -221,7 +223,7 @@ describe('task service', () => {
         ownerId: task.ownerId,
         contactId: task.contactId,
         dealId: task.dealId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -273,7 +275,7 @@ describe('task service', () => {
     it('should update task succeed with owner and subject', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })
@@ -285,7 +287,7 @@ describe('task service', () => {
     it('should update task succeed with leadId', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
         leadId: task.leadId,
         contactId: task.contactId,
       }
@@ -305,7 +307,7 @@ describe('task service', () => {
     it('should update task succeed with contactId', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
         contactId: task.contactId,
       }
       const result = {
@@ -325,7 +327,7 @@ describe('task service', () => {
     it('should throw not found exception when task not found', async () => {
       const dto: DTO.Task.UpdateBody = {
         ownerId: task.ownerId,
-        subject: task.subject,
+        subject: task.name,
       }
 
       userRepo.findOne.mockReturnValue({ ...user })

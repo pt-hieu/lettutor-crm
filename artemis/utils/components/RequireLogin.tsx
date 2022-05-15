@@ -19,6 +19,7 @@ export default function RequireLogin() {
       </div>
     )
   }
+
   if (!session) {
     signIn()
   }

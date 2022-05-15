@@ -1,7 +1,8 @@
-import { GlobalState } from '@utils/GlobalStateKey'
 import moment from 'moment'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
+
+import { GlobalState } from '@utils/GlobalStateKey'
 
 export type UseGlobalDateProps = {
   callback: () => void

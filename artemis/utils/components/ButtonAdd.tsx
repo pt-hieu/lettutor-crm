@@ -1,13 +1,13 @@
-import { useOnClickOutside } from '@utils/hooks/useOnClickOutSide'
+import Link from 'next/link'
 import React, {
+  MouseEventHandler,
   ReactNode,
   useCallback,
+  useMemo,
   useRef,
   useState,
-  useMemo,
-  MouseEventHandler,
 } from 'react'
-import Link from 'next/link'
+import { useClickAway } from 'react-use'
 
 type Props = {
   title: string
@@ -31,7 +31,7 @@ const ButtonAdd = ({
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef(null)
 
-  useOnClickOutside(
+  useClickAway(
     menuRef,
     useCallback(() => setShowMenu(false), []),
   )
