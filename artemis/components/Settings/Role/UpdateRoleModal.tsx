@@ -7,11 +7,13 @@ import * as yup from 'yup'
 
 import Input from '@utils/components/Input'
 import Loading from '@utils/components/Loading'
-import { createRole, getActions } from '@utils/service/role'
+import { Role } from '@utils/models/role'
+import { createRole, getActions, updateRole } from '@utils/service/role'
 
 type Props = {
   visible: boolean
   close: () => void
+  role: Role
 }
 
 type FormData = {
@@ -27,7 +29,8 @@ const schema = yup.object().shape({
     .max(100, 'Name must be at max 100 characters'),
 })
 
-export default function CreateRoleModal({ close, visible }: Props) {
+export default function UpdateRoleModal({ role, close, visible }: Props) {
+  const checkedActionId = role.actions.map((action) => action.id)
   const client = useQueryClient()
   const {
     register,
@@ -37,20 +40,24 @@ export default function CreateRoleModal({ close, visible }: Props) {
   } = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      actionsId: [],
+      name: role.name,
+      actionsId: [...checkedActionId],
     },
   })
 
-  const { mutateAsync, isLoading } = useMutation('create-role', createRole, {
-    onSuccess() {
-      client.refetchQueries('roles')
-      notification.success({ message: 'Create role successfully' })
-      close()
+  const { mutateAsync: updateMutateAsync, isLoading } = useMutation(
+    'update-role',
+    updateRole,
+    {
+      onSuccess() {
+        client.refetchQueries('roles')
+        notification.success({ message: 'Update role successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Update role unsuccessfully' })
+      },
     },
-    onError() {
-      notification.error({ message: 'Create role unsuccessfully' })
-    },
-  })
+  )
 
   const { data: allActions } = useQuery('actions', getActions())
 
@@ -59,9 +66,9 @@ export default function CreateRoleModal({ close, visible }: Props) {
     .filter((value, index, self) => self.indexOf(value) === index)
     .filter((target) => target !== 'admin')
 
-  const submitRole = useCallback(
+  const submitUpdateRole = useCallback(
     handleSubmit((data) => {
-      mutateAsync(data)
+      updateMutateAsync({ id: role.id, data })
     }),
     [],
   )
@@ -79,7 +86,7 @@ export default function CreateRoleModal({ close, visible }: Props) {
         <div className="w-full flex gap-2 justify-end">
           <button
             disabled={isLoading}
-            onClick={submitRole}
+            onClick={submitUpdateRole}
             className="crm-button"
           >
             <Loading on={isLoading}>Submit</Loading>
@@ -94,10 +101,10 @@ export default function CreateRoleModal({ close, visible }: Props) {
         </div>
       }
     >
-      <div className="font-medium text-[17px]">Create A Role</div>
+      <div className="font-medium text-[17px]">Update Role</div>
       <Divider />
       <div>
-        <form onSubmit={submitRole}>
+        <form onSubmit={submitUpdateRole}>
           <div className="mb-4 grid grid-cols-[100px,1fr]">
             <label htmlFor="name" className="crm-label pt-[8px]">
               Name
@@ -108,6 +115,8 @@ export default function CreateRoleModal({ close, visible }: Props) {
               props={{
                 type: 'text',
                 className: 'w-full',
+                // use this because I don't know why the default value of hook form doesn't work
+                defaultValue: `${role.name}`,
                 ...register('name'),
               }}
             />
@@ -138,6 +147,9 @@ export default function CreateRoleModal({ close, visible }: Props) {
                             value: id,
                             id: id + index + 'select',
                             type: 'checkbox',
+                            defaultChecked: checkedActionId.some(
+                              (checkedId) => checkedId === id,
+                            ),
                           }}
                         />
                         <label
