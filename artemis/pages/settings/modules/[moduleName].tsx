@@ -13,7 +13,7 @@ import Loading from '@utils/components/Loading'
 import { useCommand } from '@utils/hooks/useCommand'
 import { useModal } from '@utils/hooks/useModal'
 import { useRelationField } from '@utils/hooks/useRelationField'
-import { FieldMeta, FieldType, Module } from '@utils/models/module'
+import { ConvertMeta, FieldMeta, FieldType, Module } from '@utils/models/module'
 import { getModules, updateModule } from '@utils/service/module'
 
 export default function ModuleView() {
@@ -93,6 +93,23 @@ export default function ModuleView() {
       })
     }
   }, [])
+
+  useCommand<{ meta: ConvertMeta[] }>(
+    'cmd:update-convert-setting',
+    (received) => {
+      if (!received) return
+      const {
+        payload: { meta },
+      } = received
+
+      setLocalModule((module) => {
+        return {
+          ...module!,
+          convert_meta: meta,
+        }
+      })
+    },
+  )
 
   useCommand<{ name: string; newName: string }>(
     'cmd:update-group',
@@ -267,7 +284,7 @@ export default function ModuleView() {
 
       <div className="crm-container grid grid-cols-[300px,1fr] gap-8 mb-4">
         <DragDropContext onDragEnd={handleDrop}>
-          <FieldSelector />
+          <FieldSelector module={localModule} />
 
           <div>
             <FieldRenderer

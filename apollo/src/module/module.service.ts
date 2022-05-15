@@ -165,7 +165,7 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
     Object.entries(dto)
-      .filter(([targetProp, _]) =>
+      .filter(([_, targetProp]) =>
         targetModule.meta.some((field) => field.name === targetProp),
       )
       .forEach(([key, value]) => {

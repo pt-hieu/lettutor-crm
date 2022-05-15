@@ -50,10 +50,10 @@ export interface Module extends Base {
   kanban_meta: KanbanMeta | null
 }
 
-type ConvertMeta = {
+export type ConvertMeta = {
   source: string
-  should_conver_note: boolean
-  should_conver_attachment: boolean
+  should_convert_note: boolean
+  should_convert_attachment: boolean
   meta: Record<string, string>
 }
 

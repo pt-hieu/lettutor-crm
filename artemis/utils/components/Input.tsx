@@ -92,6 +92,7 @@ function Input<T extends 'input' | 'select' | 'textarea' | undefined>(
         disabled={!!disabled || editable === false}
         {...rest}
       />
+
       <AnimatePresence presenceAffectsLayout>
         {(showError ?? true) && error && (
           <motion.div

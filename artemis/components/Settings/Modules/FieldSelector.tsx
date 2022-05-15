@@ -1,7 +1,12 @@
+import { Divider } from 'antd'
 import { Draggable, Droppable, resetServerContext } from 'react-beautiful-dnd'
 
 import { useDispatch } from '@utils/hooks/useDispatch'
-import { FieldType } from '@utils/models/module'
+import { useModal } from '@utils/hooks/useModal'
+import { FieldType, Module } from '@utils/models/module'
+
+import ConvertModal from './ConvertModal'
+import KanbanModal from './KanbanModal'
 
 resetServerContext()
 
@@ -17,8 +22,15 @@ const icons: Record<FieldType, string> = {
   [FieldType.SELECT]: 'fa-caret-down',
 }
 
-export default function FieldSelector() {
+type Props = {
+  module: Module | undefined
+}
+
+export default function FieldSelector({ module }: Props) {
   const dispatch = useDispatch()
+
+  const [kanbanModal, openKanbanModal, closeKanbanModal] = useModal()
+  const [converModal, openConvertModal, closeConvertModal] = useModal()
 
   return (
     <Droppable droppableId="selector" isDropDisabled>
@@ -57,6 +69,8 @@ export default function FieldSelector() {
             ))}
           </div>
 
+          {placeholder}
+
           <button
             onClick={() => dispatch('cmd:open-group-modal')}
             className="px-3 py-2 border rounded-md bg-white mt-4 text-center w-full"
@@ -65,7 +79,30 @@ export default function FieldSelector() {
             New Group
           </button>
 
-          {placeholder}
+          <Divider />
+
+          <div className="mb-2 font-medium">Other Settings</div>
+          <div className="grid grid-cols-2 gap-2">
+            <button disabled onClick={openKanbanModal} className="crm-button">
+              Kanban Mode
+            </button>
+
+            <button onClick={openConvertModal} className="crm-button-outline">
+            <span className="fa fa-exchange mr-2" />Convert
+            </button>
+          </div>
+
+          <KanbanModal
+            module={module}
+            close={closeKanbanModal}
+            visible={kanbanModal}
+          />
+
+          <ConvertModal
+            module={module}
+            close={closeConvertModal}
+            visible={converModal}
+          />
         </div>
       )}
     </Droppable>
