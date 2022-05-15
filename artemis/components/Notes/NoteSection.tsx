@@ -74,8 +74,8 @@ export const NoteSection = ({
     return showPrevious && notes.length > 0 && totalNotes > DEFAULT_NUM_NOTE
   }
 
-  const PreviousNotes = () => (
-    <div
+  const PreviousNotes = (
+    <button
       className="w-full bg-[#f8f8f8] flex flex-row py-2 px-4 mb-4 justify-between group relative cursor-pointer text-[12px]"
       onClick={handleViewPrevious}
     >
@@ -84,7 +84,7 @@ export const NoteSection = ({
         {DEFAULT_NUM_NOTE} of {totalNotes}
       </div>
       <div className="group-hover:bg-gray-200 group-hover:h-[1px] absolute bottom-0 w-full left-0"></div>
-    </div>
+    </button>
   )
 
   return (
@@ -153,7 +153,7 @@ export const NoteSection = ({
               })
             : null}
         </div>
-        {checkShowPreviousNotes() && <PreviousNotes />}
+        {checkShowPreviousNotes() && PreviousNotes}
       </div>
     </div>
   )
