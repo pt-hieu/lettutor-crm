@@ -31,7 +31,7 @@ import { WebhookModule } from './webhook/webhook.module'
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [],
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: true,
       autoLoadEntities: true,
       logging: ['error', 'migration', 'schema'],
     }),

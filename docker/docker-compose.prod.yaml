@@ -15,7 +15,7 @@ services:
       POSTGRES_PASSWORD: postgres
       PGDATA: /data/postgres
     volumes:
-       - postgres:/data/postgres
+      - postgres:/data/postgres
 
   apollo:
     container_name: apollo
@@ -25,11 +25,17 @@ services:
     ports:
       - '8000:8000'
 
+  ares:
+    container_name: ares
+    image: ghcr.io/pt-hieu/lettutor-crm:ares-prod
+    ports:
+      - '9000:9000'
+
   postgres-poseidon:
     container_name: postgres-poseidon
     image: postgres:alpine
     ports:
-      - "5433:5433"
+      - '5433:5433'
     expose:
       - 5433
     command: -p 5433
@@ -49,7 +55,7 @@ services:
       - DATABASE_HOST=postgres-poseidon
       - DATABASE_PORT=5433
     ports:
-      - "1337:1337"
+      - '1337:1337'
 
   zeus:
     container_name: zeus
@@ -60,7 +66,6 @@ services:
     ports:
       - '4000:4000'
 
-
 volumes:
-    postgres:
-    postgres-poseidon:
+  postgres:
+  postgres-poseidon:

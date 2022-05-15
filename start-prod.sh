@@ -17,6 +17,13 @@ do
       docker-compose -f docker/docker-compose.prod.yaml create apollo
       docker-compose -f docker/docker-compose.prod.yaml start apollo
       ;;
+    ares)
+      docker-compose -f docker/docker-compose.prod.yaml stop ares
+      yes | docker-compose -f docker/docker-compose.prod.yaml rm ares
+      docker-compose -f docker/docker-compose.prod.yaml pull ares
+      docker-compose -f docker/docker-compose.prod.yaml create ares
+      docker-compose -f docker/docker-compose.prod.yaml start ares
+      ;;
     poseidon)
       docker-compose -f docker/docker-compose.prod.yaml stop poseidon
       yes | docker-compose -f docker/docker-compose.prod.yaml rm poseidon
