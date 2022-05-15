@@ -1,23 +1,31 @@
 FROM node:14-alpine AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-RUN yarn remove bcrypt && yarn add bcrypt
 
-COPY ./ ./
+COPY package.json yarn.lock script.js deps.json ./
+
+RUN npm install chalk@^4.1.2 --no-package-lock && npm install yargs --no-package-lock
+RUN yarn crm localize apollo
+
+RUN yarn install
+COPY ./apollo ./apollo
+
 RUN npm install -g typescript
-RUN yarn build
+RUN yarn crm build apollo
 
 FROM node:alpine AS runner
+
 WORKDIR /app
+RUN npm install -g npm@latest
 
-ENV NODE_ENV production
+ENV NODE_ENV dev
 
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json /app/script.js /app/deps.json ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/.env ./
+
+COPY --from=builder /app/apollo/dist ./apollo/dist
+COPY --from=builder /app/apollo/package.json ./apollo
+COPY --from=builder /app/apollo/.env ./apollo
 
 ENV FE_URL https://artemis.web-crm.software
 ENV GH_TOKEN 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
@@ -29,4 +37,4 @@ ENV API_GATEWAY http://zeus:4000
 ENV ARES_SERVICE http://ares:9000
 
 EXPOSE 8000
-CMD ["npm", "start"]
+CMD ["npm", "run", "crm", "start", "apollo"]

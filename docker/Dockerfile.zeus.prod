@@ -1,24 +1,29 @@
 FROM node:14-alpine AS builder
 RUN apk add --no-cache libc6-compat
-
 WORKDIR /app
-COPY package.json yarn.lock ./
 
-RUN yarn install --frozen-lockfile
+COPY package.json yarn.lock script.js deps.json ./
 
-COPY ./ ./
+RUN npm install chalk@^4.1.2 && npm install yargs
+RUN yarn crm localize zeus
+
+RUN yarn install
+COPY ./zeus ./zeus
+
 RUN npm install -g typescript
-RUN yarn build
+RUN yarn crm build zeus
 
 FROM node:alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
 
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json /app/script.js /app/deps.json ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/.env ./
+
+COPY --from=builder /app/zeus/dist ./zeus/dist
+COPY --from=builder /app/zeus/package.json ./zeus
+COPY --from=builder /app/zeus/.env ./zeus
 
 ENV FE_URL https://artemis.web-crm.software
 ENV GLOBAL_PREFIX v1/api
@@ -30,4 +35,4 @@ ENV API_KEY wqnlaskdnzxcuosd
 ENV JWT_SECRET alsndlac1023ualksdnlaskn
 
 EXPOSE 4000
-CMD ["npm", "start"]
+CMD ["npm", "run", "crm", "start", "zeus"]
