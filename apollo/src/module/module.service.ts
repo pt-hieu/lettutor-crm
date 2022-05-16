@@ -421,7 +421,17 @@ export class ModuleService implements OnApplicationBootstrap {
   async getReport(filterDto: DTO.Module.DealReportFilter) {
     switch (filterDto.reportType) {
       case ReportType.TODAY_SALES:
+      case ReportType.THIS_MONTH_SALES:
+      case ReportType.SALES_BY_LEAD_SOURCE:
+      case ReportType.SALES_PERSON_PERFORMANCE:
         return this.getDealsReport(DealStageType.CLOSE_WON, filterDto)
+      case ReportType.OPEN_DEALS:
+      case ReportType.DEALS_CLOSING_THIS_MONTH:
+      case ReportType.PIPELINE_BY_PROBABILITY:
+      case ReportType.PIPELINE_BY_STAGE:
+        return this.getDealsReport(DealStageType.OPEN, filterDto)
+      case ReportType.LOST_DEALS:
+        return this.getDealsReport(DealStageType.CLOSE_LOST, filterDto)
       default:
         throw new BadRequestException(
           `Cannot find report with type ${filterDto.reportType}`,
@@ -444,7 +454,6 @@ export class ModuleService implements OnApplicationBootstrap {
 
     const qb = this.entityRepo
       .createQueryBuilder('e')
-      .orderBy('e.createdAt', 'DESC')
       .where("e.data ->> 'stageId' IN (:...ids)", { ids: ids })
 
     switch (filterDto.timeFieldType) {
@@ -491,6 +500,22 @@ export class ModuleService implements OnApplicationBootstrap {
 
       default:
         break
+    }
+
+    if (filterDto.reportType === ReportType.SALES_BY_LEAD_SOURCE) {
+      qb.groupBy(`e.data ->> 'source', e.id`)
+      qb.orderBy(`e.data ->> 'source', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.SALES_PERSON_PERFORMANCE) {
+      qb.groupBy(`e.data ->> 'ownerId', e.id`)
+      qb.orderBy(`e.data ->> 'ownerId', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.PIPELINE_BY_PROBABILITY) {
+      qb.groupBy(`e.data ->> 'probability', e.id`)
+      qb.orderBy(`e.data ->> 'probability', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.PIPELINE_BY_STAGE) {
+      qb.groupBy(`e.data ->> 'stageId', e.id`)
+      qb.orderBy(`e.data ->> 'stageId', e.createdAt`, 'DESC')
+    } else {
+      qb.orderBy('e.createdAt', 'DESC')
     }
 
     if (shouldNotPaginate) return qb.getMany()

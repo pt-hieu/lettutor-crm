@@ -53,11 +53,13 @@ export enum AggregateType {
 export enum ReportType {
   TODAY_SALES = 'Today Sales',
   THIS_MONTH_SALES = 'This Month Sales',
+  SALES_BY_LEAD_SOURCE = 'Sales by Lead Source',
   PIPELINE_BY_STAGE = 'Pipeline By Stage',
   PIPELINE_BY_PROBABILITY = 'Pipeline By Probability',
   OPEN_DEALS = 'Open Deals',
   LOST_DEALS = 'Lost Deals',
   DEALS_CLOSING_THIS_MONTH = 'Deals Closing This Month',
+  SALES_PERSON_PERFORMANCE = 'Sales Person Performance',
 }
 
 export enum TimeFieldName {
