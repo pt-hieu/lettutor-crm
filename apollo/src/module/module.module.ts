@@ -2,6 +2,7 @@ import { Module as ModuleDecorator } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { Action } from 'src/action/action.entity'
+import { DealStage } from 'src/deal-stage/deal-stage.entity'
 import { File } from 'src/file/file.entity'
 import { Note } from 'src/note/note.entity'
 import { NoteModule } from 'src/note/note.module'
@@ -15,7 +16,7 @@ import { ModuleSubscriber } from './module.subscriber'
 
 @ModuleDecorator({
   imports: [
-    TypeOrmModule.forFeature([Module, Entity, Action, File, Note]),
+    TypeOrmModule.forFeature([Module, Entity, Action, File, Note, DealStage]),
     UserModule,
     NoteModule,
   ],
