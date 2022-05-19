@@ -47,6 +47,28 @@ const defaultValues: TReportFilterData = {
   ...defaultDates,
 }
 
+const formatReportFilter = (data: TReportFilterData) => {
+  const filter = { ...data }
+  let { timeFieldType } = filter
+
+  if (!Object.values(TimeFieldType).includes(timeFieldType as TimeFieldType)) {
+    if (singleDayTypes.includes(timeFieldType || '')) {
+      timeFieldType = TimeFieldType.EXACT
+    } else {
+      timeFieldType = TimeFieldType.BETWEEN
+    }
+  }
+
+  if (singleDayTypes.includes(timeFieldType || '')) {
+    delete filter.startDate
+    delete filter.endDate
+  } else {
+    delete filter.singleDate
+  }
+
+  return { ...filter, timeFieldType }
+}
+
 const ReportNavbar = () => {
   const [isSingleDay, setIsSingleDay] = useState(true)
   const { handleSubmit, register, reset, getValues } =
@@ -57,7 +79,8 @@ const ReportNavbar = () => {
   } = useRouter()
 
   const handleApply = handleSubmit((data) => {
-    console.log(data)
+    const formattedData = formatReportFilter(data)
+    console.log(formattedData)
   })
 
   const getDatesByType = (type: string): string | [string, string] | null => {
@@ -89,8 +112,6 @@ const ReportNavbar = () => {
   useEffect(() => {
     setIsSingleDay(singleDayTypes.includes(getValues('timeFieldType') || ''))
   }, [getValues('timeFieldType')])
-
-  console.log(defaultValues)
 
   return (
     <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px] flex items-center gap-4 px-[60px]">
@@ -141,6 +162,9 @@ const ReportNavbar = () => {
             <Input
               showError={false}
               props={{
+                disabled: Object.values(StaticTime).includes(
+                  getValues('timeFieldType') as StaticTime,
+                ),
                 type: 'date',
                 className: 'w-full',
                 ...register('singleDate'),
@@ -153,6 +177,9 @@ const ReportNavbar = () => {
               <Input
                 showError={false}
                 props={{
+                  disabled: Object.values(StaticTime).includes(
+                    getValues('timeFieldType') as StaticTime,
+                  ),
                   type: 'date',
                   className: 'w-full',
                   ...register('startDate'),
@@ -163,6 +190,9 @@ const ReportNavbar = () => {
               <Input
                 showError={false}
                 props={{
+                  disabled: Object.values(StaticTime).includes(
+                    getValues('timeFieldType') as StaticTime,
+                  ),
                   type: 'date',
                   className: 'w-full',
                   ...register('endDate'),
