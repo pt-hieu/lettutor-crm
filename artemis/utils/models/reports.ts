@@ -33,6 +33,10 @@ export enum StaticTime {
   LastMonth = 'Last Month',
   CurrentMonth = 'Current Month',
   NextMonth = 'Next Month',
+  Last6Months = 'Last 6 Months',
+  Last12Months = 'Last 12 Months',
+  Next6Months = 'Next 6 Months',
+  Next12Months = 'Next 12 Months',
 }
 
 export type TReport = {

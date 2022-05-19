@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import Input from '@utils/components/Input'
+import { StaticDateByType } from '@utils/data/report-data'
 import { StaticTime, TimeFieldName, TimeFieldType } from '@utils/models/reports'
 
 type TReportFilterData = {
@@ -46,10 +47,6 @@ const defaultValues: TReportFilterData = {
   ...defaultDates,
 }
 
-const staticTime: Record<StaticTime.Yesterday, string | [string, string]> = {
-  [StaticTime.Yesterday]: moment().add(1, 'day').format('yyyy-MM-DD'),
-}
-
 const ReportNavbar = () => {
   const [isSingleDay, setIsSingleDay] = useState(true)
   const { handleSubmit, register, reset, getValues } =
@@ -64,8 +61,8 @@ const ReportNavbar = () => {
   })
 
   const getDatesByType = (type: string): string | [string, string] | null => {
-    if (type in staticTime) {
-      return staticTime[type as StaticTime.Yesterday]
+    if (type in StaticDateByType) {
+      return StaticDateByType[type as StaticTime]
     }
     return null
   }
