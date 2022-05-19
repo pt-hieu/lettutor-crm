@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 
 import { toCapitalizedWords } from '@components/Module/OverviewView'
 
-const reports: { name: string }[] = [{ name: 'lead' }, { name: 'deal' }]
+const reports: { name: string }[] = [{ name: 'deal' }, { name: 'lead' }]
 
 const active = 'text-blue-600 font-semibold'
 
@@ -19,9 +19,10 @@ export const ReportsSidebar = () => {
       push(
         {
           pathname: '/reports',
-          query: { module: 'lead' },
+          query: { module: reports[0].name },
         },
         undefined,
+        { shallow: true },
       )
     }
   }, [module])

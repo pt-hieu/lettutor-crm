@@ -23,6 +23,18 @@ export enum TimeFieldType {
   BETWEEN = 'Between',
 }
 
+export enum StaticTime {
+  Yesterday = 'Yesterday',
+  Today = 'Today',
+  Tomorrow = 'Tomorrow',
+  LastWeek = 'Last Week',
+  CurrentWeek = 'Current Week',
+  NextWeek = 'Next Week',
+  LastMonth = 'Last Month',
+  CurrentMonth = 'Current Month',
+  NextMonth = 'Next Month',
+}
+
 export type TReport = {
   name: string
   description: string

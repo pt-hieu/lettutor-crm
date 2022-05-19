@@ -11,7 +11,6 @@ import { TReport } from '@utils/models/reports'
 
 export default () => {
   const {
-    push,
     query: { module },
   } = useRouter()
 
@@ -41,7 +40,7 @@ export default () => {
   )
 
   return (
-    <ReportsLayout>
+    <ReportsLayout title="CRM | Report">
       <div>
         <div className="font-medium text-xl mb-4 py-2">
           {toCapitalizedWords(module + ' Reports')}
