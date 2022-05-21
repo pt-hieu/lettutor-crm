@@ -5,15 +5,12 @@ import { useForm } from 'react-hook-form'
 
 import Input from '@utils/components/Input'
 import { StaticDateByType } from '@utils/data/report-data'
-import { StaticTime, TimeFieldName, TimeFieldType } from '@utils/models/reports'
-
-export type TReportFilterData = {
-  timeFieldName?: string
-  timeFieldType?: string
-  startDate?: Date | string
-  endDate?: Date | string
-  singleDate?: Date | string
-}
+import {
+  StaticTime,
+  TReportFilterData,
+  TimeFieldName,
+  TimeFieldType,
+} from '@utils/models/reports'
 
 const mappedTimeFieldNames: Record<TimeFieldName, string> = {
   [TimeFieldName.CLOSING_DATE]: 'Closing Date',
@@ -43,9 +40,10 @@ const defaultDates = {
 
 interface IProps {
   defaultValues?: TReportFilterData
+  onFilter: (value: TReportFilterData) => void
 }
 
-export const ReportFilter = ({ defaultValues }: IProps) => {
+export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
   const [isSingleDay, setIsSingleDay] = useState(true)
   const [isNoTimeFieldName, setIsNoTimeFieldName] = useState(true)
   const [isNoTimeFieldType, setIsNoTimeFieldType] = useState(true)
@@ -55,11 +53,10 @@ export const ReportFilter = ({ defaultValues }: IProps) => {
 
   const handleApply = handleSubmit((data) => {
     if (isNoTimeFieldName || isNoTimeFieldType) {
-      console.log({})
       return
     }
     const formattedData = formatReportFilter(data)
-    console.log(formattedData)
+    onFilter(formattedData)
   })
 
   const getDatesByType = (type: string): string | [string, string] | null => {
@@ -100,6 +97,7 @@ export const ReportFilter = ({ defaultValues }: IProps) => {
   const handleResetFilter = () => {
     reset(defaultDates)
     setIsNoTimeFieldName(true)
+    onFilter({})
   }
 
   useEffect(() => {
@@ -211,10 +209,17 @@ export const ReportFilter = ({ defaultValues }: IProps) => {
         </>
       )}
 
-      <button className="crm-button">Apply</button>
-      <button className="crm-button-secondary" onClick={handleResetFilter}>
-        Reset
+      <button
+        className="crm-button"
+        disabled={isNoTimeFieldName || isNoTimeFieldType}
+      >
+        Apply
       </button>
+      {!isNoTimeFieldName && !isNoTimeFieldType && (
+        <button className="crm-button-secondary" onClick={handleResetFilter}>
+          Reset
+        </button>
+      )}
     </form>
   )
 }

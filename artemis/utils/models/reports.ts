@@ -43,3 +43,11 @@ export type TReport = {
   name: string
   description: string
 }
+
+export type TReportFilterData = {
+  timeFieldName?: string
+  timeFieldType?: string
+  startDate?: Date | string
+  endDate?: Date | string
+  singleDate?: Date | string
+}
