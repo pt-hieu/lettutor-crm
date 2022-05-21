@@ -51,18 +51,18 @@ export const StaticDateByType: Record<StaticTime, string | [string, string]> = {
   ],
   [StaticTime.Last6Months]: [
     moment().subtract(6, 'month').startOf('month').format('yyyy-MM-DD'),
-    moment().subtract(6, 'month').endOf('month').format('yyyy-MM-DD'),
+    moment().endOf('month').format('yyyy-MM-DD'),
   ],
   [StaticTime.Last12Months]: [
     moment().subtract(12, 'month').startOf('month').format('yyyy-MM-DD'),
-    moment().subtract(12, 'month').endOf('month').format('yyyy-MM-DD'),
+    moment().subtract(1, 'month').endOf('month').format('yyyy-MM-DD'),
   ],
   [StaticTime.Next6Months]: [
-    moment().add(6, 'month').startOf('month').format('yyyy-MM-DD'),
+    moment().add(1, 'month').startOf('month').format('yyyy-MM-DD'),
     moment().add(6, 'month').endOf('month').format('yyyy-MM-DD'),
   ],
   [StaticTime.Next12Months]: [
-    moment().add(12, 'month').startOf('month').format('yyyy-MM-DD'),
+    moment().add(1, 'month').startOf('month').format('yyyy-MM-DD'),
     moment().add(12, 'month').endOf('month').format('yyyy-MM-DD'),
   ],
 }
