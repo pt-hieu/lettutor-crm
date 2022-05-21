@@ -43,6 +43,13 @@ interface IProps {
   onFilter: (value: TReportFilterData) => void
 }
 
+const getDatesByType = (type: string): string | [string, string] | null => {
+  if (type in StaticDateByType) {
+    return StaticDateByType[type as StaticTime]
+  }
+  return null
+}
+
 export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
   const [isSingleDay, setIsSingleDay] = useState(true)
   const [isNoTimeFieldName, setIsNoTimeFieldName] = useState(true)
@@ -55,16 +62,8 @@ export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
     if (isNoTimeFieldName || isNoTimeFieldType) {
       return
     }
-    const formattedData = formatReportFilter(data)
-    onFilter(formattedData)
+    onFilter(data)
   })
-
-  const getDatesByType = (type: string): string | [string, string] | null => {
-    if (type in StaticDateByType) {
-      return StaticDateByType[type as StaticTime]
-    }
-    return null
-  }
 
   const setFilterValuesByTimeFieldType = (type: string) => {
     const dates = getDatesByType(type)
@@ -97,6 +96,7 @@ export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
   const handleResetFilter = () => {
     reset(defaultDates)
     setIsNoTimeFieldName(true)
+    setIsNoTimeFieldType(true)
     onFilter({})
   }
 
@@ -224,15 +224,15 @@ export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
   )
 }
 
-function formatReportFilter(data: TReportFilterData) {
+export function formatReportFilter(data: TReportFilterData) {
   const filter = { ...data }
   let { timeFieldType } = filter
 
   if (!Object.values(TimeFieldType).includes(timeFieldType as TimeFieldType)) {
     if (singleDayTypes.includes(timeFieldType || '')) {
-      timeFieldType = TimeFieldType.EXACT
+      filter.timeFieldType = TimeFieldType.EXACT
     } else {
-      timeFieldType = TimeFieldType.BETWEEN
+      filter.timeFieldType = TimeFieldType.BETWEEN
     }
   }
 
@@ -243,5 +243,8 @@ function formatReportFilter(data: TReportFilterData) {
     delete filter.singleDate
   }
 
-  return { ...filter, timeFieldType }
+  const { startDate, endDate, singleDate } = filter
+  if (!startDate && !endDate && !singleDate) delete filter.timeFieldType
+
+  return filter
 }

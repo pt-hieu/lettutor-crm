@@ -3,10 +3,14 @@ import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { QueryClient, dehydrate, useQuery } from 'react-query'
 
-import { ReportFilter } from '@components/Reports/Details/Filter'
+import {
+  ReportFilter,
+  formatReportFilter,
+} from '@components/Reports/Details/Filter'
 import { TodaySalesTable } from '@components/Reports/Details/Tables/TodaySales'
 
 import Layout from '@utils/components/Layout'
+import { StaticDateByType } from '@utils/data/report-data'
 import { useRelationField } from '@utils/hooks/useRelationField'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Module } from '@utils/models/module'
@@ -19,23 +23,47 @@ import {
 import { getModules } from '@utils/service/module'
 import { getDealsReport } from '@utils/service/report'
 
-const defaultValues: TReportFilterData = {
-  timeFieldName: TimeFieldName.CLOSING_DATE,
-  timeFieldType: StaticTime.CurrentMonth,
-}
-
 interface IProps {
   module: Module
 }
 
-export default ({ module }: IProps) => {
-  const [page, setPage] = useState<number>(1)
-  const [limit, setLimit] = useState<number>(10)
-  const [filter, setFilter] = useState<TReportFilterData>({})
+const FilterByReportType: Record<ReportType, TReportFilterData> = {
+  [ReportType.LOST_DEALS]: {},
+  [ReportType.OPEN_DEALS]: {},
+  [ReportType.PIPELINE_BY_PROBABILITY]: {},
 
+  [ReportType.PIPELINE_BY_STAGE]: {},
+  [ReportType.SALES_BY_LEAD_SOURCE]: {},
+  [ReportType.SALES_PERSON_PERFORMANCE]: {},
+  [ReportType.DEALS_CLOSING_THIS_MONTH]: {
+    timeFieldName: TimeFieldName.CLOSING_DATE,
+    timeFieldType: StaticTime.CurrentMonth,
+    startDate: StaticDateByType[StaticTime.CurrentMonth][0],
+    endDate: StaticDateByType[StaticTime.CurrentMonth][1],
+  },
+  [ReportType.THIS_MONTH_SALES]: {
+    timeFieldName: TimeFieldName.CLOSING_DATE,
+    timeFieldType: StaticTime.CurrentMonth,
+    startDate: StaticDateByType[StaticTime.CurrentMonth][0],
+    endDate: StaticDateByType[StaticTime.CurrentMonth][1],
+  },
+  [ReportType.TODAY_SALES]: {
+    timeFieldName: TimeFieldName.CLOSING_DATE,
+    timeFieldType: StaticTime.Today,
+    singleDate: StaticDateByType[StaticTime.Today] as string,
+  },
+}
+
+export default ({ module }: IProps) => {
   const {
     query: { type },
   } = useRouter()
+
+  const [page, setPage] = useState<number>(1)
+  const [limit, setLimit] = useState<number>(10)
+  const [filter, setFilter] = useState<TReportFilterData>(
+    FilterByReportType[type as ReportType] || {},
+  )
 
   const { name, meta } = module
   useRelationField(meta)
@@ -48,9 +76,13 @@ export default ({ module }: IProps) => {
       page,
       limit,
       reportType: type as unknown as ReportType,
-      ...filter,
+      ...formatReportFilter(filter),
     }),
   )
+
+  const handleFilter = (value: TReportFilterData) => {
+    setFilter(value)
+  }
 
   const reportName = type || 'Unknown Report'
 
@@ -62,7 +94,10 @@ export default ({ module }: IProps) => {
     >
       <div className="mb-4 border-b py-4 sticky top-[76px] bg-white z-[999] transform translate-y-[-16px] flex items-center gap-4 px-[60px]">
         <div className="font-semibold text-[17px]">{reportName}</div>
-        <ReportFilter defaultValues={defaultValues} onFilter={setFilter} />
+        <ReportFilter
+          defaultValues={FilterByReportType[type as ReportType] || {}}
+          onFilter={handleFilter}
+        />
       </div>
 
       <div className="px-[60px]">
