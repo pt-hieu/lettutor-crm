@@ -538,7 +538,7 @@ export class ModuleService implements OnApplicationBootstrap {
       .getMany()
   }
 
-  async getReport(filterDto: DTO.Module.DealReportFilter) {
+  async getReport(filterDto: DTO.Module.ReportFilter) {
     switch (filterDto.reportType) {
       case ReportType.TODAY_SALES:
       case ReportType.THIS_MONTH_SALES:
@@ -552,6 +552,12 @@ export class ModuleService implements OnApplicationBootstrap {
         return this.getDealsReport(DealStageType.OPEN, filterDto)
       case ReportType.LOST_DEALS:
         return this.getDealsReport(DealStageType.CLOSE_LOST, filterDto)
+      case ReportType.TODAY_LEADS:
+      case ReportType.LEADS_BY_SOURCE:
+      case ReportType.LEADS_BY_STATUS:
+      case ReportType.LEADS_BY_OWNERSHIP:
+      case ReportType.CONVERTED_LEADS:
+        return this.getLeadsReport(filterDto)
       default:
         throw new BadRequestException(
           `Cannot find report with type ${filterDto.reportType}`,
@@ -561,12 +567,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
   async getDealsReport(
     dealStageType: DealStageType,
-    {
-      limit,
-      page,
-      shouldNotPaginate,
-      ...filterDto
-    }: DTO.Module.DealReportFilter,
+    { limit, page, shouldNotPaginate, ...filterDto }: DTO.Module.ReportFilter,
   ) {
     const ids = []
     const dealStages = await this.getManyDealStagesByType(dealStageType)
@@ -634,6 +635,78 @@ export class ModuleService implements OnApplicationBootstrap {
     } else if (filterDto.reportType === ReportType.PIPELINE_BY_STAGE) {
       qb.groupBy(`e.data ->> 'stageId', e.id`)
       qb.orderBy(`e.data ->> 'stageId', e.createdAt`, 'DESC')
+    } else {
+      qb.orderBy('e.createdAt', 'DESC')
+    }
+
+    if (shouldNotPaginate) return qb.getMany()
+    return paginate(qb, { limit, page })
+  }
+
+  async getLeadsReport({
+    limit,
+    page,
+    shouldNotPaginate,
+    ...filterDto
+  }: DTO.Module.ReportFilter) {
+    const qb = this.entityRepo.createQueryBuilder('e')
+
+    switch (filterDto.timeFieldType) {
+      case TimeFieldType.EXACT: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' = '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.BETWEEN: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+            filterDto.startDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+            filterDto.endDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_AFTER: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_BEFORE: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      default:
+        break
+    }
+
+    if (filterDto.reportType === ReportType.LEADS_BY_SOURCE) {
+      qb.groupBy(`e.data ->> 'source', e.id`)
+      qb.orderBy(`e.data ->> 'source', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.LEADS_BY_STATUS) {
+      qb.groupBy(`e.data ->> 'status', e.id`)
+      qb.orderBy(`e.data ->> 'status', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.LEADS_BY_OWNERSHIP) {
+      qb.groupBy(`e.data ->> 'ownerId', e.id`)
+      qb.orderBy(`e.data ->> 'ownerId', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.CONVERTED_LEADS) {
     } else {
       qb.orderBy('e.createdAt', 'DESC')
     }

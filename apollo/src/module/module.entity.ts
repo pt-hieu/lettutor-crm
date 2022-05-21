@@ -60,6 +60,11 @@ export enum ReportType {
   LOST_DEALS = 'Lost Deals',
   DEALS_CLOSING_THIS_MONTH = 'Deals Closing This Month',
   SALES_PERSON_PERFORMANCE = 'Sales Person Performance',
+  TODAY_LEADS = 'Today Leads',
+  LEADS_BY_STATUS = 'Leads by Status',
+  LEADS_BY_SOURCE = 'Leads by Source',
+  LEADS_BY_OWNERSHIP = 'Leads by Ownership',
+  CONVERTED_LEADS = 'Converted Leads',
 }
 
 export enum TimeFieldName {
