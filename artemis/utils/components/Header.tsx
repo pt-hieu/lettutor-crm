@@ -17,6 +17,12 @@ import SettingMenu from './SettingMenu'
 export const menuItemClass =
   'p-2 px-5 hover:bg-gray-200 hover:text-current w-full cursor-pointer crm-transition font-semibold text-gray-700'
 
+const staticModules: { name: string }[] = [
+  { name: 'tasks' },
+  { name: 'logs' },
+  { name: 'reports' },
+]
+
 export default function Header() {
   const { asPath } = useRouter()
   const [confirm, openConfirm, closeConfirm] = useModal()
@@ -48,23 +54,21 @@ export default function Header() {
 
         <div className="ml-12 flex gap-6">
           {modules &&
-            modules
-              .concat({ name: 'tasks' }, { name: 'logs' })
-              .map(({ name }) => (
-                <Link href={`/${name}`} key={name}>
-                  <a
-                    className={`relative crm-link font-medium leading-[28px] whitespace-nowrap capitalize ${
-                      name === `${splitPath[1]}` ? 'text-blue-600' : ''
-                    }`}
-                  >
-                    {name}
+            modules.concat(staticModules).map(({ name }) => (
+              <Link href={`/${name}`} key={name}>
+                <a
+                  className={`relative crm-link font-medium leading-[28px] whitespace-nowrap capitalize ${
+                    name === `${splitPath[1]}` ? 'text-blue-600' : ''
+                  }`}
+                >
+                  {name}
 
-                    {name === `${splitPath[1]}` && (
-                      <span className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]" />
-                    )}
-                  </a>
-                </Link>
-              ))}
+                  {name === `${splitPath[1]}` && (
+                    <span className="absolute top-[101%] left-0 rounded-md w-full bg-blue-600 h-[3px]" />
+                  )}
+                </a>
+              </Link>
+            ))}
         </div>
       </div>
 
