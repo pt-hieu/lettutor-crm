@@ -12,6 +12,7 @@ import { clone, omit } from 'lodash'
 import moment from 'moment'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
+import { CsvParser, ParsedData } from 'nest-csv-parser'
 
 import { Action, ActionType } from 'src/action/action.entity'
 import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
@@ -29,6 +30,8 @@ import {
   ReportType,
   TimeFieldType,
 } from './module.entity'
+import { AuthRequest } from 'src/utils/interface'
+import { Duplex } from 'stream'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -41,6 +44,8 @@ export class ModuleService implements OnApplicationBootstrap {
     @InjectRepository(DealStage) private dealStageRepo: Repository<DealStage>,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
+    private readonly csvParser: CsvParser,
+
   ) {}
 
   async onApplicationBootstrap() {
@@ -96,6 +101,53 @@ export class ModuleService implements OnApplicationBootstrap {
 
     return this.moduleRepo.save(dto)
   }
+
+  async bulkCreateEntities(
+    filBuffer: Buffer,
+    moduleName: string,
+    req: AuthRequest,
+  ) {
+    if (
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_IMPORT_FROM_FILE,
+      })
+    ) {
+      throw new ForbiddenException()
+    }
+
+    const module = await this.moduleRepo.findOne({
+      where: { name: moduleName },
+    })
+
+    if (!module) throw new BadRequestException('Module not found')
+
+    const stream = bufferToStream(filBuffer)
+
+    let rawEntities = (await this.csvParser.parse(
+      stream,
+      DTO.Module.AddEntity,
+      undefined,
+      undefined,
+      { strict: true, separator: ',' },
+    )) as ParsedData<DTO.Module.AddEntity>
+
+    let entities: DTO.Module.AddEntity[] = rawEntities.list.map((e: DTO.Module.AddEntity) => ({
+      name: e.name,
+      data: {
+        ...e.data,
+        "ownerId": "d6f45054-cc44-4ade-9b6e-0369888e1c91"
+      }
+    }))
+
+    entities.forEach(e => {
+      const validateMessage = module.validateEntity(e.data)
+      if (validateMessage) throw new UnprocessableEntityException(validateMessage)
+    })
+
+    return this.entityRepo.save({ ...entities, moduleId: module.id })
+  }
+
 
   async getOneModule(id: string) {
     const module = await this.moduleRepo.findOne({
@@ -521,4 +573,16 @@ export class ModuleService implements OnApplicationBootstrap {
     if (shouldNotPaginate) return qb.getMany()
     return paginate(qb, { limit, page })
   }
+}
+
+
+function bufferToStream(buffer: Buffer) {
+  // Remove BOM in buffer
+  if (buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf)
+    buffer = buffer.slice(3)
+
+  let duplexStream = new Duplex({ encoding: 'utf-8' })
+  duplexStream.push(buffer)
+  duplexStream.push(null)
+  return duplexStream
 }

@@ -9,10 +9,14 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common'
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
-
+import { ApiBody, ApiConsumes, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
+import { FileInterceptor } from '@nestjs/platform-express'
 import { DTO } from 'src/type'
+import { AuthRequest } from 'src/utils/interface'
 
 import { ReportType } from './module.entity'
 import { ModuleService } from './module.service'
@@ -79,6 +83,29 @@ export class ModuleController {
     @Body() dto: DTO.Module.AddEntity,
   ) {
     return this.service.addEntity(moduleName, dto)
+  }
+
+  @Post(':name/import/csv')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'to import entities at module via uploading' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  importEntities(
+    @Param('name') moduleName: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: AuthRequest,
+  ) {
+    return this.service.bulkCreateEntities(file.buffer, moduleName, req)
   }
 
   @Put('convert/:source_id')
