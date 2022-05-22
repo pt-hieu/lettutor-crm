@@ -10,6 +10,8 @@ import {
   Put,
   Query,
   Request,
+  Response,
+  StreamableFile,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common'
@@ -17,6 +19,7 @@ import { ApiBody, ApiConsumes, ApiOperation, ApiSecurity, ApiTags } from '@nestj
 import { FileInterceptor } from '@nestjs/platform-express'
 import { DTO } from 'src/type'
 import { AuthRequest } from 'src/utils/interface'
+import { Response as Res } from 'express'
 
 import { ReportType } from './module.entity'
 import { ModuleService } from './module.service'
@@ -26,7 +29,7 @@ import { ModuleService } from './module.service'
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 export class ModuleController {
-  constructor(private service: ModuleService) {}
+  constructor(private service: ModuleService) { }
 
   @Get()
   @ApiOperation({ summary: 'to get many modules' })
@@ -84,6 +87,21 @@ export class ModuleController {
   ) {
     return this.service.addEntity(moduleName, dto)
   }
+
+  @Get(':name/export/csv')
+  @ApiOperation({ summary: 'to get the score board csv' })
+  async getScoreboard(
+    @Param('name') moduleName: string,
+    @Response({ passthrough: true }) res: Res
+  ) {
+    const csv = await this.service.getListInCsvFormat(moduleName)
+    const fileName = moduleName + ".csv"
+    res.set('Content-Type', 'text/csv')
+    res.set('Content-Disposition', `attachment; filename="${fileName}"`)
+
+    return new StreamableFile(Buffer.from(csv))
+  }
+
 
   @Post(':name/import/csv')
   @UseInterceptors(FileInterceptor('file'))

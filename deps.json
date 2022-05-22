@@ -44,7 +44,8 @@
     "typescript",
     "yargs",
     "chalk",
-    "nest-csv-parser"
+    "nest-csv-parser",
+    "json2csv"
   ],
   "ares": [
     "@nestjs/common",
