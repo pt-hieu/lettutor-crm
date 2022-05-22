@@ -1,8 +1,6 @@
 import {
-  BadRequestException,
   Body,
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   Param,
@@ -12,12 +10,11 @@ import {
   Put,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
-import { plainToInstance } from 'class-transformer'
-import { validate } from 'class-validator'
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DTO } from 'src/type'
 
+import { ReportType } from './module.entity'
 import { ModuleService } from './module.service'
 
 @Controller('module')
@@ -52,6 +49,12 @@ export class ModuleController {
   @ApiOperation({ summary: 'to get raw entity for creating task' })
   getRawEntityForCreatingTask() {
     return this.service.getRawEntityForTaskCreate()
+  }
+
+  @Get('/entity/report/deal')
+  @ApiOperation({ summary: 'to get deal related report' })
+  getReport(@Query() dto: DTO.Module.DealReportFilter) {
+    return this.service.getReport(dto)
   }
 
   @Get(':name/raw')

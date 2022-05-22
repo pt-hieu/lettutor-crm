@@ -9,31 +9,36 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { clone, omit } from 'lodash'
+import moment from 'moment'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { Action, ActionType } from 'src/action/action.entity'
+import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
 import { File } from 'src/file/file.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
-import { NoteService } from 'src/note/note.service'
 import { DTO } from 'src/type'
-import { UserService } from 'src/user/user.service'
 
 import { account, contact, deal, lead } from './default.entity'
-import { Entity, FieldType, Module } from './module.entity'
+import {
+  Entity,
+  FieldType,
+  Module,
+  ReportType,
+  TimeFieldType,
+} from './module.entity'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
   constructor(
-    private readonly userService: UserService,
-    private readonly noteService: NoteService,
     @InjectRepository(Module) private moduleRepo: Repository<Module>,
     @InjectRepository(Note) private noteRepo: Repository<Note>,
     @InjectRepository(Entity) private entityRepo: Repository<Entity>,
     @InjectRepository(File) private fileRepo: Repository<File>,
     @InjectRepository(Action) private actionRepo: Repository<Action>,
+    @InjectRepository(DealStage) private dealStageRepo: Repository<DealStage>,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
   ) {}
@@ -404,5 +409,116 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     return entity
+  }
+
+  async getManyDealStagesByType(type: DealStageType) {
+    return this.dealStageRepo
+      .createQueryBuilder('e')
+      .where('e.type = :type', { type: type })
+      .getMany()
+  }
+
+  async getReport(filterDto: DTO.Module.DealReportFilter) {
+    switch (filterDto.reportType) {
+      case ReportType.TODAY_SALES:
+      case ReportType.THIS_MONTH_SALES:
+      case ReportType.SALES_BY_LEAD_SOURCE:
+      case ReportType.SALES_PERSON_PERFORMANCE:
+        return this.getDealsReport(DealStageType.CLOSE_WON, filterDto)
+      case ReportType.OPEN_DEALS:
+      case ReportType.DEALS_CLOSING_THIS_MONTH:
+      case ReportType.PIPELINE_BY_PROBABILITY:
+      case ReportType.PIPELINE_BY_STAGE:
+        return this.getDealsReport(DealStageType.OPEN, filterDto)
+      case ReportType.LOST_DEALS:
+        return this.getDealsReport(DealStageType.CLOSE_LOST, filterDto)
+      default:
+        throw new BadRequestException(
+          `Cannot find report with type ${filterDto.reportType}`,
+        )
+    }
+  }
+
+  async getDealsReport(
+    dealStageType: DealStageType,
+    {
+      limit,
+      page,
+      shouldNotPaginate,
+      ...filterDto
+    }: DTO.Module.DealReportFilter,
+  ) {
+    const ids = []
+    const dealStages = await this.getManyDealStagesByType(dealStageType)
+    dealStages.forEach(({ id }) => ids.push(id))
+
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .where("e.data ->> 'stageId' IN (:...ids)", { ids: ids })
+
+    switch (filterDto.timeFieldType) {
+      case TimeFieldType.EXACT: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' = '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.BETWEEN: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+            filterDto.startDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+            filterDto.endDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_AFTER: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_BEFORE: {
+        qb.andWhere(
+          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+            filterDto.singleDate,
+          ).format('YYYY-MM-DD')}'`,
+        )
+        break
+      }
+
+      default:
+        break
+    }
+
+    if (filterDto.reportType === ReportType.SALES_BY_LEAD_SOURCE) {
+      qb.groupBy(`e.data ->> 'source', e.id`)
+      qb.orderBy(`e.data ->> 'source', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.SALES_PERSON_PERFORMANCE) {
+      qb.groupBy(`e.data ->> 'ownerId', e.id`)
+      qb.orderBy(`e.data ->> 'ownerId', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.PIPELINE_BY_PROBABILITY) {
+      qb.groupBy(`e.data ->> 'probability', e.id`)
+      qb.orderBy(`e.data ->> 'probability', e.createdAt`, 'DESC')
+    } else if (filterDto.reportType === ReportType.PIPELINE_BY_STAGE) {
+      qb.groupBy(`e.data ->> 'stageId', e.id`)
+      qb.orderBy(`e.data ->> 'stageId', e.createdAt`, 'DESC')
+    } else {
+      qb.orderBy('e.createdAt', 'DESC')
+    }
+
+    if (shouldNotPaginate) return qb.getMany()
+    return paginate(qb, { limit, page })
   }
 }

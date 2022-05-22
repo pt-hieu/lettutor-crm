@@ -96,7 +96,11 @@ export default memo(function LogItem({
   )
 
   return (
-    <div className={`p-3 ring-gray-200 ring-1 hover:ring-blue-600 rounded-md crm-transition ${className || ''}`}>
+    <div
+      className={`p-3 ring-gray-200 ring-1 hover:ring-blue-600 rounded-md crm-transition ${
+        className || ''
+      }`}
+    >
       <div className="flex items-center gap-4">
         <span className="w-10 h-10 bg-gray-300 rounded-full" />
 
