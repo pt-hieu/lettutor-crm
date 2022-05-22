@@ -22,7 +22,7 @@ import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
 
-import { account, contact, deal, lead } from './default.entity'
+import { account, contact, deal, lead, LeadSource } from './default.entity'
 import {
   Entity,
   FieldType,
@@ -46,7 +46,7 @@ export class ModuleService implements OnApplicationBootstrap {
     private readonly payloadService: PayloadService,
     private readonly csvParser: CsvParser,
 
-  ) {}
+  ) { }
 
   async onApplicationBootstrap() {
     await this.initDefaultModules()
@@ -126,26 +126,34 @@ export class ModuleService implements OnApplicationBootstrap {
 
     let rawEntities = (await this.csvParser.parse(
       stream,
-      DTO.Module.AddEntity,
+      DTO.Module.AddEntityFromFile,
       undefined,
       undefined,
       { strict: true, separator: ',' },
-    )) as ParsedData<DTO.Module.AddEntity>
+    )) as ParsedData<DTO.Module.AddEntityFromFile>
 
-    let entities: DTO.Module.AddEntity[] = rawEntities.list.map((e: DTO.Module.AddEntity) => ({
-      name: e.name,
-      data: {
-        ...e.data,
-        "ownerId": "d6f45054-cc44-4ade-9b6e-0369888e1c91"
+    let entities: DTO.Module.AddEntity[] = rawEntities.list.map((e: DTO.Module.AddEntityFromFile) => {
+      let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
+      entity["source"] = LeadSource.NONE
+      entity["ownerId"] = req.user.id
+      return {
+        name: moduleName,
+        data: entity
       }
-    }))
-
+    })
+    console.log("entities: ", entities)
     entities.forEach(e => {
       const validateMessage = module.validateEntity(e.data)
       if (validateMessage) throw new UnprocessableEntityException(validateMessage)
     })
 
-    return this.entityRepo.save({ ...entities, moduleId: module.id })
+    return this.entityRepo.save(
+      entities.map(e => ({
+        name: e.name,
+        data: e.data,
+        moduleId: module.id
+      })
+      ))
   }
 
 
