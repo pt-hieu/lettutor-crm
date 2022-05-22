@@ -98,7 +98,7 @@ export class ModuleService implements OnApplicationBootstrap {
       },
       {
         target: dto.name,
-        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+        type: ActionType.CAN_VIEW_DETAIL_ANY,
       },
     ])
 
@@ -254,17 +254,15 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   async convert(
+    sourceEntity: Entity,
     targetModuleName: string,
-    sourceId: string,
     dto: Record<string, any>,
   ) {
-    const [targetModule, sourceEntity] = await Promise.all([
-      this.moduleRepo.findOne({ where: { name: targetModuleName } }),
-      this.entityRepo.findOne({ where: { id: sourceId } }),
-    ])
+    const targetModule = await this.moduleRepo.findOne({
+      where: { name: targetModuleName },
+    })
 
     if (!targetModule) throw new NotFoundException('Module not exist')
-    if (!sourceEntity) throw new NotFoundException('Entity not exist')
 
     const meta = targetModule.convert_meta.find(
       (meta) => meta.source === sourceEntity.module.name,
@@ -290,7 +288,7 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
     Object.entries(dto)
-      .filter(([_, targetProp]) =>
+      .filter(([targetProp, _]) =>
         targetModule.meta.some((field) => field.name === targetProp),
       )
       .forEach(([key, value]) => {
@@ -324,20 +322,26 @@ export class ModuleService implements OnApplicationBootstrap {
       await this.fileRepo.save(files)
     }
 
-    await this.entityRepo.softDelete({ id: sourceEntity.id })
-
     return this.entityRepo.findOne({
       where: { id: targetEntity.id },
       relations: ['module'],
     })
   }
 
-  batchConvert(dtos: DTO.Module.BatchConvert[], sourceId: string) {
-    return Promise.all(
+  async batchConvert(dtos: DTO.Module.BatchConvert[], sourceId: string) {
+    const sourceEntity = await this.entityRepo.findOne({
+      where: { id: sourceId },
+    })
+    if (!sourceEntity) throw new NotFoundException('Entity not exist')
+
+    const entities = await Promise.all(
       dtos.map(({ dto, module_name }) =>
-        this.convert(module_name, sourceId, dto),
+        this.convert(sourceEntity, module_name, dto),
       ),
     )
+
+    await this.entityRepo.softDelete({ id: sourceEntity.id })
+    return entities
   }
 
   getConvertableModules(sourceModuleName: string) {
@@ -649,7 +653,10 @@ export class ModuleService implements OnApplicationBootstrap {
     shouldNotPaginate,
     ...filterDto
   }: DTO.Module.ReportFilter) {
-    const qb = this.entityRepo.createQueryBuilder('e')
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .where("module.name = 'lead'")
 
     switch (filterDto.timeFieldType) {
       case TimeFieldType.EXACT: {
