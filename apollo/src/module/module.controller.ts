@@ -89,12 +89,13 @@ export class ModuleController {
   }
 
   @Get(':name/export/csv')
-  @ApiOperation({ summary: 'to get the score board csv' })
-  async getScoreboard(
+  @ApiOperation({ summary: 'to get list entities of a specific module' })
+  async exportEntities(
     @Param('name') moduleName: string,
     @Response({ passthrough: true }) res: Res
   ) {
     const csv = await this.service.getListInCsvFormat(moduleName)
+    console.log(csv)
     const fileName = moduleName + ".csv"
     res.set('Content-Type', 'text/csv')
     res.set('Content-Disposition', `attachment; filename="${fileName}"`)

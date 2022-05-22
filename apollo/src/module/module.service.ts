@@ -126,17 +126,17 @@ export class ModuleService implements OnApplicationBootstrap {
       })
     }
     let entities = await qb.getMany()
-    console.log(entities)
     const rawData = entities.map(e => ({
-      id: e.id,
-      data: e.data
+      name: e.name,
+      email: e.data["email"],
+      phone: e.data["phone"],
+      source: e.data["source"],
+      status: e.data["status"],
+      created_at: e.createdAt
     }))
 
-    const csv = await parseAsync(
-      rawData.map(({ id, data }) => ({
-      id
-    })), {
-      fields: ['id', 'data'],
+    const csv = await parseAsync(rawData, {
+      fields: ['name', 'email', 'phone', 'source', 'created_at'],
     })
 
     return csv
