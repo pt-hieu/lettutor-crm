@@ -1,12 +1,13 @@
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { ReactNode, useMemo, useState } from 'react'
 import { QueryClient, dehydrate, useQuery } from 'react-query'
 
 import {
   ReportFilter,
   formatReportFilter,
 } from '@components/Reports/Details/Filter'
+import { PipelineByStageTable } from '@components/Reports/Details/Tables/PipelineByStage'
 import { TodaySalesTable } from '@components/Reports/Details/Tables/TodaySales'
 
 import Layout from '@utils/components/Layout'
@@ -86,6 +87,34 @@ export default ({ module }: IProps) => {
 
   const reportName = type || 'Unknown Report'
 
+  const TableByType = useMemo<Record<ReportType, ReactNode>>(
+    () => ({
+      [ReportType.LOST_DEALS]: <>Coming Soon</>,
+      [ReportType.OPEN_DEALS]: <>Coming Soon</>,
+      [ReportType.PIPELINE_BY_PROBABILITY]: <>Coming Soon</>,
+
+      [ReportType.PIPELINE_BY_STAGE]: (
+        <PipelineByStageTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+        />
+      ),
+      [ReportType.SALES_BY_LEAD_SOURCE]: <>Coming Soon</>,
+      [ReportType.SALES_PERSON_PERFORMANCE]: <>Coming Soon</>,
+      [ReportType.DEALS_CLOSING_THIS_MONTH]: (
+        <TodaySalesTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [ReportType.THIS_MONTH_SALES]: (
+        <TodaySalesTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [ReportType.TODAY_SALES]: (
+        <TodaySalesTable module={module} data={data} isLoading={isLoading} />
+      ),
+    }),
+    [data, module, isLoading],
+  )
+
   return (
     <Layout
       key="layout"
@@ -100,9 +129,7 @@ export default ({ module }: IProps) => {
         />
       </div>
 
-      <div className="px-[60px]">
-        <TodaySalesTable module={module} data={data} isLoading={isLoading} />
-      </div>
+      <div className="px-[60px]">{TableByType[type as ReportType]}</div>
     </Layout>
   )
 }

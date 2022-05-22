@@ -23,7 +23,7 @@ export const TodaySalesTable = ({ module, data, isLoading }: IProps) => {
             title: 'Name',
             dataIndex: 'name',
             render: (value, { id }) => (
-              <Link href={`/${name}/${id}`}>
+              <Link href={`/${module.name}/${id}`}>
                 <a className="crm-link underline hover:underline">{value}</a>
               </Link>
             ),
