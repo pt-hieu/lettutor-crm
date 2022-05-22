@@ -14,7 +14,7 @@ interface IProps {
   isLoading?: boolean
 }
 
-export const TodaySalesTable = ({ module, data, isLoading }: IProps) => {
+export const BasicTable = ({ module, data, isLoading }: IProps) => {
   const colums = useMemo<TableColumnType<any>[]>(
     () =>
       (

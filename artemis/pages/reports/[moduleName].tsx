@@ -7,8 +7,8 @@ import {
   ReportFilter,
   formatReportFilter,
 } from '@components/Reports/Details/Filter'
-import { PipelineByStageTable } from '@components/Reports/Details/Tables/PipelineByStage'
-import { TodaySalesTable } from '@components/Reports/Details/Tables/TodaySales'
+import { BasicTable } from '@components/Reports/Details/Tables/BasicTable'
+import { GroupedTable } from '@components/Reports/Details/Tables/GroupedTable'
 
 import Layout from '@utils/components/Layout'
 import { StaticDateByType } from '@utils/data/report-data'
@@ -89,27 +89,55 @@ export default ({ module }: IProps) => {
 
   const TableByType = useMemo<Record<ReportType, ReactNode>>(
     () => ({
-      [ReportType.LOST_DEALS]: <>Coming Soon</>,
-      [ReportType.OPEN_DEALS]: <>Coming Soon</>,
-      [ReportType.PIPELINE_BY_PROBABILITY]: <>Coming Soon</>,
-
-      [ReportType.PIPELINE_BY_STAGE]: (
-        <PipelineByStageTable
+      [ReportType.LOST_DEALS]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [ReportType.OPEN_DEALS]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [ReportType.PIPELINE_BY_PROBABILITY]: (
+        <GroupedTable
           module={module}
           data={data}
           isLoading={isLoading}
+          dataKey="probability"
         />
       ),
-      [ReportType.SALES_BY_LEAD_SOURCE]: <>Coming Soon</>,
-      [ReportType.SALES_PERSON_PERFORMANCE]: <>Coming Soon</>,
+
+      [ReportType.PIPELINE_BY_STAGE]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="stageId"
+          relationTo="dealstage"
+        />
+      ),
+      [ReportType.SALES_BY_LEAD_SOURCE]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="source"
+        />
+      ),
+      [ReportType.SALES_PERSON_PERFORMANCE]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="ownerId"
+          relationTo="user"
+        />
+      ),
       [ReportType.DEALS_CLOSING_THIS_MONTH]: (
-        <TodaySalesTable module={module} data={data} isLoading={isLoading} />
+        <BasicTable module={module} data={data} isLoading={isLoading} />
       ),
       [ReportType.THIS_MONTH_SALES]: (
-        <TodaySalesTable module={module} data={data} isLoading={isLoading} />
+        <BasicTable module={module} data={data} isLoading={isLoading} />
       ),
       [ReportType.TODAY_SALES]: (
-        <TodaySalesTable module={module} data={data} isLoading={isLoading} />
+        <BasicTable module={module} data={data} isLoading={isLoading} />
       ),
     }),
     [data, module, isLoading],
