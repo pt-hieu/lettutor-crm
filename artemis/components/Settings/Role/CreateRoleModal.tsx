@@ -54,6 +54,11 @@ export default function CreateRoleModal({ close, visible }: Props) {
 
   const { data: allActions } = useQuery('actions', getActions())
 
+  console.log(
+    'actions: ',
+    allActions?.filter((action) => action.target === 'Module 1'),
+  )
+
   const actionTargets = allActions
     ?.map((action) => action.target)
     .filter((value, index, self) => self.indexOf(value) === index)
