@@ -7,7 +7,9 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import ButtonAdd from '@utils/components/ButtonAdd'
 import Confirm from '@utils/components/Confirm'
 import Input from '@utils/components/Input'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { Module } from '@utils/models/module'
+import { ActionType } from '@utils/models/role'
 import { batchDeleteEntities } from '@utils/service/module'
 
 import { MODE } from './OverviewView'
@@ -28,6 +30,7 @@ export default function ModuleHeader({
   mode,
 }: Props) {
   const client = useQueryClient()
+  const auth = useAuthorization()
   const { data: ids } = useQuery<string[]>(['selected-ids', module.name], {
     enabled: false,
   })
@@ -102,11 +105,13 @@ export default function ModuleHeader({
           </Confirm>
         )}
 
-        <ButtonAdd
-          title={`Create ${capitalize(module.name)}`}
-          asLink
-          link={`/${module.name}/create`}
-        />
+        {auth(ActionType.CAN_CREATE_NEW, module.name) && (
+          <ButtonAdd
+            title={`Create ${capitalize(module.name)}`}
+            asLink
+            link={`/${module.name}/create`}
+          />
+        )}
       </div>
     </div>
   )

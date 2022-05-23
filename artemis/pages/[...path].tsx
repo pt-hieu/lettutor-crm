@@ -17,6 +17,8 @@ import {
 } from '@utils/service/module'
 import { getTaskOfEntity } from '@utils/service/task'
 
+import NotFound from './404'
+
 enum View {
   UPDATE,
   CREATE,
@@ -91,7 +93,7 @@ export default function DynamicModule({ module, render, paths }: Props) {
     () => ({
       [View.CREATE]: <CreateView module={module!} />,
       [View.DETAIL]: <DetailView paths={paths} />,
-      [View.NOTFOUND]: <></>,
+      [View.NOTFOUND]: <NotFound />,
       [View.OVERVIEW]: <OverviewView module={module!} />,
       [View.UPDATE]: <UpdateView module={module!} />,
     }),

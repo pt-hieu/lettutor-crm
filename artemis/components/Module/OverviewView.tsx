@@ -6,10 +6,13 @@ import { useQuery, useQueryClient } from 'react-query'
 
 import Layout from '@utils/components/Layout'
 import Paginate from '@utils/components/Paginate'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useObjectQuery } from '@utils/hooks/useObjectQuery'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { useRelationField } from '@utils/hooks/useRelationField'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { FieldType, Module } from '@utils/models/module'
+import { ActionType, DefaultModule } from '@utils/models/role'
 import { getEntities } from '@utils/service/module'
 
 import KanbanMode from './KanbanMode'
@@ -34,11 +37,13 @@ export enum MODE {
 export default function OverviewView({ module }: Props) {
   const { name, meta } = module
   const client = useQueryClient()
+  const auth = useAuthorization()
+  const [session] = useTypedSession()
+  const ownerId = session?.user.id
 
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
   const [search, setSearch] = useQueryState<string>('search')
-
   const [filter, setFilter] = useState<object>({})
 
   useObjectQuery(filter)
@@ -126,7 +131,13 @@ export default function OverviewView({ module }: Props) {
                 <Table
                   showSorterTooltip={false}
                   columns={colums}
-                  dataSource={data?.items}
+                  dataSource={
+                    auth(ActionType.CAN_VIEW_ALL, name)
+                      ? data?.items
+                      : data?.items.filter(
+                          (item) => item.data.ownerId === ownerId,
+                        )
+                  }
                   rowKey={(u) => u.id}
                   loading={isLoading}
                   rowSelection={{
