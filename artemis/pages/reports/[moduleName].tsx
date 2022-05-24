@@ -16,6 +16,8 @@ import { useRelationField } from '@utils/hooks/useRelationField'
 import { getSessionToken } from '@utils/libs/getToken'
 import { Module } from '@utils/models/module'
 import {
+  DealReportType,
+  LeadReportType,
   ReportType,
   StaticTime,
   TReportFilterData,
@@ -24,35 +26,44 @@ import {
 import { getModules } from '@utils/service/module'
 import { getDealsReport } from '@utils/service/report'
 
-interface IProps {
-  module: Module
-}
-
 const FilterByReportType: Record<ReportType, TReportFilterData> = {
-  [ReportType.LOST_DEALS]: {},
-  [ReportType.OPEN_DEALS]: {},
-  [ReportType.PIPELINE_BY_PROBABILITY]: {},
-
-  [ReportType.PIPELINE_BY_STAGE]: {},
-  [ReportType.SALES_BY_LEAD_SOURCE]: {},
-  [ReportType.SALES_PERSON_PERFORMANCE]: {},
-  [ReportType.DEALS_CLOSING_THIS_MONTH]: {
+  [DealReportType.LOST_DEALS]: {},
+  [DealReportType.OPEN_DEALS]: {},
+  [DealReportType.PIPELINE_BY_PROBABILITY]: {},
+  [DealReportType.PIPELINE_BY_STAGE]: {},
+  [DealReportType.SALES_BY_LEAD_SOURCE]: {},
+  [DealReportType.SALES_PERSON_PERFORMANCE]: {},
+  [DealReportType.DEALS_CLOSING_THIS_MONTH]: {
     timeFieldName: TimeFieldName.CLOSING_DATE,
     timeFieldType: StaticTime.CurrentMonth,
     startDate: StaticDateByType[StaticTime.CurrentMonth][0],
     endDate: StaticDateByType[StaticTime.CurrentMonth][1],
   },
-  [ReportType.THIS_MONTH_SALES]: {
+  [DealReportType.THIS_MONTH_SALES]: {
     timeFieldName: TimeFieldName.CLOSING_DATE,
     timeFieldType: StaticTime.CurrentMonth,
     startDate: StaticDateByType[StaticTime.CurrentMonth][0],
     endDate: StaticDateByType[StaticTime.CurrentMonth][1],
   },
-  [ReportType.TODAY_SALES]: {
+  [DealReportType.TODAY_SALES]: {
     timeFieldName: TimeFieldName.CLOSING_DATE,
     timeFieldType: StaticTime.Today,
     singleDate: StaticDateByType[StaticTime.Today] as string,
   },
+
+  [LeadReportType.CONVERTED_LEADS]: {},
+  [LeadReportType.LEADS_BY_OWNERSHIP]: {},
+  [LeadReportType.LEADS_BY_SOURCE]: {},
+  [LeadReportType.LEADS_BY_STATUS]: {},
+  [LeadReportType.TODAY_LEADS]: {
+    timeFieldName: TimeFieldName.CREATED_AT,
+    timeFieldType: StaticTime.Today,
+    singleDate: StaticDateByType[StaticTime.Today] as string,
+  },
+}
+
+interface IProps {
+  module: Module
 }
 
 export default ({ module }: IProps) => {
@@ -73,7 +84,7 @@ export default ({ module }: IProps) => {
 
   const { data, isLoading } = useQuery(
     key,
-    getDealsReport(name, {
+    getDealsReport({
       page,
       limit,
       reportType: type as unknown as ReportType,
@@ -89,13 +100,22 @@ export default ({ module }: IProps) => {
 
   const TableByType = useMemo<Record<ReportType, ReactNode>>(
     () => ({
-      [ReportType.LOST_DEALS]: (
+      [DealReportType.LOST_DEALS]: (
         <BasicTable module={module} data={data} isLoading={isLoading} />
       ),
-      [ReportType.OPEN_DEALS]: (
+      [DealReportType.OPEN_DEALS]: (
         <BasicTable module={module} data={data} isLoading={isLoading} />
       ),
-      [ReportType.PIPELINE_BY_PROBABILITY]: (
+      [DealReportType.DEALS_CLOSING_THIS_MONTH]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [DealReportType.THIS_MONTH_SALES]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [DealReportType.TODAY_SALES]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [DealReportType.PIPELINE_BY_PROBABILITY]: (
         <GroupedTable
           module={module}
           data={data}
@@ -103,8 +123,7 @@ export default ({ module }: IProps) => {
           dataKey="probability"
         />
       ),
-
-      [ReportType.PIPELINE_BY_STAGE]: (
+      [DealReportType.PIPELINE_BY_STAGE]: (
         <GroupedTable
           module={module}
           data={data}
@@ -113,7 +132,7 @@ export default ({ module }: IProps) => {
           relationTo="dealstage"
         />
       ),
-      [ReportType.SALES_BY_LEAD_SOURCE]: (
+      [DealReportType.SALES_BY_LEAD_SOURCE]: (
         <GroupedTable
           module={module}
           data={data}
@@ -121,7 +140,7 @@ export default ({ module }: IProps) => {
           dataKey="source"
         />
       ),
-      [ReportType.SALES_PERSON_PERFORMANCE]: (
+      [DealReportType.SALES_PERSON_PERFORMANCE]: (
         <GroupedTable
           module={module}
           data={data}
@@ -130,14 +149,37 @@ export default ({ module }: IProps) => {
           relationTo="user"
         />
       ),
-      [ReportType.DEALS_CLOSING_THIS_MONTH]: (
+
+      [LeadReportType.CONVERTED_LEADS]: (
         <BasicTable module={module} data={data} isLoading={isLoading} />
       ),
-      [ReportType.THIS_MONTH_SALES]: (
+      [LeadReportType.TODAY_LEADS]: (
         <BasicTable module={module} data={data} isLoading={isLoading} />
       ),
-      [ReportType.TODAY_SALES]: (
-        <BasicTable module={module} data={data} isLoading={isLoading} />
+      [LeadReportType.LEADS_BY_OWNERSHIP]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="ownerId"
+          relationTo="user"
+        />
+      ),
+      [LeadReportType.LEADS_BY_SOURCE]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="source"
+        />
+      ),
+      [LeadReportType.LEADS_BY_STATUS]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="status"
+        />
       ),
     }),
     [data, module, isLoading],
