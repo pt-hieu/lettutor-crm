@@ -141,7 +141,7 @@ export class ModuleService implements OnApplicationBootstrap {
         data: entity
       }
     })
-    console.log("entities: ", entities)
+    
     entities.forEach(e => {
       const validateMessage = module.validateEntity(e.data)
       if (validateMessage) throw new UnprocessableEntityException(validateMessage)
