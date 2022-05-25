@@ -3,6 +3,7 @@ import { notification } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   ChangeEvent,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -13,10 +14,6 @@ import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
 import Loading from '@utils/components/Loading'
-
-const MAX_NUM_FILE = 5
-const MAX_MB_SIZE = 20
-const MAX_SIZE_FILE = MAX_MB_SIZE * 1024 * 1024 // 20 MB
 
 export interface IFeedTextboxData {
   content: string
@@ -30,6 +27,7 @@ interface ITextboxProps {
   maxContent?: number
   placeholder: string
   submitText?: string
+  prefix?: ReactNode
 }
 
 const animateVariant = {
@@ -44,6 +42,7 @@ export const FeedTextbox = ({
   maxContent = 500,
   placeholder,
   submitText,
+  prefix,
 }: ITextboxProps) => {
   const [files, setFiles] = useState<File[]>([])
 
@@ -108,7 +107,8 @@ export const FeedTextbox = ({
   return (
     <div className="w-full border-blue-500 border rounded-md">
       <div className="p-2 flex">
-        <div>
+        {prefix}
+        <div className="flex-1">
           <textarea
             placeholder={placeholder}
             className="border-transparent focus:border-transparent focus:ring-0 w-full min-h-[40px] pl-2 pt-1 text-[14px]"

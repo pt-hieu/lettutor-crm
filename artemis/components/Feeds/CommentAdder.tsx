@@ -4,14 +4,18 @@ import { FeedTextbox, IFeedTextboxData } from './FeedTextbox'
 
 interface IStatusAdderProps {}
 
-export const StatusAdder = ({}: IStatusAdderProps) => {
+export const CommentAdder = ({}: IStatusAdderProps) => {
   const [isActive, setIsActive] = useState(false)
 
   const handlePostStatus = (data: IFeedTextboxData) => {
     console.log(data)
   }
 
-  const placeholder = "Hey! What's up?"
+  const placeholder = 'Write a comment.'
+
+  const prefix = (
+    <i className="fa fa-comments text-[17px] text-gray-500 m-1 mt-2" />
+  )
 
   return (
     <div className="flex gap-2">
@@ -27,13 +31,15 @@ export const StatusAdder = ({}: IStatusAdderProps) => {
             onSubmit={handlePostStatus}
             isLoading={false}
             placeholder={placeholder}
-            submitText="Post"
+            prefix={prefix}
+            maxContent={250}
           />
         ) : (
           <div
-            className="border rounded-md px-2 pt-1 pb-5 hover:border-blue-500 text-gray-500 flex items-center cursor-text"
+            className="border rounded-xl px-2 pt-1 pb-3 hover:border-blue-500 text-gray-500 flex items-center cursor-text"
             onClick={() => setIsActive(true)}
           >
+            {prefix}
             <div className="p-2 pt-3">{placeholder}</div>
           </div>
         )}
