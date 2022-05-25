@@ -9,6 +9,7 @@ import TraceInfo from '@utils/components/TraceInfo'
 import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useCommand } from '@utils/hooks/useCommand'
 import { useModal } from '@utils/hooks/useModal'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { Entity, Module } from '@utils/models/module'
 import { ActionType } from '@utils/models/role'
 import { batchDeleteEntities } from '@utils/service/module'
@@ -27,10 +28,9 @@ export const DetailNavbar = ({ data }: Props) => {
   }
 
   const auth = useAuthorization()
-  // const isOwner = useOwnership(data)
-
-  //TODO: need to refactor in the future
-  const isOwner = true
+  const [session] = useTypedSession()
+  const ownerId = session?.user.id
+  const isOwner = data?.data.ownerId === ownerId
 
   const { mutateAsync, isLoading } = useMutation(
     'delete-entities',

@@ -1,5 +1,7 @@
 import { notification } from 'antd'
+import { isNotEmptyObject } from 'class-validator'
 import { capitalize } from 'lodash'
+import NotFound from 'pages/404'
 import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
@@ -11,8 +13,11 @@ import { NoteSection } from '@components/Notes/NoteSection'
 import AttachmentSection from '@utils/components/AttachmentSection'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useRelationField } from '@utils/hooks/useRelationField'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { FieldType, Module } from '@utils/models/module'
+import { ActionType, DefaultModule } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { getEntity, updateEntity } from '@utils/service/module'
 import { getTaskOfEntity } from '@utils/service/task'
@@ -26,6 +31,9 @@ type TProps = {
 
 export default function DetailView({ paths }: TProps) {
   const [moduleName, id] = paths
+  const [session] = useTypedSession()
+  const ownerId = session?.user.id
+  const auth = useAuthorization()
 
   const { data, refetch } = useQuery(
     [moduleName, id],
@@ -37,9 +45,13 @@ export default function DetailView({ paths }: TProps) {
   )
 
   const entity = data!
-
   const entityData = entity.data
   const metaData = entity.module.meta || []
+  const isOwner = entityData.ownerId === ownerId
+
+  if (!auth(ActionType.CAN_VIEW_DETAIL_ANY, moduleName) && !isOwner) {
+    return <NotFound />
+  }
 
   useRelationField(metaData)
 
@@ -91,7 +103,6 @@ export default function DetailView({ paths }: TProps) {
     }),
     [tasks],
   )
-
 
   return (
     <Layout title={`CRM | ${capitalize(moduleName)} | ${entity?.name}`}>
