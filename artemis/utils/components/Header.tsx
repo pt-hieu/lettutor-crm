@@ -21,6 +21,7 @@ const staticModules: { name: string }[] = [
   { name: 'tasks' },
   { name: 'logs' },
   { name: 'reports' },
+  { name: 'feeds' },
 ]
 
 export default function Header() {
