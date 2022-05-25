@@ -204,7 +204,12 @@ export class UserService {
     const user = await this.userRepo.findOne({ where: { id: payload.id } })
     if (!user) throw new BadRequestException('User does not exist')
 
+    const roles = await this.roleRepo.find({
+      where: { id: In(dto.roleIds) },
+    })
+
     user.name = dto.name
+    user.roles = roles
     return this.userRepo.save(user)
   }
 
