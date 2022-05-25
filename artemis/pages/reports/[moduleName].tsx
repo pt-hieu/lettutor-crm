@@ -1,13 +1,14 @@
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { ReactNode, useMemo, useState } from 'react'
 import { QueryClient, dehydrate, useQuery } from 'react-query'
 
 import {
   ReportFilter,
   formatReportFilter,
 } from '@components/Reports/Details/Filter'
-import { TodaySalesTable } from '@components/Reports/Details/Tables/TodaySales'
+import { BasicTable } from '@components/Reports/Details/Tables/BasicTable'
+import { GroupedTable } from '@components/Reports/Details/Tables/GroupedTable'
 
 import Layout from '@utils/components/Layout'
 import { StaticDateByType } from '@utils/data/report-data'
@@ -86,6 +87,62 @@ export default ({ module }: IProps) => {
 
   const reportName = type || 'Unknown Report'
 
+  const TableByType = useMemo<Record<ReportType, ReactNode>>(
+    () => ({
+      [ReportType.LOST_DEALS]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [ReportType.OPEN_DEALS]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [ReportType.PIPELINE_BY_PROBABILITY]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="probability"
+        />
+      ),
+
+      [ReportType.PIPELINE_BY_STAGE]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="stageId"
+          relationTo="dealstage"
+        />
+      ),
+      [ReportType.SALES_BY_LEAD_SOURCE]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="source"
+        />
+      ),
+      [ReportType.SALES_PERSON_PERFORMANCE]: (
+        <GroupedTable
+          module={module}
+          data={data}
+          isLoading={isLoading}
+          dataKey="ownerId"
+          relationTo="user"
+        />
+      ),
+      [ReportType.DEALS_CLOSING_THIS_MONTH]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [ReportType.THIS_MONTH_SALES]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+      [ReportType.TODAY_SALES]: (
+        <BasicTable module={module} data={data} isLoading={isLoading} />
+      ),
+    }),
+    [data, module, isLoading],
+  )
+
   return (
     <Layout
       key="layout"
@@ -100,9 +157,7 @@ export default ({ module }: IProps) => {
         />
       </div>
 
-      <div className="px-[60px]">
-        <TodaySalesTable module={module} data={data} isLoading={isLoading} />
-      </div>
+      <div className="px-[60px]">{TableByType[type as ReportType]}</div>
     </Layout>
   )
 }
