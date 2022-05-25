@@ -29,7 +29,7 @@ import { ModuleService } from './module.service'
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 export class ModuleController {
-  constructor(private service: ModuleService) {}
+  constructor(private service: ModuleService) { }
 
   @Get()
   @ApiOperation({ summary: 'to get many modules' })
@@ -88,6 +88,7 @@ export class ModuleController {
     return this.service.addEntity(moduleName, dto)
   }
 
+
   @Get(':name/csv')
   @ApiOperation({ summary: 'to get the csv template for creating module' })
   async getCreateLeadTemplate(
@@ -100,6 +101,20 @@ export class ModuleController {
       'Content-Type': "data:text/csv;charset=utf-8",
       'Content-Disposition': 'attachment; filename="template.csv"'
     })
+    return new StreamableFile(Buffer.from(csv))
+  }
+
+  @Get(':name/export/csv')
+  @ApiOperation({ summary: 'to get list entities of a specific module' })
+  async exportEntities(
+    @Param('name') moduleName: string,
+    @Response({ passthrough: true }) res: Res
+  ) {
+    const csv = await this.service.getListInCsvFormat(moduleName)
+    console.log(csv)
+    const fileName = moduleName + ".csv"
+    res.set('Content-Type', 'text/csv')
+    res.set('Content-Disposition', `attachment; filename="${fileName}"`)
 
     return new StreamableFile(Buffer.from(csv))
   }

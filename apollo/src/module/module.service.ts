@@ -21,6 +21,7 @@ import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
+import { parseAsync } from 'json2csv'
 
 import { account, contact, deal, lead, LeadSource } from './default.entity'
 import {
@@ -102,6 +103,58 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.moduleRepo.save(dto)
   }
 
+
+  async getTemplateForCreatingModuule(moduleName: string) {
+    const csv = await parseAsync(
+      {
+       name: moduleName
+     },
+      { fields: ['name', 'phone', 'email', 'status'] },
+    )
+
+    return csv
+  }
+
+
+  async getListInCsvFormat(moduleName: string) {
+    const module = await this.moduleRepo.findOne({
+      where: { name: moduleName },
+    }) 
+    if (!module) throw new BadRequestException('Module not existed')
+  
+    let qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .orderBy('e.createdAt', 'DESC')
+      .andWhere('module.name = :name', { name: moduleName })
+    
+    if (
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_VIEW_ALL,
+      })
+    ) {
+      qb.andWhere("e.data ->> 'ownerId' = :ownerId", {
+        ownerId: this.payloadService.data.id,
+      })
+    }
+    let entities = await qb.getMany()
+    const rawData = entities.map(e => ({
+      name: e.name,
+      email: e.data["email"],
+      phone: e.data["phone"],
+      source: e.data["source"],
+      status: e.data["status"],
+      created_at: e.createdAt
+    }))
+
+    const csv = await parseAsync(rawData, {
+      fields: ['name', 'email', 'phone', 'source', 'created_at'],
+    })
+
+    return csv
+  }
+
   async bulkCreateEntities(
     filBuffer: Buffer,
     moduleName: string,
@@ -131,6 +184,7 @@ export class ModuleService implements OnApplicationBootstrap {
       undefined,
       { strict: true, separator: ',' },
     )) as ParsedData<DTO.Module.AddEntityFromFile>
+
 
     let entities: DTO.Module.AddEntity[] = rawEntities.list.map((e: DTO.Module.AddEntityFromFile) => {
       let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
