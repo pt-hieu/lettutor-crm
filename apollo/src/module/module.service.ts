@@ -33,6 +33,7 @@ import {
 } from './module.entity'
 import { AuthRequest } from 'src/utils/interface'
 import { Duplex } from 'stream'
+import { UserService } from 'src/user/user.service'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -46,6 +47,7 @@ export class ModuleService implements OnApplicationBootstrap {
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
     private readonly csvParser: CsvParser,
+    private readonly userService: UserService
 
   ) { }
 
@@ -107,8 +109,8 @@ export class ModuleService implements OnApplicationBootstrap {
   async getTemplateForCreatingModuule(moduleName: string) {
     const csv = await parseAsync(
       {
-       name: moduleName
-     },
+        name: moduleName
+      },
       { fields: ['name', 'phone', 'email', 'status'] },
     )
 
@@ -119,15 +121,15 @@ export class ModuleService implements OnApplicationBootstrap {
   async getListInCsvFormat(moduleName: string) {
     const module = await this.moduleRepo.findOne({
       where: { name: moduleName },
-    }) 
+    })
     if (!module) throw new BadRequestException('Module not existed')
-  
+
     let qb = this.entityRepo
       .createQueryBuilder('e')
       .leftJoin('e.module', 'module')
       .orderBy('e.createdAt', 'DESC')
       .andWhere('module.name = :name', { name: moduleName })
-    
+
     if (
       !this.utilService.checkRoleAction({
         target: moduleName,
@@ -185,17 +187,21 @@ export class ModuleService implements OnApplicationBootstrap {
       { strict: true, separator: ',' },
     )) as ParsedData<DTO.Module.AddEntityFromFile>
 
-
-    let entities: DTO.Module.AddEntity[] = rawEntities.list.map((e: DTO.Module.AddEntityFromFile) => {
-      let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
-      entity["source"] = LeadSource.NONE
-      entity["ownerId"] = req.user.id
-      return {
-        name: moduleName,
-        data: entity
-      }
-    })
+    let users = await this.userService.getManyRaw()
     
+    let entities: DTO.Module.AddEntity[] = rawEntities.list.map(
+      (e: DTO.Module.AddEntityFromFile) => {
+        let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
+        let randomIdx = generateRandom(0, users.length - 1) 
+        entity["source"] = LeadSource.NONE
+        entity["ownerId"] = users[randomIdx].id
+        delete entity["name"]
+        return {
+          name: moduleName,
+          data: entity
+        }
+      })
+
     entities.forEach(e => {
       const validateMessage = module.validateEntity(e.data)
       if (validateMessage) throw new UnprocessableEntityException(validateMessage)
@@ -647,4 +653,12 @@ function bufferToStream(buffer: Buffer) {
   duplexStream.push(buffer)
   duplexStream.push(null)
   return duplexStream
+}
+
+function generateRandom(min: number, max: number) {
+  let difference = max - min;
+  let rand = Math.random();
+  rand = Math.floor(rand * difference);
+  rand = rand + min;
+  return rand;
 }
