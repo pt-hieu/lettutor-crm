@@ -17,14 +17,12 @@ interface IProps {
 export const FeedContent = ({ feed }: IProps) => {
   const { owner, time, content, files, comments } = feed
   return (
-    <div className="flex gap-2">
-      <div className="w-[44px]">
-        <img
-          className="w-10 h-10 rounded-full"
-          alt="Avatar"
-          src={getAvatarLinkByName(owner.name)}
-        />
-      </div>
+    <div className="flex gap-3">
+      <img
+        className="w-10 h-10 rounded-full"
+        alt="Avatar"
+        src={getAvatarLinkByName(owner.name)}
+      />
       <div className="flex-1 flex flex-col gap-2">
         <div>
           <div>
@@ -70,7 +68,7 @@ const PostedContent = ({ content, files, className }: IContentProps) => {
         className ? className : ''
       }`}
     >
-      <div>{content}</div>
+      <div className="break-all">{content}</div>
       {!files?.length ? null : (
         <div className="flex gap-2">
           {files.map(({ filename }) => (
@@ -89,22 +87,20 @@ interface ICommentProps {
 const Comment = ({ comment }: ICommentProps) => {
   const { owner, content, files, createdAt } = comment
   const contentRender = (
-    <div className="text-[14px]">
+    <div className="text-[14px] -my-1">
       <Link href={`/user/${owner.id}`}>
         <a className="font-semibold">{owner.name}</a>
       </Link>
-      <div>{content}</div>
+      <div className="break-all">{content}</div>
     </div>
   )
   return (
-    <div className="flex gap-2">
-      <div className="w-[44px]">
-        <img
-          className="w-10 h-10 rounded-full"
-          alt="Avatar"
-          src={getAvatarLinkByName(owner.name)}
-        />
-      </div>
+    <div className="flex gap-3">
+      <img
+        className="w-10 h-10 rounded-full"
+        alt="Avatar"
+        src={getAvatarLinkByName(owner.name)}
+      />
       <div>
         <PostedContent
           content={contentRender}

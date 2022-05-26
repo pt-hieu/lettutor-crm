@@ -37,10 +37,10 @@ export const StatusAdder = ({}: IStatusAdderProps) => {
           />
         ) : (
           <div
-            className="border rounded-md px-2 pt-1 pb-5 hover:border-blue-500 text-gray-500 flex items-center cursor-text"
+            className="border rounded-md px-2 pb-5 hover:border-blue-500 text-gray-500 flex items-center cursor-text"
             onClick={() => setIsActive(true)}
           >
-            <div className="p-2 pt-3">{placeholder}</div>
+            <div className="p-2">{placeholder}</div>
           </div>
         )}
       </div>

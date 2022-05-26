@@ -124,7 +124,8 @@ const feeds: Feed[] = [
           id: 'abc',
           name: 'Le Hao',
         },
-        content: 'This is a test comment',
+        content:
+          'This is a test comment long long long WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',
         createdAt: new Date(),
       },
     ],
