@@ -21,7 +21,6 @@ import { DTO } from 'src/type'
 import { AuthRequest } from 'src/utils/interface'
 import { Response as Res } from 'express'
 
-import { ReportType } from './module.entity'
 import { ModuleService } from './module.service'
 
 @Controller('module')
@@ -58,9 +57,9 @@ export class ModuleController {
     return this.service.getRawEntityForTaskCreate()
   }
 
-  @Get('/entity/report/deal')
-  @ApiOperation({ summary: 'to get deal related report' })
-  getReport(@Query() dto: DTO.Module.DealReportFilter) {
+  @Get('/entity/report')
+  @ApiOperation({ summary: 'to get deal and lead related report' })
+  getDealReport(@Query() dto: DTO.Module.ReportFilter) {
     return this.service.getReport(dto)
   }
 

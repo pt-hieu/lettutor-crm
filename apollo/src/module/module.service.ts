@@ -29,6 +29,7 @@ import {
   FieldType,
   Module,
   ReportType,
+  TimeFieldName,
   TimeFieldType,
 } from './module.entity'
 import { AuthRequest } from 'src/utils/interface'
@@ -98,7 +99,7 @@ export class ModuleService implements OnApplicationBootstrap {
       },
       {
         target: dto.name,
-        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+        type: ActionType.CAN_VIEW_DETAIL_ANY,
       },
     ])
 
@@ -254,17 +255,15 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   async convert(
+    sourceEntity: Entity,
     targetModuleName: string,
-    sourceId: string,
     dto: Record<string, any>,
   ) {
-    const [targetModule, sourceEntity] = await Promise.all([
-      this.moduleRepo.findOne({ where: { name: targetModuleName } }),
-      this.entityRepo.findOne({ where: { id: sourceId } }),
-    ])
+    const targetModule = await this.moduleRepo.findOne({
+      where: { name: targetModuleName },
+    })
 
     if (!targetModule) throw new NotFoundException('Module not exist')
-    if (!sourceEntity) throw new NotFoundException('Entity not exist')
 
     const meta = targetModule.convert_meta.find(
       (meta) => meta.source === sourceEntity.module.name,
@@ -290,7 +289,7 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
     Object.entries(dto)
-      .filter(([_, targetProp]) =>
+      .filter(([targetProp, _]) =>
         targetModule.meta.some((field) => field.name === targetProp),
       )
       .forEach(([key, value]) => {
@@ -324,7 +323,11 @@ export class ModuleService implements OnApplicationBootstrap {
       await this.fileRepo.save(files)
     }
 
-    await this.entityRepo.softDelete({ id: sourceEntity.id })
+    sourceEntity.converted_info.push({
+      moduleName: targetModule.name,
+      entityName: targetEntity.name,
+      entityId: targetEntity.id,
+    })
 
     return this.entityRepo.findOne({
       where: { id: targetEntity.id },
@@ -332,12 +335,23 @@ export class ModuleService implements OnApplicationBootstrap {
     })
   }
 
-  batchConvert(dtos: DTO.Module.BatchConvert[], sourceId: string) {
-    return Promise.all(
+  async batchConvert(dtos: DTO.Module.BatchConvert[], sourceId: string) {
+    const sourceEntity = await this.entityRepo.findOne({
+      where: { id: sourceId },
+    })
+    if (!sourceEntity) throw new NotFoundException('Entity not exist')
+
+    const entities = await Promise.all(
       dtos.map(({ dto, module_name }) =>
-        this.convert(module_name, sourceId, dto),
+        this.convert(sourceEntity, module_name, dto),
       ),
     )
+
+    sourceEntity.data['isConverted'] = true
+    await this.entityRepo.save(sourceEntity)
+
+    await this.entityRepo.softDelete({ id: sourceEntity.id })
+    return entities
   }
 
   getConvertableModules(sourceModuleName: string) {
@@ -538,7 +552,7 @@ export class ModuleService implements OnApplicationBootstrap {
       .getMany()
   }
 
-  async getReport(filterDto: DTO.Module.DealReportFilter) {
+  async getReport(filterDto: DTO.Module.ReportFilter) {
     switch (filterDto.reportType) {
       case ReportType.TODAY_SALES:
       case ReportType.THIS_MONTH_SALES:
@@ -552,6 +566,12 @@ export class ModuleService implements OnApplicationBootstrap {
         return this.getDealsReport(DealStageType.OPEN, filterDto)
       case ReportType.LOST_DEALS:
         return this.getDealsReport(DealStageType.CLOSE_LOST, filterDto)
+      case ReportType.TODAY_LEADS:
+      case ReportType.LEADS_BY_SOURCE:
+      case ReportType.LEADS_BY_STATUS:
+      case ReportType.LEADS_BY_OWNERSHIP:
+      case ReportType.CONVERTED_LEADS:
+        return this.getLeadsReport(filterDto)
       default:
         throw new BadRequestException(
           `Cannot find report with type ${filterDto.reportType}`,
@@ -561,16 +581,19 @@ export class ModuleService implements OnApplicationBootstrap {
 
   async getDealsReport(
     dealStageType: DealStageType,
-    {
-      limit,
-      page,
-      shouldNotPaginate,
-      ...filterDto
-    }: DTO.Module.DealReportFilter,
+    { limit, page, shouldNotPaginate, ...filterDto }: DTO.Module.ReportFilter,
   ) {
     const ids = []
     const dealStages = await this.getManyDealStagesByType(dealStageType)
     dealStages.forEach(({ id }) => ids.push(id))
+
+    let timeQueryString
+    if (filterDto.timeFieldName) {
+      timeQueryString =
+        filterDto.timeFieldName === TimeFieldName.CLOSING_DATE
+          ? `e.data ->> '${filterDto.timeFieldName}'`
+          : `e.${filterDto.timeFieldName}::DATE`
+    }
 
     const qb = this.entityRepo
       .createQueryBuilder('e')
@@ -579,7 +602,97 @@ export class ModuleService implements OnApplicationBootstrap {
     switch (filterDto.timeFieldType) {
       case TimeFieldType.EXACT: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' = '${moment(
+          `${timeQueryString} = '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.BETWEEN: {
+        qb.andWhere(
+          `${timeQueryString} >= '${moment(filterDto.startDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        ).andWhere(
+          `${timeQueryString} <= '${moment(filterDto.endDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_AFTER: {
+        qb.andWhere(
+          `${timeQueryString} >= '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_BEFORE: {
+        qb.andWhere(
+          `${timeQueryString} <= '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        )
+        break
+      }
+
+      default:
+        break
+    }
+
+    if (filterDto.reportType === ReportType.SALES_BY_LEAD_SOURCE) {
+      qb.groupBy(`e.data ->> 'source', e.id`).orderBy(
+        `e.data ->> 'source', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.SALES_PERSON_PERFORMANCE) {
+      qb.groupBy(`e.data ->> 'ownerId', e.id`).orderBy(
+        `e.data ->> 'ownerId', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.PIPELINE_BY_PROBABILITY) {
+      qb.groupBy(`e.data ->> 'probability', e.id`).orderBy(
+        `e.data ->> 'probability', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.PIPELINE_BY_STAGE) {
+      qb.groupBy(`e.data ->> 'stageId', e.id`).orderBy(
+        `e.data ->> 'stageId', e.createdAt`,
+        'DESC',
+      )
+    } else {
+      qb.orderBy('e.createdAt', 'DESC')
+    }
+
+    if (shouldNotPaginate) return qb.getMany()
+    return paginate(qb, { limit, page })
+  }
+
+  async getLeadsReport({
+    limit,
+    page,
+    shouldNotPaginate,
+    ...filterDto
+  }: DTO.Module.ReportFilter) {
+    if (filterDto.timeFieldName === TimeFieldName.CLOSING_DATE) {
+      throw new BadRequestException(
+        'Leads report do not have field closing date ',
+      )
+    }
+
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .where("module.name = 'lead'")
+
+    switch (filterDto.timeFieldType) {
+      case TimeFieldType.EXACT: {
+        qb.andWhere(
+          `e.${filterDto.timeFieldName}::DATE = '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -588,12 +701,11 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.BETWEEN: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+          `e.${filterDto.timeFieldName}::DATE >= '${moment(
             filterDto.startDate,
           ).format('YYYY-MM-DD')}'`,
-        )
-        qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+        ).andWhere(
+          `e.${filterDto.timeFieldName}::DATE <= '${moment(
             filterDto.endDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -602,7 +714,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.IS_AFTER: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+          `e.${filterDto.timeFieldName}::DATE >= '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -611,7 +723,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.IS_BEFORE: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+          `e.${filterDto.timeFieldName}::DATE <= '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -622,18 +734,25 @@ export class ModuleService implements OnApplicationBootstrap {
         break
     }
 
-    if (filterDto.reportType === ReportType.SALES_BY_LEAD_SOURCE) {
-      qb.groupBy(`e.data ->> 'source', e.id`)
-      qb.orderBy(`e.data ->> 'source', e.createdAt`, 'DESC')
-    } else if (filterDto.reportType === ReportType.SALES_PERSON_PERFORMANCE) {
-      qb.groupBy(`e.data ->> 'ownerId', e.id`)
-      qb.orderBy(`e.data ->> 'ownerId', e.createdAt`, 'DESC')
-    } else if (filterDto.reportType === ReportType.PIPELINE_BY_PROBABILITY) {
-      qb.groupBy(`e.data ->> 'probability', e.id`)
-      qb.orderBy(`e.data ->> 'probability', e.createdAt`, 'DESC')
-    } else if (filterDto.reportType === ReportType.PIPELINE_BY_STAGE) {
-      qb.groupBy(`e.data ->> 'stageId', e.id`)
-      qb.orderBy(`e.data ->> 'stageId', e.createdAt`, 'DESC')
+    if (filterDto.reportType === ReportType.LEADS_BY_SOURCE) {
+      qb.groupBy(`e.data ->> 'source', e.id`).orderBy(
+        `e.data ->> 'source', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.LEADS_BY_STATUS) {
+      qb.groupBy(`e.data ->> 'status', e.id`).orderBy(
+        `e.data ->> 'status', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.LEADS_BY_OWNERSHIP) {
+      qb.groupBy(`e.data ->> 'ownerId', e.id`).orderBy(
+        `e.data ->> 'ownerId', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.CONVERTED_LEADS) {
+      qb.withDeleted()
+        .andWhere(`e.data ->> 'isConverted' = 'true'`)
+        .orderBy('e.createdAt', 'DESC')
     } else {
       qb.orderBy('e.createdAt', 'DESC')
     }
