@@ -29,6 +29,7 @@ import {
   FieldType,
   Module,
   ReportType,
+  TimeFieldName,
   TimeFieldType,
 } from './module.entity'
 import { AuthRequest } from 'src/utils/interface'
@@ -322,6 +323,12 @@ export class ModuleService implements OnApplicationBootstrap {
       await this.fileRepo.save(files)
     }
 
+    sourceEntity.converted_info.push({
+      moduleName: targetModule.name,
+      entityName: targetEntity.name,
+      entityId: targetEntity.id,
+    })
+
     return this.entityRepo.findOne({
       where: { id: targetEntity.id },
       relations: ['module'],
@@ -339,6 +346,9 @@ export class ModuleService implements OnApplicationBootstrap {
         this.convert(sourceEntity, module_name, dto),
       ),
     )
+
+    sourceEntity.data['isConverted'] = true
+    await this.entityRepo.save(sourceEntity)
 
     await this.entityRepo.softDelete({ id: sourceEntity.id })
     return entities
@@ -577,6 +587,14 @@ export class ModuleService implements OnApplicationBootstrap {
     const dealStages = await this.getManyDealStagesByType(dealStageType)
     dealStages.forEach(({ id }) => ids.push(id))
 
+    let timeQueryString
+    if (filterDto.timeFieldName) {
+      timeQueryString =
+        filterDto.timeFieldName === TimeFieldName.CLOSING_DATE
+          ? `e.data ->> '${filterDto.timeFieldName}'`
+          : `e.${filterDto.timeFieldName}::DATE`
+    }
+
     const qb = this.entityRepo
       .createQueryBuilder('e')
       .where("e.data ->> 'stageId' IN (:...ids)", { ids: ids })
@@ -584,41 +602,40 @@ export class ModuleService implements OnApplicationBootstrap {
     switch (filterDto.timeFieldType) {
       case TimeFieldType.EXACT: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' = '${moment(
-            filterDto.singleDate,
-          ).format('YYYY-MM-DD')}'`,
+          `${timeQueryString} = '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
         )
         break
       }
 
       case TimeFieldType.BETWEEN: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
-            filterDto.startDate,
-          ).format('YYYY-MM-DD')}'`,
-        )
-        qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
-            filterDto.endDate,
-          ).format('YYYY-MM-DD')}'`,
+          `${timeQueryString} >= '${moment(filterDto.startDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        ).andWhere(
+          `${timeQueryString} <= '${moment(filterDto.endDate).format(
+            'YYYY-MM-DD',
+          )}'`,
         )
         break
       }
 
       case TimeFieldType.IS_AFTER: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
-            filterDto.singleDate,
-          ).format('YYYY-MM-DD')}'`,
+          `${timeQueryString} >= '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
         )
         break
       }
 
       case TimeFieldType.IS_BEFORE: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
-            filterDto.singleDate,
-          ).format('YYYY-MM-DD')}'`,
+          `${timeQueryString} <= '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
         )
         break
       }
@@ -628,17 +645,25 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     if (filterDto.reportType === ReportType.SALES_BY_LEAD_SOURCE) {
-      qb.groupBy(`e.data ->> 'source', e.id`)
-      qb.orderBy(`e.data ->> 'source', e.createdAt`, 'DESC')
+      qb.groupBy(`e.data ->> 'source', e.id`).orderBy(
+        `e.data ->> 'source', e.createdAt`,
+        'DESC',
+      )
     } else if (filterDto.reportType === ReportType.SALES_PERSON_PERFORMANCE) {
-      qb.groupBy(`e.data ->> 'ownerId', e.id`)
-      qb.orderBy(`e.data ->> 'ownerId', e.createdAt`, 'DESC')
+      qb.groupBy(`e.data ->> 'ownerId', e.id`).orderBy(
+        `e.data ->> 'ownerId', e.createdAt`,
+        'DESC',
+      )
     } else if (filterDto.reportType === ReportType.PIPELINE_BY_PROBABILITY) {
-      qb.groupBy(`e.data ->> 'probability', e.id`)
-      qb.orderBy(`e.data ->> 'probability', e.createdAt`, 'DESC')
+      qb.groupBy(`e.data ->> 'probability', e.id`).orderBy(
+        `e.data ->> 'probability', e.createdAt`,
+        'DESC',
+      )
     } else if (filterDto.reportType === ReportType.PIPELINE_BY_STAGE) {
-      qb.groupBy(`e.data ->> 'stageId', e.id`)
-      qb.orderBy(`e.data ->> 'stageId', e.createdAt`, 'DESC')
+      qb.groupBy(`e.data ->> 'stageId', e.id`).orderBy(
+        `e.data ->> 'stageId', e.createdAt`,
+        'DESC',
+      )
     } else {
       qb.orderBy('e.createdAt', 'DESC')
     }
@@ -653,6 +678,12 @@ export class ModuleService implements OnApplicationBootstrap {
     shouldNotPaginate,
     ...filterDto
   }: DTO.Module.ReportFilter) {
+    if (filterDto.timeFieldName === TimeFieldName.CLOSING_DATE) {
+      throw new BadRequestException(
+        'Leads report do not have field closing date ',
+      )
+    }
+
     const qb = this.entityRepo
       .createQueryBuilder('e')
       .leftJoin('e.module', 'module')
@@ -661,7 +692,7 @@ export class ModuleService implements OnApplicationBootstrap {
     switch (filterDto.timeFieldType) {
       case TimeFieldType.EXACT: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' = '${moment(
+          `e.${filterDto.timeFieldName}::DATE = '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -670,12 +701,11 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.BETWEEN: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+          `e.${filterDto.timeFieldName}::DATE >= '${moment(
             filterDto.startDate,
           ).format('YYYY-MM-DD')}'`,
-        )
-        qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+        ).andWhere(
+          `e.${filterDto.timeFieldName}::DATE <= '${moment(
             filterDto.endDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -684,7 +714,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.IS_AFTER: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+          `e.${filterDto.timeFieldName}::DATE >= '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -693,7 +723,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.IS_BEFORE: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+          `e.${filterDto.timeFieldName}::DATE <= '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -705,15 +735,24 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     if (filterDto.reportType === ReportType.LEADS_BY_SOURCE) {
-      qb.groupBy(`e.data ->> 'source', e.id`)
-      qb.orderBy(`e.data ->> 'source', e.createdAt`, 'DESC')
+      qb.groupBy(`e.data ->> 'source', e.id`).orderBy(
+        `e.data ->> 'source', e.createdAt`,
+        'DESC',
+      )
     } else if (filterDto.reportType === ReportType.LEADS_BY_STATUS) {
-      qb.groupBy(`e.data ->> 'status', e.id`)
-      qb.orderBy(`e.data ->> 'status', e.createdAt`, 'DESC')
+      qb.groupBy(`e.data ->> 'status', e.id`).orderBy(
+        `e.data ->> 'status', e.createdAt`,
+        'DESC',
+      )
     } else if (filterDto.reportType === ReportType.LEADS_BY_OWNERSHIP) {
-      qb.groupBy(`e.data ->> 'ownerId', e.id`)
-      qb.orderBy(`e.data ->> 'ownerId', e.createdAt`, 'DESC')
+      qb.groupBy(`e.data ->> 'ownerId', e.id`).orderBy(
+        `e.data ->> 'ownerId', e.createdAt`,
+        'DESC',
+      )
     } else if (filterDto.reportType === ReportType.CONVERTED_LEADS) {
+      qb.withDeleted()
+        .andWhere(`e.data ->> 'isConverted' = 'true'`)
+        .orderBy('e.createdAt', 'DESC')
     } else {
       qb.orderBy('e.createdAt', 'DESC')
     }

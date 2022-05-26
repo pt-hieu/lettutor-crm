@@ -69,8 +69,8 @@ export enum ReportType {
 
 export enum TimeFieldName {
   CLOSING_DATE = 'closingDate',
-  CREATED_AT = 'createdAt',
-  UPDATED_AT = 'updatedAt',
+  CREATED_AT = 'created_at',
+  UPDATED_AT = 'updated_at',
 }
 
 export enum TimeFieldType {
@@ -224,6 +224,23 @@ export class ConvertMeta {
   meta: Record<string, string>
 }
 
+export class ConvertedInfo {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  moduleName: string
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  entityName: string
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  entityId: string
+}
+
 type Meta = FieldMeta[]
 
 @EntityDecorator()
@@ -341,6 +358,9 @@ export class Entity extends BaseEntity {
 
   @Column({ type: 'jsonb' })
   data: Record<string, unknown>
+
+  @Column({ type: 'jsonb', default: [] })
+  converted_info: ConvertedInfo[]
 
   @OneToMany(() => Note, (note) => note.entity, {
     cascade: true,
