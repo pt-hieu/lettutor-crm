@@ -12,6 +12,7 @@ import { clone, omit } from 'lodash'
 import moment from 'moment'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
+import { CsvParser, ParsedData } from 'nest-csv-parser'
 
 import { Action, ActionType } from 'src/action/action.entity'
 import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
@@ -20,8 +21,9 @@ import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
+import { parseAsync } from 'json2csv'
 
-import { account, contact, deal, lead } from './default.entity'
+import { account, contact, deal, lead, LeadSource } from './default.entity'
 import {
   Entity,
   FieldType,
@@ -29,6 +31,9 @@ import {
   ReportType,
   TimeFieldType,
 } from './module.entity'
+import { AuthRequest } from 'src/utils/interface'
+import { Duplex } from 'stream'
+import { UserService } from 'src/user/user.service'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -41,7 +46,10 @@ export class ModuleService implements OnApplicationBootstrap {
     @InjectRepository(DealStage) private dealStageRepo: Repository<DealStage>,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
-  ) {}
+    private readonly csvParser: CsvParser,
+    private readonly userService: UserService
+
+  ) { }
 
   async onApplicationBootstrap() {
     await this.initDefaultModules()
@@ -96,6 +104,118 @@ export class ModuleService implements OnApplicationBootstrap {
 
     return this.moduleRepo.save(dto)
   }
+
+
+  async getTemplateForCreatingModuule(moduleName: string) {
+    const csv = await parseAsync(
+      {
+        name: moduleName
+      },
+      { fields: ['name', 'phone', 'email', 'status'] },
+    )
+
+    return csv
+  }
+
+
+  async getListInCsvFormat(moduleName: string) {
+    const module = await this.moduleRepo.findOne({
+      where: { name: moduleName },
+    })
+    if (!module) throw new BadRequestException('Module not existed')
+
+    let qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .orderBy('e.createdAt', 'DESC')
+      .andWhere('module.name = :name', { name: moduleName })
+
+    if (
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_VIEW_ALL,
+      })
+    ) {
+      qb.andWhere("e.data ->> 'ownerId' = :ownerId", {
+        ownerId: this.payloadService.data.id,
+      })
+    }
+    let entities = await qb.getMany()
+    const rawData = entities.map(e => ({
+      name: e.name,
+      email: e.data["email"],
+      phone: e.data["phone"],
+      source: e.data["source"],
+      status: e.data["status"],
+      created_at: e.createdAt
+    }))
+
+    const csv = await parseAsync(rawData, {
+      fields: ['name', 'email', 'phone', 'source', 'created_at'],
+    })
+
+    return csv
+  }
+
+  async bulkCreateEntities(
+    filBuffer: Buffer,
+    moduleName: string,
+    req: AuthRequest,
+  ) {
+    if (
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_IMPORT_FROM_FILE,
+      })
+    ) {
+      throw new ForbiddenException()
+    }
+
+    const module = await this.moduleRepo.findOne({
+      where: { name: moduleName },
+    })
+
+    if (!module) throw new BadRequestException('Module not found')
+
+    const stream = bufferToStream(filBuffer)
+
+    let rawEntities = (await this.csvParser.parse(
+      stream,
+      DTO.Module.AddEntityFromFile,
+      undefined,
+      undefined,
+      { strict: true, separator: ',' },
+    )) as ParsedData<DTO.Module.AddEntityFromFile>
+
+    let users = await this.userService.getManyRaw()
+    
+    let entities: DTO.Module.AddEntity[] = rawEntities.list.map(
+      (e: DTO.Module.AddEntityFromFile) => {
+        let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
+        let randomIdx = generateRandom(0, users.length - 1) 
+        entity["source"] = LeadSource.NONE
+        entity["ownerId"] = users[randomIdx].id
+        delete entity["name"]
+        return {
+          name: moduleName,
+          data: entity
+        }
+      })
+
+    entities.forEach(e => {
+      const validateMessage = module.validateEntity(e.data)
+      if (validateMessage) throw new UnprocessableEntityException(validateMessage)
+    })
+
+    return this.entityRepo.save(
+      entities.map(e => ({
+        name: e.name,
+        data: e.data,
+        moduleId: module.id
+      })
+      ))
+  }
+
 
   async getOneModule(id: string) {
     const module = await this.moduleRepo.findOne({
@@ -521,4 +641,24 @@ export class ModuleService implements OnApplicationBootstrap {
     if (shouldNotPaginate) return qb.getMany()
     return paginate(qb, { limit, page })
   }
+}
+
+
+function bufferToStream(buffer: Buffer) {
+  // Remove BOM in buffer
+  if (buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf)
+    buffer = buffer.slice(3)
+
+  let duplexStream = new Duplex({ encoding: 'utf-8' })
+  duplexStream.push(buffer)
+  duplexStream.push(null)
+  return duplexStream
+}
+
+function generateRandom(min: number, max: number) {
+  let difference = max - min;
+  let rand = Math.random();
+  rand = Math.floor(rand * difference);
+  rand = rand + min;
+  return rand;
 }

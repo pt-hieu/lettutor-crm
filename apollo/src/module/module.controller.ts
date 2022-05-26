@@ -9,10 +9,17 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  Response,
+  StreamableFile,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common'
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
-
+import { ApiBody, ApiConsumes, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
+import { FileInterceptor } from '@nestjs/platform-express'
 import { DTO } from 'src/type'
+import { AuthRequest } from 'src/utils/interface'
+import { Response as Res } from 'express'
 
 import { ReportType } from './module.entity'
 import { ModuleService } from './module.service'
@@ -22,7 +29,7 @@ import { ModuleService } from './module.service'
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 export class ModuleController {
-  constructor(private service: ModuleService) {}
+  constructor(private service: ModuleService) { }
 
   @Get()
   @ApiOperation({ summary: 'to get many modules' })
@@ -79,6 +86,60 @@ export class ModuleController {
     @Body() dto: DTO.Module.AddEntity,
   ) {
     return this.service.addEntity(moduleName, dto)
+  }
+
+
+  @Get(':name/csv')
+  @ApiOperation({ summary: 'to get the csv template for creating module' })
+  async getCreateLeadTemplate(
+    @Param('name') moduleName: string,
+    @Response({ passthrough: true }) res: Res
+  ) {
+    const csv = await this.service.getTemplateForCreatingModuule(moduleName)
+
+    res.set({
+      'Content-Type': "data:text/csv;charset=utf-8",
+      'Content-Disposition': 'attachment; filename="template.csv"'
+    })
+    return new StreamableFile(Buffer.from(csv))
+  }
+
+  @Get(':name/export/csv')
+  @ApiOperation({ summary: 'to get list entities of a specific module' })
+  async exportEntities(
+    @Param('name') moduleName: string,
+    @Response({ passthrough: true }) res: Res
+  ) {
+    const csv = await this.service.getListInCsvFormat(moduleName)
+    console.log(csv)
+    const fileName = moduleName + ".csv"
+    res.set('Content-Type', 'text/csv')
+    res.set('Content-Disposition', `attachment; filename="${fileName}"`)
+
+    return new StreamableFile(Buffer.from(csv))
+  }
+
+  @Post(':name/import/csv')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'to import entities at module via uploading' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  importEntities(
+    @Param('name') moduleName: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: AuthRequest,
+  ) {
+    return this.service.bulkCreateEntities(file.buffer, moduleName, req)
   }
 
   @Put('convert/:source_id')

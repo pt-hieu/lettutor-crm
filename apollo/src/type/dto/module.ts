@@ -69,6 +69,29 @@ export class AddEntity {
   data: Record<string, unknown>
 }
 
+export class AddEntityFromFile {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  phone: string
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  email: string
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  status: string
+}
+
+
 export class UpdateEnity {
   @ApiPropertyOptional()
   @IsString()
