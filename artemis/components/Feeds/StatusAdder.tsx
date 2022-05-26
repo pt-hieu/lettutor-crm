@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { getAvatarLinkByName } from '@utils/libs/avatar'
+
 import { FeedTextbox, IFeedTextboxData } from './FeedTextbox'
 
 interface IStatusAdderProps {}
@@ -10,15 +13,18 @@ export const StatusAdder = ({}: IStatusAdderProps) => {
   const handlePostStatus = (data: IFeedTextboxData) => {
     console.log(data)
   }
+  const [session] = useTypedSession()
 
   const placeholder = "Hey! What's up?"
 
   return (
     <div className="flex gap-2">
       <div className="w-[44px]">
-        <div className="w-10 h-10 rounded-full bg-blue-300 text-center text-white leading-10">
-          avt
-        </div>
+        <img
+          className="w-10 h-10 rounded-full"
+          alt="Avatar"
+          src={getAvatarLinkByName(session?.user.name || '')}
+        />
       </div>
       <div className="flex-1">
         {isActive ? (
