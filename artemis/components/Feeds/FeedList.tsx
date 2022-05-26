@@ -27,23 +27,23 @@ const feeds: Feed[] = [
     },
     files: [
       {
-        name: 'File Name 1',
+        filename: 'File Name 1',
         id: 'File Name 1',
       },
       {
-        name: 'File Name 2',
+        filename: 'File Name 2',
         id: 'File Name 2',
       },
       {
-        name: 'File Name 3',
+        filename: 'File Name 3',
         id: 'File Name 3',
       },
       {
-        name: 'File Name 4',
+        filename: 'File Name 4',
         id: 'File Name 4',
       },
       {
-        name: 'File Name 5',
+        filename: 'File Name 5',
         id: 'File Name 5',
       },
     ],
@@ -59,24 +59,73 @@ const feeds: Feed[] = [
     },
     files: [
       {
-        name: 'File Name 1',
+        filename: 'File Name 1',
         id: 'File Name 1',
       },
       {
-        name: 'File Name 2',
+        filename: 'File Name 2',
         id: 'File Name 2',
       },
+      //   {
+      //     filename: 'File Name 3',
+      //     id: 'File Name 3',
+      //   },
+      //   {
+      //     filename: 'File Name 4',
+      //     id: 'File Name 4',
+      //   },
+      //   {
+      //     filename: 'File Name 5',
+      //     id: 'File Name 5',
+      //   },
+    ],
+    comments: [
       {
-        name: 'File Name 3',
-        id: 'File Name 3',
+        owner: {
+          id: 'abc',
+          name: 'Le Hao',
+        },
+        content: 'This is a test comment',
+        createdAt: new Date(),
+        files: [
+          {
+            filename: 'File Name 1',
+            id: 'File Name 1',
+          },
+          {
+            filename: 'File Name 2',
+            id: 'File Name 2',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    type: FeedType.Status,
+    action: 'posted',
+    time: new Date(),
+    content: 'This is a content of status',
+    owner: {
+      id: 'abc',
+      name: 'Le 2121',
+    },
+    files: [],
+    comments: [
+      {
+        owner: {
+          id: 'abc',
+          name: 'Le Hao',
+        },
+        content: 'This is a test comment',
+        createdAt: new Date(),
       },
       {
-        name: 'File Name 4',
-        id: 'File Name 4',
-      },
-      {
-        name: 'File Name 5',
-        id: 'File Name 5',
+        owner: {
+          id: 'abc',
+          name: 'Le Hao',
+        },
+        content: 'This is a test comment',
+        createdAt: new Date(),
       },
     ],
   },
@@ -89,9 +138,11 @@ export const FeedList = () => {
   const handleChangeSelectType = (value: FeedType | '') => {
     setFeedType(value)
   }
+
   const handleChangeSelectTime = (value: FeedTime | '') => {
     setFeedTime(value)
   }
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-2 justify-end">
@@ -113,8 +164,8 @@ export const FeedList = () => {
         />
       </div>
       <div className="flex flex-col gap-7">
-        {feeds.map((feed) => (
-          <FeedContent feed={feed} />
+        {feeds.map((feed, index) => (
+          <FeedContent key={index} feed={feed} />
         ))}
       </div>
     </div>

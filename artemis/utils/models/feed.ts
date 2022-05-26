@@ -11,6 +11,15 @@ export enum FeedTime {
   LastMonth = 'Last Month',
 }
 
+export interface FeedComment {
+  owner: {
+    id: string
+    name: string
+  }
+  content: string
+  createdAt: Date
+  files?: { filename: string; id: string }[]
+}
 export interface Feed {
   type: FeedType
   action: string
@@ -20,5 +29,6 @@ export interface Feed {
     id: string
     name: string
   }
-  files?: { name: string; id: string }[]
+  files?: { filename: string; id: string }[]
+  comments?: FeedComment[]
 }
