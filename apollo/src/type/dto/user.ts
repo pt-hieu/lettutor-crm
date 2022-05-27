@@ -91,13 +91,11 @@ export class UserGetManyQuery extends Paginate {
 export class UpdateUser {
   @ApiProperty()
   @IsString()
-  @IsOptional()
   @MaxLength(100)
-  name?: string
+  name: string
 
   @ApiProperty()
-  @IsOptional()
-  roleIds?: string[]
+  roleIds: string[]
 }
 
 export class ActivateUser {
