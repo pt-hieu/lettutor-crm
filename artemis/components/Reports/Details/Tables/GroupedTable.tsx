@@ -1,4 +1,4 @@
-import { Popover, Table, TableColumnType } from 'antd'
+import { Table, TableColumnType } from 'antd'
 import Link from 'next/link'
 import React, { ReactNode, useMemo } from 'react'
 
@@ -81,20 +81,11 @@ export const GroupedTable = ({
           {
             title: 'Name',
             dataIndex: 'name',
-            render: (value, { id, data }) =>
-              data.isConverted ? (
-                <Popover
-                  title="Cannot view detail"
-                  trigger="click"
-                  content="Sorry, You cannot access the converted Lead"
-                >
-                  <a className="crm-link underline hover:underline">{value}</a>
-                </Popover>
-              ) : (
-                <Link href={`/${module.name}/${id}`}>
-                  <a className="crm-link underline hover:underline">{value}</a>
-                </Link>
-              ),
+            render: (value, { id }) => (
+              <Link href={`/${module.name}/${id}`}>
+                <a className="crm-link underline hover:underline">{value}</a>
+              </Link>
+            ),
           },
         ] as TableColumnType<any>[]
       ).concat(

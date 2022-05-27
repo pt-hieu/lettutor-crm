@@ -8,6 +8,7 @@ import {
   formatReportFilter,
 } from '@components/Reports/Details/Filter'
 import { BasicTable } from '@components/Reports/Details/Tables/BasicTable'
+import { ConvertedLeadTable } from '@components/Reports/Details/Tables/ConvertedLeadTable'
 import { GroupedTable } from '@components/Reports/Details/Tables/GroupedTable'
 
 import Layout from '@utils/components/Layout'
@@ -151,7 +152,7 @@ export default ({ module }: IProps) => {
       ),
 
       [LeadReportType.CONVERTED_LEADS]: (
-        <BasicTable module={module} data={data} isLoading={isLoading} />
+        <ConvertedLeadTable module={module} data={data} isLoading={isLoading} />
       ),
       [LeadReportType.TODAY_LEADS]: (
         <BasicTable module={module} data={data} isLoading={isLoading} />

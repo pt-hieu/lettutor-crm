@@ -1,4 +1,4 @@
-import { Popover, Table, TableColumnType } from 'antd'
+import { Table, TableColumnType } from 'antd'
 import Link from 'next/link'
 import React, { useMemo } from 'react'
 
@@ -22,20 +22,11 @@ export const BasicTable = ({ module, data, isLoading }: IProps) => {
           {
             title: 'Name',
             dataIndex: 'name',
-            render: (value, { id, data }) =>
-              data.isConverted ? (
-                <Popover
-                  trigger="click"
-                  content="Cannot access the converted Lead"
-                  placement="top"
-                >
-                  <a className="crm-link underline hover:underline">{value}</a>
-                </Popover>
-              ) : (
-                <Link href={`/${module.name}/${id}`}>
-                  <a className="crm-link underline hover:underline">{value}</a>
-                </Link>
-              ),
+            render: (value, { id }) => (
+              <Link href={`/${module.name}/${id}`}>
+                <a className="crm-link underline hover:underline">{value}</a>
+              </Link>
+            ),
           },
         ] as TableColumnType<any>[]
       ).concat(
