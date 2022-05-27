@@ -196,6 +196,7 @@ export default ({ module }: IProps) => {
         <ReportFilter
           defaultValues={FilterByReportType[type as ReportType] || {}}
           onFilter={handleFilter}
+          moduleName={module.name}
         />
       </div>
 
