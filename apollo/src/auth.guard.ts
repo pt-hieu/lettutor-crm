@@ -36,7 +36,7 @@ export class JwtAuthGuard implements CanActivate {
 
       req.user = payload
       canActivate = true
-
+      
       this.payloadService.data = payload
     } catch (e) {
       this.payloadService.data = undefined

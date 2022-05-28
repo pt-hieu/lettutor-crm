@@ -7,7 +7,7 @@ import { File } from 'src/file/file.entity'
 import { Note } from 'src/note/note.entity'
 import { NoteModule } from 'src/note/note.module'
 import { UserModule } from 'src/user/user.module'
-
+import { CsvModule } from 'nest-csv-parser'
 import { EntitySubscriber } from './entity.subscriber'
 import { ModuleController } from './module.controller'
 import { Entity, Module } from './module.entity'
@@ -19,6 +19,7 @@ import { ModuleSubscriber } from './module.subscriber'
     TypeOrmModule.forFeature([Module, Entity, Action, File, Note, DealStage]),
     UserModule,
     NoteModule,
+    CsvModule
   ],
   providers: [ModuleService, EntitySubscriber, ModuleSubscriber],
   controllers: [ModuleController],
