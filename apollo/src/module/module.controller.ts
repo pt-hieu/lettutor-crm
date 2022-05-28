@@ -100,7 +100,7 @@ export class ModuleController {
       'Content-Type': "data:text/csv;charset=utf-8",
       'Content-Disposition': 'attachment; filename="template.csv"'
     })
-    return new StreamableFile(Buffer.from(csv))
+    return csv
   }
 
   @Get(':name/export/csv')
@@ -114,7 +114,7 @@ export class ModuleController {
     res.set('Content-Type', 'text/csv')
     res.set('Content-Disposition', `attachment; filename="${fileName}"`)
 
-    return new StreamableFile(Buffer.from(csv))
+    return csv
   }
 
   @Post(':name/import/csv')
