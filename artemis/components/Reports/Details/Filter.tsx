@@ -40,6 +40,7 @@ const defaultDates = {
 interface IProps {
   defaultValues: TReportFilterData
   onFilter: (value: TReportFilterData) => void
+  moduleName: string
 }
 
 const getDatesByType = (type: string): string | [string, string] | null => {
@@ -49,7 +50,11 @@ const getDatesByType = (type: string): string | [string, string] | null => {
   return null
 }
 
-export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
+export const ReportFilter = ({
+  defaultValues,
+  onFilter,
+  moduleName,
+}: IProps) => {
   const { timeFieldType, timeFieldName } = defaultValues
   const [isNoTimeFieldName, setIsNoTimeFieldName] = useState(!timeFieldName)
   const [isNoTimeFieldType, setIsNoTimeFieldType] = useState(!timeFieldType)
@@ -127,11 +132,19 @@ export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
                 <option key="None" value="">
                   None
                 </option>
-                {Object.entries(mappedTimeFieldNames).map(([key, value]) => (
-                  <option key={key} value={key}>
-                    {value}
-                  </option>
-                ))}
+                {Object.entries(mappedTimeFieldNames)
+                  .filter(
+                    ([key]) =>
+                      !(
+                        moduleName === 'lead' &&
+                        key === TimeFieldName.CLOSING_DATE
+                      ),
+                  )
+                  .map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value}
+                    </option>
+                  ))}
               </>
             ),
           }}
