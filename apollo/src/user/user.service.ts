@@ -200,11 +200,23 @@ export class UserService {
     return paginate(q, { limit, page })
   }
 
-  async updateUser(dto: DTO.User.UpdateUser, payload: JwtPayload) {
-    const user = await this.userRepo.findOne({ where: { id: payload.id } })
+  async updateUser(
+    dto: DTO.User.UpdateUser,
+    payload?: JwtPayload,
+    userId?: string,
+  ) {
+    let user
+    if (userId) user = await this.userRepo.findOne({ where: { id: userId } })
+    else user = await this.userRepo.findOne({ where: { id: payload?.id } })
+
     if (!user) throw new BadRequestException('User does not exist')
 
+    const roles = await this.roleRepo.find({
+      where: { id: In(dto.roleIds) },
+    })
+
     user.name = dto.name
+    user.roles = roles
     return this.userRepo.save(user)
   }
 
