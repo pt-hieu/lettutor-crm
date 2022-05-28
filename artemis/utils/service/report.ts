@@ -9,11 +9,7 @@ type TDealReportParams = TReportFilterData & {
   reportType: ReportType
 }
 
-export const getDealsReport =
-  (moduleName: string, params: TDealReportParams & PagingQuery) => () =>
-    axios
-      .get<Paginate<Entity>>(
-        API + '/apollo/module/entity/report/' + moduleName,
-        { params },
-      )
-      .then((r) => r.data)
+export const getDealsReport = (params: TDealReportParams & PagingQuery) => () =>
+  axios
+    .get<Paginate<Entity>>(API + '/apollo/module/entity/report/', { params })
+    .then((r) => r.data)

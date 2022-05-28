@@ -1,4 +1,4 @@
-export enum ReportType {
+export enum DealReportType {
   TODAY_SALES = 'Today Sales',
   THIS_MONTH_SALES = 'This Month Sales',
   SALES_BY_LEAD_SOURCE = 'Sales by Lead Source',
@@ -10,10 +10,20 @@ export enum ReportType {
   SALES_PERSON_PERFORMANCE = 'Sales Person Performance',
 }
 
+export enum LeadReportType {
+  TODAY_LEADS = 'Today Leads',
+  LEADS_BY_STATUS = 'Leads by Status',
+  LEADS_BY_SOURCE = 'Leads by Source',
+  LEADS_BY_OWNERSHIP = 'Leads by Ownership',
+  CONVERTED_LEADS = 'Converted Leads',
+}
+
+export type ReportType = LeadReportType | DealReportType
+
 export enum TimeFieldName {
   CLOSING_DATE = 'closingDate',
-  CREATED_AT = 'createdAt',
-  UPDATED_AT = 'updatedAt',
+  CREATED_AT = 'created_at',
+  UPDATED_AT = 'updated_at',
 }
 
 export enum TimeFieldType {

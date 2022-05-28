@@ -6,8 +6,13 @@ import React, { useMemo } from 'react'
 import { toCapitalizedWords } from '@components/Module/OverviewView'
 import ReportsLayout from '@components/Reports/Layout'
 
-import { DealReports } from '@utils/data/report-data'
+import { DealReports, LeadReports } from '@utils/data/report-data'
 import { TReport } from '@utils/models/reports'
+
+const dataSource = {
+  lead: LeadReports,
+  deal: DealReports,
+}
 
 export default () => {
   const {
@@ -52,7 +57,7 @@ export default () => {
           pagination={false}
           bordered
           rowKey={(u) => u.name}
-          dataSource={DealReports}
+          dataSource={dataSource[module as keyof typeof dataSource] || []}
         />
       </div>
     </ReportsLayout>
