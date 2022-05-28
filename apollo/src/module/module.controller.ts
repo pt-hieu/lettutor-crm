@@ -110,7 +110,6 @@ export class ModuleController {
     @Response({ passthrough: true }) res: Res
   ) {
     const csv = await this.service.getListInCsvFormat(moduleName)
-    console.log(csv)
     const fileName = moduleName + ".csv"
     res.set('Content-Type', 'text/csv')
     res.set('Content-Disposition', `attachment; filename="${fileName}"`)
@@ -119,26 +118,12 @@ export class ModuleController {
   }
 
   @Post(':name/import/csv')
-  @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'to import entities at module via uploading' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
   importEntities(
+    @Body() dto: DTO.File.Files,
     @Param('name') moduleName: string,
-    @UploadedFile() file: Express.Multer.File,
-    @Request() req: AuthRequest,
   ) {
-    return this.service.bulkCreateEntities(file.buffer, moduleName, req)
+    return this.service.bulkCreateEntities(moduleName, dto)
   }
 
   @Put('convert/:source_id')
