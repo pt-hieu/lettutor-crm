@@ -177,7 +177,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
     if (!module) throw new BadRequestException('Module not found')
     const file = dto.files[0]
-    const stream = bufferToStream(Buffer.from(file.buffer))  
+    const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))  
 
     const rawEntities = (await this.csvParser.parse(
       stream,
@@ -201,7 +201,6 @@ export class ModuleService implements OnApplicationBootstrap {
           data: entity
         }
       })
-    console.log(entities)
 
     entities.forEach(e => {
       const validateMessage = module.validateEntity(e.data)
