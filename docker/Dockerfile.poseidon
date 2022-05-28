@@ -14,12 +14,12 @@ ENV AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
 ENV AWS_S3_STORAGE_CLASS=${AWS_S3_STORAGE_CLASS}
 
 WORKDIR /app
-COPY package.json yarn.lock script.js deps.json ./
+COPY package* script.js deps.json ./
 
 RUN npm install chalk@^4.1.2 && npm install yargs
 RUN yarn crm localize poseidon
 
-RUN yarn install
+RUN npm i
 
 COPY ./poseidon ./poseidon
 

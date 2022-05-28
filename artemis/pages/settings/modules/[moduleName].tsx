@@ -2,7 +2,7 @@ import { notification } from 'antd'
 import { useRouter } from 'next/router'
 import { ComponentProps, useCallback, useEffect, useRef, useState } from 'react'
 import { DragDropContext } from 'react-beautiful-dnd'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 import FieldModal from '@components/Settings/Modules/FieldModal'
 import FieldRenderer from '@components/Settings/Modules/FieldRenderer'
@@ -94,6 +94,21 @@ export default function ModuleView() {
     }
   }, [])
 
+  const client = useQueryClient()
+  const { isLoading, mutateAsync } = useMutation(
+    'update-module',
+    updateModule(module?.id || ''),
+    {
+      onSuccess() {
+        client.refetchQueries('modules')
+        notification.success({ message: 'Update module successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Update module unsuccesfully' })
+      },
+    },
+  )
+
   useCommand<{ meta: ConvertMeta[] }>(
     'cmd:update-convert-setting',
     (received) => {
@@ -103,10 +118,13 @@ export default function ModuleView() {
       } = received
 
       setLocalModule((module) => {
-        return {
+        const localModule = {
           ...module!,
           convert_meta: meta,
         }
+
+        mutateAsync(localModule)
+        return localModule
       })
     },
   )
@@ -233,19 +251,6 @@ export default function ModuleView() {
       meta: module?.meta?.filter((field) => field.name !== name) || [],
     }))
   }, [])
-
-  const { isLoading, mutateAsync } = useMutation(
-    'update-module',
-    updateModule(module?.id || ''),
-    {
-      onSuccess() {
-        notification.success({ message: 'Update module successfully' })
-      },
-      onError() {
-        notification.error({ message: 'Update module unsuccesfully' })
-      },
-    },
-  )
 
   return (
     <Layout>

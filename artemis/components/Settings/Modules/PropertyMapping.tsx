@@ -3,19 +3,20 @@ import { useRouter } from 'next/router'
 import {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useMemo,
   useState,
 } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 
 import Input from '@utils/components/Input'
 import Tooltip from '@utils/components/Tooltip'
 import { ConvertMeta, FieldType, Module } from '@utils/models/module'
 
 type Props = {
-  item: ConvertMeta
+  item: ConvertMeta | undefined
   index: number
 }
 
@@ -27,8 +28,11 @@ export default forwardRef<Ref, Props>(function PropertyMapping(
   { item, index: itemIndex },
   ref,
 ) {
+  const { unregister } = useFormContext<{ meta: ConvertMeta[] }>()
+  const client = useQueryClient()
+
   const [ids, setIds] = useState(
-    Object.keys(item.meta).map(() => uniqueId('askdaskdj')),
+    Object.keys(item?.meta || []).map(() => uniqueId('askdaskdj')),
   )
 
   const addProperty = useCallback(
@@ -38,11 +42,16 @@ export default forwardRef<Ref, Props>(function PropertyMapping(
 
   const removeProperty = useCallback((id: string) => {
     setIds((ids) => ids.filter((value) => value !== id))
+
+    const key = client.getQueryData<string>(id)
+
+    if (!key) return
+    unregister(key as any)
   }, [])
 
   useImperativeHandle(ref, () => ({
     resetProp: () =>
-      setIds(Object.keys(item.meta).map(() => uniqueId('askdaskdj'))),
+      setIds(Object.keys(item?.meta || []).map(() => uniqueId('askdaskdj'))),
   }))
 
   return (
@@ -56,7 +65,7 @@ export default forwardRef<Ref, Props>(function PropertyMapping(
             type="button"
             className="w-8 aspect-square rounded-full hover:bg-gray-300"
           >
-            <span className="fa fa-plus"></span>
+            <span className="fa fa-plus" />
           </button>
         </Tooltip>
       </div>
@@ -76,7 +85,8 @@ export default forwardRef<Ref, Props>(function PropertyMapping(
             <PropertyInput
               index={itemIndex}
               item={item}
-              initSourceProp={Object.keys(item.meta)[index]}
+              initSourceProp={Object.keys(item?.meta || [])[index]}
+              id={id}
             />
           </div>
         ))}
@@ -85,7 +95,10 @@ export default forwardRef<Ref, Props>(function PropertyMapping(
   )
 })
 
-type PropertyInputProps = { initSourceProp?: string } & Pick<Props, 'index'> &
+type PropertyInputProps = { initSourceProp?: string; id: string } & Pick<
+  Props,
+  'index'
+> &
   Partial<Pick<Props, 'item'>>
 
 const CompatibleField: Record<FieldType, FieldType[]> = {
@@ -112,20 +125,31 @@ const CompatibleField: Record<FieldType, FieldType[]> = {
   [FieldType.TEXT]: [FieldType.TEXT, FieldType.MULTILINE_TEXT],
 }
 
-function PropertyInput({ index, item, initSourceProp }: PropertyInputProps) {
+function PropertyInput({
+  index,
+  item,
+  initSourceProp,
+  id,
+}: PropertyInputProps) {
   const { query } = useRouter()
   const moduleName = query.moduleName as string
 
-  const { control, getValues } = useFormContext<{ meta: ConvertMeta[] }>()
+  const client = useQueryClient()
+
+  const { control, getValues, unregister, watch } =
+    useFormContext<{ meta: ConvertMeta[] }>()
   const [sourceProp, setSourceProp] = useState(initSourceProp)
 
   const { data: modules } = useQuery<Module[]>('modules', {
     enabled: false,
   })
 
+  const selectedSource = watch(`meta.${index}.source`)
+
   const sourceModule = useMemo(
-    () => modules?.find((module) => module.name === item?.source),
-    [modules, item],
+    () =>
+      modules?.find((module) => module.name === item?.source || selectedSource),
+    [modules, item, selectedSource],
   )
 
   const currentModule = useMemo(
@@ -137,6 +161,13 @@ function PropertyInput({ index, item, initSourceProp }: PropertyInputProps) {
     () => sourceModule?.meta?.find((field) => field.name === sourceProp),
     [sourceProp, sourceModule],
   )
+
+  useEffect(() => {
+    client.setQueryData(id, `meta.${index}.meta.${sourceProp}`)
+
+    if (sourceProp) return
+    unregister(`meta.${index}.meta.${sourceProp}`)
+  }, [sourceProp])
 
   return (
     <div className="grid gap-2 grid-rows-2 w-full">
@@ -191,9 +222,9 @@ function PropertyInput({ index, item, initSourceProp }: PropertyInputProps) {
                     <option value="">Select target property</option>
                     {currentModule?.meta
                       ?.filter((field) =>
-                        CompatibleField[selectedField!.type].includes(
-                          field.type,
-                        ),
+                        CompatibleField[
+                          selectedField?.type || FieldType.TEXT
+                        ].includes(field.type),
                       )
                       .map((field) => (
                         <option value={field.name} key={field.name}>

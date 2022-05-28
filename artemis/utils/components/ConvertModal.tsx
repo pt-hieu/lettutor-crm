@@ -113,7 +113,10 @@ export default function ConvertModal({
       <Divider />
 
       {!convertResults && (
-        <form onSubmit={handleSubmitConvert} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmitConvert}
+          className="flex flex-col gap-4 max-h-[500px] overflow-auto pr-4 -mr-4"
+        >
           <FormProvider {...form}>
             {modules?.map((module, index) => (
               <ConvertForm
@@ -196,7 +199,9 @@ function ConvertForm({
     () =>
       module.meta?.filter(
         (field) =>
-          !Object.keys(convertMeta.meta).some((prop) => prop === field.name),
+          !Object.values(convertMeta.meta || {}).some(
+            (prop) => prop === field.name,
+          ),
       ) || [],
     [module],
   )
