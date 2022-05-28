@@ -1,36 +1,19 @@
 import { Divider, Modal, notification } from 'antd'
 import { requireRule } from 'pages/change-password'
-import { emailReg } from 'pages/reset-password'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
-import ButtonAdd from '@utils/components/ButtonAdd'
-import { menuItemClass } from '@utils/components/Header'
 import Input from '@utils/components/Input'
-import Loading from '@utils/components/Loading'
 import { useModal } from '@utils/hooks/useModal'
 import { IErrorResponse } from '@utils/libs/functionalTryCatch'
 import { Role } from '@utils/models/role'
 import { User } from '@utils/models/user'
-import { addUser as addUserService } from '@utils/service/user'
+import { updateUser as updateUserService } from '@utils/service/user'
 
 interface FormData {
   name: string
-  email: string
   roleId: string
-}
-
-const validateData = (
-  data: FormData,
-): { key: keyof FormData; message: string } | null => {
-  const { email } = data
-
-  if (email && !emailReg.test(email)) {
-    return { key: 'email', message: 'Please enter a valid email address.' }
-  }
-
-  return null
 }
 
 type Props = {
@@ -40,7 +23,6 @@ type Props = {
 const ButtonUpdateUser = ({ user }: Props) => {
   const initialValue: FormData = {
     name: user.name,
-    email: user.email,
     roleId: user.roles[0].id,
   }
 
@@ -57,34 +39,29 @@ const ButtonUpdateUser = ({ user }: Props) => {
   } = useForm<FormData>()
 
   const queryClient = useQueryClient()
+  const { mutateAsync: updateUserAsync } = useMutation(
+    'update-user',
+    updateUserService(user.id),
+    {
+      onSuccess: () => {
+        queryClient.refetchQueries('users')
+        hideModal()
+        notification.success({
+          message: 'Update user successfully.',
+        })
+      },
+      onError: ({ response }: IErrorResponse) => {
+        if (response) {
+          notification.error({ message: response.data.message })
+          return
+        }
+        notification.error({ message: 'Update user unsuccessfully' })
+      },
+    },
+  )
 
-  // const { isLoading, mutateAsync } = useMutation('add-user', addUserService, {
-  //   onSuccess: () => {
-  //     queryClient.refetchQueries('users')
-  //     reset(initialValue)
-  //     hideModal()
-  //     notification.success({
-  //       message: 'Add new user successfully.',
-  //     })
-  //   },
-  //   onError: ({ response }: IErrorResponse) => {
-  //     if (response) {
-  //       notification.error({ message: response.data.message })
-  //       return
-  //     }
-  //     notification.error({ message: 'Add new user unsuccessfully' })
-  //   },
-  // })
-
-  const addUser = handleSubmit((data) => {
-    const error = validateData(data)
-
-    if (error) {
-      return setError(error.key, {
-        message: error.message,
-      })
-    }
-    // mutateAsync(data)
+  const updateUser = handleSubmit((data) => {
+    updateUserAsync(data)
   })
 
   useEffect(() => {
@@ -102,8 +79,7 @@ const ButtonUpdateUser = ({ user }: Props) => {
         onCancel={hideModal}
         footer={
           <div className="flex gap-2 justify-end">
-            <button onClick={addUser} className="crm-button">
-              {/* <Loading on={isLoading}>Submit</Loading> */}
+            <button onClick={updateUser} className="crm-button">
               Submit
             </button>
 
@@ -130,24 +106,6 @@ const ButtonUpdateUser = ({ user }: Props) => {
                   type: 'text',
                   className: 'w-full text-sm p-3',
                   ...register('name', requireRule('Name')),
-                }}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-12 mb-4">
-            <label htmlFor="email" className="col-span-2 mt-[10px] crm-label">
-              Email
-            </label>
-            <div className="col-span-10">
-              <Input
-                error={errors.email?.message}
-                props={{
-                  id: 'email',
-                  type: 'email',
-                  className: 'w-full text-sm p-3',
-                  placeholder: 'An invitation link will be sent to this email',
-                  disabled: true,
-                  ...register('email', requireRule('Email')),
                 }}
               />
             </div>
