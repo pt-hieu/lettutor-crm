@@ -16,11 +16,18 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common'
-import { ApiBody, ApiConsumes, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { FileInterceptor } from '@nestjs/platform-express'
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger'
+import { Response as Res } from 'express'
+
 import { DTO } from 'src/type'
 import { AuthRequest } from 'src/utils/interface'
-import { Response as Res } from 'express'
 
 import { ModuleService } from './module.service'
 
@@ -29,7 +36,7 @@ import { ModuleService } from './module.service'
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 export class ModuleController {
-  constructor(private service: ModuleService) { }
+  constructor(private service: ModuleService) {}
 
   @Get()
   @ApiOperation({ summary: 'to get many modules' })
@@ -88,34 +95,29 @@ export class ModuleController {
     return this.service.addEntity(moduleName, dto)
   }
 
-
   @Get(':name/csv')
   @ApiOperation({ summary: 'to get the csv template for creating module' })
   async getCreateLeadTemplate(
     @Param('name') moduleName: string,
-    @Response({ passthrough: true }) res: Res
+    @Response({ passthrough: true }) res: Res,
   ) {
     const csv = await this.service.getTemplateForCreatingModuule(moduleName)
 
-    res.set({
-      'Content-Type': "data:text/csv;charset=utf-8",
-      'Content-Disposition': 'attachment; filename="template.csv"'
-    })
-    return csv
+    res.set('Content-Type', 'text/csv')
+    res.attachment('template.csv').send(csv)
   }
 
   @Get(':name/export/csv')
   @ApiOperation({ summary: 'to get list entities of a specific module' })
   async exportEntities(
     @Param('name') moduleName: string,
-    @Response({ passthrough: true }) res: Res
+    @Response({ passthrough: true }) res: Res,
   ) {
     const csv = await this.service.getListInCsvFormat(moduleName)
-    const fileName = moduleName + ".csv"
-    res.set('Content-Type', 'text/csv')
-    res.set('Content-Disposition', `attachment; filename="${fileName}"`)
+    const fileName = moduleName + '.csv'
 
-    return csv
+    res.set('Content-Type', 'text/csv')
+    res.attachment(fileName).send(csv)
   }
 
   @Post(':name/import/csv')

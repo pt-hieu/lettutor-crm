@@ -81,7 +81,7 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
         }
     });
 }, function (agrv) {
-    var command = "yarn add".concat(agrv.D ? ' -D ' : ' ').concat(agrv.dependency.join(' '));
+    var command = "npm i".concat(agrv.D ? ' -D ' : ' ').concat(agrv.dependency.join(' '));
     var depsToSave = __assign({}, deps_json_1["default"]);
     depsToSave[agrv.service] = depsToSave[agrv.service].concat(agrv.dependency);
     depsToSave[agrv.service] = __spreadArray([], __read(new Set(depsToSave[agrv.service])), false);
@@ -100,7 +100,7 @@ var services = ['apollo', 'artemis', 'poseidon', 'ares', 'zeus'];
         demandOption: true
     });
 }, function (agrv) {
-    var command = "yarn remove ".concat(agrv.dependency.join(' '));
+    var command = "npm remove ".concat(agrv.dependency.join(' '));
     var depsToSave = __assign({}, deps_json_1["default"]);
     depsToSave[agrv.service] = depsToSave[agrv.service].filter(function (deps) { return !agrv.dependency.includes(deps); });
     fs_1["default"].writeFileSync('deps.json', JSON.stringify(depsToSave, undefined, 2));
