@@ -159,9 +159,8 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   async bulkCreateEntities(
-    filBuffer: Buffer,
     moduleName: string,
-    req: AuthRequest,
+    dto: DTO.File.Files,
   ) {
     if (
       !this.utilService.checkRoleAction({
@@ -177,10 +176,10 @@ export class ModuleService implements OnApplicationBootstrap {
     })
 
     if (!module) throw new BadRequestException('Module not found')
+    const file = dto.files[0]
+    const stream = bufferToStream(Buffer.from(file.buffer))  
 
-    const stream = bufferToStream(filBuffer)
-
-    let rawEntities = (await this.csvParser.parse(
+    const rawEntities = (await this.csvParser.parse(
       stream,
       DTO.Module.AddEntityFromFile,
       undefined,
@@ -188,9 +187,9 @@ export class ModuleService implements OnApplicationBootstrap {
       { strict: true, separator: ',' },
     )) as ParsedData<DTO.Module.AddEntityFromFile>
 
-    let users = await this.userService.getManyRaw()
+    const users = await this.userService.getManyRaw()
     
-    let entities: DTO.Module.AddEntity[] = rawEntities.list.map(
+    const entities: DTO.Module.AddEntity[] = rawEntities.list.map(
       (e: DTO.Module.AddEntityFromFile) => {
         let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
         let randomIdx = generateRandom(0, users.length - 1) 
@@ -202,6 +201,7 @@ export class ModuleService implements OnApplicationBootstrap {
           data: entity
         }
       })
+    console.log(entities)
 
     entities.forEach(e => {
       const validateMessage = module.validateEntity(e.data)
