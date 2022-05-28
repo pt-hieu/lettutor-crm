@@ -1,8 +1,6 @@
 import axios from 'axios'
 import { API } from 'environment'
-
 import { Paginate, PagingQuery } from '@utils/models/paging'
-
 import { Entity, Module } from '../models/module'
 
 export const getModules = (token?: string) => () =>
@@ -99,3 +97,13 @@ export const convert =
     axios
       .put<Entity[]>(API + '/apollo/module/convert/' + sourceId, data)
       .then((res) => res.data)
+
+export const getModuleTemplateLink = (moduleName: string) => {
+  return `${API}/apollo/module/${moduleName}/csv`
+}
+
+export const importModule = (moduleName: string) => (file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return axios.post(API + `/apollo/module/${moduleName}/import/csv`, formData, {headers: {'Content-Type': 'multipart/form-data'}})
+}

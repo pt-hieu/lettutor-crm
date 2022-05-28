@@ -1,5 +1,6 @@
 import {
   Body,
+  ConsoleLogger,
   Controller,
   Delete,
   Get,
@@ -101,6 +102,7 @@ export class ModuleController {
       'Content-Type': "data:text/csv;charset=utf-8",
       'Content-Disposition': 'attachment; filename="template.csv"'
     })
+
     return new StreamableFile(Buffer.from(csv))
   }
 
@@ -139,6 +141,7 @@ export class ModuleController {
     @UploadedFile() file: Express.Multer.File,
     @Request() req: AuthRequest,
   ) {
+    console.log('FILE: ', file)
     return this.service.bulkCreateEntities(file.buffer, moduleName, req)
   }
 
