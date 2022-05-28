@@ -14,7 +14,8 @@ export enum ActionType {
   CAN_RESTORE_REVERSED = 'Can restore reserved',
   CAN_CONVERT_ANY = 'Can convert any',
   CAN_CLOSE_ANY = 'Can close any',
-  CAN_IMPORT_FROM_FILE = 'Can import from file'
+  CAN_IMPORT_FROM_FILE = 'Can import from file',
+  CAN_EXPORT_TO_FILE = 'Can export to file'
 }
 
 export enum DefaultActionTarget {

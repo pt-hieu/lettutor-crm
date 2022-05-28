@@ -146,7 +146,7 @@ export class BatchConvert {
   dto: Record<string, any>
 }
 
-export class DealReportFilter extends Paginate {
+export class ReportFilter extends Paginate {
   @ApiProperty({ enum: ReportType, enumName: 'Report type' })
   @IsEnum(ReportType)
   reportType: ReportType
@@ -154,40 +154,36 @@ export class DealReportFilter extends Paginate {
   @ApiPropertyOptional({ enum: TimeFieldName, enumName: 'Name of Time Field' })
   @IsOptional()
   @IsEnum(TimeFieldName)
-  @Transform(
-    ({ value, obj }: { value: TimeFieldName; obj: DealReportFilter }) => {
-      if (value && !obj.timeFieldType)
-        throw new UnprocessableEntityException('Time Field Type is missing')
+  @Transform(({ value, obj }: { value: TimeFieldName; obj: ReportFilter }) => {
+    if (value && !obj.timeFieldType)
+      throw new UnprocessableEntityException('Time Field Type is missing')
 
-      return value
-    },
-  )
+    return value
+  })
   timeFieldName: TimeFieldName
 
   @ApiPropertyOptional({ enum: TimeFieldType, enumName: 'Type of Time Field' })
   @IsOptional()
   @IsEnum(TimeFieldType)
-  @Transform(
-    ({ value, obj }: { value: TimeFieldType; obj: DealReportFilter }) => {
-      if (value && value === TimeFieldType.BETWEEN) {
-        if (!obj.startDate && !obj.endDate) {
-          throw new UnprocessableEntityException(
-            'Start Date and End Date is missing',
-          )
-        }
-        if (!obj.startDate) {
-          throw new UnprocessableEntityException('Start Date is missing')
-        }
-        if (!obj.endDate) {
-          throw new UnprocessableEntityException('End Date is missing')
-        }
-      } else if (value && value !== TimeFieldType.BETWEEN && !obj.singleDate) {
-        throw new UnprocessableEntityException('Single Date is missing')
+  @Transform(({ value, obj }: { value: TimeFieldType; obj: ReportFilter }) => {
+    if (value && value === TimeFieldType.BETWEEN) {
+      if (!obj.startDate && !obj.endDate) {
+        throw new UnprocessableEntityException(
+          'Start Date and End Date is missing',
+        )
       }
+      if (!obj.startDate) {
+        throw new UnprocessableEntityException('Start Date is missing')
+      }
+      if (!obj.endDate) {
+        throw new UnprocessableEntityException('End Date is missing')
+      }
+    } else if (value && value !== TimeFieldType.BETWEEN && !obj.singleDate) {
+      throw new UnprocessableEntityException('Single Date is missing')
+    }
 
-      return value
-    },
-  )
+    return value
+  })
   timeFieldType: TimeFieldType
 
   @ApiPropertyOptional()
