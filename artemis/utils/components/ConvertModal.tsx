@@ -7,10 +7,16 @@ import {
   ComponentProps,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from 'react'
-import { FormProvider, useForm, useFormContext } from 'react-hook-form'
+import {
+  Controller,
+  FormProvider,
+  useForm,
+  useFormContext,
+} from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
 
 import Field from '@components/Module/Field'
@@ -187,23 +193,34 @@ function ConvertForm({
   isModuleTargeted,
   index,
 }: ConvertFormProps) {
-  const { setValue } = useFormContext<{ module_name?: string; dto: any }[]>()
+  const { setValue, control, watch } =
+    useFormContext<{ module_name?: string; dto: any; useEntity: boolean }[]>()
   useRelationField(module.meta)
+
+  const { data: modules } = useQuery<Module[]>(
+    ['convertable_modules', sourceModuleName],
+    { enabled: false },
+  )
 
   const convertMeta = useMemo(
     () =>
       module.convert_meta.find(({ source }) => source === sourceModuleName)!,
     [],
   )
+
+  const useEntity = watch(`${index}.useEntity`)
+
   const missingFields = useMemo(
     () =>
       module.meta?.filter(
         (field) =>
           !Object.values(convertMeta.meta || {}).some(
             (prop) => prop === field.name,
-          ),
+          ) &&
+          (!useEntity ||
+            !modules?.some((module) => module.name === field.relateTo)),
       ) || [],
-    [module],
+    [module, useEntity, modules],
   )
 
   useEffect(() => {
@@ -218,7 +235,11 @@ function ConvertForm({
           {module.name}
         </label>
 
-        <Switch onChange={toggleModule(module.name)} id={module.name} />
+        <Switch
+          checked={isModuleTargeted}
+          onChange={toggleModule(module.name)}
+          id={module.name}
+        />
       </div>
 
       <AnimatePresence exitBeforeEnter presenceAffectsLayout>
@@ -230,6 +251,18 @@ function ConvertForm({
             className="overflow-auto max-h-[200px] flex flex-col gap-2 border border-dashed "
             transition={{ ease: 'linear', duration: 0.15 }}
           >
+            <div className="flex gap-4 items-center mb-4">
+              <label htmlFor="use-entity">Use Entity</label>
+
+              <Controller
+                control={control}
+                name={`${index}.useEntity`}
+                render={({ field: { value, ...field } }) => (
+                  <Switch checked={value} id="use-entity" {...field} />
+                )}
+              />
+            </div>
+
             {missingFields
               .filter((field) => !!field.visibility.Create && field.required)
               .map((field) => (

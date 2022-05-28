@@ -2,6 +2,7 @@ import { UnprocessableEntityException } from '@nestjs/common'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -91,7 +92,6 @@ export class AddEntityFromFile {
   status: string
 }
 
-
 export class UpdateEnity {
   @ApiPropertyOptional()
   @IsString()
@@ -144,6 +144,18 @@ export class BatchConvert {
   @ApiProperty()
   @IsObject()
   dto: Record<string, any>
+
+  @ApiProperty()
+  @IsBoolean()
+  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    try {
+      return JSON.parse(value)
+    } catch (e) {
+      return false
+    }
+  })
+  useEntity: boolean
 }
 
 export class ReportFilter extends Paginate {
