@@ -21,7 +21,7 @@
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/passport": "^8.0.1",
     "@nestjs/platform-express": "^8.1.2",
-    "@nestjs/swagger": "^5.2.0",
+    "@nestjs/swagger": "^5.2.1",
     "@nestjs/typeorm": "^8.0.2",
     "@strapi/plugin-i18n": "4.1.7",
     "@strapi/plugin-users-permissions": "4.0.0",
