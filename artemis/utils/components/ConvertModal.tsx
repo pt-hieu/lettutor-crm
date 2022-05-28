@@ -17,12 +17,14 @@ import {
   useForm,
   useFormContext,
 } from 'react-hook-form'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 import Field from '@components/Module/Field'
 
+import { useCommand } from '@utils/hooks/useCommand'
+import { useDispatch } from '@utils/hooks/useDispatch'
 import { useRelationField } from '@utils/hooks/useRelationField'
-import { Entity, Module } from '@utils/models/module'
+import { Entity, FieldType, Module } from '@utils/models/module'
 import { convert } from '@utils/service/module'
 
 import Loading from './Loading'
@@ -71,6 +73,23 @@ export default function ConvertModal({
     [moduleFlags],
   )
 
+  useCommand<{ useEntity: boolean; module: Module }>(
+    'use-entity',
+    (received) => {
+      if (!received) return
+      const {
+        payload: { module, useEntity },
+      } = received
+
+      if (!useEntity) return
+      module.meta?.forEach((field) => {
+        if (field.required && field.type === FieldType.RELATION) {
+          handleToggleModule(field.relateTo || '')(useEntity, null as any)
+        }
+      })
+    },
+  )
+
   useEffect(() => {
     if (!visible) return
     setModuldeFlags(
@@ -81,6 +100,7 @@ export default function ConvertModal({
     )
   }, [visible])
 
+  const client = useQueryClient()
   const { mutateAsync, isLoading } = useMutation(
     ['convert_entities', sourceId],
     convert(sourceId),
@@ -88,9 +108,13 @@ export default function ConvertModal({
       onError() {
         notification.error({ message: 'Convert unsuccesfully' })
       },
-      onSuccess(e) {
-        setConvertResult(e)
+      onSuccess(res) {
+        setConvertResult(res)
         notification.success({ message: 'Convert succesfully' })
+
+        res.forEach((entity) => {
+          client.refetchQueries(['relation-data', entity.module.name])
+        })
       },
     },
   )
@@ -197,6 +221,7 @@ function ConvertForm({
     useFormContext<{ module_name?: string; dto: any; useEntity: boolean }[]>()
   useRelationField(module.meta)
 
+  const dispatch = useDispatch()
   const { data: modules } = useQuery<Module[]>(
     ['convertable_modules', sourceModuleName],
     { enabled: false },
@@ -209,6 +234,42 @@ function ConvertForm({
   )
 
   const useEntity = watch(`${index}.useEntity`)
+
+  useEffect(() => {
+    dispatch('use-entity', {
+      useEntity,
+      module,
+    })
+  }, [useEntity])
+
+  useEffect(() => {
+    dispatch('target-module', { isModuleTargeted, module })
+  }, [isModuleTargeted])
+
+  useCommand<{ isModuleTargeted: boolean; module: Module }>(
+    'target-module',
+    (received) => {
+      if (!received) return
+      const {
+        payload: { isModuleTargeted, module: incomingModule },
+      } = received
+
+      if (incomingModule.name === module.name) return
+      if (isModuleTargeted) return
+
+      if (
+        module.meta?.some((field) => {
+          return (
+            field.required &&
+            field.type === FieldType.RELATION &&
+            field.relateTo === incomingModule.name
+          )
+        })
+      ) {
+        setValue(`${index}.useEntity`, false)
+      }
+    },
+  )
 
   const missingFields = useMemo(
     () =>
