@@ -60,12 +60,17 @@ export enum ReportType {
   LOST_DEALS = 'Lost Deals',
   DEALS_CLOSING_THIS_MONTH = 'Deals Closing This Month',
   SALES_PERSON_PERFORMANCE = 'Sales Person Performance',
+  TODAY_LEADS = 'Today Leads',
+  LEADS_BY_STATUS = 'Leads by Status',
+  LEADS_BY_SOURCE = 'Leads by Source',
+  LEADS_BY_OWNERSHIP = 'Leads by Ownership',
+  CONVERTED_LEADS = 'Converted Leads',
 }
 
 export enum TimeFieldName {
   CLOSING_DATE = 'closingDate',
-  CREATED_AT = 'createdAt',
-  UPDATED_AT = 'updatedAt',
+  CREATED_AT = 'created_at',
+  UPDATED_AT = 'updated_at',
 }
 
 export enum TimeFieldType {
@@ -219,6 +224,23 @@ export class ConvertMeta {
   meta: Record<string, string>
 }
 
+export class ConvertedInfo {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  moduleName: string
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  entityName: string
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  entityId: string
+}
+
 type Meta = FieldMeta[]
 
 @EntityDecorator()
@@ -243,18 +265,31 @@ export class Module extends BaseEntity {
   })
   entities?: Entity[]
 
-  public validateEntity(data: Record<string, unknown>): string | null {
+  public validateEntity(
+    data: Record<string, unknown>,
+    validateOptions?: { availaleModules: string[] },
+  ): string | null {
     for (const {
       name,
       required,
       type,
       options,
       relateType,
+      relateTo,
       min,
       max,
       minLength,
       maxLength,
     } of this.meta) {
+      if (
+        type === FieldType.RELATION &&
+        required &&
+        validateOptions &&
+        validateOptions.availaleModules.some((name) => name === relateTo)
+      ) {
+        return null
+      }
+
       if (!data[name] && required) return `${name} is required`
       if (!data[name] && !required) return null
 
@@ -336,6 +371,9 @@ export class Entity extends BaseEntity {
 
   @Column({ type: 'jsonb' })
   data: Record<string, unknown>
+
+  @Column({ type: 'jsonb', default: [] })
+  converted_info: ConvertedInfo[]
 
   @OneToMany(() => Note, (note) => note.entity, {
     cascade: true,

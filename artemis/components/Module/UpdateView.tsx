@@ -88,7 +88,8 @@ export default function UpdateView({ module }: Props) {
           <FormProvider {...form}>
             {Object.entries(parsedMeta).map(
               ([groupName, fields], index) =>
-                !!fields.length && (
+                !!fields.filter((field) => !!field.visibility.Create)
+                  .length && (
                   <div className="flex flex-col gap-6" key={groupName}>
                     <div className="font-semibold text-lg text-gray-700">
                       {groupName}

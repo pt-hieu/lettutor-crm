@@ -1,20 +1,42 @@
 import moment from 'moment'
 
-import { ReportType, StaticTime, TReport } from '@utils/models/reports'
+import {
+  DealReportType,
+  LeadReportType,
+  StaticTime,
+  TReport,
+} from '@utils/models/reports'
 
-const DealDescription: Record<ReportType, string> = {
-  [ReportType.DEALS_CLOSING_THIS_MONTH]: 'Deals closing this month',
-  [ReportType.LOST_DEALS]: 'Deals Lost',
-  [ReportType.OPEN_DEALS]: 'Deals Pending',
-  [ReportType.PIPELINE_BY_PROBABILITY]: 'Deals by Probability',
-  [ReportType.PIPELINE_BY_STAGE]: 'Deals by Stage',
-  [ReportType.SALES_BY_LEAD_SOURCE]: 'Sales gained from various Lead Sources',
-  [ReportType.SALES_PERSON_PERFORMANCE]: 'Deals gained by salesperson',
-  [ReportType.THIS_MONTH_SALES]: "This Month's Sales",
-  [ReportType.TODAY_SALES]: "Today's Sales",
+const DealDescription: Record<DealReportType, string> = {
+  [DealReportType.DEALS_CLOSING_THIS_MONTH]: 'Deals closing this month',
+  [DealReportType.LOST_DEALS]: 'Deals Lost',
+  [DealReportType.OPEN_DEALS]: 'Deals Pending',
+  [DealReportType.PIPELINE_BY_PROBABILITY]: 'Deals by Probability',
+  [DealReportType.PIPELINE_BY_STAGE]: 'Deals by Stage',
+  [DealReportType.SALES_BY_LEAD_SOURCE]:
+    'Sales gained from various Lead Sources',
+  [DealReportType.SALES_PERSON_PERFORMANCE]: 'Deals gained by salesperson',
+  [DealReportType.THIS_MONTH_SALES]: "This Month's Sales",
+  [DealReportType.TODAY_SALES]: "Today's Sales",
 }
 
 export const DealReports: TReport[] = Object.entries(DealDescription).map(
+  ([name, description]) => ({
+    name,
+    description,
+  }),
+)
+
+const LeadDescription: Record<LeadReportType, string> = {
+  [LeadReportType.CONVERTED_LEADS]:
+    'Leads converted to Account / Deal / Contact',
+  [LeadReportType.LEADS_BY_OWNERSHIP]: 'Leads by Owner',
+  [LeadReportType.LEADS_BY_SOURCE]: 'Leads from various sources',
+  [LeadReportType.LEADS_BY_STATUS]: 'Leads and their statuses',
+  [LeadReportType.TODAY_LEADS]: 'Leads obtained today',
+}
+
+export const LeadReports: TReport[] = Object.entries(LeadDescription).map(
   ([name, description]) => ({
     name,
     description,
