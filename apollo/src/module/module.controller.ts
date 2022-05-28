@@ -125,12 +125,7 @@ export class ModuleController {
     @Body() dto: DTO.File.Files,
     @Param('name') moduleName: string,
   ) {
-<<<<<<< HEAD
-    console.log('FILE: ', file)
-    return this.service.bulkCreateEntities(file.buffer, moduleName, req)
-=======
     return this.service.bulkCreateEntities(moduleName, dto)
->>>>>>> dev
   }
 
   @Put('convert/:source_id')
