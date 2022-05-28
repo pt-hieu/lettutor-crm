@@ -205,9 +205,9 @@ export class UserService {
     payload?: JwtPayload,
     userId?: string,
   ) {
-    let user
-    if (userId) user = await this.userRepo.findOne({ where: { id: userId } })
-    else user = await this.userRepo.findOne({ where: { id: payload?.id } })
+    const user = await this.userRepo.findOne({
+      where: { id: userId || payload?.id },
+    })
 
     if (!user) throw new BadRequestException('User does not exist')
 

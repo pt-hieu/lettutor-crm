@@ -53,16 +53,10 @@ export default function DetailView({ paths }: TProps) {
   const metaData = entity.module.meta || []
   const isOwner = entityData.ownerId === ownerId
 
-  console.log('is author: ', auth(ActionType.CAN_VIEW_DETAIL_ANY, moduleName))
-  console.log('is Owner: ', isOwner)
-  console.log('data: ', data)
-
   const { data: author } = useQuery<UseAuthorizationReturnType>(
     GlobalState.AUTHORIZATION,
     { enabled: false },
   )
-
-  console.log('all author: ', author)
 
   if (!auth(ActionType.CAN_VIEW_DETAIL_ANY, moduleName) && !isOwner) {
     return <NotFound />

@@ -95,6 +95,7 @@ export class UpdateUser {
   name: string
 
   @ApiProperty()
+  @IsUUID(undefined, { each: true })
   roleIds: string[]
 }
 
