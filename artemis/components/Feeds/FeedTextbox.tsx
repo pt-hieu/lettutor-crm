@@ -15,6 +15,10 @@ import * as yup from 'yup'
 
 import Loading from '@utils/components/Loading'
 
+const MAX_NUM_FILE = 5
+const MAX_MB_SIZE = 20
+const MAX_SIZE_FILE = MAX_MB_SIZE * 1024 * 1024 // 20 MB
+
 export interface IFeedTextboxData {
   content: string
   files?: File[]
@@ -64,6 +68,7 @@ export const FeedTextbox = ({
     formState: { errors },
   } = useForm<IFeedTextboxData>({
     resolver: yupResolver(textboxShema),
+    mode: 'onChange',
   })
 
   const contentRef = useRef<any>(null)
@@ -93,6 +98,34 @@ export const FeedTextbox = ({
       }
     }
 
+    const currentFilesLength = files.length
+    const selectedFilesLength = selectedFiles.length
+
+    if (selectedFilesLength + currentFilesLength > MAX_NUM_FILE) {
+      notification.error({
+        message: `You can upload maximum ${MAX_NUM_FILE} files only`,
+      })
+
+      return
+    }
+
+    const currentFilesSize =
+      files.reduce((totalSize, file) => totalSize + file.size, 0) +
+      files.reduce((size, file) => size + file.size, 0)
+
+    const selectedFilesSize = selectedFiles.reduce(
+      (totalSize, file) => totalSize + file.size,
+      0,
+    )
+
+    if (selectedFilesSize + currentFilesSize > MAX_SIZE_FILE) {
+      notification.error({
+        message: `The total file size exceeds the allowed limit of ${MAX_MB_SIZE} MB`,
+      })
+
+      return
+    }
+
     setFiles([...files, ...selectedFiles])
   }
 
@@ -103,6 +136,8 @@ export const FeedTextbox = ({
   useEffect(() => {
     contentRef && contentRef.current.focus()
   }, [])
+
+  const fileId = useMemo(() => Math.random().toString(36), [])
 
   return (
     <div className="w-full border-blue-500 border rounded-md">
@@ -141,7 +176,7 @@ export const FeedTextbox = ({
         <div className="mt-2">
           <label
             className="cursor-pointer text-gray-700 hover:text-gray-600"
-            htmlFor="file"
+            htmlFor={fileId}
           >
             <i className="fa fa-thumb-tack mr-2"></i>
             <span>Attach File</span>
@@ -150,7 +185,7 @@ export const FeedTextbox = ({
           <input
             type="file"
             name="file"
-            id="file"
+            id={fileId}
             hidden
             onChange={handleSelectFiles}
             multiple
@@ -160,7 +195,7 @@ export const FeedTextbox = ({
         <div className="flex flex-col flex-1 gap-1 items-center self-center">
           {files.map(({ size, name }, index) => (
             <FileAttachment
-              key={name}
+              key={name + index}
               onRemoveFile={removeFile}
               size={size}
               name={name}

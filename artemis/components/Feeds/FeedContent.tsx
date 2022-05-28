@@ -1,5 +1,4 @@
 import moment from 'moment'
-import Link from 'next/link'
 import React from 'react'
 import { ReactNode } from 'react-markdown/lib/react-markdown'
 
@@ -26,9 +25,7 @@ export const FeedContent = ({ feed }: IProps) => {
       <div className="flex-1 flex flex-col gap-2">
         <div>
           <div>
-            <Link href={`/user/${owner.id}`}>
-              <a className="font-semibold mr-1">{owner.name}</a>
-            </Link>
+            <span className="font-semibold mr-1">{owner.name}</span>
             {getFeedTitle(feed)}
           </div>
           <div className="text-[12px] text-gray-600">
@@ -38,7 +35,7 @@ export const FeedContent = ({ feed }: IProps) => {
         <PostedContent
           content={content}
           files={files}
-          className="bg-slate-50"
+          className="bg-gray-100"
         />
         <div className="border p-3 rounded-xl flex flex-col gap-3">
           {!comments?.length ? null : (
@@ -88,9 +85,7 @@ const Comment = ({ comment }: ICommentProps) => {
   const { owner, content, files, createdAt } = comment
   const contentRender = (
     <div className="text-[14px] -my-1">
-      <Link href={`/user/${owner.id}`}>
-        <a className="font-semibold">{owner.name}</a>
-      </Link>
+      <span className="font-semibold">{owner.name}</span>
       <div className="break-all">{content}</div>
     </div>
   )
