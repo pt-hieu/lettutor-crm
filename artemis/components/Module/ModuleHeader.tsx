@@ -125,14 +125,16 @@ export default function ModuleHeader({
             <button onClick={openImportModal} className="crm-button">
               Import Lead
             </button>
-            <button
-              onClick={() =>
-                window.location.assign(getModuleTemplateLink('lead'))
-              }
+            <a
+              target="_blank"
+              href={`${getModuleTemplateLink('lead')}`}
+              // onClick={() =>
+              //   window.location.assign(getModuleTemplateLink('lead'))
+              // }
               className="crm-button-secondary"
             >
               Export CSV Template
-            </button>
+            </a>
           </>
         )}
 
@@ -164,16 +166,19 @@ const ImportLeadModal = ({ moduleName, visible, close }: TModalProps) => {
 
   const handleSelectFile = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || [])
+    console.log(selectedFiles)
     event.target.value = ''
     setFile(selectedFiles[0])
   }
 
-  const removeFile = useCallback(
-    (name: string) => () => {
-      setFile(null)
-    },
-    [],
-  )
+  const removeFile = useCallback(() => {
+    setFile(null)
+  }, [])
+
+  const closeAndClearFiles = () => {
+    removeFile()
+    close()
+  }
 
   const { mutateAsync: importModuleEntity } = useMutation(
     `import-${moduleName}`,
@@ -184,18 +189,24 @@ const ImportLeadModal = ({ moduleName, visible, close }: TModalProps) => {
         notification.success({
           message: `Import ${moduleName} successfully.`,
         })
-        close()
+        closeAndClearFiles()
       },
       onError: () => {
         notification.error({
           message: `Import ${moduleName} unsuccessfully.`,
         })
+        closeAndClearFiles()
       },
     },
   )
 
   return (
-    <Modal centered onCancel={close} visible={visible} footer={null}>
+    <Modal
+      centered
+      onCancel={closeAndClearFiles}
+      visible={visible}
+      footer={null}
+    >
       <div className="font-medium text-xl">{`Import ${moduleName}`}</div>
 
       <Divider />
@@ -223,7 +234,7 @@ const ImportLeadModal = ({ moduleName, visible, close }: TModalProps) => {
               <File
                 key={file.name}
                 filename={file.name}
-                onRemove={removeFile(file.name)}
+                onRemove={removeFile}
               />
             )}
           </div>
@@ -231,12 +242,13 @@ const ImportLeadModal = ({ moduleName, visible, close }: TModalProps) => {
       </div>
 
       <div className="mt-4 flex gap-2 self-end">
-        <button onClick={close} className="crm-button-outline">
+        <button onClick={closeAndClearFiles} className="crm-button-outline">
           Cancel
         </button>
         <button
           onClick={() => importModuleEntity(file as File)}
           className="crm-button"
+          disabled={!file}
         >
           <span className="fa fa-upload mr-2" />
           Import

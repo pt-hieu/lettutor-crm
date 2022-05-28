@@ -99,11 +99,11 @@ export const convert =
       .then((res) => res.data)
 
 export const getModuleTemplateLink = (moduleName: string) => {
-  return `${API}/apollo/module/${moduleName}/csv`
+  return `${API}/apollo/module/${moduleName}/export/csv`
 }
 
 export const importModule = (moduleName: string) => (file: File) => {
   const formData = new FormData()
-  formData.append('file', file)
+  formData.append('files', file)
   return axios.post(API + `/apollo/module/${moduleName}/import/csv`, formData, {headers: {'Content-Type': 'multipart/form-data'}})
 }

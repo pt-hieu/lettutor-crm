@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConsoleLogger,
   ForbiddenException,
   Injectable,
   Logger,
@@ -178,6 +179,8 @@ export class ModuleService implements OnApplicationBootstrap {
     if (!module) throw new BadRequestException('Module not found')
     const file = dto.files[0]
     const stream = bufferToStream(Buffer.from(file.buffer))  
+
+    console.log('file: ', file)
 
     const rawEntities = (await this.csvParser.parse(
       stream,
