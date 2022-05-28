@@ -14,8 +14,12 @@ import { useCommand } from '@utils/hooks/useCommand'
 import { useModal } from '@utils/hooks/useModal'
 import { Module } from '@utils/models/module'
 import { ActionType, DefaultModule } from '@utils/models/role'
-import { batchDeleteEntities, importModule } from '@utils/service/module'
-import { getModuleTemplateLink } from '@utils/service/module'
+import {
+  batchDeleteEntities,
+  downloadTemplate,
+  exportModuleEntities,
+  importModule,
+} from '@utils/service/module'
 
 import { MODE } from './OverviewView'
 
@@ -125,16 +129,19 @@ export default function ModuleHeader({
             <button onClick={openImportModal} className="crm-button">
               Import Lead
             </button>
-            <a
-              target="_blank"
-              href={`${getModuleTemplateLink('lead')}`}
-              // onClick={() =>
-              //   window.location.assign(getModuleTemplateLink('lead'))
-              // }
+            <button
+              onClick={downloadTemplate(DefaultModule.LEAD)}
               className="crm-button-secondary"
             >
-              Export CSV Template
-            </a>
+              Download CSV Template
+            </button>
+            <button
+              onClick={exportModuleEntities(DefaultModule.LEAD)}
+              className="crm-button-secondary"
+              on
+            >
+              Export
+            </button>
           </>
         )}
 
