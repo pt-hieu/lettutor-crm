@@ -13,7 +13,13 @@ import Loading from '@utils/components/Loading'
 import { useCommand } from '@utils/hooks/useCommand'
 import { useModal } from '@utils/hooks/useModal'
 import { useRelationField } from '@utils/hooks/useRelationField'
-import { ConvertMeta, FieldMeta, FieldType, Module } from '@utils/models/module'
+import {
+  ConvertMeta,
+  FieldMeta,
+  FieldType,
+  KanbanMeta,
+  Module,
+} from '@utils/models/module'
 import { getModules, updateModule } from '@utils/service/module'
 
 export default function ModuleView() {
@@ -128,6 +134,21 @@ export default function ModuleView() {
       })
     },
   )
+
+  useCommand<KanbanMeta>('cmd:update-kanban-setting', (received) => {
+    if (!received) return
+    const { payload } = received
+
+    setLocalModule((module) => {
+      const localModule: Module = {
+        ...module!,
+        kanban_meta: payload,
+      }
+
+      mutateAsync(localModule)
+      return localModule
+    })
+  })
 
   useCommand<{ name: string; newName: string }>(
     'cmd:update-group',

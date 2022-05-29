@@ -64,7 +64,7 @@ export enum AggregateType {
   MAX = 'MAX',
 }
 
-type KanbanMeta = {
+export type KanbanMeta = {
   field: string
   aggregate_type?: AggregateType
   aggregate_field?: string
