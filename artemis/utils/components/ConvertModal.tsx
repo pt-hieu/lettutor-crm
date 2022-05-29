@@ -7,16 +7,24 @@ import {
   ComponentProps,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from 'react'
-import { FormProvider, useForm, useFormContext } from 'react-hook-form'
-import { useMutation, useQuery } from 'react-query'
+import {
+  Controller,
+  FormProvider,
+  useForm,
+  useFormContext,
+} from 'react-hook-form'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 import Field from '@components/Module/Field'
 
+import { useCommand } from '@utils/hooks/useCommand'
+import { useDispatch } from '@utils/hooks/useDispatch'
 import { useRelationField } from '@utils/hooks/useRelationField'
-import { Entity, Module } from '@utils/models/module'
+import { Entity, FieldType, Module } from '@utils/models/module'
 import { convert } from '@utils/service/module'
 
 import Loading from './Loading'
@@ -65,6 +73,23 @@ export default function ConvertModal({
     [moduleFlags],
   )
 
+  useCommand<{ useEntity: boolean; module: Module }>(
+    'use-entity',
+    (received) => {
+      if (!received) return
+      const {
+        payload: { module, useEntity },
+      } = received
+
+      if (!useEntity) return
+      module.meta?.forEach((field) => {
+        if (field.required && field.type === FieldType.RELATION) {
+          handleToggleModule(field.relateTo || '')(useEntity, null as any)
+        }
+      })
+    },
+  )
+
   useEffect(() => {
     if (!visible) return
     setModuldeFlags(
@@ -75,6 +100,7 @@ export default function ConvertModal({
     )
   }, [visible])
 
+  const client = useQueryClient()
   const { mutateAsync, isLoading } = useMutation(
     ['convert_entities', sourceId],
     convert(sourceId),
@@ -82,9 +108,13 @@ export default function ConvertModal({
       onError() {
         notification.error({ message: 'Convert unsuccesfully' })
       },
-      onSuccess(e) {
-        setConvertResult(e)
+      onSuccess(res) {
+        setConvertResult(res)
         notification.success({ message: 'Convert succesfully' })
+
+        res.forEach((entity) => {
+          client.refetchQueries(['relation-data', entity.module.name])
+        })
       },
     },
   )
@@ -113,7 +143,10 @@ export default function ConvertModal({
       <Divider />
 
       {!convertResults && (
-        <form onSubmit={handleSubmitConvert} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmitConvert}
+          className="flex flex-col gap-4 max-h-[500px] overflow-auto pr-4 -mr-4"
+        >
           <FormProvider {...form}>
             {modules?.map((module, index) => (
               <ConvertForm
@@ -184,21 +217,71 @@ function ConvertForm({
   isModuleTargeted,
   index,
 }: ConvertFormProps) {
-  const { setValue } = useFormContext<{ module_name?: string; dto: any }[]>()
+  const { setValue, control, watch } =
+    useFormContext<{ module_name?: string; dto: any; useEntity: boolean }[]>()
   useRelationField(module.meta)
+
+  const dispatch = useDispatch()
+  const { data: modules } = useQuery<Module[]>(
+    ['convertable_modules', sourceModuleName],
+    { enabled: false },
+  )
 
   const convertMeta = useMemo(
     () =>
       module.convert_meta.find(({ source }) => source === sourceModuleName)!,
     [],
   )
+
+  const useEntity = watch(`${index}.useEntity`)
+
+  useEffect(() => {
+    dispatch('use-entity', {
+      useEntity,
+      module,
+    })
+  }, [useEntity])
+
+  useEffect(() => {
+    dispatch('target-module', { isModuleTargeted, module })
+  }, [isModuleTargeted])
+
+  useCommand<{ isModuleTargeted: boolean; module: Module }>(
+    'target-module',
+    (received) => {
+      if (!received) return
+      const {
+        payload: { isModuleTargeted, module: incomingModule },
+      } = received
+
+      if (incomingModule.name === module.name) return
+      if (isModuleTargeted) return
+
+      if (
+        module.meta?.some((field) => {
+          return (
+            field.required &&
+            field.type === FieldType.RELATION &&
+            field.relateTo === incomingModule.name
+          )
+        })
+      ) {
+        setValue(`${index}.useEntity`, false)
+      }
+    },
+  )
+
   const missingFields = useMemo(
     () =>
       module.meta?.filter(
         (field) =>
-          !Object.keys(convertMeta.meta).some((prop) => prop === field.name),
+          !Object.values(convertMeta.meta || {}).some(
+            (prop) => prop === field.name,
+          ) &&
+          (!useEntity ||
+            !modules?.some((module) => module.name === field.relateTo)),
       ) || [],
-    [module],
+    [module, useEntity, modules],
   )
 
   useEffect(() => {
@@ -213,7 +296,11 @@ function ConvertForm({
           {module.name}
         </label>
 
-        <Switch onChange={toggleModule(module.name)} id={module.name} />
+        <Switch
+          checked={isModuleTargeted}
+          onChange={toggleModule(module.name)}
+          id={module.name}
+        />
       </div>
 
       <AnimatePresence exitBeforeEnter presenceAffectsLayout>
@@ -225,6 +312,18 @@ function ConvertForm({
             className="overflow-auto max-h-[200px] flex flex-col gap-2 border border-dashed "
             transition={{ ease: 'linear', duration: 0.15 }}
           >
+            <div className="flex gap-4 items-center mb-4">
+              <label htmlFor="use-entity">Use Entity</label>
+
+              <Controller
+                control={control}
+                name={`${index}.useEntity`}
+                render={({ field: { value, ...field } }) => (
+                  <Switch checked={value} id="use-entity" {...field} />
+                )}
+              />
+            </div>
+
             {missingFields
               .filter((field) => !!field.visibility.Create && field.required)
               .map((field) => (

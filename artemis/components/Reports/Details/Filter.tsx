@@ -1,5 +1,4 @@
 import moment from 'moment'
-import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -39,8 +38,9 @@ const defaultDates = {
 }
 
 interface IProps {
-  defaultValues?: TReportFilterData
+  defaultValues: TReportFilterData
   onFilter: (value: TReportFilterData) => void
+  moduleName: string
 }
 
 const getDatesByType = (type: string): string | [string, string] | null => {
@@ -50,10 +50,20 @@ const getDatesByType = (type: string): string | [string, string] | null => {
   return null
 }
 
-export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
-  const [isSingleDay, setIsSingleDay] = useState(true)
-  const [isNoTimeFieldName, setIsNoTimeFieldName] = useState(true)
-  const [isNoTimeFieldType, setIsNoTimeFieldType] = useState(true)
+export const ReportFilter = ({
+  defaultValues,
+  onFilter,
+  moduleName,
+}: IProps) => {
+  const { timeFieldType, timeFieldName } = defaultValues
+  const [isNoTimeFieldName, setIsNoTimeFieldName] = useState(!timeFieldName)
+  const [isNoTimeFieldType, setIsNoTimeFieldType] = useState(!timeFieldType)
+  const [isSingleDay, setIsSingleDay] = useState(
+    singleDayTypes.includes(timeFieldType || ''),
+  )
+  const [isStaticTime, setIsStaticTime] = useState(
+    Object.values(StaticTime).includes(timeFieldType as StaticTime),
+  )
 
   const { handleSubmit, register, reset, getValues, setValue } =
     useForm<TReportFilterData>({ defaultValues })
@@ -82,6 +92,7 @@ export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
   const handleChangeTimeFieldType = (value: string) => {
     setIsNoTimeFieldType(!value)
     setIsSingleDay(singleDayTypes.includes(value || ''))
+    setIsStaticTime(Object.values(StaticTime).includes(value as StaticTime))
     setFilterValuesByTimeFieldType(value)
   }
 
@@ -101,16 +112,9 @@ export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
   }
 
   useEffect(() => {
-    const { timeFieldType, timeFieldName } = defaultValues || {}
+    const { timeFieldType } = defaultValues
     setFilterValuesByTimeFieldType(timeFieldType || '')
-    setIsNoTimeFieldName(!timeFieldName)
-    setIsNoTimeFieldType(!timeFieldType)
-    setIsSingleDay(singleDayTypes.includes(timeFieldType || ''))
   }, [])
-
-  const isStaticTime = Object.values(StaticTime).includes(
-    getValues('timeFieldType') as StaticTime,
-  )
 
   return (
     <form className="p-2 flex gap-2 items-center" onSubmit={handleApply}>
@@ -128,11 +132,19 @@ export const ReportFilter = ({ defaultValues, onFilter }: IProps) => {
                 <option key="None" value="">
                   None
                 </option>
-                {Object.entries(mappedTimeFieldNames).map(([key, value]) => (
-                  <option key={key} value={key}>
-                    {value}
-                  </option>
-                ))}
+                {Object.entries(mappedTimeFieldNames)
+                  .filter(
+                    ([key]) =>
+                      !(
+                        moduleName === 'lead' &&
+                        key === TimeFieldName.CLOSING_DATE
+                      ),
+                  )
+                  .map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value}
+                    </option>
+                  ))}
               </>
             ),
           }}

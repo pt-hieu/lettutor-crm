@@ -19,7 +19,7 @@ type Props = {
   onSubmit: (data: FieldMeta) => any
 }
 
-const Views = ['Overview', 'Update', 'Create', 'Detail'] as const
+const Views = ['Overview', 'Update', 'Create', 'Detail', 'Kanban'] as const
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required'),
@@ -239,6 +239,7 @@ export default function FieldModal({
               >
                 {view}
               </label>
+
               <Input
                 wrapperClassname="w-full"
                 // @ts-ignore
@@ -246,6 +247,11 @@ export default function FieldModal({
                 props={{
                   type: 'checkbox',
                   id: `visibility.${view}`,
+                  disabled: [
+                    FieldType.CHECK_BOX,
+                    FieldType.MULTILINE_TEXT,
+                    FieldType.RELATION,
+                  ].some((invalidType) => invalidType === type),
                   ...register(`visibility.${view}`),
                 }}
               />

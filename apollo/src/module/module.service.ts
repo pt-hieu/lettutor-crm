@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConsoleLogger,
   ForbiddenException,
   Injectable,
   Logger,
@@ -8,9 +9,12 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { parseAsync } from 'json2csv'
 import { clone, omit } from 'lodash'
 import moment from 'moment'
+import { CsvParser, ParsedData } from 'nest-csv-parser'
 import { paginate } from 'nestjs-typeorm-paginate'
+import { Duplex } from 'stream'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { Action, ActionType } from 'src/action/action.entity'
@@ -20,13 +24,16 @@ import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
+import { UserService } from 'src/user/user.service'
+import { AuthRequest } from 'src/utils/interface'
 
-import { account, contact, deal, lead } from './default.entity'
+import { LeadSource, account, contact, deal, lead } from './default.entity'
 import {
   Entity,
   FieldType,
   Module,
   ReportType,
+  TimeFieldName,
   TimeFieldType,
 } from './module.entity'
 
@@ -41,6 +48,8 @@ export class ModuleService implements OnApplicationBootstrap {
     @InjectRepository(DealStage) private dealStageRepo: Repository<DealStage>,
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
+    private readonly csvParser: CsvParser,
+    private readonly userService: UserService,
   ) {}
 
   async onApplicationBootstrap() {
@@ -90,11 +99,118 @@ export class ModuleService implements OnApplicationBootstrap {
       },
       {
         target: dto.name,
-        type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+        type: ActionType.CAN_VIEW_DETAIL_ANY,
       },
     ])
 
     return this.moduleRepo.save(dto)
+  }
+
+  async getTemplateForCreatingModuule(moduleName: string) {
+    const csv = await parseAsync(
+      {
+        name: moduleName,
+      },
+      { fields: ['name', 'phone', 'email', 'status'] },
+    )
+
+    return csv
+  }
+
+  async getListInCsvFormat(moduleName: string) {
+    const module = await this.moduleRepo.findOne({
+      where: { name: moduleName },
+    })
+    if (!module) throw new BadRequestException('Module not existed')
+
+    let qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .orderBy('e.createdAt', 'DESC')
+      .andWhere('module.name = :name', { name: moduleName })
+
+    if (
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_VIEW_ALL,
+      })
+    ) {
+      qb.andWhere("e.data ->> 'ownerId' = :ownerId", {
+        ownerId: this.payloadService.data.id,
+      })
+    }
+    let entities = await qb.getMany()
+    const rawData = entities.map((e) => ({
+      name: e.name,
+      email: e.data['email'],
+      phone: e.data['phone'],
+      source: e.data['source'],
+      status: e.data['status'],
+      created_at: e.createdAt,
+    }))
+
+    const csv = await parseAsync(rawData, {
+      fields: ['name', 'email', 'phone', 'source', 'created_at'],
+    })
+
+    return csv
+  }
+
+  async bulkCreateEntities(moduleName: string, dto: DTO.File.Files) {
+    if (
+      !this.utilService.checkRoleAction({
+        target: moduleName,
+        type: ActionType.CAN_IMPORT_FROM_FILE,
+      })
+    ) {
+      throw new ForbiddenException()
+    }
+
+    const module = await this.moduleRepo.findOne({
+      where: { name: moduleName },
+    })
+
+    if (!module) throw new BadRequestException('Module not found')
+    const file = dto.files[0]
+    const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))
+
+    const rawEntities = (await this.csvParser.parse(
+      stream,
+      DTO.Module.AddEntityFromFile,
+      undefined,
+      undefined,
+      { strict: true, separator: ',' },
+    )) as ParsedData<DTO.Module.AddEntityFromFile>
+
+    const users = await this.userService.getManyRaw()
+
+    const entities: DTO.Module.AddEntity[] = rawEntities.list.map(
+      (e: DTO.Module.AddEntityFromFile) => {
+        let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
+        let randomIdx = generateRandom(0, users.length - 1)
+        entity['source'] = LeadSource.NONE
+        entity['ownerId'] = users[randomIdx].id
+        delete entity['name']
+        return {
+          name: moduleName,
+          data: entity,
+        }
+      },
+    )
+
+    entities.forEach((e) => {
+      const validateMessage = module.validateEntity(e.data)
+      if (validateMessage)
+        throw new UnprocessableEntityException(validateMessage)
+    })
+
+    return this.entityRepo.save(
+      entities.map((e) => ({
+        name: e.name,
+        data: e.data,
+        moduleId: module.id,
+      })),
+    )
   }
 
   async getOneModule(id: string) {
@@ -134,17 +250,16 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   async convert(
+    sourceEntity: Entity,
     targetModuleName: string,
-    sourceId: string,
     dto: Record<string, any>,
+    options: { useEntity: boolean; availableModules: string[] },
   ) {
-    const [targetModule, sourceEntity] = await Promise.all([
-      this.moduleRepo.findOne({ where: { name: targetModuleName } }),
-      this.entityRepo.findOne({ where: { id: sourceId } }),
-    ])
+    const targetModule = await this.moduleRepo.findOne({
+      where: { name: targetModuleName },
+    })
 
     if (!targetModule) throw new NotFoundException('Module not exist')
-    if (!sourceEntity) throw new NotFoundException('Entity not exist')
 
     const meta = targetModule.convert_meta.find(
       (meta) => meta.source === sourceEntity.module.name,
@@ -157,9 +272,11 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     let targetEntity = new Entity()
-    targetEntity.moduleId = targetModule.id
-    targetEntity.name = `${sourceEntity.name} ${targetModule.name}`
+    targetEntity.name = `[${
+      targetModule.name.charAt(0).toUpperCase() + targetModule.name.slice(1)
+    }] ${sourceEntity.name}`
     targetEntity.data = {}
+    targetEntity.moduleId = targetModule.id
 
     Object.entries(meta.meta)
       .filter(([_, targetProp]) =>
@@ -170,14 +287,17 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
     Object.entries(dto)
-      .filter(([_, targetProp]) =>
+      .filter(([targetProp, _]) =>
         targetModule.meta.some((field) => field.name === targetProp),
       )
       .forEach(([key, value]) => {
         targetEntity.data[key] = value
       })
 
-    const error = targetModule.validateEntity(targetEntity.data)
+    const error = targetModule.validateEntity(targetEntity.data, {
+      availaleModules: options.availableModules,
+    })
+
     if (error) {
       throw new UnprocessableEntityException(`Convert error: ${error}`)
     }
@@ -190,7 +310,12 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
       // @ts-ignore
-      notes = notes.map((note) => clone(omit(note, ['id'])))
+      notes = notes.map((note) => {
+        const result = clone(omit(note, ['id']))
+        result.entityId = targetEntity.id
+
+        return result
+      })
       await this.noteRepo.save(notes)
     }
 
@@ -200,11 +325,21 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
       // @ts-ignore
-      files = files.map((file) => clone(omit(file, ['id'])))
+      files = files.map((file) => {
+        const result = clone(omit(file, ['id']))
+        result.entityId = targetEntity.id
+
+        return result
+      })
+
       await this.fileRepo.save(files)
     }
 
-    await this.entityRepo.softDelete({ id: sourceEntity.id })
+    sourceEntity.converted_info.push({
+      moduleName: targetModule.name,
+      entityName: targetEntity.name,
+      entityId: targetEntity.id,
+    })
 
     return this.entityRepo.findOne({
       where: { id: targetEntity.id },
@@ -212,12 +347,44 @@ export class ModuleService implements OnApplicationBootstrap {
     })
   }
 
-  batchConvert(dtos: DTO.Module.BatchConvert[], sourceId: string) {
-    return Promise.all(
-      dtos.map(({ dto, module_name }) =>
-        this.convert(module_name, sourceId, dto),
+  async batchConvert(dtos: DTO.Module.BatchConvert[], sourceId: string) {
+    const sourceEntity = await this.entityRepo.findOne({
+      where: { id: sourceId },
+    })
+    if (!sourceEntity) throw new NotFoundException('Entity not exist')
+
+    const entities = await Promise.all(
+      dtos.map(({ dto, module_name, useEntity }) =>
+        this.convert(sourceEntity, module_name, dto, {
+          useEntity,
+          availableModules: dtos.map((d) => d.module_name),
+        }),
       ),
     )
+
+    sourceEntity.data['isConverted'] = true
+
+    dtos.forEach(({ useEntity }, index) => {
+      if (!useEntity) return
+
+      const entity = entities[index]
+      entity.module.meta.forEach((fieldMeta) => {
+        if (
+          fieldMeta.required &&
+          !entity.data[fieldMeta.name] &&
+          fieldMeta.type === FieldType.RELATION
+        ) {
+          entity.data[fieldMeta.name] = entities.find(
+            (e) => e.module.name === fieldMeta.relateTo,
+          )?.id
+        }
+      })
+    })
+
+    await this.entityRepo.save([sourceEntity, ...entities])
+    await this.entityRepo.softDelete({ id: sourceEntity.id })
+
+    return entities
   }
 
   getConvertableModules(sourceModuleName: string) {
@@ -418,7 +585,7 @@ export class ModuleService implements OnApplicationBootstrap {
       .getMany()
   }
 
-  async getReport(filterDto: DTO.Module.DealReportFilter) {
+  async getReport(filterDto: DTO.Module.ReportFilter) {
     switch (filterDto.reportType) {
       case ReportType.TODAY_SALES:
       case ReportType.THIS_MONTH_SALES:
@@ -432,6 +599,12 @@ export class ModuleService implements OnApplicationBootstrap {
         return this.getDealsReport(DealStageType.OPEN, filterDto)
       case ReportType.LOST_DEALS:
         return this.getDealsReport(DealStageType.CLOSE_LOST, filterDto)
+      case ReportType.TODAY_LEADS:
+      case ReportType.LEADS_BY_SOURCE:
+      case ReportType.LEADS_BY_STATUS:
+      case ReportType.LEADS_BY_OWNERSHIP:
+      case ReportType.CONVERTED_LEADS:
+        return this.getLeadsReport(filterDto)
       default:
         throw new BadRequestException(
           `Cannot find report with type ${filterDto.reportType}`,
@@ -441,16 +614,19 @@ export class ModuleService implements OnApplicationBootstrap {
 
   async getDealsReport(
     dealStageType: DealStageType,
-    {
-      limit,
-      page,
-      shouldNotPaginate,
-      ...filterDto
-    }: DTO.Module.DealReportFilter,
+    { limit, page, shouldNotPaginate, ...filterDto }: DTO.Module.ReportFilter,
   ) {
     const ids = []
     const dealStages = await this.getManyDealStagesByType(dealStageType)
     dealStages.forEach(({ id }) => ids.push(id))
+
+    let timeQueryString
+    if (filterDto.timeFieldName) {
+      timeQueryString =
+        filterDto.timeFieldName === TimeFieldName.CLOSING_DATE
+          ? `e.data ->> '${filterDto.timeFieldName}'`
+          : `e.${filterDto.timeFieldName}::DATE`
+    }
 
     const qb = this.entityRepo
       .createQueryBuilder('e')
@@ -459,7 +635,97 @@ export class ModuleService implements OnApplicationBootstrap {
     switch (filterDto.timeFieldType) {
       case TimeFieldType.EXACT: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' = '${moment(
+          `${timeQueryString} = '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.BETWEEN: {
+        qb.andWhere(
+          `${timeQueryString} >= '${moment(filterDto.startDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        ).andWhere(
+          `${timeQueryString} <= '${moment(filterDto.endDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_AFTER: {
+        qb.andWhere(
+          `${timeQueryString} >= '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        )
+        break
+      }
+
+      case TimeFieldType.IS_BEFORE: {
+        qb.andWhere(
+          `${timeQueryString} <= '${moment(filterDto.singleDate).format(
+            'YYYY-MM-DD',
+          )}'`,
+        )
+        break
+      }
+
+      default:
+        break
+    }
+
+    if (filterDto.reportType === ReportType.SALES_BY_LEAD_SOURCE) {
+      qb.groupBy(`e.data ->> 'source', e.id`).orderBy(
+        `e.data ->> 'source', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.SALES_PERSON_PERFORMANCE) {
+      qb.groupBy(`e.data ->> 'ownerId', e.id`).orderBy(
+        `e.data ->> 'ownerId', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.PIPELINE_BY_PROBABILITY) {
+      qb.groupBy(`e.data ->> 'probability', e.id`).orderBy(
+        `e.data ->> 'probability', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.PIPELINE_BY_STAGE) {
+      qb.groupBy(`e.data ->> 'stageId', e.id`).orderBy(
+        `e.data ->> 'stageId', e.createdAt`,
+        'DESC',
+      )
+    } else {
+      qb.orderBy('e.createdAt', 'DESC')
+    }
+
+    if (shouldNotPaginate) return qb.getMany()
+    return paginate(qb, { limit, page })
+  }
+
+  async getLeadsReport({
+    limit,
+    page,
+    shouldNotPaginate,
+    ...filterDto
+  }: DTO.Module.ReportFilter) {
+    if (filterDto.timeFieldName === TimeFieldName.CLOSING_DATE) {
+      throw new BadRequestException(
+        'Leads report do not have field closing date ',
+      )
+    }
+
+    const qb = this.entityRepo
+      .createQueryBuilder('e')
+      .leftJoin('e.module', 'module')
+      .where("module.name = 'lead'")
+
+    switch (filterDto.timeFieldType) {
+      case TimeFieldType.EXACT: {
+        qb.andWhere(
+          `e.${filterDto.timeFieldName}::DATE = '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -468,12 +734,11 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.BETWEEN: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+          `e.${filterDto.timeFieldName}::DATE >= '${moment(
             filterDto.startDate,
           ).format('YYYY-MM-DD')}'`,
-        )
-        qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+        ).andWhere(
+          `e.${filterDto.timeFieldName}::DATE <= '${moment(
             filterDto.endDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -482,7 +747,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.IS_AFTER: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' >= '${moment(
+          `e.${filterDto.timeFieldName}::DATE >= '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -491,7 +756,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
       case TimeFieldType.IS_BEFORE: {
         qb.andWhere(
-          `e.data ->> '${filterDto.timeFieldName}' <= '${moment(
+          `e.${filterDto.timeFieldName}::DATE <= '${moment(
             filterDto.singleDate,
           ).format('YYYY-MM-DD')}'`,
         )
@@ -502,18 +767,25 @@ export class ModuleService implements OnApplicationBootstrap {
         break
     }
 
-    if (filterDto.reportType === ReportType.SALES_BY_LEAD_SOURCE) {
-      qb.groupBy(`e.data ->> 'source', e.id`)
-      qb.orderBy(`e.data ->> 'source', e.createdAt`, 'DESC')
-    } else if (filterDto.reportType === ReportType.SALES_PERSON_PERFORMANCE) {
-      qb.groupBy(`e.data ->> 'ownerId', e.id`)
-      qb.orderBy(`e.data ->> 'ownerId', e.createdAt`, 'DESC')
-    } else if (filterDto.reportType === ReportType.PIPELINE_BY_PROBABILITY) {
-      qb.groupBy(`e.data ->> 'probability', e.id`)
-      qb.orderBy(`e.data ->> 'probability', e.createdAt`, 'DESC')
-    } else if (filterDto.reportType === ReportType.PIPELINE_BY_STAGE) {
-      qb.groupBy(`e.data ->> 'stageId', e.id`)
-      qb.orderBy(`e.data ->> 'stageId', e.createdAt`, 'DESC')
+    if (filterDto.reportType === ReportType.LEADS_BY_SOURCE) {
+      qb.groupBy(`e.data ->> 'source', e.id`).orderBy(
+        `e.data ->> 'source', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.LEADS_BY_STATUS) {
+      qb.groupBy(`e.data ->> 'status', e.id`).orderBy(
+        `e.data ->> 'status', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.LEADS_BY_OWNERSHIP) {
+      qb.groupBy(`e.data ->> 'ownerId', e.id`).orderBy(
+        `e.data ->> 'ownerId', e.createdAt`,
+        'DESC',
+      )
+    } else if (filterDto.reportType === ReportType.CONVERTED_LEADS) {
+      qb.withDeleted()
+        .andWhere(`e.data ->> 'isConverted' = 'true'`)
+        .orderBy('e.createdAt', 'DESC')
     } else {
       qb.orderBy('e.createdAt', 'DESC')
     }
@@ -521,4 +793,23 @@ export class ModuleService implements OnApplicationBootstrap {
     if (shouldNotPaginate) return qb.getMany()
     return paginate(qb, { limit, page })
   }
+}
+
+function bufferToStream(buffer: Buffer) {
+  // Remove BOM in buffer
+  if (buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf)
+    buffer = buffer.slice(3)
+
+  let duplexStream = new Duplex({ encoding: 'utf-8' })
+  duplexStream.push(buffer)
+  duplexStream.push(null)
+  return duplexStream
+}
+
+function generateRandom(min: number, max: number) {
+  let difference = max - min
+  let rand = Math.random()
+  rand = Math.floor(rand * difference)
+  rand = rand + min
+  return rand
 }

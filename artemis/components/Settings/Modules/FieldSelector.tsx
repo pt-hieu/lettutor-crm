@@ -83,12 +83,14 @@ export default function FieldSelector({ module }: Props) {
 
           <div className="mb-2 font-medium">Other Settings</div>
           <div className="grid grid-cols-2 gap-2">
-            <button disabled onClick={openKanbanModal} className="crm-button">
-              Kanban Mode
+            <button onClick={openKanbanModal} className="crm-button-outline">
+              <span className="fa fa-table mr-2" />
+              Kanban
             </button>
 
             <button onClick={openConvertModal} className="crm-button-outline">
-            <span className="fa fa-exchange mr-2" />Convert
+              <span className="fa fa-exchange mr-2" />
+              Convert
             </button>
           </div>
 

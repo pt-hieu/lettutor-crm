@@ -92,7 +92,10 @@ export class UserController {
 
   @Patch()
   @ApiOperation({ summary: 'to self-update user info' })
-  updateUser(@Body() dto: DTO.User.UpdateUser, @Payload() payload: JwtPayload) {
+  selfupdateUser(
+    @Body() dto: DTO.User.UpdateUser,
+    @Payload() payload: JwtPayload,
+  ) {
     return this.service.updateUser(dto, payload)
   }
 
@@ -119,6 +122,19 @@ export class UserController {
     @Body() dto: DTO.User.ActivateUser,
   ) {
     return this.service.activateUser(id, dto)
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'to update other user info' })
+  @DefineAction({
+    target: DefaultActionTarget.USER,
+    type: ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+  })
+  updateUser(
+    @Body() dto: DTO.User.UpdateUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.service.updateUser(dto, null, id)
   }
 
   @Delete('batch')

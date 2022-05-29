@@ -43,7 +43,10 @@
     "tsconfig-paths",
     "typescript",
     "yargs",
-    "chalk"
+    "chalk",
+    "nest-csv-parser",
+    "json2csv",
+    "@types/json2csv"
   ],
   "ares": [
     "@nestjs/common",

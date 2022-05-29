@@ -223,7 +223,7 @@ type KanbanEntityProps = {
 }
 
 function KanbanEntity({ entity, index, module }: KanbanEntityProps) {
-  const [expand, _, __, toggle] = useModal()
+  const [expand, _, __, toggle] = useModal(true)
 
   return (
     <Draggable draggableId={entity.id} index={index}>
@@ -274,7 +274,8 @@ function KanbanEntity({ entity, index, module }: KanbanEntityProps) {
                         FieldType.CHECK_BOX,
                         FieldType.MULTILINE_TEXT,
                         FieldType.RELATION,
-                      ].some((type) => type === field.type),
+                      ].some((type) => type === field.type) &&
+                      !!field.visibility.Kanban,
                   )
                   .filter((field) => field.name !== module.kanban_meta?.field)
                   .map((field) => (

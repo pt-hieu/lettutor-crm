@@ -1,7 +1,7 @@
 import { useCallback, useDebugValue, useState } from 'react'
 
-export const useModal = () => {
-  const [state, setState] = useState(false)
+export const useModal = (initial: boolean = false) => {
+  const [state, setState] = useState(initial)
   useDebugValue(state)
 
   const open = useCallback(() => setState(true), [])

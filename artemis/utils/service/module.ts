@@ -1,8 +1,6 @@
 import axios from 'axios'
 import { API } from 'environment'
-
 import { Paginate, PagingQuery } from '@utils/models/paging'
-
 import { Entity, Module } from '../models/module'
 
 export const getModules = (token?: string) => () =>
@@ -99,3 +97,34 @@ export const convert =
     axios
       .put<Entity[]>(API + '/apollo/module/convert/' + sourceId, data)
       .then((res) => res.data)
+
+export const importModule = (moduleName: string) => (file: File) => {
+  const formData = new FormData()
+  formData.append('files', file)
+  return axios.post(API + `/apollo/module/${moduleName}/import/csv`, formData, {headers: {'Content-Type': 'multipart/form-data'}})
+}
+
+const handleReponse = (name: string) => (res: any) => {
+  var universalBOM = "\uFEFF";
+  const link = document.createElement('a')
+  link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(universalBOM + res.data)
+  link.download = name + '.csv'
+  link.click()
+  link.remove()
+}
+
+export const downloadTemplate = (moduleName: string) => () => {
+  axios
+    .get(API + `/apollo/module/${moduleName}/csv`, {
+      responseType: 'stream',
+    })
+    .then(handleReponse(`import_${moduleName}_template`))
+}
+
+export const exportModuleEntities = (moduleName: string) => () => {
+  axios
+    .get(API + `/apollo/module/${moduleName}/export/csv`, {
+      responseType: 'stream',
+    })
+    .then(handleReponse(`${moduleName}_list`))
+}

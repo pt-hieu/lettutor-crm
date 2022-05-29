@@ -14,7 +14,7 @@ interface IProps {
   isLoading?: boolean
 }
 
-export const TodaySalesTable = ({ module, data, isLoading }: IProps) => {
+export const BasicTable = ({ module, data, isLoading }: IProps) => {
   const colums = useMemo<TableColumnType<any>[]>(
     () =>
       (
@@ -23,7 +23,7 @@ export const TodaySalesTable = ({ module, data, isLoading }: IProps) => {
             title: 'Name',
             dataIndex: 'name',
             render: (value, { id }) => (
-              <Link href={`/${name}/${id}`}>
+              <Link href={`/${module.name}/${id}`}>
                 <a className="crm-link underline hover:underline">{value}</a>
               </Link>
             ),

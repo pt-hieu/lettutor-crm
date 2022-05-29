@@ -1,5 +1,6 @@
 import {
   Body,
+  ConsoleLogger,
   Controller,
   Delete,
   Get,
@@ -9,12 +10,25 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  Response,
+  StreamableFile,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common'
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
+import { FileInterceptor } from '@nestjs/platform-express'
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger'
+import { Response as Res } from 'express'
 
 import { DTO } from 'src/type'
+import { AuthRequest } from 'src/utils/interface'
 
-import { ReportType } from './module.entity'
 import { ModuleService } from './module.service'
 
 @Controller('module')
@@ -51,9 +65,9 @@ export class ModuleController {
     return this.service.getRawEntityForTaskCreate()
   }
 
-  @Get('/entity/report/deal')
-  @ApiOperation({ summary: 'to get deal related report' })
-  getReport(@Query() dto: DTO.Module.DealReportFilter) {
+  @Get('/entity/report')
+  @ApiOperation({ summary: 'to get deal and lead related report' })
+  getDealReport(@Query() dto: DTO.Module.ReportFilter) {
     return this.service.getReport(dto)
   }
 
@@ -79,6 +93,40 @@ export class ModuleController {
     @Body() dto: DTO.Module.AddEntity,
   ) {
     return this.service.addEntity(moduleName, dto)
+  }
+
+  @Get(':name/csv')
+  @ApiOperation({ summary: 'to get the csv template for creating module' })
+  async getCreateLeadTemplate(
+    @Param('name') moduleName: string,
+    @Response({ passthrough: true }) res: Res,
+  ) {
+    const csv = await this.service.getTemplateForCreatingModuule(moduleName)
+
+    res.set('Content-Type', 'text/csv')
+    res.attachment('template.csv').send(csv)
+  }
+
+  @Get(':name/export/csv')
+  @ApiOperation({ summary: 'to get list entities of a specific module' })
+  async exportEntities(
+    @Param('name') moduleName: string,
+    @Response({ passthrough: true }) res: Res,
+  ) {
+    const csv = await this.service.getListInCsvFormat(moduleName)
+    const fileName = moduleName + '.csv'
+
+    res.set('Content-Type', 'text/csv')
+    res.attachment(fileName).send(csv)
+  }
+
+  @Post(':name/import/csv')
+  @ApiOperation({ summary: 'to import entities at module via uploading' })
+  importEntities(
+    @Body() dto: DTO.File.Files,
+    @Param('name') moduleName: string,
+  ) {
+    return this.service.bulkCreateEntities(moduleName, dto)
   }
 
   @Put('convert/:source_id')
