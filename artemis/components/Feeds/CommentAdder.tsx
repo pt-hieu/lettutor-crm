@@ -1,14 +1,44 @@
+import { notification } from 'antd'
 import { useState } from 'react'
+import { useMutation, useQueryClient } from 'react-query'
+
+import { useTypedSession } from '@utils/hooks/useTypedSession'
+import { AddCommentDto } from '@utils/models/feed'
+import { addComment } from '@utils/service/feed'
 
 import { FeedTextbox, IFeedTextboxData } from './FeedTextbox'
 
-interface IStatusAdderProps {}
+interface IStatusAdderProps {
+  statusId: string
+}
 
-export const CommentAdder = ({}: IStatusAdderProps) => {
+export const CommentAdder = ({ statusId }: IStatusAdderProps) => {
   const [isActive, setIsActive] = useState(false)
+  const client = useQueryClient()
+  const [session] = useTypedSession()
+
+  const { mutateAsync: addCommentService, isLoading } = useMutation(
+    'add-comment',
+    addComment,
+    {
+      onSuccess() {
+        client.refetchQueries(['comments', statusId])
+        setIsActive(false)
+      },
+      onError() {
+        notification.error({ message: 'Add comment unsuccessfully' })
+      },
+    },
+  )
 
   const handlePostStatus = (data: IFeedTextboxData) => {
-    console.log(data)
+    const newData: AddCommentDto = {
+      ...data,
+      ownerId: session?.user.id as string,
+      statusId,
+    }
+    console.log('comtData', newData)
+    addCommentService(newData)
   }
 
   const placeholder = 'Write a comment.'
@@ -23,7 +53,7 @@ export const CommentAdder = ({}: IStatusAdderProps) => {
         <FeedTextbox
           onCancel={() => setIsActive(false)}
           onSubmit={handlePostStatus}
-          isLoading={false}
+          isLoading={isLoading}
           placeholder={placeholder}
           prefix={prefix}
           maxContent={250}

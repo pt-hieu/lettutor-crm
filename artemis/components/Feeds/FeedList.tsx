@@ -1,146 +1,36 @@
-import { Select } from 'antd'
+import { Select, Spin } from 'antd'
 import React, { useState } from 'react'
+import { useQuery } from 'react-query'
 
-import { Feed, FeedTime, FeedType } from '@utils/models/feed'
+import { FeedTime, FeedType } from '@utils/models/feed'
+import { getFeeds } from '@utils/service/feed'
 
 import { FeedContent } from './FeedContent'
 
-const feedTypeOptions = [
-  { label: 'All', value: '' },
-  ...Object.values(FeedType).map((value) => ({ label: value, value })),
-]
+const feedTypeOptions = Object.values(FeedType).map((value) => ({
+  label: value,
+  value,
+}))
 
-const feedTimeOptions = [
-  { label: 'Now', value: '' },
-  ...Object.values(FeedTime).map((value) => ({ label: value, value })),
-]
-
-const feeds: Feed[] = [
-  {
-    type: FeedType.Status,
-    action: 'posted',
-    time: new Date(),
-    content: 'This is a content of status',
-    owner: {
-      id: 'abc',
-      name: 'Le Hao',
-    },
-    files: [
-      {
-        filename: 'File Name 1',
-        id: 'File Name 1',
-      },
-      {
-        filename: 'File Name 2',
-        id: 'File Name 2',
-      },
-      {
-        filename: 'File Name 3',
-        id: 'File Name 3',
-      },
-      {
-        filename: 'File Name 4',
-        id: 'File Name 4',
-      },
-      {
-        filename: 'File Name 5',
-        id: 'File Name 5',
-      },
-    ],
-  },
-  {
-    type: FeedType.Status,
-    action: 'posted',
-    time: new Date(),
-    content: 'This is a content of status',
-    owner: {
-      id: 'abc',
-      name: 'Le 2121',
-    },
-    files: [
-      {
-        filename: 'File Name 1',
-        id: 'File Name 1',
-      },
-      {
-        filename: 'File Name 2',
-        id: 'File Name 2',
-      },
-      //   {
-      //     filename: 'File Name 3',
-      //     id: 'File Name 3',
-      //   },
-      //   {
-      //     filename: 'File Name 4',
-      //     id: 'File Name 4',
-      //   },
-      //   {
-      //     filename: 'File Name 5',
-      //     id: 'File Name 5',
-      //   },
-    ],
-    comments: [
-      {
-        owner: {
-          id: 'abc',
-          name: 'Le Hao',
-        },
-        content: 'This is a test comment',
-        createdAt: new Date(),
-        files: [
-          {
-            filename: 'File Name 1',
-            id: 'File Name 1',
-          },
-          {
-            filename: 'File Name 2',
-            id: 'File Name 2',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    type: FeedType.Status,
-    action: 'posted',
-    time: new Date(),
-    content: 'This is a content of status',
-    owner: {
-      id: 'abc',
-      name: 'Le 2121',
-    },
-    files: [],
-    comments: [
-      {
-        owner: {
-          id: 'abc',
-          name: 'Le Hao',
-        },
-        content: 'This is a test comment',
-        createdAt: new Date(),
-      },
-      {
-        owner: {
-          id: 'abc',
-          name: 'Le Hao',
-        },
-        content:
-          'This is a test comment long long long WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',
-        createdAt: new Date(),
-      },
-    ],
-  },
-]
+const feedTimeOptions = Object.values(FeedTime).map((value) => ({
+  label: value,
+  value,
+}))
 
 export const FeedList = () => {
-  const [feedType, setFeedType] = useState<FeedType | ''>('')
-  const [feedTime, setFeedTime] = useState<FeedTime | ''>('')
+  const [feedType, setFeedType] = useState<FeedType>(FeedType.Status)
+  const [feedTime, setFeedTime] = useState<FeedTime>(FeedTime.Now)
 
-  const handleChangeSelectType = (value: FeedType | '') => {
+  const { data: feeds, isLoading } = useQuery(
+    ['feeds', feedType, feedTime],
+    getFeeds({ shouldNotPaginate: true, time: feedTime, category: feedType }),
+  )
+
+  const handleChangeSelectType = (value: FeedType) => {
     setFeedType(value)
   }
 
-  const handleChangeSelectTime = (value: FeedTime | '') => {
+  const handleChangeSelectTime = (value: FeedTime) => {
     setFeedTime(value)
   }
 
@@ -165,9 +55,15 @@ export const FeedList = () => {
         />
       </div>
       <div className="flex flex-col gap-7">
-        {feeds.map((feed, index) => (
-          <FeedContent key={index} feed={feed} />
-        ))}
+        {isLoading ? (
+          <Spin />
+        ) : !feeds?.length ? (
+          <div className="text-[17px] font-semibold text-gray-400 text-center py-[60px]">
+            No Feeds Found!
+          </div>
+        ) : (
+          feeds.map((feed, index) => <FeedContent key={index} feed={feed} />)
+        )}
       </div>
     </div>
   )

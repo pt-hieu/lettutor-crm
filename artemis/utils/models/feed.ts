@@ -1,34 +1,37 @@
+import { Base } from './base'
+import { Attachments } from './note'
+
 export enum FeedType {
   Status = 'Status',
-  Deals = 'Deals',
-  Tasks = 'Tasks',
+  // Deals = 'Deals',
 }
 
 export enum FeedTime {
+  Now = 'Now',
   Yesterday = 'Yesterday',
   LastWeek = 'Last Week',
   CurrentMonth = 'Current Month',
   LastMonth = 'Last Month',
 }
 
-export interface FeedComment {
-  owner: {
-    id: string
-    name: string
-  }
+export type AddStatusDto = {
+  files?: File[]
+  ownerId: string
   content: string
-  createdAt: Date
-  files?: { filename: string; id: string }[]
 }
-export interface Feed {
-  type: FeedType
-  action: string
-  time: Date
-  content: string
+
+export interface FeedStatus extends Base {
+  attachments?: Attachments[]
   owner: {
-    id: string
     name: string
+    email: string
   }
-  files?: { filename: string; id: string }[]
-  comments?: FeedComment[]
+  content: string
+}
+
+export interface FeedComment extends FeedStatus {
+  statusId: string
+}
+export interface AddCommentDto extends AddStatusDto {
+  statusId: string
 }

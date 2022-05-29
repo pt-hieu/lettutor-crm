@@ -1,7 +1,11 @@
+import { notification } from 'antd'
 import { useState } from 'react'
+import { useMutation, useQueryClient } from 'react-query'
 
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getAvatarLinkByName } from '@utils/libs/avatar'
+import { AddStatusDto } from '@utils/models/feed'
+import { addStatus } from '@utils/service/feed'
 
 import { FeedTextbox, IFeedTextboxData } from './FeedTextbox'
 
@@ -10,10 +14,31 @@ interface IStatusAdderProps {}
 export const StatusAdder = ({}: IStatusAdderProps) => {
   const [isActive, setIsActive] = useState(false)
 
-  const handlePostStatus = (data: IFeedTextboxData) => {
-    console.log(data)
-  }
   const [session] = useTypedSession()
+
+  const client = useQueryClient()
+
+  const { mutateAsync: addStatusService, isLoading } = useMutation(
+    'add-status',
+    addStatus,
+    {
+      onSuccess() {
+        client.refetchQueries(['feeds'])
+        setIsActive(false)
+      },
+      onError() {
+        notification.error({ message: 'Add status unsuccessfully' })
+      },
+    },
+  )
+
+  const handlePostStatus = (data: IFeedTextboxData) => {
+    const newData: AddStatusDto = {
+      ...data,
+      ownerId: session?.user.id as string,
+    }
+    addStatusService(newData)
+  }
 
   const placeholder = "Hey! What's up?"
 
@@ -31,7 +56,7 @@ export const StatusAdder = ({}: IStatusAdderProps) => {
           <FeedTextbox
             onCancel={() => setIsActive(false)}
             onSubmit={handlePostStatus}
-            isLoading={false}
+            isLoading={isLoading}
             placeholder={placeholder}
             submitText="Post"
           />
