@@ -43,6 +43,7 @@ export class FeedService {
         .leftJoinAndSelect('status.attachments', 'attachments')
         .leftJoin('status.owner', 'owner')
         .addSelect(['owner.name', 'owner.email'])
+        .orderBy('status.createdAt', 'DESC')
     }
 
     if (
@@ -178,6 +179,7 @@ export class FeedService {
       .leftJoin('comment.owner', 'owner')
       .addSelect(['owner.name', 'owner.email'])
       .where(`status.id = '${id}'`)
+      .orderBy('comment.createdAt', 'DESC')
       .getMany()
   }
 
