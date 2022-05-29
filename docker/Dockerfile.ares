@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY package* script.js deps.json ./
 
-RUN npm install chalk@^4.1.2 && npm install yargs
+RUN npm install chalk@^4.1.2 --no-package-lock --force && npm install yargs --no-package-lock --force
 RUN yarn crm localize ares
 
-RUN npm i
+RUN npm i --force
 COPY ./ares ./ares
 
 RUN npm install -g typescript

@@ -16,10 +16,10 @@ ENV AWS_S3_STORAGE_CLASS=${AWS_S3_STORAGE_CLASS}
 WORKDIR /app
 COPY package* script.js deps.json ./
 
-RUN npm install chalk@^4.1.2 && npm install yargs
+RUN npm install chalk@^4.1.2 --no-package-lock --force && npm install yargs --no-package-lock --force
 RUN yarn crm localize poseidon
 
-RUN npm i
+RUN npm i --force
 
 COPY ./poseidon ./poseidon
 
