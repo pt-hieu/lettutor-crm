@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConsoleLogger,
   ForbiddenException,
   Injectable,
   Logger,
