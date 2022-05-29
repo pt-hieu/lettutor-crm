@@ -1,6 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Divider, Modal } from 'antd'
-import { tuple } from 'antd/lib/_util/type'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'

@@ -40,7 +40,7 @@ export enum RelateType {
 }
 
 type Visibility = {
-  [k in 'Overview' | 'Update' | 'Create' | 'Detail']?: boolean
+  [k in 'Overview' | 'Update' | 'Create' | 'Detail' | 'Kanban']?: boolean
 }
 
 export enum AggregateType {

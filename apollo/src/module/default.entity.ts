@@ -54,7 +54,6 @@ export const deal: Pick<
       should_convert_note: true,
       meta: {
         ownerId: 'ownerId',
-        source: 'source',
         tasks: 'tasks',
       },
     },
@@ -128,6 +127,7 @@ export const deal: Pick<
         Update: true,
         Create: true,
         Detail: true,
+        Kanban: true,
       },
     },
     {
@@ -154,6 +154,7 @@ export const deal: Pick<
         Update: true,
         Create: true,
         Detail: true,
+        Kanban: true,
       },
     },
     {
@@ -165,6 +166,7 @@ export const deal: Pick<
         Update: true,
         Create: true,
         Detail: true,
+        Kanban: true,
       },
     },
     {
