@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { In, Repository } from 'typeorm'
@@ -189,6 +193,11 @@ export class FeedService {
   }
 
   async addComment(dto: DTO.Feed.AddComment) {
+    const status = this.statusRepo.findOne({ id: dto.statusId })
+    if (!status) {
+      throw new NotFoundException('Not found Status')
+    }
+
     let filesToAdd: File[] = []
     if (dto.files && dto.files.length > 0) {
       filesToAdd = await this.fileService.uploadFile(dto.files)

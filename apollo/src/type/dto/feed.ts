@@ -52,6 +52,10 @@ export class AddComment extends Files {
   ownerId: string
 
   @ApiProperty()
+  @IsUUID()
+  statusId: string
+
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @MaxLength(250)
