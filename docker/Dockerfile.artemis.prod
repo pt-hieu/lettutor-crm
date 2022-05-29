@@ -9,6 +9,7 @@ RUN yarn crm localize artemis
 
 RUN npm i
 COPY ./artemis ./artemis
+RUN rm ./artemis/env.local && rm ./artemis/env.development
 
 RUN npm install -g typescript
 RUN yarn crm build artemis -D && yarn --production --ignore-scripts --prefer-offline
