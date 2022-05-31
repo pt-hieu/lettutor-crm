@@ -10,10 +10,14 @@ import { DetailNavbar } from '@components/Details/Navbar'
 import { DetailSidebar, Sections } from '@components/Details/Sidebar'
 import { NoteSection } from '@components/Notes/NoteSection'
 
+import { GlobalState } from '@utils/GlobalStateKey'
 import AttachmentSection from '@utils/components/AttachmentSection'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
-import { useAuthorization } from '@utils/hooks/useAuthorization'
+import {
+  UseAuthorizationReturnType,
+  useAuthorization,
+} from '@utils/hooks/useAuthorization'
 import { useRelationField } from '@utils/hooks/useRelationField'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { FieldType, Module } from '@utils/models/module'
@@ -48,6 +52,11 @@ export default function DetailView({ paths }: TProps) {
   const entityData = entity.data
   const metaData = entity.module.meta || []
   const isOwner = entityData.ownerId === ownerId
+
+  const { data: author } = useQuery<UseAuthorizationReturnType>(
+    GlobalState.AUTHORIZATION,
+    { enabled: false },
+  )
 
   if (!auth(ActionType.CAN_VIEW_DETAIL_ANY, moduleName) && !isOwner) {
     return <NotFound />

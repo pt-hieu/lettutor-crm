@@ -48,7 +48,7 @@ yargs(hideBin(process.argv))
         })
     },
     (agrv) => {
-      const command = `yarn add${agrv.D ? ' -D ' : ' '}${agrv.dependency.join(
+      const command = `npm i${agrv.D ? ' -D ' : ' '}${agrv.dependency.join(
         ' ',
       )}`
 
@@ -90,7 +90,7 @@ yargs(hideBin(process.argv))
         })
     },
     (agrv) => {
-      const command = `yarn remove ${agrv.dependency.join(' ')}`
+      const command = `npm remove ${agrv.dependency.join(' ')}`
 
       const depsToSave = { ...deps } as Record<
         typeof services[number],

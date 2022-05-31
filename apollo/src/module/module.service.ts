@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConsoleLogger,
   ForbiddenException,
   Injectable,
   Logger,
@@ -8,11 +9,13 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { parseAsync } from 'json2csv'
 import { clone, omit } from 'lodash'
 import moment from 'moment'
-import { paginate } from 'nestjs-typeorm-paginate'
-import { FindOneOptions, In, Repository } from 'typeorm'
 import { CsvParser, ParsedData } from 'nest-csv-parser'
+import { paginate } from 'nestjs-typeorm-paginate'
+import { Duplex } from 'stream'
+import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { Action, ActionType } from 'src/action/action.entity'
 import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
@@ -21,9 +24,10 @@ import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
-import { parseAsync } from 'json2csv'
+import { UserService } from 'src/user/user.service'
+import { AuthRequest } from 'src/utils/interface'
 
-import { account, contact, deal, lead, LeadSource } from './default.entity'
+import { LeadSource, account, contact, deal, lead } from './default.entity'
 import {
   Entity,
   FieldType,
@@ -32,9 +36,6 @@ import {
   TimeFieldName,
   TimeFieldType,
 } from './module.entity'
-import { AuthRequest } from 'src/utils/interface'
-import { Duplex } from 'stream'
-import { UserService } from 'src/user/user.service'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -48,9 +49,8 @@ export class ModuleService implements OnApplicationBootstrap {
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
     private readonly csvParser: CsvParser,
-    private readonly userService: UserService
-
-  ) { }
+    private readonly userService: UserService,
+  ) {}
 
   async onApplicationBootstrap() {
     await this.initDefaultModules()
@@ -106,18 +106,16 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.moduleRepo.save(dto)
   }
 
-
   async getTemplateForCreatingModuule(moduleName: string) {
     const csv = await parseAsync(
       {
-        name: moduleName
+        name: moduleName,
       },
       { fields: ['name', 'phone', 'email', 'status'] },
     )
 
     return csv
   }
-
 
   async getListInCsvFormat(moduleName: string) {
     const module = await this.moduleRepo.findOne({
@@ -142,13 +140,13 @@ export class ModuleService implements OnApplicationBootstrap {
       })
     }
     let entities = await qb.getMany()
-    const rawData = entities.map(e => ({
+    const rawData = entities.map((e) => ({
       name: e.name,
-      email: e.data["email"],
-      phone: e.data["phone"],
-      source: e.data["source"],
-      status: e.data["status"],
-      created_at: e.createdAt
+      email: e.data['email'],
+      phone: e.data['phone'],
+      source: e.data['source'],
+      status: e.data['status'],
+      created_at: e.createdAt,
     }))
 
     const csv = await parseAsync(rawData, {
@@ -158,11 +156,7 @@ export class ModuleService implements OnApplicationBootstrap {
     return csv
   }
 
-  async bulkCreateEntities(
-    filBuffer: Buffer,
-    moduleName: string,
-    req: AuthRequest,
-  ) {
+  async bulkCreateEntities(moduleName: string, dto: DTO.File.Files) {
     if (
       !this.utilService.checkRoleAction({
         target: moduleName,
@@ -177,10 +171,10 @@ export class ModuleService implements OnApplicationBootstrap {
     })
 
     if (!module) throw new BadRequestException('Module not found')
+    const file = dto.files[0]
+    const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))
 
-    const stream = bufferToStream(filBuffer)
-
-    let rawEntities = (await this.csvParser.parse(
+    const rawEntities = (await this.csvParser.parse(
       stream,
       DTO.Module.AddEntityFromFile,
       undefined,
@@ -188,35 +182,36 @@ export class ModuleService implements OnApplicationBootstrap {
       { strict: true, separator: ',' },
     )) as ParsedData<DTO.Module.AddEntityFromFile>
 
-    let users = await this.userService.getManyRaw()
-    
-    let entities: DTO.Module.AddEntity[] = rawEntities.list.map(
+    const users = await this.userService.getManyRaw()
+
+    const entities: DTO.Module.AddEntity[] = rawEntities.list.map(
       (e: DTO.Module.AddEntityFromFile) => {
         let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
-        let randomIdx = generateRandom(0, users.length - 1) 
-        entity["source"] = LeadSource.NONE
-        entity["ownerId"] = users[randomIdx].id
-        delete entity["name"]
+        let randomIdx = generateRandom(0, users.length - 1)
+        entity['source'] = LeadSource.NONE
+        entity['ownerId'] = users[randomIdx].id
+        delete entity['name']
         return {
           name: moduleName,
-          data: entity
+          data: entity,
         }
-      })
+      },
+    )
 
-    entities.forEach(e => {
+    entities.forEach((e) => {
       const validateMessage = module.validateEntity(e.data)
-      if (validateMessage) throw new UnprocessableEntityException(validateMessage)
+      if (validateMessage)
+        throw new UnprocessableEntityException(validateMessage)
     })
 
     return this.entityRepo.save(
-      entities.map(e => ({
+      entities.map((e) => ({
         name: e.name,
         data: e.data,
-        moduleId: module.id
-      })
-      ))
+        moduleId: module.id,
+      })),
+    )
   }
-
 
   async getOneModule(id: string) {
     const module = await this.moduleRepo.findOne({
@@ -258,6 +253,7 @@ export class ModuleService implements OnApplicationBootstrap {
     sourceEntity: Entity,
     targetModuleName: string,
     dto: Record<string, any>,
+    options: { useEntity: boolean; availableModules: string[] },
   ) {
     const targetModule = await this.moduleRepo.findOne({
       where: { name: targetModuleName },
@@ -276,9 +272,11 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     let targetEntity = new Entity()
-    targetEntity.moduleId = targetModule.id
-    targetEntity.name = `${sourceEntity.name} ${targetModule.name}`
+    targetEntity.name = `[${
+      targetModule.name.charAt(0).toUpperCase() + targetModule.name.slice(1)
+    }] ${sourceEntity.name}`
     targetEntity.data = {}
+    targetEntity.moduleId = targetModule.id
 
     Object.entries(meta.meta)
       .filter(([_, targetProp]) =>
@@ -296,7 +294,10 @@ export class ModuleService implements OnApplicationBootstrap {
         targetEntity.data[key] = value
       })
 
-    const error = targetModule.validateEntity(targetEntity.data)
+    const error = targetModule.validateEntity(targetEntity.data, {
+      availaleModules: options.availableModules,
+    })
+
     if (error) {
       throw new UnprocessableEntityException(`Convert error: ${error}`)
     }
@@ -309,7 +310,12 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
       // @ts-ignore
-      notes = notes.map((note) => clone(omit(note, ['id'])))
+      notes = notes.map((note) => {
+        const result = clone(omit(note, ['id']))
+        result.entityId = targetEntity.id
+
+        return result
+      })
       await this.noteRepo.save(notes)
     }
 
@@ -319,7 +325,13 @@ export class ModuleService implements OnApplicationBootstrap {
       })
 
       // @ts-ignore
-      files = files.map((file) => clone(omit(file, ['id'])))
+      files = files.map((file) => {
+        const result = clone(omit(file, ['id']))
+        result.entityId = targetEntity.id
+
+        return result
+      })
+
       await this.fileRepo.save(files)
     }
 
@@ -342,15 +354,36 @@ export class ModuleService implements OnApplicationBootstrap {
     if (!sourceEntity) throw new NotFoundException('Entity not exist')
 
     const entities = await Promise.all(
-      dtos.map(({ dto, module_name }) =>
-        this.convert(sourceEntity, module_name, dto),
+      dtos.map(({ dto, module_name, useEntity }) =>
+        this.convert(sourceEntity, module_name, dto, {
+          useEntity,
+          availableModules: dtos.map((d) => d.module_name),
+        }),
       ),
     )
 
     sourceEntity.data['isConverted'] = true
-    await this.entityRepo.save(sourceEntity)
 
+    dtos.forEach(({ useEntity }, index) => {
+      if (!useEntity) return
+
+      const entity = entities[index]
+      entity.module.meta.forEach((fieldMeta) => {
+        if (
+          fieldMeta.required &&
+          !entity.data[fieldMeta.name] &&
+          fieldMeta.type === FieldType.RELATION
+        ) {
+          entity.data[fieldMeta.name] = entities.find(
+            (e) => e.module.name === fieldMeta.relateTo,
+          )?.id
+        }
+      })
+    })
+
+    await this.entityRepo.save([sourceEntity, ...entities])
     await this.entityRepo.softDelete({ id: sourceEntity.id })
+
     return entities
   }
 
@@ -762,7 +795,6 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 }
 
-
 function bufferToStream(buffer: Buffer) {
   // Remove BOM in buffer
   if (buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf)
@@ -775,9 +807,9 @@ function bufferToStream(buffer: Buffer) {
 }
 
 function generateRandom(min: number, max: number) {
-  let difference = max - min;
-  let rand = Math.random();
-  rand = Math.floor(rand * difference);
-  rand = rand + min;
-  return rand;
+  let difference = max - min
+  let rand = Math.random()
+  rand = Math.floor(rand * difference)
+  rand = rand + min
+  return rand
 }

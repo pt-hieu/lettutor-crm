@@ -2,7 +2,7 @@ import { notification } from 'antd'
 import { useRouter } from 'next/router'
 import { ComponentProps, useCallback, useEffect, useRef, useState } from 'react'
 import { DragDropContext } from 'react-beautiful-dnd'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 import FieldModal from '@components/Settings/Modules/FieldModal'
 import FieldRenderer from '@components/Settings/Modules/FieldRenderer'
@@ -13,7 +13,13 @@ import Loading from '@utils/components/Loading'
 import { useCommand } from '@utils/hooks/useCommand'
 import { useModal } from '@utils/hooks/useModal'
 import { useRelationField } from '@utils/hooks/useRelationField'
-import { ConvertMeta, FieldMeta, FieldType, Module } from '@utils/models/module'
+import {
+  ConvertMeta,
+  FieldMeta,
+  FieldType,
+  KanbanMeta,
+  Module,
+} from '@utils/models/module'
 import { getModules, updateModule } from '@utils/service/module'
 
 export default function ModuleView() {
@@ -94,6 +100,21 @@ export default function ModuleView() {
     }
   }, [])
 
+  const client = useQueryClient()
+  const { isLoading, mutateAsync } = useMutation(
+    'update-module',
+    updateModule(module?.id || ''),
+    {
+      onSuccess() {
+        client.refetchQueries('modules')
+        notification.success({ message: 'Update module successfully' })
+      },
+      onError() {
+        notification.error({ message: 'Update module unsuccesfully' })
+      },
+    },
+  )
+
   useCommand<{ meta: ConvertMeta[] }>(
     'cmd:update-convert-setting',
     (received) => {
@@ -103,13 +124,31 @@ export default function ModuleView() {
       } = received
 
       setLocalModule((module) => {
-        return {
+        const localModule = {
           ...module!,
           convert_meta: meta,
         }
+
+        mutateAsync(localModule)
+        return localModule
       })
     },
   )
+
+  useCommand<KanbanMeta>('cmd:update-kanban-setting', (received) => {
+    if (!received) return
+    const { payload } = received
+
+    setLocalModule((module) => {
+      const localModule: Module = {
+        ...module!,
+        kanban_meta: payload,
+      }
+
+      mutateAsync(localModule)
+      return localModule
+    })
+  })
 
   useCommand<{ name: string; newName: string }>(
     'cmd:update-group',
@@ -233,19 +272,6 @@ export default function ModuleView() {
       meta: module?.meta?.filter((field) => field.name !== name) || [],
     }))
   }, [])
-
-  const { isLoading, mutateAsync } = useMutation(
-    'update-module',
-    updateModule(module?.id || ''),
-    {
-      onSuccess() {
-        notification.success({ message: 'Update module successfully' })
-      },
-      onError() {
-        notification.error({ message: 'Update module unsuccesfully' })
-      },
-    },
-  )
 
   return (
     <Layout>

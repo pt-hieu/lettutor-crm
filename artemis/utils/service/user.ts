@@ -86,3 +86,8 @@ export const batchDelete = (ids: string[]) =>
   axios
     .delete(API + '/apollo/user/batch', { data: { ids } })
     .then((r) => r.data)
+
+export const updateUser = (id: string ) => (data: {name: string, roleId: string}) => {
+  const {name, roleId} = data
+  return axios.patch(API + `/apollo/user/${id}`, {name, roleIds: [roleId]}).then(res => res.data)
+}

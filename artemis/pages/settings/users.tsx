@@ -9,6 +9,7 @@ import {
 } from 'react-query'
 
 import ButtonAddUser from '@components/Settings/ButtonAddUser'
+import ButtonUpdateUser from '@components/Settings/ButtonUpdateUser'
 import Search from '@components/Settings/Search'
 import SettingsLayout from '@components/Settings/SettingsLayout'
 
@@ -207,6 +208,8 @@ export default function UsersSettings() {
                   <button className="crm-button">Re-send</button>
                 </Confirm>
               )}
+
+              <ButtonUpdateUser user={record} />
             </Space>
           )}
         </>

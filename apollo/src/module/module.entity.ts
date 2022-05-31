@@ -40,7 +40,7 @@ export enum RelateType {
 }
 
 type Visibility = {
-  [k in 'Overview' | 'Update' | 'Create' | 'Detail']?: boolean
+  [k in 'Overview' | 'Update' | 'Create' | 'Detail' | 'Kanban']?: boolean
 }
 
 export enum AggregateType {
@@ -265,18 +265,31 @@ export class Module extends BaseEntity {
   })
   entities?: Entity[]
 
-  public validateEntity(data: Record<string, unknown>): string | null {
+  public validateEntity(
+    data: Record<string, unknown>,
+    validateOptions?: { availaleModules: string[] },
+  ): string | null {
     for (const {
       name,
       required,
       type,
       options,
       relateType,
+      relateTo,
       min,
       max,
       minLength,
       maxLength,
     } of this.meta) {
+      if (
+        type === FieldType.RELATION &&
+        required &&
+        validateOptions &&
+        validateOptions.availaleModules.some((name) => name === relateTo)
+      ) {
+        return null
+      }
+
       if (!data[name] && required) return `${name} is required`
       if (!data[name] && !required) return null
 
