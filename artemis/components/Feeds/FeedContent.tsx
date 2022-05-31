@@ -11,7 +11,7 @@ import { useModal } from '@utils/hooks/useModal'
 import { getAvatarLinkByName } from '@utils/libs/avatar'
 import { FeedComment, FeedStatus } from '@utils/models/feed'
 import { Attachments } from '@utils/models/note'
-import { deleteStatus, getComments } from '@utils/service/feed'
+import { deleteComment, deleteStatus, getComments } from '@utils/service/feed'
 
 import { CommentAdder } from './CommentAdder'
 
@@ -30,7 +30,7 @@ export const FeedContent = ({ feed }: IProps) => {
     deleteStatus,
     {
       onSuccess() {
-        client.refetchQueries(['feeds'])
+        client.invalidateQueries(['feeds'])
       },
       onError() {
         notification.error({ message: 'Delete status unsuccessfully' })
@@ -156,10 +156,10 @@ const Comment = ({ comment }: ICommentProps) => {
 
   const { mutateAsync: deleteCommentService } = useMutation(
     'delete-comment',
-    deleteStatus,
+    deleteComment,
     {
       onSuccess() {
-        client.refetchQueries(['comments', statusId])
+        client.invalidateQueries(['comments'])
       },
       onError() {
         notification.error({ message: 'Delete comment unsuccessfully' })

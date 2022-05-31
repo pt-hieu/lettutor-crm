@@ -22,7 +22,7 @@ export const CommentAdder = ({ statusId }: IStatusAdderProps) => {
     addComment,
     {
       onSuccess() {
-        client.refetchQueries(['comments', statusId])
+        client.invalidateQueries(['comments', statusId])
         setIsActive(false)
       },
       onError() {
@@ -37,7 +37,6 @@ export const CommentAdder = ({ statusId }: IStatusAdderProps) => {
       ownerId: session?.user.id as string,
       statusId,
     }
-    console.log('comtData', newData)
     addCommentService(newData)
   }
 

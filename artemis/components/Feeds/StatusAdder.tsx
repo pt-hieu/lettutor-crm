@@ -23,7 +23,7 @@ export const StatusAdder = ({}: IStatusAdderProps) => {
     addStatus,
     {
       onSuccess() {
-        client.refetchQueries(['feeds'])
+        client.invalidateQueries(['feeds'])
         setIsActive(false)
       },
       onError() {
