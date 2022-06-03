@@ -3,7 +3,8 @@ import { Attachments } from './note'
 
 export enum FeedType {
   Status = 'Status',
-  // Deals = 'Deals',
+  Deals = 'Deals',
+  Tasks = 'Tasks',
 }
 
 export enum FeedTime {

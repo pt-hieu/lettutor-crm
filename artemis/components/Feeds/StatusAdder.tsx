@@ -43,12 +43,12 @@ export const StatusAdder = ({}: IStatusAdderProps) => {
   const placeholder = "Hey! What's up?"
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-3">
       <div className="w-[44px]">
         <img
           className="w-10 h-10 rounded-full"
           alt="Avatar"
-          src={getAvatarLinkByName(session?.user.name || '')}
+          src={getAvatarLinkByName(session?.user.name || 'User')}
         />
       </div>
       <div className="flex-1">

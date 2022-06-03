@@ -2,10 +2,11 @@ import { Select, Spin } from 'antd'
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
-import { FeedTime, FeedType } from '@utils/models/feed'
+import { FeedStatus, FeedTime, FeedType } from '@utils/models/feed'
+import { Log } from '@utils/models/log'
 import { getFeeds } from '@utils/service/feed'
 
-import { FeedContent } from './FeedContent'
+import { LogContent, StatusContent } from './FeedContent'
 
 const feedTypeOptions = Object.values(FeedType).map((value) => ({
   label: value,
@@ -62,7 +63,13 @@ export const FeedList = () => {
             No Feeds Found!
           </div>
         ) : (
-          feeds.map((feed, index) => <FeedContent key={index} feed={feed} />)
+          feeds.map((feed, index) =>
+            feedType === FeedType.Status ? (
+              <StatusContent key={index} feed={feed as FeedStatus} />
+            ) : (
+              <LogContent key={index} log={feed as Log} index={index} />
+            ),
+          )
         )}
       </div>
     </div>

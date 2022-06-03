@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ReactNode, memo, useCallback, useMemo } from 'react'
 
 import Tooltip from '@utils/components/Tooltip'
+import { getAvatarLinkByName } from '@utils/libs/avatar'
 import { formatDate } from '@utils/libs/time'
 import { Log, LogAction } from '@utils/models/log'
 
@@ -102,7 +103,11 @@ export default memo(function LogItem({
       }`}
     >
       <div className="flex items-center gap-4">
-        <span className="w-10 h-10 bg-gray-300 rounded-full" />
+        <img
+          className="w-10 h-10 rounded-full"
+          alt="Avatar"
+          src={getAvatarLinkByName(owner?.name || 'User')}
+        />
 
         <div>
           <div>

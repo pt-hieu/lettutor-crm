@@ -9,6 +9,7 @@ import {
   FeedTime,
   FeedType,
 } from '@utils/models/feed'
+import { Log } from '@utils/models/log'
 import { PagingQuery } from '@utils/models/paging'
 
 export const getFeeds =
@@ -21,7 +22,7 @@ export const getFeeds =
   ) =>
   () =>
     axios
-      .get<FeedStatus[]>(API + '/apollo/feed/status', {
+      .get<FeedStatus[] | Log[]>(API + '/apollo/feed', {
         headers: { authorization: 'Bearer ' + token },
         params,
       })
