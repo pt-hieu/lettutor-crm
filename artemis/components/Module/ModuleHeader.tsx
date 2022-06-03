@@ -129,16 +129,17 @@ export default function ModuleHeader({
             <button onClick={openImportModal} className="crm-button">
               Import Lead
             </button>
+
             <button
               onClick={downloadTemplate(DefaultModule.LEAD)}
               className="crm-button-secondary"
             >
               Download CSV Template
             </button>
+
             <button
               onClick={exportModuleEntities(DefaultModule.LEAD)}
               className="crm-button-secondary"
-              on
             >
               Export
             </button>

@@ -1,18 +1,18 @@
-FROM node:14-alpine AS builder
+FROM node:alpine AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package* script.js deps.json ./
 
-RUN npm install chalk@^4.1.2 --no-package-lock && npm install yargs --no-package-lock
+RUN npm install chalk@^4.1.2 --no-package-lock --force && npm install yargs --no-package-lock --force
 RUN yarn crm localize artemis
 
-RUN npm i
+RUN npm i --force
 COPY ./artemis ./artemis
-RUN rm ./artemis/env.local && rm ./artemis/env.development
+RUN rm ./artemis/.env.development
 
 RUN npm install -g typescript
-RUN yarn crm build artemis -D && yarn --production --ignore-scripts --prefer-offline
+RUN yarn crm build artemis && yarn --production --ignore-scripts --prefer-offline
 
 FROM node:alpine AS runner
 WORKDIR /app

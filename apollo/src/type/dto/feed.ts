@@ -11,9 +11,9 @@ import { Files } from './file'
 import { Paginate } from './paging'
 
 export enum FeedCategory {
-  ALL = 'All',
   STATUS = 'Status',
   DEALS = 'Deals',
+  TASKS = 'Tasks',
 }
 
 export enum TimeCategory {

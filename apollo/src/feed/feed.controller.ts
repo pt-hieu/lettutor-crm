@@ -24,16 +24,16 @@ const MAX_COUNT_OF_FILES = 5
 export class FeedController {
   constructor(private readonly service: FeedService) {}
 
-  @Get('status')
+  @Get('')
   @ApiOperation({ summary: 'to view and filter all statuses' })
   getManyStatuses(@Query() query: DTO.Feed.FeedFilter) {
     return this.service.getManyStatuses(query)
   }
 
-  @Get('comment/:statusId')
+  @Get('comment/:feedId')
   @ApiOperation({ summary: 'to view and filter all statuses' })
-  getCommentsByStatusId(@Param('statusId', ParseUUIDPipe) statusId: string) {
-    return this.service.getCommentsByStatusId(statusId)
+  getCommentsByFeedId(@Param('feedId', ParseUUIDPipe) feedId: string) {
+    return this.service.getCommentsByFeedId(feedId)
   }
 
   @Post('status')

@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, OneToMany } from 'typeorm'
 
+import { Comment } from 'src/feed/comment.entity'
 import { Ownerful } from 'src/utils/owner.entity'
 
 export type TChange = {
@@ -43,4 +44,10 @@ export class Log extends Ownerful {
 
   @Column({ type: 'jsonb', nullable: true })
   changes: TChange[] | null
+
+  @OneToMany(() => Comment, (comment) => comment.log, {
+    eager: true,
+    cascade: true,
+  })
+  comments?: Comment[]
 }

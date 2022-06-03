@@ -44,7 +44,7 @@ export default NextAuth({
       return payload
     },
     session: async (session, user) => {
-      Object.assign(session.user, user)
+      Object.assign(session.user || {}, user)
       return Promise.resolve(session)
     },
   },
