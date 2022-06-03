@@ -11,6 +11,7 @@ import { File } from 'src/file/file.entity'
 import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
+import { Log, LogSource } from 'src/log/log.entity'
 import { DTO } from 'src/type'
 import { FeedCategory, TimeCategory } from 'src/type/dto/feed'
 
@@ -26,6 +27,9 @@ export class FeedService {
     @InjectRepository(Comment)
     private commentRepo: Repository<Comment>,
 
+    @InjectRepository(Log)
+    private logRepo: Repository<Log>,
+
     private readonly payloadService: PayloadService,
     private readonly fileService: FileService,
     private readonly utilService: UtilService,
@@ -34,30 +38,39 @@ export class FeedService {
   getManyStatuses(query: DTO.Feed.FeedFilter) {
     let qb
 
-    if (
-      query.category === FeedCategory.ALL ||
-      query.category === FeedCategory.STATUS
-    ) {
+    if (query.category === FeedCategory.STATUS) {
       qb = this.statusRepo
-        .createQueryBuilder('status')
-        .leftJoinAndSelect('status.attachments', 'attachments')
-        .leftJoin('status.owner', 'owner')
+        .createQueryBuilder('feed')
+        .leftJoinAndSelect('feed.attachments', 'attachments')
+        .leftJoin('feed.owner', 'owner')
         .addSelect(['owner.name', 'owner.email'])
-        .orderBy('status.createdAt', 'DESC')
+        .orderBy('feed.createdAt', 'DESC')
     }
 
-    if (
-      query.category === FeedCategory.ALL ||
-      query.category === FeedCategory.DEALS
-    ) {
-      // Will implement later
+    if (query.category === FeedCategory.DEALS) {
+      qb = this.logRepo
+        .createQueryBuilder('feed')
+        .leftJoin('feed.owner', 'owner')
+        .addSelect(['owner.name', 'owner.email'])
+        .orderBy('feed.createdAt', 'DESC')
+        .where(`feed.source = '${LogSource.MODULE}'`)
+        .andWhere(`feed.entityName = 'deal'`)
     }
 
-    let date = new Date()
+    if (query.category === FeedCategory.TASKS) {
+      qb = this.logRepo
+        .createQueryBuilder('feed')
+        .leftJoin('feed.owner', 'owner')
+        .addSelect(['owner.name', 'owner.email'])
+        .orderBy('feed.createdAt', 'DESC')
+        .where(`feed.source = '${LogSource.TASK}'`)
+    }
+
+    const date = new Date()
     switch (query.time) {
       case TimeCategory.NOW: {
-        qb.where(
-          `status.created_at >= '${new Date(
+        qb.andWhere(
+          `feed.created_at >= '${new Date(
             date.getFullYear(),
             date.getMonth(),
             date.getDate(),
@@ -66,7 +79,7 @@ export class FeedService {
             .slice(0, 19)
             .replace('T', ' ')}'`,
         ).andWhere(
-          `status.created_at < '${new Date(
+          `feed.created_at < '${new Date(
             date.getFullYear(),
             date.getMonth(),
             date.getDate() + 1,
@@ -78,8 +91,8 @@ export class FeedService {
         break
       }
       case TimeCategory.YESTERDAY: {
-        qb.where(
-          `status.created_at >= '${new Date(
+        qb.andWhere(
+          `feed.created_at >= '${new Date(
             date.getFullYear(),
             date.getMonth(),
             date.getDate() - 1,
@@ -88,7 +101,7 @@ export class FeedService {
             .slice(0, 19)
             .replace('T', ' ')}'`,
         ).andWhere(
-          `status.created_at < '${new Date(
+          `feed.created_at < '${new Date(
             date.getFullYear(),
             date.getMonth(),
             date.getDate(),
@@ -100,8 +113,8 @@ export class FeedService {
         break
       }
       case TimeCategory.CURRENT_MONTH: {
-        qb.where(
-          `status.created_at >= '${new Date(
+        qb.andWhere(
+          `feed.created_at >= '${new Date(
             date.getFullYear(),
             date.getMonth(),
             1,
@@ -110,7 +123,7 @@ export class FeedService {
             .slice(0, 19)
             .replace('T', ' ')}'`,
         ).andWhere(
-          `status.created_at <= '${new Date(
+          `feed.created_at <= '${new Date(
             date.getFullYear(),
             date.getMonth() + 1,
             0,
@@ -122,8 +135,8 @@ export class FeedService {
         break
       }
       case TimeCategory.LAST_MONTH: {
-        qb.where(
-          `status.created_at >= '${new Date(
+        qb.andWhere(
+          `feed.created_at >= '${new Date(
             date.getFullYear(),
             date.getMonth() - 1,
             1,
@@ -132,7 +145,7 @@ export class FeedService {
             .slice(0, 19)
             .replace('T', ' ')}'`,
         ).andWhere(
-          `status.created_at <= '${new Date(
+          `feed.created_at <= '${new Date(
             date.getFullYear(),
             date.getMonth(),
             0,
@@ -144,8 +157,8 @@ export class FeedService {
         break
       }
       case TimeCategory.LAST_WEEK: {
-        qb.where(
-          `status.created_at >= '${new Date(
+        qb.andWhere(
+          `feed.created_at >= '${new Date(
             date.getFullYear(),
             date.getMonth() - 1,
             date.getDate() - 7,
@@ -154,7 +167,7 @@ export class FeedService {
             .slice(0, 19)
             .replace('T', ' ')}'`,
         ).andWhere(
-          `status.created_at < '${new Date(
+          `feed.created_at < '${new Date(
             date.getFullYear(),
             date.getMonth(),
             date.getDate(),
@@ -171,7 +184,7 @@ export class FeedService {
     return paginate(qb, { limit: query.limit, page: query.page })
   }
 
-  getCommentsByStatusId(id: string) {
+  getCommentsByFeedId(id: string) {
     return this.commentRepo
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.attachments', 'attachments')
