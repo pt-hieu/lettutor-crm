@@ -102,7 +102,6 @@
     "typeorm",
     "yup",
     "@tailwindcss/forms",
-    "@tailwindcss/jit",
     "@types/jsonwebtoken",
     "@types/qs",
     "@types/react",
