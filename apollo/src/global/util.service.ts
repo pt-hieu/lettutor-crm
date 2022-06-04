@@ -64,6 +64,7 @@ export class UtilService {
     Object.entries(baseEntity).forEach(([key, value]) => {
       if (this.keysToIgnore.includes(key)) return
       if (ignoreKeys?.includes(key)) return
+      if (typeof entityToCompare[key] === 'object') return
 
       if (baseEntity[key] === entityToCompare[key]) return
 

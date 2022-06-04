@@ -6,13 +6,12 @@ import { ExtractJwt, Strategy } from 'passport-jwt'
 const cookieExtractor = function (req: Request) {
   let token = null
 
-  if (req && req.cookies) {
-    token =
-      req.cookies['next-auth.session-token'] ||
-      req.cookies['__Secure-next-auth.session-token']
-  }
+  token =
+    req?.cookies?.['next-auth.session-token'] ||
+    req?.cookies?.['__Secure-next-auth.session-token'] ||
+    req?.query?.['auth']
 
-  return token
+  return token || null
 }
 
 @Injectable()

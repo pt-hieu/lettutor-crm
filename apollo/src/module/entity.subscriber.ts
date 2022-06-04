@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash'
 import {
   Connection,
   EntitySubscriberInterface,
@@ -11,7 +12,14 @@ import { SoftRemoveEvent } from 'typeorm/subscriber/event/SoftRemoveEvent'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { LogAction } from 'src/log/log.entity'
+import {
+  Action,
+  FactorType,
+  TargetType,
+} from 'src/notification/notification.entity'
 
+import { FieldType } from './../../../artemis/utils/models/module'
+import { NotificationService } from './../notification/notification.service'
 import { Entity } from './module.entity'
 import { ModuleService } from './module.service'
 
@@ -22,6 +30,7 @@ export class EntitySubscriber implements EntitySubscriberInterface<Entity> {
     private util: UtilService,
     private payload: PayloadService,
     private service: ModuleService,
+    private notiService: NotificationService,
   ) {
     conection.subscribers.push(this)
   }
@@ -34,6 +43,28 @@ export class EntitySubscriber implements EntitySubscriberInterface<Entity> {
   async afterInsert(event: InsertEvent<Entity>): Promise<any> {
     if (!event.entity) return
     const module = await this.service.getOneModule(event.entity.moduleId)
+
+    module.meta.forEach((field) => {
+      if (
+        field.type === FieldType.RELATION &&
+        field.relateTo === 'user' &&
+        event.entity.data[field.name]
+      ) {
+        ;[event.entity.data[field.name]].flat().forEach((userId: string) => {
+          this.notiService.createAssignEntityNoti({
+            userId,
+            action: Action.ASSIGN_ENTITY,
+            targetId: event.entity.id,
+            targetType: TargetType.ENTITY,
+            meta: {
+              module: module.name,
+            },
+            factorType: FactorType.USER,
+            factorIds: [this.payload.data.id],
+          })
+        })
+      }
+    })
 
     return this.util.emitLog({
       entityId: event.entity.id,
@@ -87,6 +118,31 @@ export class EntitySubscriber implements EntitySubscriberInterface<Entity> {
       event.entity.data,
       ['tasks'],
     )
+
+    module.meta.forEach((field) => {
+      if (
+        field.type === FieldType.RELATION &&
+        field.relateTo === 'user' &&
+        !isEqual(
+          event.entity.data[field.name],
+          event.databaseEntity.data[field.name],
+        )
+      ) {
+        ;[event.entity.data[field.name]].flat().forEach((userId: string) => {
+          this.notiService.createAssignEntityNoti({
+            userId,
+            action: Action.ASSIGN_ENTITY,
+            targetId: event.entity.id,
+            targetType: TargetType.ENTITY,
+            meta: {
+              module: module.name,
+            },
+            factorType: FactorType.USER,
+            factorIds: [this.payload.data.id],
+          })
+        })
+      }
+    })
 
     return this.util.emitLog({
       entityId: event.entity.id,

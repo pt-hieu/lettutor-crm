@@ -6,15 +6,19 @@ import {
 import { InjectRepository } from '@nestjs/typeorm'
 import { compare, hash } from 'bcryptjs'
 import { randomBytes } from 'crypto'
+import { isEqual } from 'lodash'
 import moment from 'moment'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 
 import { MailService } from 'src/mail/mail.service'
+import { Action } from 'src/notification/notification.entity'
 import { Role } from 'src/role/role.entity'
 import { DTO } from 'src/type'
 import { JwtPayload } from 'src/utils/interface'
 
+import { FactorType } from './../notification/notification.entity'
+import { NotificationService } from './../notification/notification.service'
 import { User, UserStatus } from './user.entity'
 
 const PWD_TOKEN_EXPIRATION = 5 //in days
@@ -25,6 +29,7 @@ export class UserService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Role) private roleRepo: Repository<Role>,
     private mailService: MailService,
+    private notiService: NotificationService,
   ) {}
 
   async getOne(payload: JwtPayload) {
@@ -202,11 +207,11 @@ export class UserService {
 
   async updateUser(
     dto: DTO.User.UpdateUser,
-    payload?: JwtPayload,
-    userId?: string,
+    payload: JwtPayload,
+    userId: string,
   ) {
     const user = await this.userRepo.findOne({
-      where: { id: userId || payload?.id },
+      where: { id: userId },
     })
 
     if (!user) throw new BadRequestException('User does not exist')
@@ -217,6 +222,26 @@ export class UserService {
 
     user.name = dto.name
     user.roles = roles
+
+    if (
+      !isEqual(
+        dto.roleIds,
+        roles.map((role) => role.id),
+      )
+    ) {
+      await this.notiService.createChangeRoleNoti({
+        action: Action.CHANGE_ROLE,
+        factorIds: [payload.id],
+        factorType: FactorType.USER,
+        meta: {
+          roles: dto.roleIds,
+        },
+        userId,
+        targetId: undefined,
+        targetType: undefined,
+      })
+    }
+
     return this.userRepo.save(user)
   }
 

@@ -133,8 +133,9 @@ export class UserController {
   updateUser(
     @Body() dto: DTO.User.UpdateUser,
     @Param('id', ParseUUIDPipe) id: string,
+    @Payload() payload: JwtPayload,
   ) {
-    return this.service.updateUser(dto, null, id)
+    this.service.updateUser(dto, payload, id)
   }
 
   @Delete('batch')
