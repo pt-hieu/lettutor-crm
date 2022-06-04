@@ -12,6 +12,7 @@ import {
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DTO } from 'src/type'
+import { FeedCategory } from 'src/type/dto/feed'
 
 import { FeedService } from './feed.service'
 
@@ -32,8 +33,11 @@ export class FeedController {
 
   @Get('comment/:feedId')
   @ApiOperation({ summary: 'to view and filter all statuses' })
-  getCommentsByFeedId(@Param('feedId', ParseUUIDPipe) feedId: string) {
-    return this.service.getCommentsByFeedId(feedId)
+  getCommentsByFeedId(
+    @Param('feedId', ParseUUIDPipe) feedId: string,
+    @Query() feedCategory: FeedCategory,
+  ) {
+    return this.service.getCommentsByFeedId(feedId, feedCategory)
   }
 
   @Post('status')

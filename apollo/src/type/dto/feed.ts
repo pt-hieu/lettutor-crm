@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
@@ -51,9 +52,15 @@ export class AddComment extends Files {
   @IsUUID()
   ownerId: string
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsUUID()
-  statusId: string
+  statusId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  logId?: string
 
   @ApiProperty()
   @IsString()

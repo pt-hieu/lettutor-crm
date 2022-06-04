@@ -43,7 +43,7 @@ export class FeedService {
         .createQueryBuilder('feed')
         .leftJoinAndSelect('feed.attachments', 'attachments')
         .leftJoin('feed.owner', 'owner')
-        .addSelect(['owner.name', 'owner.email'])
+        .addSelect(['owner.id', 'owner.name', 'owner.email'])
         .orderBy('feed.createdAt', 'DESC')
     }
 
@@ -51,7 +51,7 @@ export class FeedService {
       qb = this.logRepo
         .createQueryBuilder('feed')
         .leftJoin('feed.owner', 'owner')
-        .addSelect(['owner.name', 'owner.email'])
+        .addSelect(['owner.id', 'owner.name', 'owner.email'])
         .orderBy('feed.createdAt', 'DESC')
         .where(`feed.source = '${LogSource.MODULE}'`)
         .andWhere(`feed.entityName = 'deal'`)
@@ -61,35 +61,13 @@ export class FeedService {
       qb = this.logRepo
         .createQueryBuilder('feed')
         .leftJoin('feed.owner', 'owner')
-        .addSelect(['owner.name', 'owner.email'])
+        .addSelect(['owner.id', 'owner.name', 'owner.email'])
         .orderBy('feed.createdAt', 'DESC')
         .where(`feed.source = '${LogSource.TASK}'`)
     }
 
     const date = new Date()
     switch (query.time) {
-      case TimeCategory.NOW: {
-        qb.andWhere(
-          `feed.created_at >= '${new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate(),
-          )
-            .toISOString()
-            .slice(0, 19)
-            .replace('T', ' ')}'`,
-        ).andWhere(
-          `feed.created_at < '${new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate() + 1,
-          )
-            .toISOString()
-            .slice(0, 19)
-            .replace('T', ' ')}'`,
-        )
-        break
-      }
       case TimeCategory.YESTERDAY: {
         qb.andWhere(
           `feed.created_at >= '${new Date(
@@ -184,16 +162,23 @@ export class FeedService {
     return paginate(qb, { limit: query.limit, page: query.page })
   }
 
-  getCommentsByFeedId(id: string) {
-    return this.commentRepo
+  getCommentsByFeedId(id: string, feedCategory: FeedCategory) {
+    const qb = this.commentRepo
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.attachments', 'attachments')
-      .leftJoinAndSelect('comment.status', 'status')
       .leftJoin('comment.owner', 'owner')
-      .addSelect(['owner.name', 'owner.email'])
-      .where(`status.id = '${id}'`)
+      .addSelect(['owner.id', 'owner.name', 'owner.email'])
       .orderBy('comment.createdAt', 'DESC')
-      .getMany()
+
+    if (feedCategory === FeedCategory.STATUS) {
+      qb.leftJoinAndSelect('comment.status', 'status').where(
+        `status.id = '${id}'`,
+      )
+    } else {
+      qb.leftJoinAndSelect('comment.log', 'log').where(`log.id = '${id}'`)
+    }
+
+    return qb.getMany()
   }
 
   async addStatus(dto: DTO.Feed.AddStatus) {
@@ -208,9 +193,16 @@ export class FeedService {
   }
 
   async addComment(dto: DTO.Feed.AddComment) {
-    const status = this.statusRepo.findOne({ id: dto.statusId })
-    if (!status) {
-      throw new NotFoundException('Not found Status')
+    if (dto.statusId) {
+      const status = this.statusRepo.findOne({ id: dto.statusId })
+      if (!status) {
+        throw new NotFoundException('Not found Status')
+      }
+    } else if (dto.logId) {
+      const log = this.logRepo.findOne({ id: dto.logId })
+      if (!log) {
+        throw new NotFoundException('Not found Deal or Task')
+      }
     }
 
     let filesToAdd: File[] = []
