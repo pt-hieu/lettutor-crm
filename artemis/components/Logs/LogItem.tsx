@@ -114,7 +114,11 @@ export default memo(function LogItem({
             <span className="font-semibold">{owner?.name || 'A user'}</span>{' '}
             {ActionMapping[action]} the{' '}
             <span className="capitalize">{source}</span>{' '}
-            <Link href={`/${source + 's/' + entityId}`}>
+            <Link
+              href={`/${
+                source + `${source !== 'task' ? '/' : 's/'}` + entityId
+              }`}
+            >
               <a
                 className={`${
                   deleted ? 'pointer-events-none text-current' : ''

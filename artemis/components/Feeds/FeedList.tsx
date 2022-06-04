@@ -18,7 +18,11 @@ const feedTimeOptions = Object.values(FeedTime).map((value) => ({
   value,
 }))
 
-export const FeedList = () => {
+interface IProps {
+  onChangeFeedType: (value: FeedType) => void
+}
+
+export const FeedList = ({ onChangeFeedType }: IProps) => {
   const [feedType, setFeedType] = useState<FeedType>(FeedType.Status)
   const [feedTime, setFeedTime] = useState<FeedTime>(FeedTime.Now)
 
@@ -28,6 +32,7 @@ export const FeedList = () => {
   )
 
   const handleChangeSelectType = (value: FeedType) => {
+    onChangeFeedType(value)
     setFeedType(value)
   }
 
@@ -67,7 +72,12 @@ export const FeedList = () => {
             feedType === FeedType.Status ? (
               <StatusContent key={index} feed={feed as FeedStatus} />
             ) : (
-              <LogContent key={index} log={feed as Log} index={index} />
+              <LogContent
+                key={index}
+                log={feed as Log}
+                index={index}
+                type={feedType}
+              />
             ),
           )
         )}

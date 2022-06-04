@@ -3,16 +3,17 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { AddCommentDto } from '@utils/models/feed'
+import { AddCommentDto, FeedType } from '@utils/models/feed'
 import { addComment } from '@utils/service/feed'
 
 import { FeedTextbox, IFeedTextboxData } from './FeedTextbox'
 
-interface IStatusAdderProps {
-  statusId: string
+interface ICommentAdderProps {
+  feedId: string
+  type: FeedType
 }
 
-export const CommentAdder = ({ statusId }: IStatusAdderProps) => {
+export const CommentAdder = ({ feedId, type }: ICommentAdderProps) => {
   const [isActive, setIsActive] = useState(false)
   const client = useQueryClient()
   const [session] = useTypedSession()
@@ -22,7 +23,7 @@ export const CommentAdder = ({ statusId }: IStatusAdderProps) => {
     addComment,
     {
       onSuccess() {
-        client.invalidateQueries(['comments', statusId])
+        client.invalidateQueries(['comments', feedId])
         setIsActive(false)
       },
       onError() {
@@ -35,7 +36,11 @@ export const CommentAdder = ({ statusId }: IStatusAdderProps) => {
     const newData: AddCommentDto = {
       ...data,
       ownerId: session?.user.id as string,
-      statusId,
+    }
+    if (type === FeedType.Status) {
+      newData.statusId = feedId
+    } else {
+      newData.logId = feedId
     }
     addCommentService(newData)
   }

@@ -11,7 +11,7 @@ import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getAvatarLinkByName } from '@utils/libs/avatar'
-import { FeedComment, FeedStatus } from '@utils/models/feed'
+import { FeedComment, FeedStatus, FeedType } from '@utils/models/feed'
 import { Log } from '@utils/models/log'
 import { Attachments } from '@utils/models/note'
 import { deleteComment, deleteStatus, getComments } from '@utils/service/feed'
@@ -25,7 +25,10 @@ type TProps = {
 export const StatusContent = ({ feed }: TProps) => {
   const { owner, createdAt, content, attachments, id } = feed
 
-  const { data: comments } = useQuery(['comments', id], getComments(id))
+  const { data: comments } = useQuery(
+    ['comments', id],
+    getComments({ feedId: id, category: FeedType.Status }),
+  )
   const client = useQueryClient()
 
   const { mutateAsync: deleteStatusService } = useMutation(
@@ -78,7 +81,7 @@ export const StatusContent = ({ feed }: TProps) => {
               ))}
             </div>
           )}
-          <CommentAdder statusId={id} />
+          <CommentAdder feedId={id} type={FeedType.Status} />
         </div>
       </div>
     </div>
@@ -88,26 +91,32 @@ export const StatusContent = ({ feed }: TProps) => {
 type TLogContentProps = {
   log: Log
   index: number
+  type: FeedType.Deals | FeedType.Tasks
 }
 
-export const LogContent = ({ log, index }: TLogContentProps) => {
+export const LogContent = ({ log, index, type }: TLogContentProps) => {
   const { id } = log
 
-  const { data: comments } = useQuery(['comments', id], getComments(id))
+  const { data: comments } = useQuery(
+    ['comments', id],
+    getComments({ feedId: id, category: type }),
+  )
 
   return (
     <div className="flex gap-3">
       <div className="flex-1 flex flex-col gap-2">
-        <LogItem data={log} index={index} className="px-0 py-1 ring-0" />
-        <div className="border p-3 rounded-xl flex flex-col gap-3">
-          {!comments?.length ? null : (
-            <div className="flex flex-col gap-3">
-              {comments.map((comment, index) => (
-                <Comment key={index} comment={comment} />
-              ))}
-            </div>
-          )}
-          <CommentAdder statusId={id} />
+        <LogItem data={log} index={index} className="px-0 py-1 !ring-0" />
+        <div className="pl-[56px]">
+          <div className="border p-3 rounded-xl flex flex-col gap-3">
+            {!comments?.length ? null : (
+              <div className="flex flex-col gap-3">
+                {comments.map((comment, index) => (
+                  <Comment key={index} comment={comment} />
+                ))}
+              </div>
+            )}
+            <CommentAdder feedId={id} type={type} />
+          </div>
         </div>
       </div>
     </div>
@@ -120,7 +129,7 @@ interface IContentProps {
   className?: string
   onDelete: (id: string) => void
   id: string
-  owner: { email: string }
+  owner: { id: string }
 }
 
 const PostedContent = ({
@@ -134,8 +143,8 @@ const PostedContent = ({
   const [confirm, openConfirm, closeConfirm] = useModal()
 
   const [session] = useTypedSession()
-  const ownerId = session?.user.email
-  const isOwner = ownerId === owner.email
+  const ownerId = session?.user.id
+  const isOwner = ownerId === owner.id
 
   const handleDelete = () => {
     onDelete(id)
@@ -184,14 +193,7 @@ interface ICommentProps {
 }
 
 const Comment = ({ comment }: ICommentProps) => {
-  const {
-    owner,
-    content,
-    attachments: attacments,
-    createdAt,
-    statusId,
-    id,
-  } = comment
+  const { owner, content, attachments, createdAt, id } = comment
 
   const client = useQueryClient()
 
@@ -219,7 +221,7 @@ const Comment = ({ comment }: ICommentProps) => {
     </div>
   )
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-3">
       <img
         className="w-10 h-10 rounded-full"
         alt="Avatar"
@@ -229,7 +231,7 @@ const Comment = ({ comment }: ICommentProps) => {
         <PostedContent
           onDelete={handleDeleteComment}
           content={contentRender}
-          files={attacments}
+          files={attachments}
           className="bg-[#fafafa]"
           id={id}
           owner={owner}

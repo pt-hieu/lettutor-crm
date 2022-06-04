@@ -51,20 +51,27 @@ export const addStatus = async (statusDto: AddStatusDto) => {
   return data
 }
 
-export const getComments = (statusId?: string, token?: string) => () =>
+type CommentParams = {
+  feedId: string
+  category: FeedType
+}
+
+export const getComments = (params: CommentParams, token?: string) => () =>
   axios
-    .get<FeedComment[]>(API + `/apollo/feed/comment/${statusId}`, {
+    .get<FeedComment[]>(API + `/apollo/feed/comment/`, {
       headers: { authorization: `Bearer ${token}` },
+      params,
     })
     .then((res) => res.data)
 
 export const addComment = async (commentDto: AddCommentDto) => {
-  const { content, files, ownerId, statusId } = commentDto
+  const { content, files, ownerId, statusId, logId } = commentDto
   const formData = new FormData()
 
   formData.append('ownerId', ownerId)
   formData.append('content', content as string)
-  formData.append('statusId', statusId as string)
+  statusId && formData.append('statusId', statusId as string)
+  logId && formData.append('logId', logId as string)
 
   if (files) {
     for (const file of files) {
