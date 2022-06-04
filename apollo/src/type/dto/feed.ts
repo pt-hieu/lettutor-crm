@@ -35,6 +35,16 @@ export class FeedFilter extends Paginate {
   time: TimeCategory
 }
 
+export class GetComment {
+  @ApiProperty()
+  @IsUUID()
+  feedId: string
+
+  @ApiProperty({ enum: FeedCategory })
+  @IsEnum(FeedCategory)
+  category: FeedCategory
+}
+
 export class AddStatus extends Files {
   @ApiProperty()
   @IsUUID()

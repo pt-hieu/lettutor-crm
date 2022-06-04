@@ -53,8 +53,7 @@ export class FeedService {
         .leftJoin('feed.owner', 'owner')
         .addSelect(['owner.id', 'owner.name', 'owner.email'])
         .orderBy('feed.createdAt', 'DESC')
-        .where(`feed.source = '${LogSource.MODULE}'`)
-        .andWhere(`feed.entityName = 'deal'`)
+        .where(`feed.source = '${LogSource.DEAL}'`)
     }
 
     if (query.category === FeedCategory.TASKS) {
@@ -162,7 +161,7 @@ export class FeedService {
     return paginate(qb, { limit: query.limit, page: query.page })
   }
 
-  getCommentsByFeedId(id: string, feedCategory: FeedCategory) {
+  getCommentsByFeedId(query: DTO.Feed.GetComment) {
     const qb = this.commentRepo
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.attachments', 'attachments')
@@ -170,12 +169,12 @@ export class FeedService {
       .addSelect(['owner.id', 'owner.name', 'owner.email'])
       .orderBy('comment.createdAt', 'DESC')
 
-    if (feedCategory === FeedCategory.STATUS) {
-      qb.leftJoinAndSelect('comment.status', 'status').where(
-        `status.id = '${id}'`,
+    if (query.category === FeedCategory.STATUS) {
+      qb.leftJoin('comment.status', 'status').where(
+        `status.id = '${query.feedId}'`,
       )
     } else {
-      qb.leftJoinAndSelect('comment.log', 'log').where(`log.id = '${id}'`)
+      qb.leftJoin('comment.log', 'log').where(`log.id = '${query.feedId}'`)
     }
 
     return qb.getMany()

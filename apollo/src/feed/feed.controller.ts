@@ -4,15 +4,12 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
-  ParseUUIDPipe,
   Post,
   Query,
 } from '@nestjs/common'
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DTO } from 'src/type'
-import { FeedCategory } from 'src/type/dto/feed'
 
 import { FeedService } from './feed.service'
 
@@ -31,13 +28,10 @@ export class FeedController {
     return this.service.getManyStatuses(query)
   }
 
-  @Get('comment/:feedId')
-  @ApiOperation({ summary: 'to view and filter all statuses' })
-  getCommentsByFeedId(
-    @Param('feedId', ParseUUIDPipe) feedId: string,
-    @Query() feedCategory: FeedCategory,
-  ) {
-    return this.service.getCommentsByFeedId(feedId, feedCategory)
+  @Get('comment')
+  @ApiOperation({ summary: 'to view all comments' })
+  getCommentsByFeedId(@Query() query: DTO.Feed.GetComment) {
+    return this.service.getCommentsByFeedId(query)
   }
 
   @Post('status')
