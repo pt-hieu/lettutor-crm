@@ -6,8 +6,11 @@ import {
   Notification,
   TargetType,
 } from './../../notification/notification.entity'
+import { Paginate } from './paging'
 
-export class Create extends PickType(Notification, [
+export class GetManyNotification extends Paginate {}
+
+export class CreateNotification extends PickType(Notification, [
   'meta',
   'userId',
   'action',
@@ -17,14 +20,14 @@ export class Create extends PickType(Notification, [
   'targetType',
 ]) {}
 
-export class CreateAssignEntityNoti extends Create {
+export class CreateAssignEntityNoti extends CreateNotification {
   action: Action.ASSIGN_ENTITY
   factorType: FactorType.USER
   targetType: TargetType.ENTITY
   targetId: string
 }
 
-export class CreateChangeRoleNoti extends Create {
+export class CreateChangeRoleNoti extends CreateNotification {
   action: Action.CHANGE_ROLE
   factorType: FactorType.USER
   targetType: undefined
