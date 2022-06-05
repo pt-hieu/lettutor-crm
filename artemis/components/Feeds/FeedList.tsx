@@ -2,10 +2,11 @@ import { Select, Spin } from 'antd'
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
-import { FeedTime, FeedType } from '@utils/models/feed'
+import { FeedStatus, FeedTime, FeedType } from '@utils/models/feed'
+import { Log } from '@utils/models/log'
 import { getFeeds } from '@utils/service/feed'
 
-import { FeedContent } from './FeedContent'
+import { LogContent, StatusContent } from './FeedContent'
 
 const feedTypeOptions = Object.values(FeedType).map((value) => ({
   label: value,
@@ -17,7 +18,11 @@ const feedTimeOptions = Object.values(FeedTime).map((value) => ({
   value,
 }))
 
-export const FeedList = () => {
+interface IProps {
+  onChangeFeedType: (value: FeedType) => void
+}
+
+export const FeedList = ({ onChangeFeedType }: IProps) => {
   const [feedType, setFeedType] = useState<FeedType>(FeedType.Status)
   const [feedTime, setFeedTime] = useState<FeedTime>(FeedTime.Now)
 
@@ -27,6 +32,7 @@ export const FeedList = () => {
   )
 
   const handleChangeSelectType = (value: FeedType) => {
+    onChangeFeedType(value)
     setFeedType(value)
   }
 
@@ -62,7 +68,18 @@ export const FeedList = () => {
             No Feeds Found!
           </div>
         ) : (
-          feeds.map((feed, index) => <FeedContent key={index} feed={feed} />)
+          feeds.map((feed, index) =>
+            feedType === FeedType.Status ? (
+              <StatusContent key={index} feed={feed as FeedStatus} />
+            ) : (
+              <LogContent
+                key={index}
+                log={feed as Log}
+                index={index}
+                type={feedType}
+              />
+            ),
+          )
         )}
       </div>
     </div>

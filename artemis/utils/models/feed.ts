@@ -3,7 +3,8 @@ import { Attachments } from './note'
 
 export enum FeedType {
   Status = 'Status',
-  // Deals = 'Deals',
+  Deals = 'Deals',
+  Tasks = 'Tasks',
 }
 
 export enum FeedTime {
@@ -24,7 +25,7 @@ export interface FeedStatus extends Base {
   attachments?: Attachments[]
   owner: {
     name: string
-    email: string
+    id: string
   }
   content: string
 }
@@ -33,5 +34,6 @@ export interface FeedComment extends FeedStatus {
   statusId: string
 }
 export interface AddCommentDto extends AddStatusDto {
-  statusId: string
+  statusId?: string
+  logId?: string
 }
