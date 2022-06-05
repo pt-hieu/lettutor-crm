@@ -4,25 +4,31 @@ import React from 'react'
 import { ReactNode } from 'react-markdown/lib/react-markdown'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
+import LogItem from '@components/Logs/LogItem'
 import File from '@components/Notes/File'
 
 import Confirm from '@utils/components/Confirm'
 import { useModal } from '@utils/hooks/useModal'
+import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { getAvatarLinkByName } from '@utils/libs/avatar'
-import { FeedComment, FeedStatus } from '@utils/models/feed'
+import { FeedComment, FeedStatus, FeedType } from '@utils/models/feed'
+import { Log } from '@utils/models/log'
 import { Attachments } from '@utils/models/note'
-import { deleteStatus, getComments } from '@utils/service/feed'
+import { deleteComment, deleteStatus, getComments } from '@utils/service/feed'
 
 import { CommentAdder } from './CommentAdder'
 
-interface IProps {
+type TProps = {
   feed: FeedStatus
 }
 
-export const FeedContent = ({ feed }: IProps) => {
-  const { owner, createdAt, content, attachments: attacments, id } = feed
+export const StatusContent = ({ feed }: TProps) => {
+  const { owner, createdAt, content, attachments, id } = feed
 
-  const { data: comments } = useQuery(['comments', id], getComments(id))
+  const { data: comments } = useQuery(
+    ['comments', id],
+    getComments({ feedId: id, category: FeedType.Status }),
+  )
   const client = useQueryClient()
 
   const { mutateAsync: deleteStatusService } = useMutation(
@@ -30,7 +36,7 @@ export const FeedContent = ({ feed }: IProps) => {
     deleteStatus,
     {
       onSuccess() {
-        client.refetchQueries(['feeds'])
+        client.invalidateQueries(['feeds'])
       },
       onError() {
         notification.error({ message: 'Delete status unsuccessfully' })
@@ -43,7 +49,7 @@ export const FeedContent = ({ feed }: IProps) => {
   }
 
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-4">
       <img
         className="w-10 h-10 rounded-full"
         alt="Avatar"
@@ -61,10 +67,11 @@ export const FeedContent = ({ feed }: IProps) => {
         </div>
         <PostedContent
           content={content}
-          files={attacments}
+          files={attachments}
           className="bg-gray-100"
           onDelete={handleDeleteStatus}
           id={id}
+          owner={owner}
         />
         <div className="border p-3 rounded-xl flex flex-col gap-3">
           {!comments?.length ? null : (
@@ -74,7 +81,42 @@ export const FeedContent = ({ feed }: IProps) => {
               ))}
             </div>
           )}
-          <CommentAdder statusId={id} />
+          <CommentAdder feedId={id} type={FeedType.Status} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+type TLogContentProps = {
+  log: Log
+  index: number
+  type: FeedType.Deals | FeedType.Tasks
+}
+
+export const LogContent = ({ log, index, type }: TLogContentProps) => {
+  const { id } = log
+
+  const { data: comments } = useQuery(
+    ['comments', id],
+    getComments({ feedId: id, category: type }),
+  )
+
+  return (
+    <div className="flex gap-3">
+      <div className="flex-1 flex flex-col gap-2">
+        <LogItem data={log} index={index} className="px-0 py-1 !ring-0" />
+        <div className="pl-[56px]">
+          <div className="border p-3 rounded-xl flex flex-col gap-3">
+            {!comments?.length ? null : (
+              <div className="flex flex-col gap-3">
+                {comments.map((comment, index) => (
+                  <Comment key={index} comment={comment} />
+                ))}
+              </div>
+            )}
+            <CommentAdder feedId={id} type={type} />
+          </div>
         </div>
       </div>
     </div>
@@ -87,6 +129,7 @@ interface IContentProps {
   className?: string
   onDelete: (id: string) => void
   id: string
+  owner: { id: string }
 }
 
 const PostedContent = ({
@@ -95,8 +138,13 @@ const PostedContent = ({
   className,
   onDelete,
   id,
+  owner,
 }: IContentProps) => {
   const [confirm, openConfirm, closeConfirm] = useModal()
+
+  const [session] = useTypedSession()
+  const ownerId = session?.user.id
+  const isOwner = ownerId === owner.id
 
   const handleDelete = () => {
     onDelete(id)
@@ -118,14 +166,16 @@ const PostedContent = ({
           </div>
         )}
       </div>
-      <div className="absolute hidden top-2 right-0 group-hover:flex flex-row gap-3">
-        <button
-          className="crm-icon-btn hover:border-red-500 hover:text-red-500 "
-          onClick={openConfirm}
-        >
-          <i className="fa fa-trash" />
-        </button>
-      </div>
+      {isOwner && (
+        <div className="absolute hidden top-2 right-0 group-hover:flex flex-row gap-3">
+          <button
+            className="crm-icon-btn hover:border-red-500 hover:text-red-500 "
+            onClick={openConfirm}
+          >
+            <i className="fa fa-trash" />
+          </button>
+        </div>
+      )}
 
       <Confirm
         danger
@@ -143,23 +193,16 @@ interface ICommentProps {
 }
 
 const Comment = ({ comment }: ICommentProps) => {
-  const {
-    owner,
-    content,
-    attachments: attacments,
-    createdAt,
-    statusId,
-    id,
-  } = comment
+  const { owner, content, attachments, createdAt, id } = comment
 
   const client = useQueryClient()
 
   const { mutateAsync: deleteCommentService } = useMutation(
     'delete-comment',
-    deleteStatus,
+    deleteComment,
     {
       onSuccess() {
-        client.refetchQueries(['comments', statusId])
+        client.invalidateQueries(['comments'])
       },
       onError() {
         notification.error({ message: 'Delete comment unsuccessfully' })
@@ -188,9 +231,10 @@ const Comment = ({ comment }: ICommentProps) => {
         <PostedContent
           onDelete={handleDeleteComment}
           content={contentRender}
-          files={attacments}
+          files={attachments}
           className="bg-[#fafafa]"
           id={id}
+          owner={owner}
         />
         <span className="text-[12px] text-gray-500">
           {moment(createdAt).calendar()}
