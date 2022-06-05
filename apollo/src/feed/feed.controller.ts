@@ -4,8 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
-  ParseUUIDPipe,
   Post,
   Query,
 } from '@nestjs/common'
@@ -30,10 +28,10 @@ export class FeedController {
     return this.service.getManyStatuses(query)
   }
 
-  @Get('comment/:feedId')
-  @ApiOperation({ summary: 'to view and filter all statuses' })
-  getCommentsByFeedId(@Param('feedId', ParseUUIDPipe) feedId: string) {
-    return this.service.getCommentsByFeedId(feedId)
+  @Get('comment')
+  @ApiOperation({ summary: 'to view all comments' })
+  getCommentsByFeedId(@Query() query: DTO.Feed.GetComment) {
+    return this.service.getCommentsByFeedId(query)
   }
 
   @Post('status')

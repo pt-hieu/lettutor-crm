@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
@@ -34,6 +35,16 @@ export class FeedFilter extends Paginate {
   time: TimeCategory
 }
 
+export class GetComment {
+  @ApiProperty()
+  @IsUUID()
+  feedId: string
+
+  @ApiProperty({ enum: FeedCategory })
+  @IsEnum(FeedCategory)
+  category: FeedCategory
+}
+
 export class AddStatus extends Files {
   @ApiProperty()
   @IsUUID()
@@ -51,9 +62,15 @@ export class AddComment extends Files {
   @IsUUID()
   ownerId: string
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsUUID()
-  statusId: string
+  statusId?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  logId?: string
 
   @ApiProperty()
   @IsString()

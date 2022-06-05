@@ -15,7 +15,7 @@ export class Comment extends Ownerful {
   })
   status: Status
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   statusId: string | null
 
@@ -25,7 +25,7 @@ export class Comment extends Ownerful {
   })
   log: Log
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true, default: null })
   @Exclude({ toPlainOnly: true })
   logId: string | null
 
