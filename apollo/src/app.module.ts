@@ -10,12 +10,14 @@ import { JwtAuthGuard } from './auth.guard'
 import { AuthModule } from './auth/auth.module'
 import { BaseSubscriber } from './base.subscriber'
 import { DealStageModule } from './deal-stage/deal-stage.module'
+import { FeedModule } from './feed/feed.module'
 import { FileModule } from './file/file.module'
 import { GlobalModule } from './global/global.module'
 import { LogModule } from './log/log.module'
 import { MailModule } from './mail/mail.module'
 import { ModuleModule } from './module/module.module'
 import { NoteModule } from './note/note.module'
+import { NotificationModule } from './notification/notification.module'
 import { RoleModule } from './role/role.module'
 import { TaskModule } from './task/task.module'
 import { UserModule } from './user/user.module'
@@ -52,6 +54,8 @@ import { WebhookModule } from './webhook/webhook.module'
     DealStageModule,
     ActionModule,
     ModuleModule,
+    FeedModule,
+    NotificationModule,
   ],
   providers: [
     BaseSubscriber,

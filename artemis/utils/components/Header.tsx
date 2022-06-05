@@ -1,17 +1,21 @@
 import { Avatar } from 'antd'
+import { API } from 'environment'
 import { signOut } from 'next-auth/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useMemo } from 'react'
-import { useQuery } from 'react-query'
+import { useEffect, useMemo, useRef } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
 
 import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { Module } from '@utils/models/module'
+import { Notification } from '@utils/models/notification'
 import { getModules } from '@utils/service/module'
+import { getMany } from '@utils/service/notification'
 
 import Confirm from './Confirm'
 import Dropdown from './Dropdown'
+import Notifications from './Notifications'
 import SettingMenu from './SettingMenu'
 
 export const menuItemClass =
@@ -21,6 +25,7 @@ const staticModules: { name: string }[] = [
   { name: 'tasks' },
   { name: 'logs' },
   { name: 'reports' },
+  { name: 'feeds' },
 ]
 
 export default function Header() {
@@ -41,6 +46,56 @@ export default function Header() {
 
   useEffect(() => {
     refetch()
+  }, [])
+
+  const { data: notis, refetch: refetchNoti } = useQuery<Notification[]>(
+    'notifications',
+    getMany({ shouldNotPaginate: true }) as unknown as any,
+    { enabled: false },
+  )
+
+  const client = useQueryClient()
+
+  useEffect(() => {
+    !notis && refetchNoti()
+  }, [])
+
+  const unreadNoti = useMemo(
+    () => notis?.filter((noti) => !noti.read) || [],
+    [notis],
+  )
+
+  const notiRef = useRef<EventSource>()
+  useEffect(() => {
+    if (notiRef.current) {
+      notiRef.current.close()
+    }
+
+    notiRef.current = new EventSource(
+      API + `/notification?auth=${session?.accessToken}`,
+    )
+
+    notiRef.current.addEventListener('message', (ev) => {
+      const newNoti: Notification = JSON.parse(ev.data)
+      client.setQueryData<Notification[] | undefined>(
+        'notifications',
+        (notis) => {
+          if (!notis) return notis
+          const map = new Map(notis.map((noti) => [noti.id, noti]))
+
+          if (map.has(newNoti.id)) {
+            map.set(newNoti.id, newNoti)
+            return Array.from(map.values())
+          }
+
+          return [newNoti, ...Array.from(map.values())]
+        },
+      )
+    })
+
+    return () => {
+      notiRef.current?.close()
+    }
   }, [])
 
   return (
@@ -124,6 +179,20 @@ export default function Header() {
             className="cursor-pointer"
             src={`https://avatars.dicebear.com/api/bottts/${new Date().getDate()}.svg`}
           />
+        </Dropdown>
+
+        <Dropdown
+          triggerOnHover={false}
+          overlay={<Notifications />}
+          stopPropagation
+        >
+          <button className="fa fa-bell h-8 w-8 bg-blue-600 text-white rounded-full relative">
+            {!!unreadNoti.length && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-red-600 rounded-full text-xs font-medium grid place-content-center translate-x-1/2 -translate-y-1/2">
+                {unreadNoti.length}
+              </span>
+            )}
+          </button>
         </Dropdown>
 
         <Confirm

@@ -45,6 +45,10 @@ export default NextAuth({
     },
     session: async (session, user) => {
       Object.assign(session.user || {}, user)
+      session.accessToken = jwt.sign(session.user!, process.env.JWT_SECRET!, {
+        algorithm: 'HS256',
+      })
+
       return Promise.resolve(session)
     },
   },

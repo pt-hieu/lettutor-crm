@@ -13,6 +13,8 @@ export * as DealStage from './deal-stage'
 export * as File from './file'
 export * as Module from './module'
 export * as Auth from './auth'
+export * as Feed from './feed'
+export * as Notification from './notification'
 
 export class BatchDelete {
   @ApiProperty()

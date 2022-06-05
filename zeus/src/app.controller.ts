@@ -3,8 +3,8 @@ import {
   Body,
   Controller,
   ForbiddenException,
-  Header,
   Headers,
+  MessageEvent,
   Param,
   Post,
   Query,
@@ -15,10 +15,19 @@ import {
 } from '@nestjs/common'
 import { AnyFilesInterceptor } from '@nestjs/platform-express'
 import { Request } from 'express'
+import { Subject } from 'rxjs'
 
 import { AppService } from './app.service'
 import { EnvService } from './env.service'
 import { EventsService } from './events.service'
+
+declare global {
+  namespace Express {
+    interface User {
+      id: string
+    }
+  }
+}
 
 @Controller()
 export class AppController {
@@ -37,12 +46,32 @@ export class AppController {
       throw new ForbiddenException()
     }
 
+    if (!dto.opcode) {
+      return this.events.emitNotification(dto)
+    }
+
     this.events.emit(dto)
   }
 
   @Sse('subscribe')
   handleSubscription() {
     return this.events.$emitter
+  }
+
+  @Sse('notification')
+  handleNotificationSubscribe(@Req() req: Request) {
+    req.on('close', () => {
+      this.events.subjectMap.delete(req.user.id)
+    })
+
+    if (this.events.subjectMap.has(req.user.id)) {
+      return this.events.subjectMap.get(req.user.id)
+    }
+
+    const $obs = new Subject<MessageEvent>()
+    this.events.subjectMap.set(req.user.id, $obs)
+
+    return $obs
   }
 
   @All(':path(**)')
