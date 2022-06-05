@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConsoleLogger,
   ForbiddenException,
   Injectable,
   Logger,
@@ -25,7 +24,6 @@ import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
-import { AuthRequest } from 'src/utils/interface'
 
 import { LeadSource, account, contact, deal, lead } from './default.entity'
 import {

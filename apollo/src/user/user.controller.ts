@@ -96,7 +96,7 @@ export class UserController {
     @Body() dto: DTO.User.UpdateUser,
     @Payload() payload: JwtPayload,
   ) {
-    return this.service.updateUser(dto, payload)
+    return this.service.updateUser(dto, payload, payload.id)
   }
 
   @Get('self')

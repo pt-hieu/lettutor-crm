@@ -5,6 +5,7 @@ import { Entity } from 'src/module/module.entity'
 import { Role } from 'src/role/role.entity'
 import { User } from 'src/user/user.entity'
 
+import { NotificationController } from './notification.controller'
 import { Notification } from './notification.entity'
 import { NotificationService } from './notification.service'
 import { RenderService } from './render.service'
@@ -13,5 +14,6 @@ import { RenderService } from './render.service'
   imports: [TypeOrmModule.forFeature([Notification, User, Role, Entity])],
   providers: [NotificationService, RenderService],
   exports: [NotificationService, RenderService],
+  controllers: [NotificationController],
 })
 export class NotificationModule {}

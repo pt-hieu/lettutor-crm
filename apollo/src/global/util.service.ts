@@ -11,10 +11,10 @@ import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { TChange } from 'src/log/log.entity'
 import { Entity } from 'src/module/module.entity'
 import { DTO } from 'src/type'
+import { UserService } from 'src/user/user.service'
+import { BaseEntity } from 'src/utils/base.entity'
 import { Ownerful } from 'src/utils/owner.entity'
 
-import { UserService } from '../user/user.service'
-import { BaseEntity } from '../utils/base.entity'
 import { PayloadService } from './payload.service'
 
 @Injectable()

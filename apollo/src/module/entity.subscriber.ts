@@ -17,10 +17,9 @@ import {
   FactorType,
   TargetType,
 } from 'src/notification/notification.entity'
+import { NotificationService } from 'src/notification/notification.service'
 
-import { FieldType } from './../../../artemis/utils/models/module'
-import { NotificationService } from './../notification/notification.service'
-import { Entity } from './module.entity'
+import { Entity, FieldType } from './module.entity'
 import { ModuleService } from './module.service'
 
 @EventSubscriber()

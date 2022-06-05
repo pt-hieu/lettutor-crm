@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { catchError, first, lastValueFrom } from 'rxjs'
 
-import { Notification } from './../notification/notification.entity'
+import { Notification } from 'src/notification/notification.entity'
 
 @Injectable()
 export class EventsService {

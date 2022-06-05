@@ -8,10 +8,13 @@ import { useQuery } from 'react-query'
 import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { Module } from '@utils/models/module'
+import { Notification } from '@utils/models/notification'
 import { getModules } from '@utils/service/module'
+import { getMany } from '@utils/service/notification'
 
 import Confirm from './Confirm'
 import Dropdown from './Dropdown'
+import Notifications from './Notifications'
 import SettingMenu from './SettingMenu'
 
 export const menuItemClass =
@@ -43,6 +46,21 @@ export default function Header() {
   useEffect(() => {
     refetch()
   }, [])
+
+  const { data: notis, refetch: refetchNoti } = useQuery<Notification[]>(
+    'notifications',
+    getMany({ shouldNotPaginate: true }) as unknown as any,
+    { enabled: false },
+  )
+
+  useEffect(() => {
+    !notis && refetchNoti()
+  }, [])
+
+  const unreadNoti = useMemo(
+    () => notis?.filter((noti) => !noti.read) || [],
+    [notis],
+  )
 
   return (
     <header className="z-[1000] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">
@@ -125,6 +143,20 @@ export default function Header() {
             className="cursor-pointer"
             src={`https://avatars.dicebear.com/api/bottts/${new Date().getDate()}.svg`}
           />
+        </Dropdown>
+
+        <Dropdown
+          triggerOnHover={false}
+          overlay={<Notifications />}
+          stopPropagation
+        >
+          <button className="fa fa-bell h-8 w-8 bg-blue-600 text-white rounded-full relative">
+            {!!unreadNoti.length && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-red-600 rounded-full text-xs font-medium grid place-content-center translate-x-1/2 -translate-y-1/2">
+                {unreadNoti.length}
+              </span>
+            )}
+          </button>
         </Dropdown>
 
         <Confirm

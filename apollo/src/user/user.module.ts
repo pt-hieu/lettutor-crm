@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { MailModule } from 'src/mail/mail.module'
+import { NotificationModule } from 'src/notification/notification.module'
 import { Role } from 'src/role/role.entity'
 import { User } from 'src/user/user.entity'
 
-import { NotificationModule } from './../notification/notification.module'
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
 

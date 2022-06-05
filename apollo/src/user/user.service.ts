@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { compare, hash } from 'bcryptjs'
+import { log } from 'console'
 import { randomBytes } from 'crypto'
 import { isEqual } from 'lodash'
 import moment from 'moment'
@@ -12,13 +13,12 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 
 import { MailService } from 'src/mail/mail.service'
-import { Action } from 'src/notification/notification.entity'
+import { Action, FactorType } from 'src/notification/notification.entity'
+import { NotificationService } from 'src/notification/notification.service'
 import { Role } from 'src/role/role.entity'
 import { DTO } from 'src/type'
 import { JwtPayload } from 'src/utils/interface'
 
-import { FactorType } from './../notification/notification.entity'
-import { NotificationService } from './../notification/notification.service'
 import { User, UserStatus } from './user.entity'
 
 const PWD_TOKEN_EXPIRATION = 5 //in days
@@ -220,13 +220,10 @@ export class UserService {
       where: { id: In(dto.roleIds) },
     })
 
-    user.name = dto.name
-    user.roles = roles
-
     if (
       !isEqual(
         dto.roleIds,
-        roles.map((role) => role.id),
+        user.roles.map((role) => role.id),
       )
     ) {
       await this.notiService.createChangeRoleNoti({
@@ -241,6 +238,9 @@ export class UserService {
         targetType: undefined,
       })
     }
+
+    user.name = dto.name
+    user.roles = roles
 
     return this.userRepo.save(user)
   }

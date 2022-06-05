@@ -4,7 +4,6 @@ import {
   Param,
   ParseBoolPipe,
   ParseUUIDPipe,
-  Patch,
   Put,
   Query,
 } from '@nestjs/common'
@@ -12,8 +11,8 @@ import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { DTO } from 'src/type'
 import { Payload } from 'src/utils/decorators/payload.decorator'
+import { JwtPayload } from 'src/utils/interface'
 
-import { JwtPayload } from './../utils/interface'
 import { NotificationService } from './notification.service'
 
 @Controller('notification')

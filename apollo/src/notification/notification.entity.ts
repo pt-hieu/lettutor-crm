@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer'
-import { Column, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne } from 'typeorm'
 
 import { User } from 'src/user/user.entity'
 import { BaseEntity } from 'src/utils/base.entity'
@@ -19,6 +19,7 @@ export enum Action {
   CHANGE_ROLE = 'Change Role',
 }
 
+@Entity()
 export class Notification extends BaseEntity {
   @Column({ type: 'uuid' })
   @Exclude({ toPlainOnly: true })

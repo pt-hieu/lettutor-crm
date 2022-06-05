@@ -50,18 +50,22 @@ export class NotificationService {
       .addOrderBy('n.updatedAt', 'DESC')
 
     if (shouldNotPaginate)
-      return (await qb.getMany()).map((n) => ({
-        ...n,
-        message: this.renderService.renderNotification(n),
-      }))
+      return Promise.all(
+        (await qb.getMany()).map(async (n) => ({
+          ...n,
+          message: await this.renderService.renderNotification(n),
+        })),
+      )
 
     const result = await paginate(qb, { limit, page })
 
     return {
-      items: result.items.map((item) => ({
-        ...item,
-        message: this.renderService.renderNotification(item),
-      })),
+      items: await Promise.all(
+        result.items.map(async (item) => ({
+          ...item,
+          message: await this.renderService.renderNotification(item),
+        })),
+      ),
       meta: result.meta,
     }
   }
@@ -82,7 +86,7 @@ export class NotificationService {
     const hasOldNotificationUpdated = await this.updateOldNoti(dto)
     if (hasOldNotificationUpdated) return hasOldNotificationUpdated
 
-    return this.notiRepo.create(dto)
+    return this.notiRepo.save(dto)
   }
 
   public createChangeRoleNoti(dto: DTO.Notification.CreateChangeRoleNoti) {

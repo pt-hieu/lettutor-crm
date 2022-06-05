@@ -5,7 +5,8 @@ import {
   FactorType,
   Notification,
   TargetType,
-} from './../../notification/notification.entity'
+} from 'src/notification/notification.entity'
+
 import { Paginate } from './paging'
 
 export class GetManyNotification extends Paginate {}
