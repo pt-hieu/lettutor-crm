@@ -1,9 +1,10 @@
 import { Avatar } from 'antd'
+import { API } from 'environment'
 import { signOut } from 'next-auth/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useMemo } from 'react'
-import { useQuery } from 'react-query'
+import { useEffect, useMemo, useRef } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
 
 import { useModal } from '@utils/hooks/useModal'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
@@ -53,6 +54,8 @@ export default function Header() {
     { enabled: false },
   )
 
+  const client = useQueryClient()
+
   useEffect(() => {
     !notis && refetchNoti()
   }, [])
@@ -61,6 +64,39 @@ export default function Header() {
     () => notis?.filter((noti) => !noti.read) || [],
     [notis],
   )
+
+  const notiRef = useRef<EventSource>()
+  useEffect(() => {
+    if (notiRef.current) {
+      notiRef.current.close()
+    }
+
+    notiRef.current = new EventSource(
+      API + `/notification?auth=${session?.accessToken}`,
+    )
+
+    notiRef.current.addEventListener('message', (ev) => {
+      const newNoti: Notification = JSON.parse(ev.data)
+      client.setQueryData<Notification[] | undefined>(
+        'notifications',
+        (notis) => {
+          if (!notis) return notis
+          const map = new Map(notis.map((noti) => [noti.id, noti]))
+
+          if (map.has(newNoti.id)) {
+            map.set(newNoti.id, newNoti)
+            return Array.from(map.values())
+          }
+
+          return [newNoti, ...Array.from(map.values())]
+        },
+      )
+    })
+
+    return () => {
+      notiRef.current?.close()
+    }
+  }, [])
 
   return (
     <header className="z-[1000] crm-container sticky top-0 flex justify-between items-center h-[60px] shadow-md bg-white">

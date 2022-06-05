@@ -4,6 +4,7 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
+  UpdateEvent,
 } from 'typeorm'
 
 import { Notification } from './notification.entity'
@@ -25,11 +26,21 @@ export class NotificationSubscriber
     return Notification
   }
 
-  afterInsert(event: InsertEvent<Notification>): void | Promise<any> {
+  async afterInsert(event: InsertEvent<Notification>): Promise<any> {
     if (!event.entity) return
     this.eventEmitter.emit('noti.created', {
       ...event.entity,
-      message: this.render.renderNotification(event.entity),
+      message: await this.render.renderNotification(event.entity),
+    })
+  }
+
+  async afterUpdate(event: UpdateEvent<Notification>): Promise<any> {
+    if (!event.entity) return
+    this.eventEmitter.emit('noti.created', {
+      ...event.entity,
+      message: await this.render.renderNotification(
+        event.entity as Notification,
+      ),
     })
   }
 }

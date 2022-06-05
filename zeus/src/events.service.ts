@@ -16,6 +16,6 @@ export class EventsService {
   }
 
   emitNotification(dto: any) {
-    this.subjectMap.get(dto.userId)?.next(dto)
+    this.subjectMap.get(dto.userId)?.next({ data: dto })
   }
 }

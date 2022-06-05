@@ -85,23 +85,6 @@ function Layout({
   }, [session])
 
   useEffect(() => {
-    if (!session) return
-
-    const eventSource = new EventSource(API + '/subscribe', {
-      withCredentials: true,
-    })
-
-    if (!eventSource) return
-    eventSource.onmessage = ({ data }: MessageEvent) => {
-      client.setQueryData(GlobalState.SUBSCRIPTION, JSON.parse(data))
-    }
-
-    return () => {
-      eventSource.close()
-    }
-  }, [session])
-
-  useEffect(() => {
     if (!og) return
 
     const data = client.getQueryData<OG>(GlobalState.OPEN_GRAPH) || {}
