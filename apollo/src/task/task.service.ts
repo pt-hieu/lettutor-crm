@@ -242,6 +242,18 @@ export class TaskService {
 
   async batchDelete(ids: string[]) {
     const tasks = await this.taskRepo.find({ where: { id: In(ids) } })
-    return this.taskRepo.softRemove(tasks)
+    if (tasks) {
+      if (
+        !this.utilService.checkOwnership(tasks[0]) &&
+        !this.utilService.checkRoleAction({
+          target: DefaultActionTarget.TASK,
+          type: ActionType.CAN_DELETE_ANY,
+        })
+      ) {
+        throw new ForbiddenException()
+      }
+
+      return this.taskRepo.softRemove(tasks)
+    }
   }
 }

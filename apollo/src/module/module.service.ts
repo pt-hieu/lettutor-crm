@@ -553,6 +553,7 @@ export class ModuleService implements OnApplicationBootstrap {
     const entities = await this.entityRepo.find({ where: { id: In(dto.ids) } })
     if (entities) {
       if (
+        !this.utilService.checkOwnershipEntity(entities[0]) &&
         !this.utilService.checkRoleAction({
           target: entities[0].module.name,
           type: ActionType.CAN_DELETE_ANY,
