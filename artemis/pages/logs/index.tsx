@@ -10,7 +10,7 @@ import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
-import { LogAction, LogSource } from '@utils/models/log'
+import { LogAction, DefaultSource } from '@utils/models/log'
 import { getLogs } from '@utils/service/log'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   const page = Number(q.page) || 1
   const limit = Number(q.limit) || 10
 
-  const source = q.source as LogSource | undefined
+  const source = q.source as DefaultSource | undefined
   const action = q.action as LogAction | undefined
 
   const property = q.property as string | undefined
@@ -74,7 +74,7 @@ export default function LogPage() {
   const [page, setPage] = useQueryState<number>('page')
   const [limit, setLimit] = useQueryState<number>('limit')
 
-  const [source, setSource] = useQueryState<LogSource>('source')
+  const [source, setSource] = useQueryState<DefaultSource>('source')
   const [action, setAction] = useQueryState<LogAction>('action')
 
   const [from, setFrom] = useQueryState<string>('from')

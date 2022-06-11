@@ -32,7 +32,7 @@ import { useTypedSession } from '@utils/hooks/useTypedSession'
 import { checkActionError } from '@utils/libs/checkActions'
 import { getSessionToken } from '@utils/libs/getToken'
 import { investigate } from '@utils/libs/investigate'
-import { LogSource } from '@utils/models/log'
+import { DefaultSource } from '@utils/models/log'
 import { AddNoteDto } from '@utils/models/note'
 import { ActionType, DefaultModule } from '@utils/models/role'
 import { Task, TaskPriority, TaskStatus } from '@utils/models/task'
@@ -346,7 +346,7 @@ const TaskDetail = () => {
                   />
 
                   <LogSection
-                    source={LogSource.TASK}
+                    source={DefaultSource.TASK}
                     entityId={id}
                     title="Logs"
                   />

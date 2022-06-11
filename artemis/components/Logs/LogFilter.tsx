@@ -5,7 +5,7 @@ import { useQuery } from 'react-query'
 
 import Input from '@utils/components/Input'
 import { useQueryState } from '@utils/hooks/useQueryState'
-import { LogAction, LogSource } from '@utils/models/log'
+import { DefaultSource, LogAction, LogSource } from '@utils/models/log'
 import { Module } from '@utils/models/module'
 import { getRawUsers } from '@utils/service/user'
 
@@ -18,7 +18,7 @@ type FormData = {
 }
 
 type Props = {
-  onSourceChange?: (s: LogSource) => void
+  onSourceChange?: (s: DefaultSource) => void
   onActionChange?: (a: LogAction) => void
   onOwnerChange?: (o: string) => void
   onFromChange?: (f: string) => void
