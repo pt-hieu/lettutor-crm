@@ -38,14 +38,14 @@ export default function GroupModal({ close, visible, name }: Props) {
   const dispatch = useDispatch()
   const submit = useCallback(
     handleSubmit(({ name: newName }) => {
-      close()
-
       if (isUpdating) {
         dispatch('cmd:update-group', { name, newName })
+        close()
         return
       }
 
       dispatch('cmd:create-group', newName)
+      close()
     }),
     [isUpdating, visible],
   )
