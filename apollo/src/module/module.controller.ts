@@ -23,7 +23,7 @@ import { ModuleService } from './module.service'
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 export class ModuleController {
-  constructor(private service: ModuleService) {}
+  constructor(private service: ModuleService) { }
 
   @Get()
   @ApiOperation({ summary: 'to get many modules' })
@@ -82,16 +82,25 @@ export class ModuleController {
     return this.service.addEntity(moduleName, dto)
   }
 
-  @Get(':name/csv')
+  @Get(':name/:format')
   @ApiOperation({ summary: 'to get the csv template for creating module' })
   async getCreateLeadTemplate(
     @Param('name') moduleName: string,
+    @Param('format') fileFormat: string,
     @Response({ passthrough: true }) res: Res,
   ) {
-    const csv = await this.service.getTemplateForCreatingModuule(moduleName)
+      const data = await this.service.getTemplateForCreatingModule(moduleName, fileFormat)
 
-    res.set('Content-Type', 'text/csv')
-    res.attachment('template.csv').send(csv)
+      if(fileFormat == "csv"){
+        res.contentType('text/csv')
+        res.attachment('template.csv').send(data)
+      } 
+
+      if(fileFormat == "xlsx"){
+        res.contentType('text/xlsx')
+        res.attachment('template.xlsx').send(data)
+      } 
+ 
   }
 
   @Get(':name/export/csv')
