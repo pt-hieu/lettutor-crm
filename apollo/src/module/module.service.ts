@@ -24,6 +24,7 @@ import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
+import { CustomLRU } from 'src/utils/custom-lru'
 
 import { LeadSource, account, contact, deal, lead } from './default.entity'
 import {
@@ -34,6 +35,8 @@ import {
   TimeFieldName,
   TimeFieldType,
 } from './module.entity'
+import { string } from 'yargs'
+import { UserStatus } from 'src/user/user.entity'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -48,10 +51,11 @@ export class ModuleService implements OnApplicationBootstrap {
     private readonly payloadService: PayloadService,
     private readonly csvParser: CsvParser,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   async onApplicationBootstrap() {
     await this.initDefaultModules()
+    await this.initLRUCacheUsers()
   }
 
   private async initDefaultModules() {
@@ -62,6 +66,13 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
       skipUpdateIfNoValuesChanged: true,
+    })
+  }
+  private async initLRUCacheUsers() {
+    const users = await this.userService.getManyRaw()
+    users.forEach(user => {
+      if (user.status != UserStatus.ACTIVE) return
+      CustomLRU.set(user.id, user.id)
     })
   }
 
@@ -180,17 +191,21 @@ export class ModuleService implements OnApplicationBootstrap {
       { strict: true, separator: ',' },
     )) as ParsedData<DTO.Module.AddEntityFromFile>
 
-    const users = await this.userService.getManyRaw()
+    const user = await this.userService.getOne(this.payloadService.data)
 
     const entities: DTO.Module.AddEntity[] = rawEntities.list.map(
       (e: DTO.Module.AddEntityFromFile) => {
         let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
-        let randomIdx = generateRandom(0, users.length - 1)
+        let userID = CustomLRU.pop()
+
         entity['source'] = LeadSource.NONE
-        entity['ownerId'] = users[randomIdx].id
+        entity['ownerId'] = userID
+        CustomLRU.set(userID, userID)
+
+        const entityName = String(entity.name)
         delete entity['name']
         return {
-          name: moduleName,
+          name: entityName,
           data: entity,
         }
       },
@@ -201,7 +216,6 @@ export class ModuleService implements OnApplicationBootstrap {
       if (validateMessage)
         throw new UnprocessableEntityException(validateMessage)
     })
-
     return this.entityRepo.save(
       entities.map((e) => ({
         name: e.name,
@@ -270,9 +284,8 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     let targetEntity = new Entity()
-    targetEntity.name = `[${
-      targetModule.name.charAt(0).toUpperCase() + targetModule.name.slice(1)
-    }] ${sourceEntity.name}`
+    targetEntity.name = `[${targetModule.name.charAt(0).toUpperCase() + targetModule.name.slice(1)
+      }] ${sourceEntity.name}`
     targetEntity.data = {}
     targetEntity.moduleId = targetModule.id
 
