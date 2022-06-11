@@ -124,13 +124,13 @@ export class ModuleService implements OnApplicationBootstrap {
 
       var wb = xlsx.utils.book_new();
       var ws = xlsx.utils.aoa_to_sheet(data)
-      
+
       xlsx.utils.book_append_sheet(wb, ws);
-      return xlsx.write(wb, { type: "buffer"})
+      return xlsx.write(wb, { type: "buffer" })
     }
   }
 
-  async getListInCsvFormat(moduleName: string) {
+  async getListInFileFormat(moduleName: string, fileFormat: string) {
     const module = await this.moduleRepo.findOne({
       where: { name: moduleName },
     })
@@ -140,7 +140,7 @@ export class ModuleService implements OnApplicationBootstrap {
       .createQueryBuilder('e')
       .leftJoin('e.module', 'module')
       .orderBy('e.createdAt', 'DESC')
-      .andWhere('module.name = :name', { name: moduleName })
+      .where('module.name = :name', { name: moduleName })
 
     if (
       !this.utilService.checkRoleAction({
@@ -162,11 +162,27 @@ export class ModuleService implements OnApplicationBootstrap {
       created_at: e.createdAt,
     }))
 
-    const csv = await parseAsync(rawData, {
-      fields: ['name', 'email', 'phone', 'source', 'created_at'],
-    })
+    if (fileFormat == "csv") {
+      const csv = await parseAsync(rawData, {
+        fields: ['name', 'email', 'phone', 'source', 'created_at'],
+      })
+      return csv
 
-    return csv
+    }
+
+    if (fileFormat == "xlsx") {
+      let data = [
+        ["name", "email", "phone", "source", 'created_at'],
+      ];
+      rawData.forEach(r => {
+        data.push([r.name, String(r.email), String(r.phone), String(r.source), String(r.created_at)])
+      })
+
+      var wb = xlsx.utils.book_new();
+      var ws = xlsx.utils.aoa_to_sheet(data)
+      xlsx.utils.book_append_sheet(wb, ws);
+      return xlsx.write(wb, { type: "buffer" })
+    }
   }
 
   async bulkCreateEntities(moduleName: string, dto: DTO.File.Files) {
