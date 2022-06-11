@@ -46,7 +46,8 @@
     "chalk",
     "nest-csv-parser",
     "json2csv",
-    "@types/json2csv"
+    "@types/json2csv",
+    "xlsx"
   ],
   "ares": [
     "@nestjs/common",

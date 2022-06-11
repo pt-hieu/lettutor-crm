@@ -18,12 +18,13 @@ import { FindOneOptions, In, Repository } from 'typeorm'
 
 import { Action, ActionType } from 'src/action/action.entity'
 import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
-import { File } from 'src/file/file.entity'
+import { File, FileExtension } from 'src/file/file.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
+import * as xlsx from 'xlsx';
 
 import { LeadSource, account, contact, deal, lead } from './default.entity'
 import {
@@ -170,19 +171,49 @@ export class ModuleService implements OnApplicationBootstrap {
 
     if (!module) throw new BadRequestException('Module not found')
     const file = dto.files[0]
-    const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))
+    let filenameArr = file.name.split(".")
+    let fileEtx = filenameArr[filenameArr.length - 1]
 
-    const rawEntities = (await this.csvParser.parse(
-      stream,
-      DTO.Module.AddEntityFromFile,
-      undefined,
-      undefined,
-      { strict: true, separator: ',' },
-    )) as ParsedData<DTO.Module.AddEntityFromFile>
+
+    let entities: DTO.Module.AddEntity[]
+    let rawEntities: DTO.Module.AddEntityFromFile[] = new Array()
+
+    if(fileEtx == FileExtension.XLSX){
+      const buffer = Buffer.from(file.buffer, 'base64')
+      const wb = xlsx.read(buffer, { type: 'buffer' });
+      const sheet: xlsx.WorkSheet = wb.Sheets[wb.SheetNames[0]];
+      const range = xlsx.utils.decode_range(sheet['!ref']);
+      for (let R = range.s.r; R <= range.e.r; ++R) {
+        if (R === 0 || R=== 1|| !sheet[xlsx.utils.encode_cell({ c: 0, r: R })]) {
+          continue;
+        }
+     
+        let col = 0;
+        const entity = {
+          name: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
+          phone: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
+          email: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
+          status: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
+        }
+        console.log(entity)
+        rawEntities.push(entity)
+      }
+    } else if (fileEtx == FileExtension.CSV) {
+      const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))
+
+      const moduleData = (await this.csvParser.parse(
+        stream,
+        DTO.Module.AddEntityFromFile,
+        undefined,
+        undefined,
+        { strict: true, separator: ',' },
+      )) as ParsedData<DTO.Module.AddEntityFromFile>
+      rawEntities = moduleData.list
+    }
 
     const users = await this.userService.getManyRaw()
 
-    const entities: DTO.Module.AddEntity[] = rawEntities.list.map(
+    entities = rawEntities.map(
       (e: DTO.Module.AddEntityFromFile) => {
         let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
         let randomIdx = generateRandom(0, users.length - 1)

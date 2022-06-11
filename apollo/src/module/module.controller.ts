@@ -108,7 +108,7 @@ export class ModuleController {
   }
 
   @Post(':name/import/csv')
-  @ApiOperation({ summary: 'to import entities at module via uploading' })
+  @ApiOperation({ summary: 'to import entities at module via uploading csv/xlsx' })
   importEntities(
     @Body() dto: DTO.File.Files,
     @Param('name') moduleName: string,
