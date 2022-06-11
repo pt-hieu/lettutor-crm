@@ -195,7 +195,6 @@ export class ModuleService implements OnApplicationBootstrap {
           email: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
           status: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
         }
-        console.log(entity)
         rawEntities.push(entity)
       }
     } else if (fileEtx == FileExtension.CSV) {
