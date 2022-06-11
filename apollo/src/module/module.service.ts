@@ -72,6 +72,7 @@ export class ModuleService implements OnApplicationBootstrap {
     const users = await this.userService.getManyRaw()
     users.forEach(user => {
       if (user.status != UserStatus.ACTIVE) return
+      console.log("Added", user.id, "to LRU cache")
       CustomLRU.set(user.id, user.id)
     })
   }

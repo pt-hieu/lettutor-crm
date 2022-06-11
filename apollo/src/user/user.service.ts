@@ -167,7 +167,7 @@ export class UserService {
 
   getManyRaw() {
     return this.userRepo.find({
-      select: ['id', 'name'],
+      select: ['id', 'name', 'status'],
       loadEagerRelations: false,
     })
   }
