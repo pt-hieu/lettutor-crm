@@ -2,7 +2,7 @@ import { notification } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { omit, pick } from 'lodash'
 import Link from 'next/link'
-import { useCallback, useMemo } from 'react'
+import { ElementRef, ElementType, useCallback, useMemo, useRef } from 'react'
 import {
   DragDropContext,
   Draggable,
@@ -14,6 +14,7 @@ import { QueryKey, useMutation, useQuery, useQueryClient } from 'react-query'
 import { useModal } from '@utils/hooks/useModal'
 import { useRelationField } from '@utils/hooks/useRelationField'
 import { useStore } from '@utils/hooks/useStore'
+import { DealStageType } from '@utils/models/deal'
 import {
   AggregateType,
   Entity,
@@ -157,6 +158,13 @@ const aggrMap: Record<
   [AggregateType.MIN]: min,
 }
 
+const typeToBg: Record<DealStageType | 'undefined', string> = {
+  Open: '',
+  'Close Lost': 'bg-green-500',
+  'Close Won': 'bg-red-500',
+  undefined: '',
+}
+
 function KanbanColumn({ entities, value, field, module }: KanbanColumnProps) {
   const { kanban_meta: meta } = module
   const aggregation = useMemo(
@@ -168,15 +176,25 @@ function KanbanColumn({ entities, value, field, module }: KanbanColumnProps) {
     [entities],
   )
 
+  const cellRef = useRef<ElementRef<typeof RelationCell>>(null)
+
   return (
     <Droppable droppableId={value}>
       {({ droppableProps, innerRef, placeholder }) => (
         <div className="border rounded-md min-w-[250px]">
-          <div className="p-4 border-b">
+          <div
+            className={`p-4 border-b rounded-t-md ${
+              typeToBg[cellRef.current?.type || 'undefined']
+            }`}
+          >
             <div className="font-semibold">
               {field.relateTo && (
                 <div>
-                  <RelationCell relateTo={field.relateTo} targetId={value} />
+                  <RelationCell
+                    ref={cellRef}
+                    relateTo={field.relateTo}
+                    targetId={value}
+                  />
                 </div>
               )}
 

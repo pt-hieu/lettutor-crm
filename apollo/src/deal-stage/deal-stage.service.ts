@@ -57,7 +57,7 @@ export class DealStageService implements OnApplicationBootstrap {
 
   getRaw() {
     return this.dealStageRepo.find({
-      select: ['id', 'name'],
+      select: ['id', 'name', 'type'],
       loadEagerRelations: false,
     })
   }
