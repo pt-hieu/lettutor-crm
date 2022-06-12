@@ -15,6 +15,7 @@ export enum ActionType {
 
 export enum DefaultModule {
   LEAD = 'lead',
+  DEAL = 'deal',
   USER = 'user',
   ROLE = 'role',
   TASK = 'task',
