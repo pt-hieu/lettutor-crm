@@ -12,6 +12,7 @@ import { getModules } from '@utils/service/module'
 
 type Props = {
   visible: boolean
+  enableConfirmStage: boolean
   close: () => void
   data: FieldMeta | undefined
   group: string | undefined
@@ -19,7 +20,15 @@ type Props = {
   onSubmit: (data: FieldMeta) => any
 }
 
-const Views = ['Overview', 'Update', 'Create', 'Detail', 'Kanban'] as const
+const Views = [
+  'Overview',
+  'Update',
+  'Create',
+  'Detail',
+  'Kanban',
+  'Confirm Stage Won',
+  'Confirm Stage Lost',
+] as const
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required'),
@@ -27,6 +36,7 @@ const schema = yup.object().shape({
 
 export default function FieldModal({
   close,
+  enableConfirmStage,
   visible,
   data,
   type,
@@ -227,11 +237,15 @@ export default function FieldModal({
         <Divider />
         <div className="font-medium">Visibility</div>
 
-        <div className="border border-dashed p-4 rounded-md grid grid-cols-2 gap-4">
+        <div className="border border-dashed p-4 rounded-md grid grid-cols-2 gap-1">
           {Views.map((view) => (
             <div
               key={view}
-              className="grid grid-cols-[80px,1fr] items-center gap-4 w-full"
+              className={`grid grid-cols-[80px,1fr] items-center gap-4 w-full ${
+                view.startsWith('Confirm Stage')
+                  ? 'col-span-2 grid-cols-[160px,1fr]'
+                  : ''
+              }`}
             >
               <label
                 htmlFor={`visibility.${view}`}
@@ -247,11 +261,13 @@ export default function FieldModal({
                 props={{
                   type: 'checkbox',
                   id: `visibility.${view}`,
-                  disabled: [
-                    FieldType.CHECK_BOX,
-                    FieldType.MULTILINE_TEXT,
-                    FieldType.RELATION,
-                  ].some((invalidType) => invalidType === type),
+                  disabled:
+                    [
+                      FieldType.CHECK_BOX,
+                      FieldType.MULTILINE_TEXT,
+                      FieldType.RELATION,
+                    ].some((invalidType) => invalidType === type) ||
+                    (view.startsWith('Confirm Stage') && !enableConfirmStage),
                   ...register(`visibility.${view}`),
                 }}
               />

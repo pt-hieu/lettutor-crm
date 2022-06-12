@@ -115,6 +115,8 @@ export const deal: Pick<
         Update: true,
         Create: true,
         Detail: true,
+        'Confirm Stage Lost': true,
+        'Confirm Stage Won': true,
       },
     },
     {
@@ -128,6 +130,8 @@ export const deal: Pick<
         Create: true,
         Detail: true,
         Kanban: true,
+        'Confirm Stage Lost': true,
+        'Confirm Stage Won': true,
       },
     },
     {

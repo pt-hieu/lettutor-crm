@@ -532,7 +532,7 @@ export class ModuleService implements OnApplicationBootstrap {
     if (!entity) throw new BadRequestException('Entity not found')
 
     const module = entity.module
-    const validateMsg = module.validateEntity(dto.data)
+    const validateMsg = module.validateEntity(dto.data, { isUpdate: true })
 
     if (validateMsg) throw new UnprocessableEntityException(validateMsg)
 
@@ -546,7 +546,11 @@ export class ModuleService implements OnApplicationBootstrap {
       throw new ForbiddenException()
     }
 
-    return this.entityRepo.save({ ...entity, ...dto })
+    return this.entityRepo.save({
+      ...entity,
+      name: dto.name || entity.name,
+      data: { ...entity.data, ...dto.data },
+    })
   }
 
   async batchDeleteEntity(dto: DTO.BatchDelete) {

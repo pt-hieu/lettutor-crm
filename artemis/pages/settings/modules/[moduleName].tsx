@@ -1,6 +1,13 @@
 import { notification } from 'antd'
 import { useRouter } from 'next/router'
-import { ComponentProps, useCallback, useEffect, useRef, useState } from 'react'
+import {
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { DragDropContext } from 'react-beautiful-dnd'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useAsync } from 'react-use'
@@ -270,9 +277,17 @@ export default function ModuleView() {
     }))
   }, [])
 
+  const shouldEnableConfirmStage = useMemo(
+    () =>
+      localModule?.meta?.some((field) => field.relateTo === 'dealstage') ||
+      false,
+    [localModule],
+  )
+
   return (
     <Layout>
       <FieldModal
+        enableConfirmStage={shouldEnableConfirmStage}
         visible={fieldModal}
         close={close}
         type={selectedFieldType.current}
