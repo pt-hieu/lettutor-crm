@@ -33,10 +33,10 @@
     "axios": "^0.24.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.2",
-    "chalk": "4.1.2",
+    "chalk": "^4.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.1",
-    "concurrently": "^7.0.0",
+    "concurrently": "^7.2.1",
     "cookie-parser": "^1.4.5",
     "dotenv": "^10.0.0",
     "env-cmd": "^10.1.0",
@@ -44,6 +44,7 @@
     "handlebars": "^4.7.7",
     "json2csv": "^5.0.7",
     "jsonwebtoken": "^8.5.1",
+    "lru-cache": "^7.10.1",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
     "nest-csv-parser": "^2.0.4",
@@ -73,6 +74,7 @@
     "typeorm": "^0.2.41",
     "xlsx": "^0.18.5",
     "yargs": "^17.3.1",
+    "yarn": "^1.22.19",
     "yup": "^0.32.11"
   },
   "devDependencies": {

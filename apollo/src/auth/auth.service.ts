@@ -13,6 +13,7 @@ import { Role } from 'src/role/role.entity'
 import { DTO } from 'src/type'
 import { User, UserStatus } from 'src/user/user.entity'
 import { JwtPayload } from 'src/utils/interface'
+import { CustomLRU } from 'src/utils/custom-lru'
 
 const ADMINISTRATIVE_ROLE_NAME = 'Admin'
 
@@ -46,12 +47,13 @@ export class AuthService {
         actions: [action],
       })
     }
-
-    await this.userRepo.save({
+    
+    let user = await this.userRepo.save({
       ...dto,
       password: await hash(dto.password, 10),
       roles: [role],
     })
+    CustomLRU.set(user.id, user.id)
   }
 
   async validate(dto: DTO.Auth.Login, res: Response) {

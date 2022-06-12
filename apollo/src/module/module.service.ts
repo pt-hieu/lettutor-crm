@@ -24,6 +24,7 @@ import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
 import { UserService } from 'src/user/user.service'
+import { CustomLRU } from 'src/utils/custom-lru'
 import * as xlsx from 'xlsx';
 
 import { LeadSource, account, contact, deal, lead } from './default.entity'
@@ -35,6 +36,8 @@ import {
   TimeFieldName,
   TimeFieldType,
 } from './module.entity'
+import { string } from 'yargs'
+import { UserStatus } from 'src/user/user.entity'
 
 @Injectable()
 export class ModuleService implements OnApplicationBootstrap {
@@ -53,6 +56,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     await this.initDefaultModules()
+    await this.initLRUCacheUsers()
   }
 
   private async initDefaultModules() {
@@ -63,6 +67,14 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
       skipUpdateIfNoValuesChanged: true,
+    })
+  }
+  private async initLRUCacheUsers() {
+    const users = await this.userService.getManyRaw()
+    users.forEach(user => {
+      if (user.status != UserStatus.ACTIVE) return
+      console.log("Added", user.id, "to LRU cache")
+      CustomLRU.set(user.id, user.id)
     })
   }
 
@@ -240,17 +252,21 @@ export class ModuleService implements OnApplicationBootstrap {
       rawEntities = moduleData.list
     }
 
-    const users = await this.userService.getManyRaw()
+    const user = await this.userService.getOne(this.payloadService.data)
 
     entities = rawEntities.map(
       (e: DTO.Module.AddEntityFromFile) => {
         let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
-        let randomIdx = generateRandom(0, users.length - 1)
+        let userID = CustomLRU.pop()
+
         entity['source'] = LeadSource.NONE
-        entity['ownerId'] = users[randomIdx].id
+        entity['ownerId'] = userID
+        CustomLRU.set(userID, userID)
+
+        const entityName = String(entity.name)
         delete entity['name']
         return {
-          name: moduleName,
+          name: entityName,
           data: entity,
         }
       },
@@ -261,7 +277,6 @@ export class ModuleService implements OnApplicationBootstrap {
       if (validateMessage)
         throw new UnprocessableEntityException(validateMessage)
     })
-
     return this.entityRepo.save(
       entities.map((e) => ({
         name: e.name,
