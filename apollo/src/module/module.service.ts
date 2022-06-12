@@ -250,7 +250,7 @@ export class ModuleService implements OnApplicationBootstrap {
   async convert(
     sourceEntity: Entity,
     targetModuleName: string,
-    dto: Record<string, any>,
+    dto: Record<string, any> = {},
     options: { useEntity: boolean; availableModules: string[] },
   ) {
     const targetModule = await this.moduleRepo.findOne({

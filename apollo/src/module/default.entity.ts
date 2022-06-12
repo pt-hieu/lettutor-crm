@@ -211,6 +211,7 @@ export const account: Pick<
       meta: {
         ownerId: 'ownerId',
         tasks: 'tasks',
+        phone: 'phone',
       },
     },
   ],
@@ -305,6 +306,9 @@ export const contact: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
       meta: {
         ownerId: 'ownerId',
         tasks: 'tasks',
+        phone: 'phone',
+        email: 'email',
+        source: 'source',
       },
     },
   ],
