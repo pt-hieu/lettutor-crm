@@ -20,6 +20,7 @@ import { DTO } from 'src/type'
 import { JwtPayload } from 'src/utils/interface'
 
 import { User, UserStatus } from './user.entity'
+import { CustomLRU } from 'src/utils/custom-lru'
 
 const PWD_TOKEN_EXPIRATION = 5 //in days
 
@@ -30,7 +31,7 @@ export class UserService {
     @InjectRepository(Role) private roleRepo: Repository<Role>,
     private mailService: MailService,
     private notiService: NotificationService,
-  ) {}
+  ) { }
 
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
@@ -88,6 +89,7 @@ export class UserService {
     user.status = UserStatus.ACTIVE
     user.passwordToken = null
     user.tokenExpiration = null
+    CustomLRU.set(user.id, user.id)
 
     return this.userRepo.save(user)
   }
@@ -136,7 +138,6 @@ export class UserService {
       status: UserStatus.UNCONFIRMED,
       roles: [role],
     })
-
     return this.mailService.sendAddPwdMail(fromUser, targetUser, token)
   }
 
@@ -166,7 +167,7 @@ export class UserService {
 
   getManyRaw() {
     return this.userRepo.find({
-      select: ['id', 'name'],
+      select: ['id', 'name', 'status'],
       loadEagerRelations: false,
     })
   }
@@ -248,13 +249,21 @@ export class UserService {
   async activateUser(id: string, dto: DTO.User.ActivateUser) {
     const user = await this.userRepo.findOne({ where: { id } })
     if (!user) throw new BadRequestException('User does not exist')
-
     user.status = dto.status
+
+    if (dto.status == UserStatus.ACTIVE) {
+      CustomLRU.set(user.id, user.id)
+    } else {
+      CustomLRU.delete(user.id)
+    }
     return this.userRepo.save(user)
   }
 
   async batchDelete(ids: string[]) {
     const users = await this.userRepo.find({ where: { id: In(ids) } })
+    users.forEach(user => {
+      CustomLRU.delete(user.id)
+    })
     return this.userRepo.softRemove(users)
   }
 }
