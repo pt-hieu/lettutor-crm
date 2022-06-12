@@ -5,6 +5,7 @@ services:
     image: ghcr.io/pt-hieu/lettutor-crm:artemis-prod
     ports:
       - '3000:3000'
+    restart: unless-stopped
 
   postgres:
     container_name: postgres
@@ -16,6 +17,7 @@ services:
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
+    restart: unless-stopped
 
   apollo:
     container_name: apollo
@@ -24,12 +26,14 @@ services:
       - postgres
     ports:
       - '8000:8000'
+    restart: unless-stopped
 
   ares:
     container_name: ares
     image: ghcr.io/pt-hieu/lettutor-crm:ares-prod
     ports:
       - '9000:9000'
+    restart: unless-stopped
 
   postgres-poseidon:
     container_name: postgres-poseidon
@@ -45,6 +49,7 @@ services:
       PGDATA: /data/postgres
     volumes:
       - postgres-poseidon:/data/postgres
+    restart: unless-stopped
 
   poseidon:
     container_name: poseidon
@@ -56,6 +61,7 @@ services:
       - DATABASE_PORT=5433
     ports:
       - '1337:1337'
+    restart: unless-stopped
 
   zeus:
     container_name: zeus
@@ -65,6 +71,7 @@ services:
       - poseidon
     ports:
       - '4000:4000'
+    restart: unless-stopped
 
 volumes:
   postgres:

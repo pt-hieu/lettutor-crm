@@ -8,6 +8,7 @@ import { useMutation, useQuery } from 'react-query'
 
 import { DetailNavbar } from '@components/Details/Navbar'
 import { DetailSidebar, Sections } from '@components/Details/Sidebar'
+import LogSection from '@components/Logs/LogSection'
 import { NoteSection } from '@components/Notes/NoteSection'
 
 import { GlobalState } from '@utils/GlobalStateKey'
@@ -204,6 +205,8 @@ export default function DetailView({ paths }: TProps) {
               id={Sections.Attachments}
               data={entity.attachments}
             />
+
+            <LogSection title="Logs" source={moduleName} entityId={id} />
           </div>
         </div>
       </div>

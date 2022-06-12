@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { ComponentProps, useCallback, useEffect, useRef, useState } from 'react'
 import { DragDropContext } from 'react-beautiful-dnd'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useAsync } from 'react-use'
 
 import FieldModal from '@components/Settings/Modules/FieldModal'
 import FieldRenderer from '@components/Settings/Modules/FieldRenderer'
@@ -35,14 +36,10 @@ export default function ModuleView() {
 
   useRelationField(module?.meta || null)
 
-  useEffect(() => {
-    if (module) return
-    refetch()
-  }, [])
-
-  useEffect(() => {
-    setLocalModule(module)
-  }, [module])
+  useAsync(async () => {
+    const result = await refetch()
+    setLocalModule(result.data)
+  }, [moduleName])
 
   const [fieldModal, open, close] = useModal()
 

@@ -9,7 +9,7 @@ export type TChange = {
   toName?: string
 }
 
-export enum LogSource {
+export enum DefaultSource {
   LEAD = 'lead',
   ACCOUNT = 'account',
   CONTACT = 'contact',
@@ -17,6 +17,8 @@ export enum LogSource {
   TASK = 'task',
   NOTE = 'note',
 }
+
+export type LogSource = DefaultSource | Omit<string, DefaultSource>
 
 export enum LogAction {
   CREATE = 'create',
@@ -29,7 +31,7 @@ export interface Log extends Base {
   entityId: string
   entityName: string
   deleted: boolean
-  source: LogSource
+  source: DefaultSource
   action: LogAction
   changes: TChange[] | null
 }
