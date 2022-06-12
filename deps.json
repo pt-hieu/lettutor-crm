@@ -47,7 +47,7 @@
     "nest-csv-parser",
     "json2csv",
     "@types/json2csv",
-    "lru-cache"
+    "lru-cache",
     "xlsx"
   ],
   "ares": [
