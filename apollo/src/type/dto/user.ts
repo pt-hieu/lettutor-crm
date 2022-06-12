@@ -95,8 +95,9 @@ export class UpdateUser {
   name: string
 
   @ApiProperty()
+  @IsOptional()
   @IsUUID(undefined, { each: true })
-  roleIds: string[]
+  roleIds?: string[]
 }
 
 export class ActivateUser {

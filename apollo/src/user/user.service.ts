@@ -141,7 +141,7 @@ export class UserService {
   }
 
   async invalidateAddUserToken(id: string, fromUser: string) {
-    let user = await this.userRepo.findOne(id)
+    const user = await this.userRepo.findOne(id)
 
     if (!user) {
       throw new NotFoundException(
@@ -216,6 +216,10 @@ export class UserService {
 
     if (!user) throw new BadRequestException('User does not exist')
 
+    user.name = dto.name
+
+    if (!dto.roleIds) return this.userRepo.save(user)
+
     const roles = await this.roleRepo.find({
       where: { id: In(dto.roleIds) },
     })
@@ -239,7 +243,6 @@ export class UserService {
       })
     }
 
-    user.name = dto.name
     user.roles = roles
 
     return this.userRepo.save(user)
