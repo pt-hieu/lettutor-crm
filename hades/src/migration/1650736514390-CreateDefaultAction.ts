@@ -9,6 +9,11 @@ export class CreateDefaultAction1650736514390 implements MigrationInterface {
         type: 'Can do anything',
       },
       {
+        id: '6dce2f28-1b9c-470b-97b9-0d144e78db50',
+        target: 'sale',
+        type: 'Can create any except user and role',
+      },
+      {
         id: '6d0d5d33-2c32-4611-af43-176d7f3e0d3f',
         target: 'user',
         type: 'Can view all',

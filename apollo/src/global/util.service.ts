@@ -119,7 +119,12 @@ export class UtilService {
             (target === requiredAction.target &&
               type === requiredAction.type) ||
             (target === DefaultActionTarget.ADMIN &&
-              type === ActionType.IS_ADMIN),
+              type === ActionType.IS_ADMIN) ||
+            (target === DefaultActionTarget.SALE &&
+              type === ActionType.IS_SALE &&
+              requiredAction.type === ActionType.CAN_CREATE_NEW &&
+              requiredAction.target !== DefaultActionTarget.ROLE &&
+              requiredAction.target !== DefaultActionTarget.USER),
         ),
       ),
     ).length
