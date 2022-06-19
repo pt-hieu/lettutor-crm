@@ -2,6 +2,7 @@ import axios from 'axios'
 import { API } from 'environment'
 import { Paginate, PagingQuery } from '@utils/models/paging'
 import { Entity, Module } from '../models/module'
+import FileSaver from 'file-saver'
 
 export const getModules = (token?: string) => () =>
   axios
@@ -40,10 +41,10 @@ export const getEntities =
     moduleName: string,
     params: { [x in string]?: string | number } & PagingQuery,
   ) =>
-  () =>
-    axios
-      .get<Paginate<Entity>>(API + '/apollo/module/' + moduleName, { params })
-      .then((r) => r.data)
+    () =>
+      axios
+        .get<Paginate<Entity>>(API + '/apollo/module/' + moduleName, { params })
+        .then((r) => r.data)
 
 export const batchDeleteEntities = (ids: string[] | string) =>
   axios
@@ -93,38 +94,60 @@ export const getConvertableModules =
 
 export const convert =
   (sourceId: string) =>
-  (data: { module_name: string; dto: Record<string, any> }[]) =>
-    axios
-      .put<Entity[]>(API + '/apollo/module/convert/' + sourceId, data)
-      .then((res) => res.data)
+    (data: { module_name: string; dto: Record<string, any> }[]) =>
+      axios
+        .put<Entity[]>(API + '/apollo/module/convert/' + sourceId, data)
+        .then((res) => res.data)
 
 export const importModule = (moduleName: string) => (file: File) => {
   const formData = new FormData()
   formData.append('files', file)
-  return axios.post(API + `/apollo/module/${moduleName}/import/csv`, formData, {headers: {'Content-Type': 'multipart/form-data'}})
+  return axios.post(API + `/apollo/module/${moduleName}/import`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
 }
 
-const handleReponse = (name: string) => (res: any) => {
-  var universalBOM = "\uFEFF";
-  const link = document.createElement('a')
-  link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(universalBOM + res.data)
-  link.download = name + '.csv'
-  link.click()
-  link.remove()
-}
+
 
 export const downloadTemplate = (moduleName: string) => () => {
   axios
-    .get(API + `/apollo/module/${moduleName}/csv`, {
-      responseType: 'stream',
+    .get(API + `/apollo/module/${moduleName}/xlsx`, {
+      responseType: 'stream'
     })
-    .then(handleReponse(`import_${moduleName}_template`))
+    .then((res: any) => {
+      downloadFile(res.data, `import_${moduleName}_template.xlsx`);
+    })
 }
-
 export const exportModuleEntities = (moduleName: string) => () => {
   axios
-    .get(API + `/apollo/module/${moduleName}/export/csv`, {
+    .get(API + `/apollo/module/${moduleName}/export/xlsx`, {
       responseType: 'stream',
     })
-    .then(handleReponse(`${moduleName}_list`))
+    .then((res: any) =>{
+      downloadFile(res.data, `import_${moduleName}_template.xlsx`)
+    })
+}
+
+
+function base64toBlob(base64Data: string, contentType: string) {
+  contentType = contentType || '';
+  let sliceSize = 1024;
+  let byteCharacters = atob(base64Data);
+  let bytesLength = byteCharacters.length;
+  let slicesCount = Math.ceil(bytesLength / sliceSize);
+  let byteArrays = new Array(slicesCount);
+  for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+    let begin = sliceIndex * sliceSize;
+    let end = Math.min(begin + sliceSize, bytesLength);
+
+    let bytes = new Array(end - begin);
+    for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+      bytes[i] = byteCharacters[offset].charCodeAt(0);
+    }
+    byteArrays[sliceIndex] = new Uint8Array(bytes);
+  }
+  return new Blob(byteArrays, { type: contentType });
+}
+
+function downloadFile(blobContent: string, fileName: string) {
+  let blob = new Blob([base64toBlob(blobContent, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')], {});
+  FileSaver.saveAs(blob, fileName);
 }
