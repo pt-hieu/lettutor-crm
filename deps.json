@@ -116,7 +116,8 @@
     "tailwindcss",
     "typescript",
     "yargs",
-    "chalk"
+    "chalk",
+    "file-saver"
   ],
   "zeus": [
     "@nestjs/axios",

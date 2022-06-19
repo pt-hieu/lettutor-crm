@@ -11,5 +11,8 @@
     "start:dev": "env-cmd -f .env.development next start"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/file-saver": "^2.0.5"
+  }
 }

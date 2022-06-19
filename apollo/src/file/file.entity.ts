@@ -12,6 +12,7 @@ import { BaseEntity } from 'src/utils/base.entity'
 export enum FileExtension {
   CSV = 'csv',
   XLSX = 'xlsx',
+  NUMBERS = 'numbers'
 }
 
 @Entity({ name: 'file' })
