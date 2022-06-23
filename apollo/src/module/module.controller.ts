@@ -23,7 +23,7 @@ import { ModuleService } from './module.service'
 @ApiSecurity('x-api-key')
 @ApiSecurity('x-user')
 export class ModuleController {
-  constructor(private service: ModuleService) { }
+  constructor(private service: ModuleService) {}
 
   @Get()
   @ApiOperation({ summary: 'to get many modules' })
@@ -82,25 +82,27 @@ export class ModuleController {
     return this.service.addEntity(moduleName, dto)
   }
 
-  @Get(':name/:format')
+  @Get(':name/template/:format')
   @ApiOperation({ summary: 'to get the csv template for creating module' })
   async getCreateLeadTemplate(
     @Param('name') moduleName: string,
     @Param('format') fileFormat: string,
     @Response({ passthrough: true }) res: Res,
   ) {
-    const data = await this.service.getTemplateForCreatingModule(moduleName, fileFormat)
+    const data = await this.service.getTemplateForCreatingModule(
+      moduleName,
+      fileFormat,
+    )
 
-    if (fileFormat == "csv") {
+    if (fileFormat == 'csv') {
       res.contentType('text/csv')
       res.attachment('template.csv').send(data)
     }
 
-    if (fileFormat == "xlsx") {
+    if (fileFormat == 'xlsx') {
       res.contentType('text/xlsx')
       res.attachment('template.xlsx').send(data)
     }
-
   }
 
   @Get(':name/export/:format')
@@ -118,7 +120,9 @@ export class ModuleController {
   }
 
   @Post(':name/import/csv')
-  @ApiOperation({ summary: 'to import entities at module via uploading csv/xlsx' })
+  @ApiOperation({
+    summary: 'to import entities at module via uploading csv/xlsx',
+  })
   importEntities(
     @Body() dto: DTO.File.Files,
     @Param('name') moduleName: string,

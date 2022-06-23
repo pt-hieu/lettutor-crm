@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { API } from 'environment'
+
 import { Paginate, PagingQuery } from '@utils/models/paging'
+
 import { Entity, Module } from '../models/module'
 
 export const getModules = (token?: string) => () =>
@@ -101,13 +103,16 @@ export const convert =
 export const importModule = (moduleName: string) => (file: File) => {
   const formData = new FormData()
   formData.append('files', file)
-  return axios.post(API + `/apollo/module/${moduleName}/import/csv`, formData, {headers: {'Content-Type': 'multipart/form-data'}})
+  return axios.post(API + `/apollo/module/${moduleName}/import/csv`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
 }
 
 const handleReponse = (name: string) => (res: any) => {
-  var universalBOM = "\uFEFF";
+  var universalBOM = '\uFEFF'
   const link = document.createElement('a')
-  link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(universalBOM + res.data)
+  link.href =
+    'data:text/csv;charset=utf-8,' + encodeURIComponent(universalBOM + res.data)
   link.download = name + '.csv'
   link.click()
   link.remove()
@@ -115,7 +120,7 @@ const handleReponse = (name: string) => (res: any) => {
 
 export const downloadTemplate = (moduleName: string) => () => {
   axios
-    .get(API + `/apollo/module/${moduleName}/csv`, {
+    .get(API + `/apollo/module/${moduleName}/template/csv`, {
       responseType: 'stream',
     })
     .then(handleReponse(`import_${moduleName}_template`))
