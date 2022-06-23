@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { FindOneOptions, In, Repository } from 'typeorm'
 
+import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { File } from 'src/file/file.entity'
 import { FileService } from 'src/file/file.service'
 import { PayloadService } from 'src/global/payload.service'
@@ -162,6 +163,18 @@ export class NoteService {
 
   async batchDelete(ids: string[]) {
     const notes = await this.noteRepo.find({ where: { id: In(ids) } })
-    return this.noteRepo.softRemove(notes)
+    if (notes) {
+      if (
+        !this.utilService.checkOwnership(notes[0]) &&
+        !this.utilService.checkRoleAction({
+          target: DefaultActionTarget.NOTE,
+          type: ActionType.CAN_DELETE_ANY,
+        })
+      ) {
+        throw new ForbiddenException()
+      }
+
+      return this.noteRepo.softRemove(notes)
+    }
   }
 }

@@ -94,15 +94,9 @@ export class ModuleController {
       fileFormat,
     )
 
-    if (fileFormat == 'csv') {
-      res.contentType('text/csv')
-      res.attachment('template.csv').send(data)
-    }
-
-    if (fileFormat == 'xlsx') {
-      res.contentType('text/xlsx')
-      res.attachment('template.xlsx').send(data)
-    }
+    const fileName = 'template.' + fileFormat
+    res.contentType('text/' + fileFormat)
+    res.attachment(fileName).send(data)
   }
 
   @Get(':name/export/:format')
@@ -119,7 +113,7 @@ export class ModuleController {
     res.attachment(fileName).send(data)
   }
 
-  @Post(':name/import/csv')
+  @Post(':name/import')
   @ApiOperation({
     summary: 'to import entities at module via uploading csv/xlsx',
   })

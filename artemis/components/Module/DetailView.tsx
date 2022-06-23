@@ -136,12 +136,25 @@ export default function DetailView({ paths }: TProps) {
                       maxLength: 30,
                     }}
                     inlineEdit
+                    hideControl={
+                      !auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, moduleName)
+                    }
                   />
 
                   {metaData
                     .filter((field) => !!field.visibility.Detail)
                     .map((field) => (
-                      <Field data={field} key={field.name} inlineEdit />
+                      <Field
+                        data={field}
+                        key={field.name}
+                        inlineEdit
+                        hideControl={
+                          !auth(
+                            ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+                            moduleName,
+                          )
+                        }
+                      />
                     ))}
                 </FormProvider>
               </form>

@@ -138,7 +138,7 @@ export class ModuleService implements OnApplicationBootstrap {
       var ws = xlsx.utils.aoa_to_sheet(data)
 
       xlsx.utils.book_append_sheet(wb, ws)
-      return xlsx.write(wb, { type: 'buffer' })
+      return xlsx.write(wb, { type: 'base64' })
     }
   }
 
@@ -176,19 +176,20 @@ export class ModuleService implements OnApplicationBootstrap {
 
     if (fileFormat == 'csv') {
       const csv = await parseAsync(rawData, {
-        fields: ['name', 'email', 'phone', 'source', 'created_at'],
+        fields: ['name', 'email', 'phone', 'source', 'status', 'created_at'],
       })
       return csv
     }
 
     if (fileFormat == 'xlsx') {
-      let data = [['name', 'email', 'phone', 'source', 'created_at']]
+      let data = [['name', 'email', 'phone', 'source', 'status', 'created_at']]
       rawData.forEach((r) => {
         data.push([
           r.name,
           String(r.email),
           String(r.phone),
           String(r.source),
+          String(r.status),
           String(r.created_at),
         ])
       })
@@ -196,7 +197,7 @@ export class ModuleService implements OnApplicationBootstrap {
       var wb = xlsx.utils.book_new()
       var ws = xlsx.utils.aoa_to_sheet(data)
       xlsx.utils.book_append_sheet(wb, ws)
-      return xlsx.write(wb, { type: 'buffer' })
+      return xlsx.write(wb, { type: 'base64' })
     }
   }
 
@@ -221,21 +222,16 @@ export class ModuleService implements OnApplicationBootstrap {
 
     let entities: DTO.Module.AddEntity[]
     let rawEntities: DTO.Module.AddEntityFromFile[] = new Array()
-
-    if (fileEtx == FileExtension.XLSX) {
+    console.log(fileEtx)
+    if (fileEtx == FileExtension.XLSX || fileEtx == FileExtension.NUMBERS) {
       const buffer = Buffer.from(file.buffer, 'base64')
       const wb = xlsx.read(buffer, { type: 'buffer' })
       const sheet: xlsx.WorkSheet = wb.Sheets[wb.SheetNames[0]]
       const range = xlsx.utils.decode_range(sheet['!ref'])
       for (let R = range.s.r; R <= range.e.r; ++R) {
-        if (
-          R === 0 ||
-          R === 1 ||
-          !sheet[xlsx.utils.encode_cell({ c: 0, r: R })]
-        ) {
+        if (R === 0 || !sheet[xlsx.utils.encode_cell({ c: 0, r: R })]) {
           continue
         }
-
         let col = 0
         const entity = {
           name: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
@@ -243,6 +239,7 @@ export class ModuleService implements OnApplicationBootstrap {
           email: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
           status: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
         }
+        console.log(entity)
         rawEntities.push(entity)
       }
     } else if (fileEtx == FileExtension.CSV) {
@@ -636,6 +633,7 @@ export class ModuleService implements OnApplicationBootstrap {
     const entities = await this.entityRepo.find({ where: { id: In(dto.ids) } })
     if (entities) {
       if (
+        !this.utilService.checkOwnershipEntity(entities[0]) &&
         !this.utilService.checkRoleAction({
           target: entities[0].module.name,
           type: ActionType.CAN_DELETE_ANY,

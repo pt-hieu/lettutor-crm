@@ -11,7 +11,7 @@ export class ActionGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredActions = this.reflector.getAllAndOverride<
-      { target: String; type: ActionType }[]
+      { target: string; type: ActionType }[]
     >(KEY, [context.getHandler(), context.getClass()])
 
     if (!requiredActions) {
@@ -27,7 +27,12 @@ export class ActionGuard implements CanActivate {
             (target === requiredAction.target &&
               type === requiredAction.type) ||
             (target === DefaultActionTarget.ADMIN &&
-              type === ActionType.IS_ADMIN),
+              type === ActionType.IS_ADMIN) ||
+            (target === DefaultActionTarget.SALE &&
+              type === ActionType.IS_SALE &&
+              requiredAction.type === ActionType.CAN_CREATE_NEW &&
+              requiredAction.target !== DefaultActionTarget.ROLE &&
+              requiredAction.target !== DefaultActionTarget.USER),
         ),
       ),
     ).length
