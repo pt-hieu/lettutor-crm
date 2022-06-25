@@ -2,7 +2,14 @@ import { Base } from '@utils/models/base'
 import { Attachments } from '@utils/models/note'
 
 type TVisibility = {
-  [k in 'Overview' | 'Update' | 'Create' | 'Detail' | 'Kanban']?: boolean
+  [k in
+    | 'Overview'
+    | 'Update'
+    | 'Create'
+    | 'Detail'
+    | 'Kanban'
+    | 'Confirm Stage Won'
+    | 'Confirm Stage Lost']?: boolean
 }
 
 export enum FieldType {

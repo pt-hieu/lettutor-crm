@@ -24,7 +24,8 @@ export class CreateDefaultRole1650736570180 implements MigrationInterface {
     await queryRunner.query(query2)
 
     const query3 = `INSERT INTO "role_actions_action"("roleId", "actionId") 
-    VALUES ('bce822ca-4af7-4601-b17e-b00020854cbc', '69b6645f-fe2a-46e7-be53-e9fde6e4ef5e');`
+    VALUES ('bce822ca-4af7-4601-b17e-b00020854cbc', '69b6645f-fe2a-46e7-be53-e9fde6e4ef5e'),
+           ('2ce54996-ec58-4a9d-ad25-37104a30a8d0', '6dce2f28-1b9c-470b-97b9-0d144e78db50');`
     await queryRunner.query(query3)
   }
 

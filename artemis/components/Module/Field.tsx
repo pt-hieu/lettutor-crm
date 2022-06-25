@@ -17,6 +17,7 @@ type FieldProps = {
   inlineEdit?: boolean
   containerClassname?: string
   registerName?: string
+  hideControl?: boolean
 }
 
 function index(obj: Record<any, any>, notation: string) {
@@ -28,6 +29,7 @@ export default function Field({
   inlineEdit,
   containerClassname,
   registerName,
+  hideControl,
 }: FieldProps) {
   const {
     name,
@@ -248,7 +250,7 @@ export default function Field({
           editable={!inlineEdit || isEnable}
           props={{
             id: name,
-            className: `rounded-lg w-[40px] h-[40px] ${
+            className: `rounded-lg w-[24px] h-[24px] ${
               inlineEdit ? 'mx-2' : ''
             }`,
             disabled: inlineEdit && !isEnable,
@@ -366,7 +368,11 @@ export default function Field({
               },
             }}
           >
-            <div className="flex gap-2 opacity-0 group-hover:opacity-100 crm-transition">
+            <div
+              className={`flex gap-2 invisible ${
+                !hideControl ? 'group-hover:visible' : ''
+              } crm-transition`}
+            >
               <button
                 onClick={enable}
                 type="button"

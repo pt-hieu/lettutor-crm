@@ -8,6 +8,13 @@ import { Note } from 'src/note/note.entity'
 import { Task } from 'src/task/task.entity'
 import { BaseEntity } from 'src/utils/base.entity'
 
+
+export enum FileExtension {
+  CSV = 'csv',
+  XLSX = 'xlsx',
+  NUMBERS = 'numbers'
+}
+
 @Entity({ name: 'file' })
 export class File extends BaseEntity {
   @ManyToOne(() => Note, (n) => n.attachments, { onDelete: 'CASCADE' })

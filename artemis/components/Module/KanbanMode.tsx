@@ -2,7 +2,16 @@ import { notification } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { omit, pick } from 'lodash'
 import Link from 'next/link'
-import { useCallback, useMemo } from 'react'
+import {
+  ElementRef,
+  ElementType,
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import {
   DragDropContext,
   Draggable,
@@ -11,9 +20,11 @@ import {
 } from 'react-beautiful-dnd'
 import { QueryKey, useMutation, useQuery, useQueryClient } from 'react-query'
 
+import ConfirmStageModal from '@utils/components/ConfirmStageModal'
 import { useModal } from '@utils/hooks/useModal'
 import { useRelationField } from '@utils/hooks/useRelationField'
 import { useStore } from '@utils/hooks/useStore'
+import { DealStageType } from '@utils/models/deal'
 import {
   AggregateType,
   Entity,
@@ -38,12 +49,22 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
   const { kanban_meta, meta } = module
   const { field: kanbanField } = kanban_meta || {}
 
+  useRelationField(module.meta)
+
+  const [confirmStageWon, openWon, closeWon] = useModal()
+  const [confirmStageLost, openLost, closeLost] = useModal()
+
   const field = meta?.find((field) => field.name === kanbanField)
   if (!field || field.relateType === RelateType.MULTIPLE) {
     return <></>
   }
 
-  useRelationField([field])
+  const [selectedId, setSelectedId] = useState<string>('')
+  const entity = useMemo(
+    () => entities.find((e) => e.id === selectedId),
+    [selectedId, entities],
+  )
+
   const { data: relationItems } = useStore<{ id: string; name: string }[]>([
     'relation-data',
     field.relateTo,
@@ -81,9 +102,16 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
       },
       onError: () => {
         client.refetchQueries(dataKey)
+        notification.error({
+          message: 'Update unsuccessfully.',
+        })
       },
     },
   )
+
+  const colRefs = useRef<
+    Record<string, ElementRef<typeof KanbanColumn> | null>
+  >({})
 
   const handleDragEnd: OnDragEndResponder = useCallback(
     ({ draggableId, source, destination }) => {
@@ -105,8 +133,19 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
         return { ...e }
       })
 
+      const type = colRefs.current[destination.droppableId]?.type
+      if (type === DealStageType.CLOSED_LOST) {
+        setSelectedId(draggableId)
+        openLost()
+      }
+
+      if (type === DealStageType.CLOSED_WON) {
+        setSelectedId(draggableId)
+        openWon()
+      }
+
       const dto = pick(entityMap.get(draggableId)!, ['data', 'name', 'id'])
-      mutateAsync({ ...dto, ...dto.data })
+      mutateAsync({ id: dto.id, name: dto.name, ...dto.data })
     },
     [module, dataKey, entities, isLoading],
   )
@@ -116,6 +155,7 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
       <DragDropContext onDragEnd={handleDragEnd}>
         {Object.keys(groupedEntities).map((key) => (
           <KanbanColumn
+            ref={(ref) => (colRefs.current[key] = ref)}
             key={key}
             value={key}
             entities={groupedEntities[key]}
@@ -124,6 +164,31 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
           />
         ))}
       </DragDropContext>
+
+      <ConfirmStageModal
+        close={closeWon}
+        dataKey={dataKey}
+        visible={confirmStageWon}
+        fields={
+          meta?.filter((field) => !!field.visibility['Confirm Stage Won']) || []
+        }
+        moduleName={module.name}
+        entityId={selectedId}
+        entity={entity}
+      />
+
+      <ConfirmStageModal
+        close={closeLost}
+        dataKey={dataKey}
+        visible={confirmStageLost}
+        fields={
+          meta?.filter((field) => !!field.visibility['Confirm Stage Lost']) ||
+          []
+        }
+        moduleName={module.name}
+        entityId={selectedId}
+        entity={entity}
+      />
     </div>
   )
 }
@@ -157,7 +222,21 @@ const aggrMap: Record<
   [AggregateType.MIN]: min,
 }
 
-function KanbanColumn({ entities, value, field, module }: KanbanColumnProps) {
+const typeToBg: Record<DealStageType | 'undefined', string> = {
+  Open: '',
+  'Close Lost': 'bg-green-500',
+  'Close Won': 'bg-red-500',
+  undefined: '',
+}
+
+type Ref = {
+  type: DealStageType | undefined
+}
+
+const KanbanColumn = forwardRef<Ref, KanbanColumnProps>(function (
+  { entities, value, field, module },
+  ref,
+) {
   const { kanban_meta: meta } = module
   const aggregation = useMemo(
     () =>
@@ -168,15 +247,29 @@ function KanbanColumn({ entities, value, field, module }: KanbanColumnProps) {
     [entities],
   )
 
+  const cellRef = useRef<ElementRef<typeof RelationCell>>(null)
+
+  useImperativeHandle(ref, () => ({
+    type: cellRef.current?.type,
+  }))
+
   return (
     <Droppable droppableId={value}>
       {({ droppableProps, innerRef, placeholder }) => (
         <div className="border rounded-md min-w-[250px]">
-          <div className="p-4 border-b">
+          <div
+            className={`p-4 border-b rounded-t-md ${
+              typeToBg[cellRef.current?.type || 'undefined']
+            }`}
+          >
             <div className="font-semibold">
               {field.relateTo && (
                 <div>
-                  <RelationCell relateTo={field.relateTo} targetId={value} />
+                  <RelationCell
+                    ref={cellRef}
+                    relateTo={field.relateTo}
+                    targetId={value}
+                  />
                 </div>
               )}
 
@@ -214,7 +307,7 @@ function KanbanColumn({ entities, value, field, module }: KanbanColumnProps) {
       )}
     </Droppable>
   )
-}
+})
 
 type KanbanEntityProps = {
   entity: Entity

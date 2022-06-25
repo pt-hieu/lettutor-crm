@@ -15,15 +15,19 @@ import { CsvParser, ParsedData } from 'nest-csv-parser'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Duplex } from 'stream'
 import { FindOneOptions, In, Repository } from 'typeorm'
+import * as xlsx from 'xlsx'
+import { string } from 'yargs'
 
 import { Action, ActionType } from 'src/action/action.entity'
 import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
-import { File } from 'src/file/file.entity'
+import { File, FileExtension } from 'src/file/file.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
 import { Note } from 'src/note/note.entity'
 import { DTO } from 'src/type'
+import { UserStatus } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
+import { CustomLRU } from 'src/utils/custom-lru'
 
 import { LeadSource, account, contact, deal, lead } from './default.entity'
 import {
@@ -52,6 +56,7 @@ export class ModuleService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     await this.initDefaultModules()
+    await this.initLRUCacheUsers()
   }
 
   private async initDefaultModules() {
@@ -62,6 +67,14 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
       skipUpdateIfNoValuesChanged: true,
+    })
+  }
+  private async initLRUCacheUsers() {
+    const users = await this.userService.getManyRaw()
+    users.forEach((user) => {
+      if (user.status != UserStatus.ACTIVE) return
+      console.log('Added', user.id, 'to LRU cache')
+      CustomLRU.set(user.id, user.id)
     })
   }
 
@@ -104,18 +117,32 @@ export class ModuleService implements OnApplicationBootstrap {
     return this.moduleRepo.save(dto)
   }
 
-  async getTemplateForCreatingModuule(moduleName: string) {
-    const csv = await parseAsync(
-      {
-        name: moduleName,
-      },
-      { fields: ['name', 'phone', 'email', 'status'] },
-    )
+  async getTemplateForCreatingModule(moduleName: string, fileFormat) {
+    if (fileFormat == 'csv') {
+      const csv = await parseAsync(
+        {
+          name: moduleName,
+        },
+        { fields: ['name', 'phone', 'email', 'status'] },
+      )
 
-    return csv
+      return csv
+    }
+    if (fileFormat == 'xlsx') {
+      var data = [
+        ['name', 'phone', 'email', 'status'],
+        ['lead', '0123456789', 'mail@mail.com', 'None'],
+      ]
+
+      var wb = xlsx.utils.book_new()
+      var ws = xlsx.utils.aoa_to_sheet(data)
+
+      xlsx.utils.book_append_sheet(wb, ws)
+      return xlsx.write(wb, { type: 'base64' })
+    }
   }
 
-  async getListInCsvFormat(moduleName: string) {
+  async getListInFileFormat(moduleName: string, fileFormat: string) {
     const module = await this.moduleRepo.findOne({
       where: { name: moduleName },
     })
@@ -125,7 +152,7 @@ export class ModuleService implements OnApplicationBootstrap {
       .createQueryBuilder('e')
       .leftJoin('e.module', 'module')
       .orderBy('e.createdAt', 'DESC')
-      .andWhere('module.name = :name', { name: moduleName })
+      .where('module.name = :name', { name: moduleName })
 
     if (
       !this.utilService.checkRoleAction({
@@ -147,11 +174,31 @@ export class ModuleService implements OnApplicationBootstrap {
       created_at: e.createdAt,
     }))
 
-    const csv = await parseAsync(rawData, {
-      fields: ['name', 'email', 'phone', 'source', 'created_at'],
-    })
+    if (fileFormat == 'csv') {
+      const csv = await parseAsync(rawData, {
+        fields: ['name', 'email', 'phone', 'source', 'status', 'created_at'],
+      })
+      return csv
+    }
 
-    return csv
+    if (fileFormat == 'xlsx') {
+      let data = [['name', 'email', 'phone', 'source', 'status', 'created_at']]
+      rawData.forEach((r) => {
+        data.push([
+          r.name,
+          String(r.email),
+          String(r.phone),
+          String(r.source),
+          String(r.status),
+          String(r.created_at),
+        ])
+      })
+
+      var wb = xlsx.utils.book_new()
+      var ws = xlsx.utils.aoa_to_sheet(data)
+      xlsx.utils.book_append_sheet(wb, ws)
+      return xlsx.write(wb, { type: 'base64' })
+    }
   }
 
   async bulkCreateEntities(moduleName: string, dto: DTO.File.Files) {
@@ -170,38 +217,67 @@ export class ModuleService implements OnApplicationBootstrap {
 
     if (!module) throw new BadRequestException('Module not found')
     const file = dto.files[0]
-    const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))
+    let filenameArr = file.name.split('.')
+    let fileEtx = filenameArr[filenameArr.length - 1]
 
-    const rawEntities = (await this.csvParser.parse(
-      stream,
-      DTO.Module.AddEntityFromFile,
-      undefined,
-      undefined,
-      { strict: true, separator: ',' },
-    )) as ParsedData<DTO.Module.AddEntityFromFile>
-
-    const users = await this.userService.getManyRaw()
-
-    const entities: DTO.Module.AddEntity[] = rawEntities.list.map(
-      (e: DTO.Module.AddEntityFromFile) => {
-        let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
-        let randomIdx = generateRandom(0, users.length - 1)
-        entity['source'] = LeadSource.NONE
-        entity['ownerId'] = users[randomIdx].id
-        delete entity['name']
-        return {
-          name: moduleName,
-          data: entity,
+    let entities: DTO.Module.AddEntity[]
+    let rawEntities: DTO.Module.AddEntityFromFile[] = new Array()
+    console.log(fileEtx)
+    if (fileEtx == FileExtension.XLSX || fileEtx == FileExtension.NUMBERS) {
+      const buffer = Buffer.from(file.buffer, 'base64')
+      const wb = xlsx.read(buffer, { type: 'buffer' })
+      const sheet: xlsx.WorkSheet = wb.Sheets[wb.SheetNames[0]]
+      const range = xlsx.utils.decode_range(sheet['!ref'])
+      for (let R = range.s.r; R <= range.e.r; ++R) {
+        if (R === 0 || !sheet[xlsx.utils.encode_cell({ c: 0, r: R })]) {
+          continue
         }
-      },
-    )
+        let col = 0
+        const entity = {
+          name: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
+          phone: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
+          email: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
+          status: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
+        }
+        console.log(entity)
+        rawEntities.push(entity)
+      }
+    } else if (fileEtx == FileExtension.CSV) {
+      const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))
+
+      const moduleData = (await this.csvParser.parse(
+        stream,
+        DTO.Module.AddEntityFromFile,
+        undefined,
+        undefined,
+        { strict: true, separator: ',' },
+      )) as ParsedData<DTO.Module.AddEntityFromFile>
+      rawEntities = moduleData.list
+    }
+
+    const user = await this.userService.getOne(this.payloadService.data)
+
+    entities = rawEntities.map((e: DTO.Module.AddEntityFromFile) => {
+      let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
+      let userID = CustomLRU.pop()
+
+      entity['source'] = LeadSource.NONE
+      entity['ownerId'] = userID
+      CustomLRU.set(userID, userID)
+
+      const entityName = String(entity.name)
+      delete entity['name']
+      return {
+        name: entityName,
+        data: entity,
+      }
+    })
 
     entities.forEach((e) => {
       const validateMessage = module.validateEntity(e.data)
       if (validateMessage)
         throw new UnprocessableEntityException(validateMessage)
     })
-
     return this.entityRepo.save(
       entities.map((e) => ({
         name: e.name,
@@ -250,7 +326,7 @@ export class ModuleService implements OnApplicationBootstrap {
   async convert(
     sourceEntity: Entity,
     targetModuleName: string,
-    dto: Record<string, any>,
+    dto: Record<string, any> = {},
     options: { useEntity: boolean; availableModules: string[] },
   ) {
     const targetModule = await this.moduleRepo.findOne({
@@ -270,6 +346,7 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     let targetEntity = new Entity()
+
     targetEntity.name = `[${
       targetModule.name.charAt(0).toUpperCase() + targetModule.name.slice(1)
     }] ${sourceEntity.name}`
@@ -349,6 +426,7 @@ export class ModuleService implements OnApplicationBootstrap {
     const sourceEntity = await this.entityRepo.findOne({
       where: { id: sourceId },
     })
+
     if (!sourceEntity) throw new NotFoundException('Entity not exist')
 
     const entities = await Promise.all(
@@ -532,7 +610,7 @@ export class ModuleService implements OnApplicationBootstrap {
     if (!entity) throw new BadRequestException('Entity not found')
 
     const module = entity.module
-    const validateMsg = module.validateEntity(dto.data)
+    const validateMsg = module.validateEntity(dto.data, { isUpdate: true })
 
     if (validateMsg) throw new UnprocessableEntityException(validateMsg)
 
@@ -546,13 +624,18 @@ export class ModuleService implements OnApplicationBootstrap {
       throw new ForbiddenException()
     }
 
-    return this.entityRepo.save({ ...entity, ...dto })
+    return this.entityRepo.save({
+      ...entity,
+      name: dto.name || entity.name,
+      data: { ...entity.data, ...dto.data },
+    })
   }
 
   async batchDeleteEntity(dto: DTO.BatchDelete) {
     const entities = await this.entityRepo.find({ where: { id: In(dto.ids) } })
     if (entities) {
       if (
+        !this.utilService.checkOwnershipEntity(entities[0]) &&
         !this.utilService.checkRoleAction({
           target: entities[0].module.name,
           type: ActionType.CAN_DELETE_ANY,

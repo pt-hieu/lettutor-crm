@@ -115,6 +115,8 @@ export const deal: Pick<
         Update: true,
         Create: true,
         Detail: true,
+        'Confirm Stage Lost': true,
+        'Confirm Stage Won': true,
       },
     },
     {
@@ -128,6 +130,8 @@ export const deal: Pick<
         Create: true,
         Detail: true,
         Kanban: true,
+        'Confirm Stage Lost': true,
+        'Confirm Stage Won': true,
       },
     },
     {
@@ -207,6 +211,7 @@ export const account: Pick<
       meta: {
         ownerId: 'ownerId',
         tasks: 'tasks',
+        phone: 'phone',
       },
     },
   ],
@@ -301,6 +306,9 @@ export const contact: Pick<Module, 'name' | 'meta' | 'convert_meta'> = {
       meta: {
         ownerId: 'ownerId',
         tasks: 'tasks',
+        phone: 'phone',
+        email: 'email',
+        source: 'source',
       },
     },
   ],

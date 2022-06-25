@@ -8,6 +8,10 @@ export const defaultActions: Pick<Action, 'target' | 'type'>[] = [
     type: ActionType.IS_ADMIN,
   },
   {
+    target: DefaultActionTarget.SALE,
+    type: ActionType.IS_SALE,
+  },
+  {
     target: DefaultActionTarget.USER,
     type: ActionType.CAN_VIEW_ALL,
   },

@@ -69,6 +69,7 @@ export default function UpdateRoleModal({ role, close, visible }: Props) {
   const submitUpdateRole = useCallback(
     handleSubmit((data) => {
       updateMutateAsync({ id: role.id, data })
+      close()
     }),
     [],
   )

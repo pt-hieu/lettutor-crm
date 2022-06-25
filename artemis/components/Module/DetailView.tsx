@@ -1,5 +1,4 @@
 import { notification } from 'antd'
-import { isNotEmptyObject } from 'class-validator'
 import { capitalize } from 'lodash'
 import NotFound from 'pages/404'
 import { useCallback, useMemo } from 'react'
@@ -8,20 +7,17 @@ import { useMutation, useQuery } from 'react-query'
 
 import { DetailNavbar } from '@components/Details/Navbar'
 import { DetailSidebar, Sections } from '@components/Details/Sidebar'
+import LogSection from '@components/Logs/LogSection'
 import { NoteSection } from '@components/Notes/NoteSection'
 
-import { GlobalState } from '@utils/GlobalStateKey'
 import AttachmentSection from '@utils/components/AttachmentSection'
 import Layout from '@utils/components/Layout'
 import TaskList from '@utils/components/TaskList'
-import {
-  UseAuthorizationReturnType,
-  useAuthorization,
-} from '@utils/hooks/useAuthorization'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
 import { useRelationField } from '@utils/hooks/useRelationField'
 import { useTypedSession } from '@utils/hooks/useTypedSession'
-import { FieldType, Module } from '@utils/models/module'
-import { ActionType, DefaultModule } from '@utils/models/role'
+import { FieldType } from '@utils/models/module'
+import { ActionType } from '@utils/models/role'
 import { TaskStatus } from '@utils/models/task'
 import { getEntity, updateEntity } from '@utils/service/module'
 import { getTaskOfEntity } from '@utils/service/task'
@@ -53,16 +49,7 @@ export default function DetailView({ paths }: TProps) {
   const metaData = entity.module.meta || []
   const isOwner = entityData.ownerId === ownerId
 
-  const { data: author } = useQuery<UseAuthorizationReturnType>(
-    GlobalState.AUTHORIZATION,
-    { enabled: false },
-  )
-
-  if (!auth(ActionType.CAN_VIEW_DETAIL_ANY, moduleName) && !isOwner) {
-    return <NotFound />
-  }
-
-  useRelationField(metaData)
+  useRelationField(entity.module.meta)
 
   const form = useForm({
     mode: 'onChange',
@@ -113,6 +100,10 @@ export default function DetailView({ paths }: TProps) {
     [tasks],
   )
 
+  if (!auth(ActionType.CAN_VIEW_DETAIL_ANY, moduleName) && !isOwner) {
+    return <NotFound />
+  }
+
   return (
     <Layout title={`CRM | ${capitalize(moduleName)} | ${entity?.name}`}>
       <div className="crm-container">
@@ -144,12 +135,25 @@ export default function DetailView({ paths }: TProps) {
                       maxLength: 30,
                     }}
                     inlineEdit
+                    hideControl={
+                      !auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, moduleName)
+                    }
                   />
 
                   {metaData
                     .filter((field) => !!field.visibility.Detail)
                     .map((field) => (
-                      <Field data={field} key={field.name} inlineEdit />
+                      <Field
+                        data={field}
+                        key={field.name}
+                        inlineEdit
+                        hideControl={
+                          !auth(
+                            ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+                            moduleName,
+                          )
+                        }
+                      />
                     ))}
                 </FormProvider>
               </form>
@@ -204,6 +208,8 @@ export default function DetailView({ paths }: TProps) {
               id={Sections.Attachments}
               data={entity.attachments}
             />
+
+            <LogSection title="Logs" source={moduleName} entityId={id} />
           </div>
         </div>
       </div>

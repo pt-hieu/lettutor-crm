@@ -3,7 +3,7 @@ import { useQuery } from 'react-query'
 
 import Dropdown from '@utils/components/Dropdown'
 import Paginate from '@utils/components/Paginate'
-import { LogAction, LogSource } from '@utils/models/log'
+import { DefaultSource, LogAction, LogSource } from '@utils/models/log'
 import { getLogs } from '@utils/service/log'
 
 import LogFilter from './LogFilter'
@@ -82,7 +82,12 @@ export default function LogSection({ title, entityId, source }: TProps) {
         )}
 
         {logs?.items.map((log, index) => (
-          <LogItem className="ring-0 px-0 pb-0" key={log.id} data={log} index={index} />
+          <LogItem
+            className="ring-0 px-0 pb-0"
+            key={log.id}
+            data={log}
+            index={index}
+          />
         ))}
       </div>
     </div>

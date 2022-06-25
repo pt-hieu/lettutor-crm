@@ -46,7 +46,9 @@
     "chalk",
     "nest-csv-parser",
     "json2csv",
-    "@types/json2csv"
+    "@types/json2csv",
+    "lru-cache",
+    "xlsx"
   ],
   "ares": [
     "@nestjs/common",
@@ -114,7 +116,8 @@
     "tailwindcss",
     "typescript",
     "yargs",
-    "chalk"
+    "chalk",
+    "file-saver"
   ],
   "zeus": [
     "@nestjs/axios",

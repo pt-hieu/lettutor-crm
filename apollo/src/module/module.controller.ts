@@ -82,33 +82,41 @@ export class ModuleController {
     return this.service.addEntity(moduleName, dto)
   }
 
-  @Get(':name/csv')
+  @Get(':name/template/:format')
   @ApiOperation({ summary: 'to get the csv template for creating module' })
   async getCreateLeadTemplate(
     @Param('name') moduleName: string,
+    @Param('format') fileFormat: string,
     @Response({ passthrough: true }) res: Res,
   ) {
-    const csv = await this.service.getTemplateForCreatingModuule(moduleName)
+    const data = await this.service.getTemplateForCreatingModule(
+      moduleName,
+      fileFormat,
+    )
 
-    res.set('Content-Type', 'text/csv')
-    res.attachment('template.csv').send(csv)
+    const fileName = 'template.' + fileFormat
+    res.contentType('text/' + fileFormat)
+    res.attachment(fileName).send(data)
   }
 
-  @Get(':name/export/csv')
+  @Get(':name/export/:format')
   @ApiOperation({ summary: 'to get list entities of a specific module' })
   async exportEntities(
     @Param('name') moduleName: string,
+    @Param('format') fileFormat: string,
     @Response({ passthrough: true }) res: Res,
   ) {
-    const csv = await this.service.getListInCsvFormat(moduleName)
-    const fileName = moduleName + '.csv'
+    const data = await this.service.getListInFileFormat(moduleName, fileFormat)
+    const fileName = moduleName + '.' + fileFormat
 
-    res.set('Content-Type', 'text/csv')
-    res.attachment(fileName).send(csv)
+    res.contentType('text/' + fileFormat)
+    res.attachment(fileName).send(data)
   }
 
-  @Post(':name/import/csv')
-  @ApiOperation({ summary: 'to import entities at module via uploading' })
+  @Post(':name/import')
+  @ApiOperation({
+    summary: 'to import entities at module via uploading csv/xlsx',
+  })
   importEntities(
     @Body() dto: DTO.File.Files,
     @Param('name') moduleName: string,
