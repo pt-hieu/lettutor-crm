@@ -50,10 +50,6 @@ export default function DetailView({ paths }: TProps) {
   const metaData = entity.module.meta || []
   const isOwner = entityData.ownerId === ownerId
 
-  if (!auth(ActionType.CAN_VIEW_DETAIL_ANY, moduleName) && !isOwner) {
-    return <NotFound />
-  }
-
   useRelationField(entity.module.meta)
 
   const form = useForm({
@@ -104,6 +100,10 @@ export default function DetailView({ paths }: TProps) {
     }),
     [tasks],
   )
+
+  if (!auth(ActionType.CAN_VIEW_DETAIL_ANY, moduleName) && !isOwner) {
+    return <NotFound />
+  }
 
   return (
     <Layout title={`CRM | ${capitalize(moduleName)} | ${entity?.name}`}>
