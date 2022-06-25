@@ -1,5 +1,4 @@
 import { notification } from 'antd'
-import { isNotEmptyObject } from 'class-validator'
 import { capitalize } from 'lodash'
 import NotFound from 'pages/404'
 import { useCallback, useMemo } from 'react'

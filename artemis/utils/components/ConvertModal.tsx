@@ -7,7 +7,6 @@ import {
   ComponentProps,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useState,
 } from 'react'
@@ -122,7 +121,7 @@ export default function ConvertModal({
   const handleSubmitConvert = useCallback(
     form.handleSubmit(
       (data) => {
-        mutateAsync(Object.values(data))
+        mutateAsync(Object.values(data).filter((item) => !!item.module_name))
       },
       (e) => console.log(e),
     ),
@@ -217,8 +216,9 @@ function ConvertForm({
   isModuleTargeted,
   index,
 }: ConvertFormProps) {
-  const { setValue, control, watch } =
+  const { setValue, control, watch, unregister, register } =
     useFormContext<{ module_name?: string; dto: any; useEntity: boolean }[]>()
+
   useRelationField(module.meta)
 
   const dispatch = useDispatch()
@@ -284,11 +284,6 @@ function ConvertForm({
     [module, useEntity, modules],
   )
 
-  useEffect(() => {
-    if (!isModuleTargeted) return
-    setValue(`${index}.module_name`, module.name)
-  }, [isModuleTargeted])
-
   return (
     <div key={module.id}>
       <div className="flex items-center justify-between mb-3 pb-3 border-b">
@@ -302,6 +297,16 @@ function ConvertForm({
           id={module.name}
         />
       </div>
+
+      {isModuleTargeted && (
+        <Controller
+          shouldUnregister
+          defaultValue={module.name}
+          control={control}
+          name={`${index}.module_name`}
+          render={({ field }) => <input hidden {...field} />}
+        />
+      )}
 
       <AnimatePresence exitBeforeEnter presenceAffectsLayout>
         {isModuleTargeted &&

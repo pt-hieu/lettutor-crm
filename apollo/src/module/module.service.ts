@@ -346,6 +346,7 @@ export class ModuleService implements OnApplicationBootstrap {
     }
 
     let targetEntity = new Entity()
+
     targetEntity.name = `[${
       targetModule.name.charAt(0).toUpperCase() + targetModule.name.slice(1)
     }] ${sourceEntity.name}`
@@ -425,6 +426,7 @@ export class ModuleService implements OnApplicationBootstrap {
     const sourceEntity = await this.entityRepo.findOne({
       where: { id: sourceId },
     })
+
     if (!sourceEntity) throw new NotFoundException('Entity not exist')
 
     const entities = await Promise.all(
