@@ -13,7 +13,6 @@ import { ConvertToDealSchema } from './utils/ValidateSchema/ConvertToDeal.schema
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
-
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

@@ -33,7 +33,7 @@ ENV GH_TOKEN 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
 ENV API_KEY wqnlaskdnzxcuosd
 
 ENV DB_HOST postgres
-ENV API_GATEWAY http://zeus:4000
+ENV API_GATEWAY http://zeus:4000/v1/api
 ENV ARES_SERVICE http://ares:9000
 
 EXPOSE 8000
