@@ -23,6 +23,7 @@ async function bootstrap() {
 
   app.use(json({ limit: '22mb' }))
   app.use(urlencoded({ limit: '22mb', extended: true }))
+
   app.useGlobalInterceptors(new TransformInterceptor())
 
   registerSchema(ConvertToDealSchema)
