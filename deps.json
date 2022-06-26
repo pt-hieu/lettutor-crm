@@ -117,7 +117,8 @@
     "typescript",
     "yargs",
     "chalk",
-    "file-saver"
+    "file-saver",
+    "@types/file-saver"
   ],
   "zeus": [
     "@nestjs/axios",
