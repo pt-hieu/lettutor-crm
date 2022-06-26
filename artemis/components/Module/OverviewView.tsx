@@ -25,8 +25,7 @@ type Props = {
 }
 
 export function toCapitalizedWords(name: string) {
-  const words = name.match(/[A-Za-z][a-z]*/g) || []
-  return words.map(capitalize).join(' ')
+  return name.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase())
 }
 
 export enum MODE {
