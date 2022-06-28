@@ -52,8 +52,8 @@ function TaskInfo(props: TaskProps) {
   )
 
   return (
-    <div className="pb-3">
-      <div className="flex gap-4 group items-center">
+    <div className="pb-3 group">
+      <div className="flex gap-4 items-center">
         <Link href={`/tasks/${id}`}>
           <a className="font-semibold"> {name} </a>
         </Link>

@@ -53,9 +53,6 @@ export const DetailSidebar = ({ paths }: Props) => {
           label: Sections.Notes,
         },
         {
-          label: Sections.Deals,
-        },
-        {
           id: Sections.OpenActivities,
           label: (
             <span>
@@ -118,7 +115,6 @@ export const DetailSidebar = ({ paths }: Props) => {
         moduleName={moduleName}
         entityId={id}
       />
-
       <DetailPageSidebar data={SideBarItems} />
     </div>
   )
