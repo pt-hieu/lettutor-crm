@@ -60,7 +60,8 @@ function TaskInfo(props: TaskProps) {
 
         {status !== TaskStatus.COMPLETED &&
           (auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, DefaultModule.TASK) ||
-            isOwner) && (
+            isOwner ||
+            auth(ActionType.IS_SALE)) && (
             <Confirm
               message="Are you sure you want to close this task?"
               onYes={() => mutateAsync()}
