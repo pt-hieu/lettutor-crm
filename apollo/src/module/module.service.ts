@@ -29,6 +29,7 @@ import { UserService } from 'src/user/user.service'
 import { CustomLRU } from 'src/utils/custom-lru'
 
 import { LeadSource, account, contact, deal, lead } from './default.entity'
+import { ModuleName } from './default.entity'
 import {
   Entity,
   FieldType,
@@ -316,6 +317,15 @@ export class ModuleService implements OnApplicationBootstrap {
     const validateMessage = module.validateEntity(dto.data)
 
     if (validateMessage) throw new UnprocessableEntityException(validateMessage)
+
+    if (moduleName === ModuleName.DEAL && !dto.data['probability']) {
+      const dealStage = await this.dealStageRepo.findOne({
+        where: { id: dto.data['stageId'] },
+      })
+
+      dto.data['probability'] = dealStage.probability
+    }
+
     return this.entityRepo.save({ ...dto, moduleId: module.id })
   }
 
@@ -618,6 +628,19 @@ export class ModuleService implements OnApplicationBootstrap {
       })
     ) {
       throw new ForbiddenException()
+    }
+
+    // if deal stage change and probability not change
+    if (
+      module.name === ModuleName.DEAL &&
+      entity.data['stageId'] !== dto.data['stageId'] &&
+      entity.data['probability'] === dto.data['probability']
+    ) {
+      const dealStage = await this.dealStageRepo.findOne({
+        where: { id: dto.data['stageId'] },
+      })
+
+      dto.data['probability'] = dealStage.probability
     }
 
     return this.entityRepo.save({
