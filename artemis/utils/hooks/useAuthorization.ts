@@ -12,5 +12,5 @@ export const useAuthorization = () => {
   )
 
   return (action: ActionType, moduleName?: DefaultModule | string) =>
-    (data || {})[action + ' ' + moduleName]
+    (data || {})[action + ' ' + moduleName] || (data || {})[action]
 }
