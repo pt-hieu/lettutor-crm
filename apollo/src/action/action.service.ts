@@ -4,7 +4,7 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm'
+import { FindOneOptions, Repository } from 'typeorm'
 
 import { Action } from './action.entity'
 import { defaultActions } from './default.action'
@@ -20,9 +20,8 @@ export class ActionService implements OnApplicationBootstrap {
   }
 
   private async initDefaultActions() {
-    if (process.env.NODE_ENV === 'production') return
     const actions = await this.actionRepo.find()
-    if (actions.length > 0) return
+    if (actions.length > 2) return // 2 for sale and admin
 
     return this.actionRepo.upsert(defaultActions, {
       conflictPaths: ['id'],

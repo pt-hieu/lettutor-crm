@@ -16,7 +16,6 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { Duplex } from 'stream'
 import { FindOneOptions, In, Repository } from 'typeorm'
 import * as xlsx from 'xlsx'
-import { string } from 'yargs'
 
 import { Action, ActionType } from 'src/action/action.entity'
 import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
@@ -60,15 +59,12 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   private async initDefaultModules() {
-    if (process.env.NODE_ENV === 'production') return
-    const modules = await this.moduleRepo.find()
-    // if (modules.length > 0) return
-
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
       skipUpdateIfNoValuesChanged: true,
     })
   }
+
   private async initLRUCacheUsers() {
     const users = await this.userService.getManyRaw()
     users.forEach((user) => {
