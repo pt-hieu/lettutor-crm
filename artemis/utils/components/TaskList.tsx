@@ -52,15 +52,16 @@ function TaskInfo(props: TaskProps) {
   )
 
   return (
-    <div className="pb-3">
-      <div className="flex gap-4 group items-center">
+    <div className="pb-3 group">
+      <div className="flex gap-4 items-center">
         <Link href={`/tasks/${id}`}>
           <a className="font-semibold"> {name} </a>
         </Link>
 
         {status !== TaskStatus.COMPLETED &&
           (auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, DefaultModule.TASK) ||
-            isOwner) && (
+            isOwner ||
+            auth(ActionType.IS_SALE)) && (
             <Confirm
               message="Are you sure you want to close this task?"
               onYes={() => mutateAsync()}
