@@ -100,7 +100,8 @@ export default function Search({ onSearchChange: setSearch, search }: Props) {
           </Confirm>
         )}
 
-        {auth(ActionType.CAN_CREATE_NEW, DefaultModule.TASK) && (
+        {(auth(ActionType.CAN_CREATE_NEW, DefaultModule.TASK) ||
+          auth(ActionType.IS_SALE)) && (
           <ButtonAdd title="Create Task" asLink link="/tasks/create" />
         )}
       </div>

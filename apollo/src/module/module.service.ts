@@ -16,7 +16,6 @@ import { paginate } from 'nestjs-typeorm-paginate'
 import { Duplex } from 'stream'
 import { FindOneOptions, In, Repository } from 'typeorm'
 import * as xlsx from 'xlsx'
-import { string } from 'yargs'
 
 import { Action, ActionType } from 'src/action/action.entity'
 import { DealStage, DealStageType } from 'src/deal-stage/deal-stage.entity'
@@ -30,6 +29,7 @@ import { UserService } from 'src/user/user.service'
 import { CustomLRU } from 'src/utils/custom-lru'
 
 import { LeadSource, account, contact, deal, lead } from './default.entity'
+import { ModuleName } from './default.entity'
 import {
   Entity,
   FieldType,
@@ -60,15 +60,12 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   private async initDefaultModules() {
-    if (process.env.NODE_ENV === 'production') return
-    const modules = await this.moduleRepo.find()
-    // if (modules.length > 0) return
-
     return this.moduleRepo.upsert([lead, deal, account, contact], {
       conflictPaths: ['name'],
       skipUpdateIfNoValuesChanged: true,
     })
   }
+
   private async initLRUCacheUsers() {
     const users = await this.userService.getManyRaw()
     users.forEach((user) => {
@@ -320,6 +317,15 @@ export class ModuleService implements OnApplicationBootstrap {
     const validateMessage = module.validateEntity(dto.data)
 
     if (validateMessage) throw new UnprocessableEntityException(validateMessage)
+
+    if (moduleName === ModuleName.DEAL && !dto.data['probability']) {
+      const dealStage = await this.dealStageRepo.findOne({
+        where: { id: dto.data['stageId'] },
+      })
+
+      dto.data['probability'] = dealStage.probability
+    }
+
     return this.entityRepo.save({ ...dto, moduleId: module.id })
   }
 
@@ -622,6 +628,19 @@ export class ModuleService implements OnApplicationBootstrap {
       })
     ) {
       throw new ForbiddenException()
+    }
+
+    // if deal stage change and probability not change
+    if (
+      module.name === ModuleName.DEAL &&
+      entity.data['stageId'] !== dto.data['stageId'] &&
+      entity.data['probability'] === dto.data['probability']
+    ) {
+      const dealStage = await this.dealStageRepo.findOne({
+        where: { id: dto.data['stageId'] },
+      })
+
+      dto.data['probability'] = dealStage.probability
     }
 
     return this.entityRepo.save({

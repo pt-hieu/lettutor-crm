@@ -116,7 +116,8 @@ export default function ModuleHeader({
           </Confirm>
         )}
 
-        {auth(ActionType.CAN_CREATE_NEW, module.name) && (
+        {(auth(ActionType.CAN_CREATE_NEW, module.name) ||
+          auth(ActionType.IS_SALE)) && (
           <ButtonAdd
             title={`Create ${capitalize(module.name)}`}
             asLink

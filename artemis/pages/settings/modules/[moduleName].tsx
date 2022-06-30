@@ -1,13 +1,6 @@
 import { notification } from 'antd'
 import { useRouter } from 'next/router'
-import {
-  ComponentProps,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { ComponentProps, useCallback, useMemo, useRef, useState } from 'react'
 import { DragDropContext } from 'react-beautiful-dnd'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useAsync } from 'react-use'
@@ -31,7 +24,7 @@ import {
 import { getModules, updateModule } from '@utils/service/module'
 
 export default function ModuleView() {
-  const { query, back } = useRouter()
+  const { query, push } = useRouter()
   const moduleName = query.moduleName as string
 
   const [localModule, setLocalModule] = useState<Module>()
@@ -104,6 +97,10 @@ export default function ModuleView() {
     }
   }, [])
 
+  const handleBack = () => {
+    push('/settings/modules')
+  }
+
   const client = useQueryClient()
   const { isLoading, mutateAsync } = useMutation(
     'update-module',
@@ -112,6 +109,7 @@ export default function ModuleView() {
       onSuccess() {
         client.refetchQueries('modules')
         notification.success({ message: 'Update module successfully' })
+        handleBack()
       },
       onError() {
         notification.error({ message: 'Update module unsuccesfully' })
@@ -302,7 +300,7 @@ export default function ModuleView() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={back} className="crm-button-outline">
+          <button onClick={handleBack} className="crm-button-outline">
             <span className="fa fa-times mr-2" />
             Cancel
           </button>
