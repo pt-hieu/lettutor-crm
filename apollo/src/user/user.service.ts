@@ -314,6 +314,6 @@ export class UserService implements OnApplicationBootstrap {
     users.forEach((user) => {
       CustomLRU.delete(user.id)
     })
-    return this.userRepo.softRemove(users)
+    return this.userRepo.remove(users)
   }
 }
