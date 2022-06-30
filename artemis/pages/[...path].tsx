@@ -19,6 +19,7 @@ import { getTaskOfEntity } from '@utils/service/task'
 
 import NotFound from './404'
 
+
 enum View {
   UPDATE,
   CREATE,
