@@ -2,36 +2,83 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  OnApplicationBootstrap,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { compare, hash } from 'bcryptjs'
-import { log } from 'console'
 import { randomBytes } from 'crypto'
 import { isEqual } from 'lodash'
 import moment from 'moment'
 import { paginate } from 'nestjs-typeorm-paginate'
 import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 
+import {
+  ActionType,
+  DefaultActionTarget,
+  Action as RoleAction,
+} from 'src/action/action.entity'
 import { MailService } from 'src/mail/mail.service'
 import { Action, FactorType } from 'src/notification/notification.entity'
 import { NotificationService } from 'src/notification/notification.service'
 import { Role } from 'src/role/role.entity'
 import { DTO } from 'src/type'
+import { CustomLRU } from 'src/utils/custom-lru'
 import { JwtPayload } from 'src/utils/interface'
 
 import { User, UserStatus } from './user.entity'
-import { CustomLRU } from 'src/utils/custom-lru'
 
 const PWD_TOKEN_EXPIRATION = 5 //in days
+const ADMINISTRATIVE_ROLE_NAME = 'Admin'
+const SALE_ROLE_NAME = 'Sale'
 
 @Injectable()
-export class UserService {
+export class UserService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Role) private roleRepo: Repository<Role>,
+    @InjectRepository(RoleAction) private actionRepo: Repository<RoleAction>,
     private mailService: MailService,
     private notiService: NotificationService,
-  ) { }
+  ) {}
+
+  async onApplicationBootstrap() {
+    await this.initDefaultUsers()
+  }
+
+  private async initDefaultUsers() {
+    const adminUser = await this.userRepo.findOne({ where: { name: 'admin' } })
+    if (adminUser) return
+
+    const adminAction = await this.actionRepo.save({
+      target: DefaultActionTarget.ADMIN,
+      type: ActionType.IS_ADMIN,
+    })
+
+    const saleAction = await this.actionRepo.save({
+      target: DefaultActionTarget.SALE,
+      type: ActionType.IS_SALE,
+    })
+
+    await this.roleRepo.save({
+      name: SALE_ROLE_NAME,
+      default: true,
+      actions: [saleAction],
+    })
+
+    const adminRole = await this.roleRepo.save({
+      name: ADMINISTRATIVE_ROLE_NAME,
+      default: true,
+      actions: [adminAction],
+    })
+
+    return this.userRepo.save({
+      email: 'admin@mail.com',
+      name: 'admin',
+      password: '$2a$10$IOuioWuAWvx44fUVVLOEY.BEG4wKSXCKUSdJlwco1Ou/lmXbWXVJW', // Admin@123
+      status: UserStatus.ACTIVE,
+      roles: [adminRole],
+    })
+  }
 
   async getOne(payload: JwtPayload) {
     const user = await this.userRepo.findOne({
@@ -264,9 +311,9 @@ export class UserService {
 
   async batchDelete(ids: string[]) {
     const users = await this.userRepo.find({ where: { id: In(ids) } })
-    users.forEach(user => {
+    users.forEach((user) => {
       CustomLRU.delete(user.id)
     })
-    return this.userRepo.softRemove(users)
+    return this.userRepo.remove(users)
   }
 }

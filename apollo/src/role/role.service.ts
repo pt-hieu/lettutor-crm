@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  OnApplicationBootstrap,
   UnprocessableEntityException,
 } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
@@ -20,28 +19,12 @@ import { Role } from './role.entity'
 import { DefaultRoleName } from './role.subscriber'
 
 @Injectable()
-export class RoleService implements OnApplicationBootstrap {
+export class RoleService {
   constructor(
     @InjectRepository(Role) private roleRepo: Repository<Role>,
     @InjectRepository(Action) private actionRepo: Repository<Action>,
     private eventEmitter: EventEmitter2,
   ) {}
-
-  async onApplicationBootstrap() {
-    const adminRole = await this.roleRepo.findOne({ where: { name: 'Admin' } })
-
-    if (!adminRole) return
-    if (adminRole.actions.length) return
-
-    const adminAction = await this.actionRepo.findOne({
-      where: { target: DefaultActionTarget.ADMIN, type: ActionType.IS_ADMIN },
-    })
-
-    if (!adminAction) return
-    adminRole.actions = [adminAction]
-
-    return this.roleRepo.save(adminRole)
-  }
 
   getManyRole(dto: DTO.Role.GetManyRole) {
     const qb = this.roleRepo

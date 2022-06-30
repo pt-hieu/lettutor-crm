@@ -3,6 +3,7 @@ import { User } from './user'
 
 export enum ActionType {
   IS_ADMIN = 'Can do anything',
+  IS_SALE = 'Can create any except user and role sale',
   CAN_VIEW_ALL = 'Can view all',
   CAN_VIEW_DETAIL_ANY = 'Can view detail any',
   CAN_VIEW_DETAIL_AND_EDIT_ANY = 'Can view detail and edit any',
