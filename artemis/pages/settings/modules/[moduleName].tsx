@@ -14,6 +14,7 @@ import Loading from '@utils/components/Loading'
 import { useCommand } from '@utils/hooks/useCommand'
 import { useModal } from '@utils/hooks/useModal'
 import { useRelationField } from '@utils/hooks/useRelationField'
+import useUnsavedChanges from '@utils/hooks/useUnsavedChanges'
 import {
   ConvertMeta,
   FieldMeta,
@@ -40,6 +41,8 @@ export default function ModuleView() {
     const result = await refetch()
     setLocalModule(result.data)
   }, [moduleName])
+
+  const [setDirty, setPristine] = useUnsavedChanges()
 
   const [fieldModal, open, close] = useModal()
 
@@ -95,6 +98,7 @@ export default function ModuleView() {
         }
       })
     }
+    setDirty()
   }, [])
 
   const handleBack = () => {
@@ -134,6 +138,7 @@ export default function ModuleView() {
         mutateAsync(localModule)
         return localModule
       })
+      setDirty()
     },
   )
 
@@ -150,6 +155,7 @@ export default function ModuleView() {
       mutateAsync(localModule)
       return localModule
     })
+    setDirty()
   })
 
   useCommand<{ name: string; newName: string }>(
@@ -171,6 +177,7 @@ export default function ModuleView() {
           meta: module?.meta?.map((field) => ({ ...field })) || [],
         }
       })
+      setDirty()
     },
   )
 
@@ -189,6 +196,7 @@ export default function ModuleView() {
             .map((field) => ({ ...field })) || [],
       }
     })
+    setDirty()
   })
 
   useCommand<{ name: string; type: 'up' | 'down' }>(
@@ -227,6 +235,7 @@ export default function ModuleView() {
         ...module!,
         meta: currentOrder.concat(...othersField),
       }))
+      setDirty()
     },
   )
 
@@ -246,6 +255,7 @@ export default function ModuleView() {
         ).values(),
       ],
     }))
+    setDirty()
   }, [])
 
   const editField = useCallback<
@@ -307,7 +317,10 @@ export default function ModuleView() {
 
           <button
             disabled={isLoading}
-            onClick={() => mutateAsync(localModule || {})}
+            onClick={() => {
+              setPristine()
+              mutateAsync(localModule || {})
+            }}
             className="crm-button"
           >
             <Loading on={isLoading}>
