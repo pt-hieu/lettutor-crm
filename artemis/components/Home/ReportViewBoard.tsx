@@ -76,6 +76,7 @@ export function ReportViewBoard({
           <span className="text-blue-500">
             Showing from {start} to {end} of {total} results
           </span>
+
           <Paginate
             currentPage={page}
             pageSize={LIMIT_ITEMS}
