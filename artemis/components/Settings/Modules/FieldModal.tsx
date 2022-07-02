@@ -262,11 +262,9 @@ export default function FieldModal({
                   type: 'checkbox',
                   id: `visibility.${view}`,
                   disabled:
-                    [
-                      FieldType.CHECK_BOX,
-                      FieldType.MULTILINE_TEXT,
-                      FieldType.RELATION,
-                    ].some((invalidType) => invalidType === type) ||
+                    [FieldType.MULTILINE_TEXT, FieldType.RELATION].some(
+                      (invalidType) => invalidType === type,
+                    ) ||
                     (view.startsWith('Confirm Stage') && !enableConfirmStage),
                   ...register(`visibility.${view}`),
                 }}
