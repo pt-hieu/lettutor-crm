@@ -27,6 +27,8 @@ const schema = yup.object().shape({
     .max(100, 'Name must be at max 100 characters'),
 })
 
+const fixedRoles = ['admin', 'sale']
+
 export default function CreateRoleModal({ close, visible }: Props) {
   const client = useQueryClient()
   const {
@@ -57,7 +59,7 @@ export default function CreateRoleModal({ close, visible }: Props) {
   const actionTargets = allActions
     ?.map((action) => action.target)
     .filter((value, index, self) => self.indexOf(value) === index)
-    .filter((target) => target !== 'admin')
+    .filter((target) => !fixedRoles.includes(target))
 
   const submitRole = useCallback(
     handleSubmit((data) => {
