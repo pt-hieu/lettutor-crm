@@ -18,7 +18,7 @@ import '../styles/tailwind.css'
 axios.defaults.withCredentials = true
 
 notification.config({
-  placement: 'bottomRight',
+  placement: 'bottomRight'
 })
 
 const NoOverlay = `

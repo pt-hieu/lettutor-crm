@@ -7,7 +7,7 @@ COPY package* script.js deps.json ./
 RUN npm install chalk@^4.1.2 --no-package-lock --force && npm install yargs --no-package-lock --force
 RUN yarn crm localize artemis
 
-RUN npm i --force
+RUN npm ci --force
 COPY ./artemis ./artemis
 
 RUN npm install -g typescript
