@@ -224,8 +224,8 @@ const aggrMap: Record<
 
 const typeToBg: Record<DealStageType | 'undefined', string> = {
   Open: '',
-  'Close Lost': 'bg-green-500',
-  'Close Won': 'bg-red-500',
+  'Close Lost': 'bg-red-500',
+  'Close Won': 'bg-green-500',
   undefined: '',
 }
 
