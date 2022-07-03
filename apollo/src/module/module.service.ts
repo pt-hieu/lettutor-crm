@@ -68,7 +68,7 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   private async initDefaultModules() {
-    return this.moduleRepo.upsert([lead, deal, account, contact], {
+    return this.moduleRepo.upsert([lead, contact, account, deal], {
       conflictPaths: ['name'],
       skipUpdateIfNoValuesChanged: true,
     })
