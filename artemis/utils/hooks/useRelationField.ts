@@ -35,5 +35,5 @@ export function useRelationField(meta: FieldMeta[] | null) {
 
       getRawEntity(name)().then(setData(name))
     })
-  }, [])
+  }, [meta])
 }

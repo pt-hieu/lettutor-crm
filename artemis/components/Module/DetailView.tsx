@@ -1,7 +1,7 @@
 import { notification } from 'antd'
 import { capitalize } from 'lodash'
 import NotFound from 'pages/404'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useMutation, useQuery } from 'react-query'
 
@@ -58,6 +58,10 @@ export default function DetailView({ paths }: TProps) {
       ...entityData,
     },
   })
+
+  useEffect(() => {
+    form.reset({ name: entity?.name, ...entity.data })
+  }, [entity])
 
   const { mutateAsync } = useMutation(
     [moduleName, id, 'updated'],

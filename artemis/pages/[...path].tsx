@@ -92,12 +92,12 @@ export default function DynamicModule({ module, render, paths }: Props) {
   const renderView = useMemo<Record<View, ReactNode>>(
     () => ({
       [View.CREATE]: <CreateView module={module!} />,
-      [View.DETAIL]: <DetailView paths={paths} />,
+      [View.DETAIL]: <DetailView key={paths[1]} paths={paths} />,
       [View.NOTFOUND]: <NotFound />,
       [View.OVERVIEW]: <OverviewView module={module!} />,
       [View.UPDATE]: <UpdateView module={module!} />,
     }),
-    [module],
+    [module, paths],
   )
 
   const { data, refetch } = useQuery(
