@@ -28,10 +28,18 @@ import { UserStatus } from 'src/user/user.entity'
 import { UserService } from 'src/user/user.service'
 import { CustomLRU } from 'src/utils/custom-lru'
 
-import { LeadSource, account, contact, deal, lead } from './default.entity'
+import {
+  LeadSource,
+  LeadStatus,
+  account,
+  contact,
+  deal,
+  lead,
+} from './default.entity'
 import { ModuleName } from './default.entity'
 import {
   Entity,
+  FieldMeta,
   FieldType,
   Module,
   ReportType,
@@ -115,24 +123,38 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   async getTemplateForCreatingModule(moduleName: string, fileFormat) {
+    const module = await this.moduleRepo.findOne({
+      where: { name: moduleName },
+    })
+    if (!module) throw new BadRequestException('Module not existed')
+
+    const fields = ['name']
+
+    module.meta.forEach((fieldMeta) => {
+      if (
+        fieldMeta.type != FieldType.RELATION &&
+        fieldMeta.type != FieldType.SELECT
+      ) {
+        fields.push(fieldMeta.name)
+      }
+    })
+
     if (fileFormat == 'csv') {
       const csv = await parseAsync(
         {
           name: moduleName,
         },
-        { fields: ['name', 'phone', 'email', 'status'] },
+        { fields: fields },
       )
 
       return csv
     }
-    if (fileFormat == 'xlsx') {
-      var data = [
-        ['name', 'phone', 'email', 'status'],
-        ['lead', '0123456789', 'mail@mail.com', 'None'],
-      ]
 
-      var wb = xlsx.utils.book_new()
-      var ws = xlsx.utils.aoa_to_sheet(data)
+    if (fileFormat == 'xlsx') {
+      const data = [fields]
+
+      const wb = xlsx.utils.book_new()
+      const ws = xlsx.utils.aoa_to_sheet(data)
 
       xlsx.utils.book_append_sheet(wb, ws)
       return xlsx.write(wb, { type: 'base64' })
@@ -145,7 +167,18 @@ export class ModuleService implements OnApplicationBootstrap {
     })
     if (!module) throw new BadRequestException('Module not existed')
 
-    let qb = this.entityRepo
+    const fields = []
+
+    module.meta.forEach((fieldMeta) => {
+      if (
+        fieldMeta.type != FieldType.RELATION &&
+        fieldMeta.type != FieldType.SELECT
+      ) {
+        fields.push(fieldMeta.name)
+      }
+    })
+
+    const qb = this.entityRepo
       .createQueryBuilder('e')
       .leftJoin('e.module', 'module')
       .orderBy('e.createdAt', 'DESC')
@@ -161,38 +194,44 @@ export class ModuleService implements OnApplicationBootstrap {
         ownerId: this.payloadService.data.id,
       })
     }
-    let entities = await qb.getMany()
-    const rawData = entities.map((e) => ({
-      name: e.name,
-      email: e.data['email'],
-      phone: e.data['phone'],
-      source: e.data['source'],
-      status: e.data['status'],
-      created_at: e.createdAt,
-    }))
+
+    const entities = await qb.getMany()
+
+    const rawData = entities.map((e) => {
+      const dataObject = {
+        name: e.name,
+        created_at: e.createdAt,
+      }
+
+      fields.forEach((field) => {
+        dataObject[field] = e.data[field]
+      })
+
+      return dataObject
+    })
+
+    fields.unshift('name')
+    fields.push('created_at')
 
     if (fileFormat == 'csv') {
       const csv = await parseAsync(rawData, {
-        fields: ['name', 'email', 'phone', 'source', 'status', 'created_at'],
+        fields: fields,
       })
       return csv
     }
 
     if (fileFormat == 'xlsx') {
-      let data = [['name', 'email', 'phone', 'source', 'status', 'created_at']]
+      const data = [fields]
       rawData.forEach((r) => {
-        data.push([
-          r.name,
-          String(r.email),
-          String(r.phone),
-          String(r.source),
-          String(r.status),
-          String(r.created_at),
-        ])
+        const dataObject = []
+        fields.forEach((field) => {
+          dataObject.push(r[field])
+        })
+        data.push(dataObject)
       })
 
-      var wb = xlsx.utils.book_new()
-      var ws = xlsx.utils.aoa_to_sheet(data)
+      const wb = xlsx.utils.book_new()
+      const ws = xlsx.utils.aoa_to_sheet(data)
       xlsx.utils.book_append_sheet(wb, ws)
       return xlsx.write(wb, { type: 'base64' })
     }
@@ -213,13 +252,24 @@ export class ModuleService implements OnApplicationBootstrap {
     })
 
     if (!module) throw new BadRequestException('Module not found')
-    const file = dto.files[0]
-    let filenameArr = file.name.split('.')
-    let fileEtx = filenameArr[filenameArr.length - 1]
 
-    let entities: DTO.Module.AddEntity[]
-    let rawEntities: DTO.Module.AddEntityFromFile[] = new Array()
-    console.log(fileEtx)
+    const fields = ['name']
+
+    module.meta.forEach((fieldMeta) => {
+      if (
+        fieldMeta.type != FieldType.RELATION &&
+        fieldMeta.type != FieldType.SELECT
+      ) {
+        fields.push(fieldMeta.name)
+      }
+    })
+
+    const file = dto.files[0]
+    const filenameArr = file.name.split('.')
+    const fileEtx = filenameArr[filenameArr.length - 1]
+
+    let rawEntities = []
+
     if (fileEtx == FileExtension.XLSX || fileEtx == FileExtension.NUMBERS) {
       const buffer = Buffer.from(file.buffer, 'base64')
       const wb = xlsx.read(buffer, { type: 'buffer' })
@@ -230,35 +280,30 @@ export class ModuleService implements OnApplicationBootstrap {
           continue
         }
         let col = 0
-        const entity = {
-          name: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
-          phone: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
-          email: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
-          status: sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v,
-        }
-        console.log(entity)
+        const entity = {}
+        fields.forEach((field) => {
+          entity[field] = sheet[xlsx.utils.encode_cell({ c: col++, r: R })]?.v
+        })
         rawEntities.push(entity)
       }
     } else if (fileEtx == FileExtension.CSV) {
-      const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))
-
-      const moduleData = (await this.csvParser.parse(
-        stream,
-        DTO.Module.AddEntityFromFile,
-        undefined,
-        undefined,
-        { strict: true, separator: ',' },
-      )) as ParsedData<DTO.Module.AddEntityFromFile>
-      rawEntities = moduleData.list
+      // const stream = bufferToStream(Buffer.from(file.buffer, 'base64'))
+      // const moduleData = (await this.csvParser.parse(
+      //   stream,
+      //   DTO.Module.AddEntityFromFile,
+      //   undefined,
+      //   undefined,
+      //   { strict: true, separator: ',' },
+      // )) as ParsedData<DTO.Module.AddEntityFromFile>
+      // rawEntities = moduleData.list
     }
 
-    const user = await this.userService.getOne(this.payloadService.data)
-
-    entities = rawEntities.map((e: DTO.Module.AddEntityFromFile) => {
-      let entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
-      let userID = CustomLRU.pop()
+    const entities = rawEntities.map((e) => {
+      const entity: Record<string, unknown> = JSON.parse(JSON.stringify(e))
+      const userID = CustomLRU.pop()
 
       entity['source'] = LeadSource.NONE
+      entity['status'] = LeadStatus.NONE
       entity['ownerId'] = userID
       CustomLRU.set(userID, userID)
 
