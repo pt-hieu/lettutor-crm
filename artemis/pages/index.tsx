@@ -56,12 +56,14 @@ export default function Index({ modules }: TProps) {
   const [leadPage, setLeadPage] = useState<number>(1)
   const [taskPage, setTaskPage] = useState<number>(1)
   const [dealPage, setDealPage] = useState<number>(1)
+
   const dealReportFixedFilter = {
     timeFieldName: TimeFieldName.CLOSING_DATE,
     timeFieldType: StaticTime.CurrentMonth,
     startDate: StaticDateByType[StaticTime.CurrentMonth][0],
     endDate: StaticDateByType[StaticTime.CurrentMonth][1],
   }
+
   const leadReportFixedFilter = {
     timeFieldName: TimeFieldName.CREATED_AT,
     timeFieldType: StaticTime.Today,
@@ -93,7 +95,6 @@ export default function Index({ modules }: TProps) {
       ...formatReportFilter(dealReportFixedFilter),
     }),
     {
-      enabled: false,
       keepPreviousData: true,
     },
   )
@@ -107,7 +108,6 @@ export default function Index({ modules }: TProps) {
       ...formatReportFilter(leadReportFixedFilter),
     }),
     {
-      enabled: false,
       keepPreviousData: true,
     },
   )
@@ -137,6 +137,7 @@ export default function Index({ modules }: TProps) {
           isLoading={tasksLoading}
           tableWidth={800}
         />
+
         <ReportViewBoard
           title="Deals Closing This Month"
           isLoading={isLoadingDeal}
@@ -150,6 +151,7 @@ export default function Index({ modules }: TProps) {
             ) as Module
           }
         />
+
         <ReportViewBoard
           title="Today Leads"
           isLoading={isLoadingLead}

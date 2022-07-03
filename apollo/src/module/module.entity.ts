@@ -10,6 +10,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  isNumberString,
   isUUID,
 } from 'class-validator'
 import {
@@ -258,8 +259,8 @@ export class Module extends BaseEntity {
   @Column({ nullable: true })
   description: string | null
 
-  @Column({ type: 'jsonb', nullable: true })
-  meta: Meta | null
+  @Column({ type: 'jsonb', nullable: true, default: [] })
+  meta: Meta
 
   @Column({ type: 'jsonb', default: [] })
   convert_meta: ConvertMeta[]
@@ -339,7 +340,8 @@ export class Module extends BaseEntity {
       if (
         type === FieldType.NUMBER &&
         typeof data[name] === 'number' &&
-        data[name] < min
+        ![null, undefined, ''].includes(min as any) &&
+        data[name] < Number(min)
       ) {
         return `Invalid value for ${name}, min value is ${min}`
       }
@@ -347,7 +349,8 @@ export class Module extends BaseEntity {
       if (
         type === FieldType.NUMBER &&
         typeof data[name] === 'number' &&
-        data[name] > max
+        ![null, undefined, ''].includes(max as any) &&
+        data[name] > Number(max)
       ) {
         return `Invalid value for ${name}, max value is ${max}`
       }
@@ -355,7 +358,8 @@ export class Module extends BaseEntity {
       if (
         (type === FieldType.TEXT || type == FieldType.MULTILINE_TEXT) &&
         typeof data[name] === 'string' &&
-        (data[name] as string).length < minLength
+        ![null, undefined, ''].includes(minLength as any) &&
+        (data[name] as string).length < Number(minLength)
       ) {
         return `Invalid value for ${name}, min length is ${minLength}`
       }
@@ -363,7 +367,8 @@ export class Module extends BaseEntity {
       if (
         (type === FieldType.TEXT || type == FieldType.MULTILINE_TEXT) &&
         typeof data[name] === 'string' &&
-        (data[name] as string).length > maxLength
+        ![null, undefined, ''].includes(maxLength as any) &&
+        (data[name] as string).length > Number(maxLength)
       ) {
         return `Invalid value for ${name}, max length is ${maxLength}`
       }

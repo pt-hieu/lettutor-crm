@@ -11,7 +11,8 @@ import { Brackets, FindOneOptions, In, Repository } from 'typeorm'
 import { ActionType, DefaultActionTarget } from 'src/action/action.entity'
 import { PayloadService } from 'src/global/payload.service'
 import { UtilService } from 'src/global/util.service'
-import { Entity, FieldType, RelateType } from 'src/module/module.entity'
+import { ModuleName } from 'src/module/default.entity'
+import { Entity, FieldType, Module, RelateType } from 'src/module/module.entity'
 import { DTO } from 'src/type'
 
 import { Task } from './task.entity'
@@ -24,6 +25,9 @@ export class TaskService {
 
     @InjectRepository(Entity)
     private entityRepo: Repository<Entity>,
+
+    @InjectRepository(Module)
+    private moduleRepo: Repository<Module>,
 
     private readonly utilService: UtilService,
     private readonly payloadService: PayloadService,
@@ -67,7 +71,38 @@ export class TaskService {
     )
 
     if (!taskField) return []
-    const ids = entity.data[taskField.name]
+
+    let ids = entity.data[taskField.name] as string[]
+    if (!ids) {
+      ids = [] // init ids
+    }
+
+    const accountModule = await this.moduleRepo.findOne({
+      where: { name: ModuleName.ACCOUNT },
+    })
+    if (entity.moduleId === accountModule.id) {
+      // get entities related to account
+      const entities = await this.entityRepo
+        .createQueryBuilder('e')
+        .where("e.data ->> 'accountId' = :accountId", { accountId: entity.id })
+        .getMany()
+
+      let entityTaskIds = []
+      // get tasks of these entities
+      entities.forEach((entity) => {
+        const entityTaskId = entity.data[taskField.name] as string[]
+        if (entityTaskId) {
+          entityTaskIds = entityTaskIds.concat(entityTaskId)
+        }
+      })
+
+      entityTaskIds.forEach((id) => {
+        // prevent duplicate tasks
+        if (!ids.includes(id)) {
+          ids.push(id)
+        }
+      })
+    }
 
     return this.taskRepo.find({
       where: { id: In([ids].flat()) },

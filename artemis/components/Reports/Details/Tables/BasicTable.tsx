@@ -59,6 +59,7 @@ export const BasicTable = ({ module, data, isLoading }: IProps) => {
       loading={isLoading}
       bordered
       pagination={false}
+      scroll={{ x: 1000 }}
     />
   )
 }
