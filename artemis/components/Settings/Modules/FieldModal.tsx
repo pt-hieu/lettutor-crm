@@ -262,10 +262,7 @@ export default function FieldModal({
                   type: 'checkbox',
                   id: `visibility.${view}`,
                   disabled:
-                    [FieldType.MULTILINE_TEXT, FieldType.RELATION].some(
-                      (invalidType) => invalidType === type,
-                    ) ||
-                    (view.startsWith('Confirm Stage') && !enableConfirmStage),
+                    view.startsWith('Confirm Stage') && !enableConfirmStage,
                   ...register(`visibility.${view}`),
                 }}
               />
@@ -304,6 +301,7 @@ export default function FieldModal({
                 >
                   Min Length
                 </label>
+
                 <Input
                   wrapperClassname="w-full"
                   error={errors['minLength']?.message}
@@ -311,7 +309,7 @@ export default function FieldModal({
                     type: 'number',
                     id: 'minLength',
                     className: 'w-full',
-                    ...register('minLength'),
+                    ...register('minLength', { valueAsNumber: true }),
                   }}
                 />
               </div>
@@ -323,6 +321,7 @@ export default function FieldModal({
                 >
                   Max Length
                 </label>
+
                 <Input
                   wrapperClassname="w-full"
                   error={errors['maxLength']?.message}
@@ -330,7 +329,7 @@ export default function FieldModal({
                     type: 'number',
                     id: 'maxLength',
                     className: 'w-full',
-                    ...register('maxLength'),
+                    ...register('maxLength', { valueAsNumber: true }),
                   }}
                 />
               </div>
@@ -353,7 +352,7 @@ export default function FieldModal({
                     type: 'number',
                     id: 'min',
                     className: 'w-full',
-                    ...register('min'),
+                    ...register('min', { valueAsNumber: true }),
                   }}
                 />
               </div>
@@ -372,7 +371,7 @@ export default function FieldModal({
                     type: 'number',
                     id: 'max',
                     className: 'w-full',
-                    ...register('max'),
+                    ...register('max', { valueAsNumber: true }),
                   }}
                 />
               </div>
