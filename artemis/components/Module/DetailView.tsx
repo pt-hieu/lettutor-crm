@@ -140,7 +140,10 @@ export default function DetailView({ paths }: TProps) {
                     }}
                     inlineEdit
                     hideControl={
-                      !auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, moduleName)
+                      !auth(
+                        ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
+                        moduleName,
+                      ) && !auth(ActionType.IS_SALE)
                     }
                   />
 
@@ -155,7 +158,7 @@ export default function DetailView({ paths }: TProps) {
                           !auth(
                             ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY,
                             moduleName,
-                          )
+                          ) && !auth(ActionType.IS_SALE)
                         }
                       />
                     ))}

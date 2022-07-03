@@ -1,6 +1,8 @@
 export interface SGItems {
   title: string
   link: string
+  isPrivate?: boolean
+  target?: string
 }
 
 export interface SG {
@@ -24,10 +26,14 @@ export const SettingData: SG[] = [
       {
         title: 'Users',
         link: '/settings/users',
+        isPrivate: true,
+        target: 'user',
       },
       {
         title: 'Roles',
         link: '/settings/roles',
+        isPrivate: true,
+        target: 'role',
       },
     ],
   },
@@ -37,6 +43,8 @@ export const SettingData: SG[] = [
       {
         title: 'Modules and Fields',
         link: '/settings/modules',
+        isPrivate: true,
+        target: 'admin',
       },
     ],
   },
