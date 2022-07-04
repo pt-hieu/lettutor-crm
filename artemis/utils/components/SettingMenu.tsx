@@ -1,8 +1,12 @@
 import Link from 'next/link'
 
 import { SettingData } from '@utils/data/setting-data'
+import { useAuthorization } from '@utils/hooks/useAuthorization'
+import { ActionType } from '@utils/models/role'
 
 export default function SettingMenu() {
+  const auth = useAuthorization()
+
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -19,11 +23,22 @@ export default function SettingMenu() {
           <div key={title}>
             <div className="text-black font-medium">{title}</div>
             <div className="flex flex-col mt-2">
-              {items.map((item) => (
-                <Link href={item.link} key={item.link}>
-                  <a className="crm-link text-gray-700">{item.title}</a>
-                </Link>
-              ))}
+              {items.map((item) =>
+                item.isPrivate &&
+                !(
+                  auth(ActionType.CAN_VIEW_ALL, item.target) ||
+                  auth(ActionType.CAN_VIEW_DETAIL_AND_EDIT_ANY, item.target) ||
+                  auth(ActionType.IS_ADMIN)
+                ) ? (
+                  <span className="text-gray-60 cursor-not-allowed">
+                    {item.title}
+                  </span>
+                ) : (
+                  <Link href={item.link} key={item.link}>
+                    <a className="crm-link text-gray-700">{item.title}</a>
+                  </Link>
+                ),
+              )}
             </div>
           </div>
         ))}

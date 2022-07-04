@@ -216,7 +216,7 @@ function ConvertForm({
   isModuleTargeted,
   index,
 }: ConvertFormProps) {
-  const { setValue, control, watch, unregister, register } =
+  const { setValue, control, watch } =
     useFormContext<{ module_name?: string; dto: any; useEntity: boolean }[]>()
 
   useRelationField(module.meta)
@@ -309,40 +309,41 @@ function ConvertForm({
       )}
 
       <AnimatePresence exitBeforeEnter presenceAffectsLayout>
-        {isModuleTargeted &&
-          !!missingFields.filter(
-            (field) => !!field.visibility.Create && field.required,
-          ).length && (
-            <motion.div
-              initial={{ height: 0, opacity: 0, padding: 0 }}
-              animate={{ height: 'auto', opacity: 1, padding: 16 }}
-              exit={{ height: 0, opacity: 0, padding: 0 }}
-              className="overflow-auto max-h-[200px] flex flex-col gap-2 border border-dashed "
-              transition={{ ease: 'linear', duration: 0.15 }}
-            >
-              <div className="flex gap-4 items-center mb-4">
-                <label htmlFor="use-entity">Use Entity</label>
+        {isModuleTargeted && (
+          <motion.div
+            initial={{ height: 0, opacity: 0, padding: 0 }}
+            animate={{ height: 'auto', opacity: 1, padding: 16 }}
+            exit={{ height: 0, opacity: 0, padding: 0 }}
+            className="overflow-auto max-h-[200px] flex flex-col gap-2 border border-dashed rounded"
+            transition={{ ease: 'linear', duration: 0.15 }}
+          >
+            <div className="flex gap-4 items-center mb-4">
+              <label htmlFor={`use-entity ${module.name}`}>Use Entity</label>
 
-                <Controller
-                  control={control}
-                  name={`${index}.useEntity`}
-                  render={({ field: { value, ...field } }) => (
-                    <Switch checked={value} id="use-entity" {...field} />
-                  )}
-                />
-              </div>
-
-              {missingFields
-                .filter((field) => !!field.visibility.Create && field.required)
-                .map((field) => (
-                  <Field
-                    key={field.name}
-                    data={field}
-                    registerName={`${index}.dto.${field.name}`}
+              <Controller
+                control={control}
+                name={`${index}.useEntity`}
+                render={({ field: { value, ...field } }) => (
+                  <Switch
+                    checked={value}
+                    id={`use-entity ${module.name}`}
+                    {...field}
                   />
-                ))}
-            </motion.div>
-          )}
+                )}
+              />
+            </div>
+
+            {missingFields
+              .filter((field) => !!field.visibility.Create && field.required)
+              .map((field) => (
+                <Field
+                  key={field.name}
+                  data={field}
+                  registerName={`${index}.dto.${field.name}`}
+                />
+              ))}
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   )

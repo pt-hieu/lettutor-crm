@@ -1,9 +1,7 @@
 import { Empty } from 'antd'
-import { useEffect, useState } from 'react'
 
 import { BasicTable } from '@components/Reports/Details/Tables/BasicTable'
 
-import Loading from '@utils/components/Loading'
 import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { Entity, Module } from '@utils/models/module'
@@ -31,47 +29,25 @@ export function ReportViewBoard({
   module,
 }: ViewProps) {
   const [start, end, total] = usePaginateItem(data)
-  const [isFirstLoading, setIsFirstLoading] = useState(true)
-
-  useEffect(() => {
-    if (!isLoading) {
-      setIsFirstLoading(false)
-    }
-  }, [isFirstLoading])
-
   const isNoData = !isLoading && (!data || data.items.length === 0)
-
-  const ContentByStatus = () => {
-    if (isFirstLoading) {
-      return (
-        <div className="flex h-full flex-col justify-center">
-          <Loading />
-        </div>
-      )
-    }
-
-    if (isNoData) {
-      return (
-        <div className="flex h-full flex-col justify-center">
-          <Empty description={`No ${title} found.`} />
-        </div>
-      )
-    }
-
-    return (
-      <div className="pt-4 flex-1">
-        <BasicTable module={module} data={data} isLoading={isLoading} />
-      </div>
-    )
-  }
 
   return (
     <div className="border rounded-md flex flex-col p-4 h-[400px]">
       <div className="font-semibold text-lg">{title}</div>
 
-      <ContentByStatus />
+      {isNoData && (
+        <div className="flex h-full flex-col justify-center">
+          <Empty description={`No ${title} found.`} />
+        </div>
+      )}
 
-      {!isNoData && !isFirstLoading && (
+      {!isNoData && (
+        <div className="pt-4 flex-1">
+          <BasicTable module={module} data={data} isLoading={isLoading} />
+        </div>
+      )}
+
+      {!isNoData && (
         <div className="flex items-center gap-2 place-self-end pt-4">
           <span className="text-blue-500">
             Showing from {start} to {end} of {total} results
