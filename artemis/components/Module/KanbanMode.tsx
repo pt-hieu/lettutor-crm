@@ -55,9 +55,6 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
   const [confirmStageLost, openLost, closeLost] = useModal()
 
   const field = meta?.find((field) => field.name === kanbanField)
-  if (!field || field.relateType === RelateType.MULTIPLE) {
-    return <></>
-  }
 
   const [selectedId, setSelectedId] = useState<string>('')
   const entity = useMemo(
@@ -67,7 +64,7 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
 
   const { data: relationItems } = useStore<{ id: string; name: string }[]>([
     'relation-data',
-    field.relateTo,
+    field?.relateTo,
   ])
 
   const groupedEntities = useMemo(
@@ -75,13 +72,13 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
       entities.reduce(
         (res, entity) => ({
           ...res,
-          [entity.data[field.name] as any]: [
-            ...(res[entity.data[field.name] as string] || []),
+          [entity.data[field?.name || ''] as any]: [
+            ...(res[entity.data[field?.name || ''] as string] || []),
             entity,
           ],
         }),
         // @ts-ignore
-        (relationItems || field.options || []).reduce(
+        (relationItems || field?.options || []).reduce(
           // @ts-ignore
           (res, item) => ({ ...res, [item.id || item]: [] }),
           {},
@@ -149,6 +146,10 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
     },
     [module, dataKey, entities, isLoading],
   )
+
+  if (!field || field.relateType === RelateType.MULTIPLE) {
+    return <></>
+  }
 
   return (
     <div className="flex gap-4 overflow-x-auto h-full">
