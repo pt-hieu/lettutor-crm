@@ -2,8 +2,10 @@ import { Select, Spin } from 'antd'
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
+import { mapLog } from '@utils/libs/mapLog'
 import { FeedStatus, FeedTime, FeedType } from '@utils/models/feed'
 import { Log } from '@utils/models/log'
+import { getRawDealStage } from '@utils/service/deal'
 import { getFeeds } from '@utils/service/feed'
 
 import { LogContent, StatusContent } from './FeedContent'
@@ -30,6 +32,15 @@ export const FeedList = ({ onChangeFeedType }: IProps) => {
     ['feeds', feedType, feedTime],
     getFeeds({ shouldNotPaginate: true, time: feedTime, category: feedType }),
   )
+
+  const { data: stages } = useQuery('deal-stage-raw', getRawDealStage, {
+    enabled: feedType === FeedType.Deals,
+  })
+
+  const mapFeeds =
+    feedType !== FeedType.Status
+      ? mapLog((feeds || []) as Log[], stages || [])
+      : (feeds as FeedStatus[])
 
   const handleChangeSelectType = (value: FeedType) => {
     onChangeFeedType(value)
@@ -68,7 +79,7 @@ export const FeedList = ({ onChangeFeedType }: IProps) => {
             No Feeds Found!
           </div>
         ) : (
-          feeds.map((feed, index) =>
+          mapFeeds.map((feed, index) =>
             feedType === FeedType.Status ? (
               <StatusContent key={index} feed={feed as FeedStatus} />
             ) : (

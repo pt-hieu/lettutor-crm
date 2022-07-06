@@ -59,8 +59,12 @@ export default function DetailView({ paths }: TProps) {
     },
   })
 
-  useEffect(() => {
+  const resetData = () => {
     form.reset({ name: entity?.name, ...entity.data })
+  }
+
+  useEffect(() => {
+    resetData()
   }, [entity])
 
   const { mutateAsync } = useMutation(

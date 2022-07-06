@@ -70,210 +70,194 @@ export default function Field({
   }, [])
 
   const { data: relationItems } = useStore<any[]>(['relation-data', relateTo])
-  const registration = useMemo(
-    () =>
-      register(registerName || name, {
-        required: required
-          ? `${toCapitalizedWords(name.replace('Id', ''))} is required`
-          : undefined,
-        ...(max && {
-          max: {
-            value: max,
-            message: `${toCapitalizedWords(
-              name,
-            )} must not be greater than ${max}.`,
-          },
-        }),
-        ...(minLength && {
-          minLength: {
-            value: minLength,
-            message: `${toCapitalizedWords(
-              name,
-            )} must be longer than ${minLength}.`,
-          },
-        }),
-        ...(maxLength && {
-          maxLength: {
-            value: maxLength,
-            message: `${toCapitalizedWords(
-              name,
-            )} must be shorter than ${maxLength}.`,
-          },
-        }),
-        ...(min && {
-          min: {
-            value: min,
-            message: `${toCapitalizedWords(name)} must be greater than ${min}.`,
-          },
-        }),
-        ...(type === FieldType.EMAIL && {
-          pattern: {
-            value: EmailReg,
-            message: `${toCapitalizedWords(name)} is not valid`,
-          },
-        }),
-        ...(type === FieldType.PHONE && {
-          pattern: {
-            value: PhoneReg,
-            message: `${toCapitalizedWords(name)} is not valid`,
-          },
-        }),
-      }),
-    [],
-  )
 
-  const renderField = useMemo<Record<FieldType, ReactNode>>(
-    () => ({
-      [FieldType.TEXT]: (
-        <Input
-          error={index(errors, registerName || name)?.message}
-          editable={!inlineEdit || isEnable}
-          props={{
-            type: 'text',
-            id: name,
-            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
-            disabled: inlineEdit && !isEnable,
-            ...registration,
-          }}
-        />
-      ),
-      [FieldType.EMAIL]: (
-        <Input
-          error={index(errors, registerName || name)?.message}
-          editable={!inlineEdit || isEnable}
-          props={{
-            type: 'email',
-            id: name,
-            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
-            disabled: inlineEdit && !isEnable,
-            ...registration,
-          }}
-        />
-      ),
-      [FieldType.MULTILINE_TEXT]: (
-        <Input
-          error={index(errors, registerName || name)?.message}
-          editable={!inlineEdit || isEnable}
-          as="textarea"
-          props={{
-            id: name,
-            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
-            disabled: inlineEdit && !isEnable,
-            ...registration,
-          }}
-        />
-      ),
-      [FieldType.NUMBER]: (
-        <Input
-          error={index(errors, registerName || name)?.message}
-          editable={!inlineEdit || isEnable}
-          props={{
-            type: 'number',
-            id: name,
-            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
-            disabled: inlineEdit && !isEnable,
-            ...registration,
-          }}
-        />
-      ),
-      [FieldType.PHONE]: (
-        <Input
-          error={index(errors, registerName || name)?.message}
-          editable={!inlineEdit || isEnable}
-          props={{
-            type: 'tel',
-            id: name,
-            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
-            disabled: inlineEdit && !isEnable,
-            ...registration,
-          }}
-        />
-      ),
-      [FieldType.RELATION]: (
-        <SuggestInput
-          wrapperClassname={inlineEdit ? '' : '!w-full'}
-          error={index(errors, registerName || name)?.message}
-          onItemSelect={(item) => setValue(registerName || name, item.id)}
-          getData={relationItems || []}
-          filter={(item, query) =>
-            item.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())
-          }
-          mapValue={(v, items) => {
-            const item = items?.find?.((item) => item.id === v)
-            return item?.name
-          }}
-          getKey={(item) => item.id}
-          render={(item) => <span>{item.name}</span>}
-          inputProps={{
-            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
-            id: name,
-            disabled: inlineEdit && !isEnable,
-            ...registration,
-          }}
-        />
-      ),
-      [FieldType.SELECT]: (
-        <SuggestInput
-          wrapperClassname={inlineEdit ? '' : '!w-full'}
-          error={index(errors, registerName || name)?.message}
-          onItemSelect={(item) => setValue(registerName || name, item)}
-          getData={options || []}
-          filter={(item, query) =>
-            item.toLocaleLowerCase().includes(query.toLocaleLowerCase())
-          }
-          getKey={(item) => item}
-          render={(item) => <span>{item}</span>}
-          inputProps={{
-            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
-            id: name,
-            disabled: inlineEdit && !isEnable,
-            ...registration,
-          }}
-        />
-      ),
-      [FieldType.DATE]: (
-        <Input
-          error={index(errors, registerName || name)?.message}
-          editable={!inlineEdit || isEnable}
-          props={{
-            type: 'date',
-            id: name,
-            className: inlineEdit ? 'w-[fit-content]' : 'w-full',
-            disabled: inlineEdit && !isEnable,
-            ...registration,
-          }}
-        />
-      ),
-      [FieldType.CHECK_BOX]: (
-        <Input
-          error={index(errors, registerName || name)?.message}
-          editable={!inlineEdit || isEnable}
-          props={{
-            id: name,
-            className: `rounded-lg w-[24px] h-[24px] ${
-              inlineEdit ? 'mx-2' : ''
-            }`,
-            disabled: inlineEdit && !isEnable,
-            type: 'checkbox',
-            ...registration,
-          }}
-        />
-      ),
+  const registration = register(registerName || name, {
+    required: required
+      ? `${toCapitalizedWords(name.replace('Id', ''))} is required`
+      : undefined,
+    ...(max && {
+      max: {
+        value: max,
+        message: `${toCapitalizedWords(name)} must not be greater than ${max}.`,
+      },
     }),
-    [
-      relationItems,
-      data,
-      index(errors, registerName || name)?.message,
-      registration,
-      isEnable,
-      inlineEdit,
-    ],
-  )
+    ...(minLength && {
+      minLength: {
+        value: minLength,
+        message: `${toCapitalizedWords(
+          name,
+        )} must be longer than ${minLength}.`,
+      },
+    }),
+    ...(maxLength && {
+      maxLength: {
+        value: maxLength,
+        message: `${toCapitalizedWords(
+          name,
+        )} must be shorter than ${maxLength}.`,
+      },
+    }),
+    ...(min && {
+      min: {
+        value: min,
+        message: `${toCapitalizedWords(name)} must be greater than ${min}.`,
+      },
+    }),
+    ...(type === FieldType.EMAIL && {
+      pattern: {
+        value: EmailReg,
+        message: `${toCapitalizedWords(name)} is not valid`,
+      },
+    }),
+    ...(type === FieldType.PHONE && {
+      pattern: {
+        value: PhoneReg,
+        message: `${toCapitalizedWords(name)} is not valid`,
+      },
+    }),
+  })
+
+  const renderField = {
+    [FieldType.TEXT]: (
+      <Input
+        error={index(errors, registerName || name)?.message}
+        editable={!inlineEdit || isEnable}
+        props={{
+          type: 'text',
+          id: name,
+          className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+          disabled: inlineEdit && !isEnable,
+          ...registration,
+        }}
+      />
+    ),
+    [FieldType.EMAIL]: (
+      <Input
+        error={index(errors, registerName || name)?.message}
+        editable={!inlineEdit || isEnable}
+        props={{
+          type: 'email',
+          id: name,
+          className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+          disabled: inlineEdit && !isEnable,
+          ...registration,
+        }}
+      />
+    ),
+    [FieldType.MULTILINE_TEXT]: (
+      <Input
+        error={index(errors, registerName || name)?.message}
+        editable={!inlineEdit || isEnable}
+        as="textarea"
+        props={{
+          id: name,
+          className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+          disabled: inlineEdit && !isEnable,
+          ...registration,
+        }}
+      />
+    ),
+    [FieldType.NUMBER]: (
+      <Input
+        error={index(errors, registerName || name)?.message}
+        editable={!inlineEdit || isEnable}
+        props={{
+          type: 'number',
+          id: name,
+          className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+          disabled: inlineEdit && !isEnable,
+          ...registration,
+        }}
+      />
+    ),
+    [FieldType.PHONE]: (
+      <Input
+        error={index(errors, registerName || name)?.message}
+        editable={!inlineEdit || isEnable}
+        props={{
+          type: 'tel',
+          id: name,
+          className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+          disabled: inlineEdit && !isEnable,
+          ...registration,
+        }}
+      />
+    ),
+    [FieldType.RELATION]: (
+      <SuggestInput
+        wrapperClassname={inlineEdit ? '' : '!w-full'}
+        error={index(errors, registerName || name)?.message}
+        onItemSelect={(item) => setValue(registerName || name, item.id)}
+        getData={relationItems || []}
+        filter={(item, query) =>
+          item.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+        }
+        mapValue={(v, items) => {
+          const item = items?.find?.((item) => item.id === v)
+          return item?.name
+        }}
+        getKey={(item) => item.id}
+        render={(item) => <span>{item.name}</span>}
+        inputProps={{
+          className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+          id: name,
+          disabled: inlineEdit && !isEnable,
+          ...registration,
+        }}
+      />
+    ),
+    [FieldType.SELECT]: (
+      <SuggestInput
+        wrapperClassname={inlineEdit ? '' : '!w-full'}
+        error={index(errors, registerName || name)?.message}
+        onItemSelect={(item) => setValue(registerName || name, item)}
+        getData={options || []}
+        filter={(item, query) =>
+          item.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+        }
+        getKey={(item) => item}
+        render={(item) => <span>{item}</span>}
+        mapValue={(v) => v}
+        inputProps={{
+          className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+          id: name,
+          disabled: inlineEdit && !isEnable,
+          ...registration,
+        }}
+      />
+    ),
+    [FieldType.DATE]: (
+      <Input
+        error={index(errors, registerName || name)?.message}
+        editable={!inlineEdit || isEnable}
+        props={{
+          type: 'date',
+          id: name,
+          className: inlineEdit ? 'w-[fit-content]' : 'w-full',
+          disabled: inlineEdit && !isEnable,
+          ...registration,
+        }}
+      />
+    ),
+    [FieldType.CHECK_BOX]: (
+      <Input
+        error={index(errors, registerName || name)?.message}
+        editable={!inlineEdit || isEnable}
+        props={{
+          id: name,
+          className: `rounded-lg w-[24px] h-[24px] ${inlineEdit ? 'mx-2' : ''}`,
+          disabled: inlineEdit && !isEnable,
+          type: 'checkbox',
+          ...registration,
+        }}
+      />
+    ),
+  }
 
   const containerRef = useRef<HTMLDivElement>(null)
+
   useClickAway(containerRef, () => {
     if (!inlineEdit) return
-
     disable()
     resetField(name)
   })
@@ -339,7 +323,10 @@ export default function Field({
 
               <button
                 type="button"
-                onClick={disable}
+                onClick={() => {
+                  disable()
+                  resetField(name)
+                }}
                 className={' crm-button-outline'}
               >
                 <span className="fa fa-times" />

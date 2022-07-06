@@ -3,7 +3,9 @@ import { useQuery } from 'react-query'
 
 import Dropdown from '@utils/components/Dropdown'
 import Paginate from '@utils/components/Paginate'
-import { DefaultSource, LogAction, LogSource } from '@utils/models/log'
+import { mapLog } from '@utils/libs/mapLog'
+import { LogAction, LogSource } from '@utils/models/log'
+import { getRawDealStage } from '@utils/service/deal'
 import { getLogs } from '@utils/service/log'
 
 import LogFilter from './LogFilter'
@@ -37,6 +39,10 @@ export default function LogSection({ title, entityId, source }: TProps) {
     }),
     { enabled: false },
   )
+
+  const { data: stages } = useQuery('deal-stage-raw', getRawDealStage)
+
+  const mapLogs = mapLog(logs?.items || [], stages || [])
 
   useEffect(() => {
     refetch()
@@ -81,7 +87,7 @@ export default function LogSection({ title, entityId, source }: TProps) {
           <div className="text-gray-500 font-medium">No logs found.</div>
         )}
 
-        {logs?.items.map((log, index) => (
+        {mapLogs.map((log, index) => (
           <LogItem
             className="ring-0 px-0 pb-0"
             key={log.id}
