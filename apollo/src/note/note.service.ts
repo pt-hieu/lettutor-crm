@@ -19,7 +19,7 @@ import { Entity } from 'src/module/module.entity'
 import { TaskService } from 'src/task/task.service'
 import { DTO } from 'src/type'
 
-import { Note, NoteSort } from './note.entity'
+import { Note, NoteFilter, NoteSort } from './note.entity'
 
 @Injectable()
 export class NoteService {
@@ -63,7 +63,7 @@ export class NoteService {
     return this.noteRepo.save({ ...dto, attachments: filesToAdd })
   }
 
-  getMany(query: DTO.Note.GetManyQuery) {
+  async getMany(query: DTO.Note.GetManyQuery) {
     const q = this.noteRepo
       .createQueryBuilder('note')
       .leftJoinAndSelect('note.attachments', 'attachments')
@@ -87,18 +87,29 @@ export class NoteService {
       q.andWhere('note.entityId = :entityId', {
         entityId: query.sourceId,
       })
-    }
 
-    // if (query.source === NoteSource.ACCOUNT) {
-    //   q.andWhere('note.accountId = :accountId', {
-    //     accountId: query.sourceId,
-    //   })
-    //   if (query.filter === NoteFilter.ACCOUNT_ONLY) {
-    //     q.andWhere('note.source = :source', {
-    //       source: NoteSource.ACCOUNT,
-    //     })
-    //   }
-    // }
+      if (
+        query.source === 'account' &&
+        query.filter !== NoteFilter.ACCOUNT_ONLY
+      ) {
+        // get entities related to account
+        const relatedEntities = await this.entityRepo
+          .createQueryBuilder('e')
+          .leftJoinAndSelect('e.notes', 'note')
+          .where("e.data ->> 'accountId' = :accountId", {
+            accountId: query.sourceId,
+          })
+          .getMany()
+
+        const relatedNoteIds = []
+
+        relatedEntities.forEach((entity) => {
+          entity.notes.forEach((note) => relatedNoteIds.push(note.id))
+        })
+
+        q.orWhereInIds(relatedNoteIds)
+      }
+    }
 
     if (query.sort === NoteSort.FIRST) {
       q.addOrderBy('note.createdAt', 'DESC')
