@@ -10,7 +10,9 @@ import Paginate from '@utils/components/Paginate'
 import { usePaginateItem } from '@utils/hooks/usePaginateItem'
 import { useQueryState } from '@utils/hooks/useQueryState'
 import { getSessionToken } from '@utils/libs/getToken'
-import { LogAction, DefaultSource } from '@utils/models/log'
+import { mapLog } from '@utils/libs/mapLog'
+import { DefaultSource, LogAction } from '@utils/models/log'
+import { getRawDealStage } from '@utils/service/deal'
 import { getLogs } from '@utils/service/log'
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -109,6 +111,10 @@ export default function LogPage() {
     }),
   )
 
+  const { data: stages } = useQuery('deal-stage-raw', getRawDealStage)
+
+  const mapLogs = mapLog(logs?.items || [], stages || [])
+
   const [start, end, total] = usePaginateItem(logs)
 
   return (
@@ -148,7 +154,7 @@ export default function LogPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          {logs?.items.map((log, index) => (
+          {mapLogs.map((log, index) => (
             <LogItem
               onPropertySelected={setProperty}
               onEntitySelected={setEntity}

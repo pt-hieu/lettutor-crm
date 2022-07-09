@@ -24,6 +24,7 @@ type TProps<T> = {
   filter: (v: T, query: string) => boolean
   onItemSelect: (v: T) => any
   mapValue?: (v: string, data: T[]) => string
+  defaultValue?: string
 } & (
   | {
       showError?: true
