@@ -22,7 +22,7 @@ import {
   KanbanMeta,
   Module,
 } from '@utils/models/module'
-import { getModules, updateModule } from '@utils/service/module'
+import { updateModule } from '@utils/service/module'
 
 export default function ModuleView() {
   const { query, push } = useRouter()
@@ -30,17 +30,16 @@ export default function ModuleView() {
 
   const [localModule, setLocalModule] = useState<Module>()
 
-  const { data: module, refetch } = useQuery('modules', getModules(), {
+  const { data: modules } = useQuery<Module[]>('modules', {
     enabled: false,
-    select: (modules) => modules.find((m) => m.name === moduleName),
   })
 
-  useRelationField(module?.meta || null)
+  useRelationField(localModule?.meta || null)
 
   useAsync(async () => {
-    const result = await refetch()
-    setLocalModule(result.data)
-  }, [moduleName])
+    if (!modules) return
+    setLocalModule(modules.find((m) => m.name === moduleName))
+  }, [modules])
 
   const [setDirty, setPristine] = useUnsavedChanges()
 
@@ -98,6 +97,7 @@ export default function ModuleView() {
         }
       })
     }
+
     setDirty()
   }, [])
 
@@ -108,7 +108,7 @@ export default function ModuleView() {
   const client = useQueryClient()
   const { isLoading, mutateAsync } = useMutation(
     'update-module',
-    updateModule(module?.id || ''),
+    updateModule(localModule?.id || ''),
     {
       onSuccess() {
         client.refetchQueries('modules')
@@ -255,6 +255,7 @@ export default function ModuleView() {
         ).values(),
       ],
     }))
+
     setDirty()
   }, [])
 
@@ -306,7 +307,7 @@ export default function ModuleView() {
 
       <div className="min-h-[60px] sticky top-[60px] border-b z-[908] bg-white crm-container flex justify-between items-center">
         <div className="capitalize font-medium text-xl">
-          Module {module?.name}
+          Module {localModule?.name}
         </div>
 
         <div className="flex items-center gap-2">

@@ -18,7 +18,6 @@ const ModulesSettings = () => {
 
   const { data: modules, refetch } = useQuery('modules', getModules(), {
     enabled: false,
-    select: (m) => m.sort((a, b) => a.name.localeCompare(b.name)),
   })
 
   useEffect(() => {

@@ -46,7 +46,7 @@ export default function Group({
       },
       ...data,
     ])
-  }, [data])
+  }, [data, includeName])
 
   return (
     <div>
@@ -74,6 +74,7 @@ export default function Group({
             }
             className="fa fa-caret-up w-8 aspect-square  hover:bg-gray-300 pt-1 rounded-full"
           />
+
           <button
             onClick={() =>
               dispatch('cmd:change-group-order', { name, type: 'down' })

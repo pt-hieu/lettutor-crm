@@ -47,14 +47,14 @@ type Props = {
 
 export default function KanbanMode({ entities, module, dataKey }: Props) {
   const { kanban_meta, meta } = module
-  const { field: kanbanField } = kanban_meta || {}
+  const { field: kanbanFieldName } = kanban_meta || {}
 
   useRelationField(module.meta)
 
   const [confirmStageWon, openWon, closeWon] = useModal()
   const [confirmStageLost, openLost, closeLost] = useModal()
 
-  const field = meta?.find((field) => field.name === kanbanField)
+  const kanbanField = meta?.find((field) => field.name === kanbanFieldName)
 
   const [selectedId, setSelectedId] = useState<string>('')
   const entity = useMemo(
@@ -64,7 +64,7 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
 
   const { data: relationItems } = useStore<{ id: string; name: string }[]>([
     'relation-data',
-    field?.relateTo,
+    kanbanField?.relateTo,
   ])
 
   const groupedEntities = useMemo(
@@ -72,13 +72,13 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
       entities.reduce(
         (res, entity) => ({
           ...res,
-          [entity.data[field?.name || ''] as any]: [
-            ...(res[entity.data[field?.name || ''] as string] || []),
+          [entity.data[kanbanField?.name || ''] as any]: [
+            ...(res[entity.data[kanbanField?.name || ''] as string] || []),
             entity,
           ],
         }),
         // @ts-ignore
-        (relationItems || field?.options || []).reduce(
+        (relationItems || kanbanField?.options || []).reduce(
           // @ts-ignore
           (res, item) => ({ ...res, [item.id || item]: [] }),
           {},
@@ -93,6 +93,23 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
     (data: any) => updateEntity(module.name, data.id)(omit(data, ['id'])),
     {
       onSuccess: (res) => {
+        client.setQueryData<Paginate<Entity> | undefined>(
+          dataKey,
+          (entities) => {
+            if (!entities) return undefined
+            const map = new Map(entities.items.map((e) => [e.id, e]))
+
+            if (map.has(res.id)) {
+              map.set(res.id, res)
+            }
+
+            return {
+              meta: entities.meta,
+              items: Array.from(map.values()),
+            }
+          },
+        )
+
         notification.success({
           message: 'Update successfully.',
         })
@@ -147,7 +164,7 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
     [module, dataKey, entities, isLoading],
   )
 
-  if (!field || field.relateType === RelateType.MULTIPLE) {
+  if (!kanbanField || kanbanField.relateType === RelateType.MULTIPLE) {
     return <></>
   }
 
@@ -160,7 +177,7 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
             key={key}
             value={key}
             entities={groupedEntities[key]}
-            field={field}
+            field={kanbanField}
             module={module}
           />
         ))}

@@ -55,7 +55,7 @@ export const getDealStages = (token?: string) => async () => {
 
 export const getRawDealStage = () =>
   axios
-    .get<Pick<DealStage, 'id' | 'name'>>(API + '/apollo/deal-stage/raw')
+    .get<Pick<DealStage, 'id' | 'name'>[]>(API + '/apollo/deal-stage/raw')
     .then((r) => r.data)
 
 export const updateDealStage = async (datas: any[]) => {
