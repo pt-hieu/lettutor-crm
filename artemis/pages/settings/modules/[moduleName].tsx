@@ -97,6 +97,7 @@ export default function ModuleView() {
         }
       })
     }
+
     setDirty()
   }, [])
 
@@ -254,6 +255,7 @@ export default function ModuleView() {
         ).values(),
       ],
     }))
+
     setDirty()
   }, [])
 

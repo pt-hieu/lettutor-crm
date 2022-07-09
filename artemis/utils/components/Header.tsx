@@ -45,7 +45,6 @@ export default function Header() {
   )
 
   useEffect(() => {
-    if (!modules) return
     refetch()
   }, [])
 

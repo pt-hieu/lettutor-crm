@@ -11,11 +11,12 @@ type Props = {
   module: Module | undefined
 } & Pick<ComponentProps<typeof Group>, 'onEditField' | 'onRemoveField'>
 
-const parseMeta = (meta: NonNullable<Module['meta']>) =>
+const parseMeta = (meta: NonNullable<Module['meta']>, log?: boolean) =>
+  (log && console.log(meta, Date.now())) ||
   meta?.reduce(
     (sum, curr) => ({
       ...sum,
-      [curr.group]: (sum[curr.group] || []).concat(curr),
+      [curr.group]: [...(sum[curr.group] || []), curr],
     }),
     {} as Record<string, FieldMeta[]>,
   )
@@ -31,13 +32,14 @@ export default function FieldRenderer({
   const tempGroups = useRef<string[]>([])
 
   useEffect(() => {
-    const newData = parseMeta(meta || [])
+    const newData = parseMeta(meta || [], true)
+
     tempGroups.current.forEach((groupName) => {
       newData[groupName] = []
     })
+    tempGroups.current = []
 
     setData(newData)
-    tempGroups.current = []
   }, [meta])
 
   const groupNameRef = useRef<string>()
