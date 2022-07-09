@@ -93,6 +93,23 @@ export default function KanbanMode({ entities, module, dataKey }: Props) {
     (data: any) => updateEntity(module.name, data.id)(omit(data, ['id'])),
     {
       onSuccess: (res) => {
+        client.setQueryData<Paginate<Entity> | undefined>(
+          dataKey,
+          (entities) => {
+            if (!entities) return undefined
+            const map = new Map(entities.items.map((e) => [e.id, e]))
+
+            if (map.has(res.id)) {
+              map.set(res.id, res)
+            }
+
+            return {
+              meta: entities.meta,
+              items: Array.from(map.values()),
+            }
+          },
+        )
+
         notification.success({
           message: 'Update successfully.',
         })
