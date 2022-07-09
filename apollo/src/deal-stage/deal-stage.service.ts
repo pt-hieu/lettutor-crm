@@ -59,6 +59,9 @@ export class DealStageService implements OnApplicationBootstrap {
     return this.dealStageRepo.find({
       select: ['id', 'name', 'type'],
       loadEagerRelations: false,
+      order: {
+        order: 'ASC',
+      },
     })
   }
 

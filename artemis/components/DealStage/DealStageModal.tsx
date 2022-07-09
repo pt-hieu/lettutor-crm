@@ -31,7 +31,10 @@ export const DealStageModal = ({ visible, handleClose }: Props) => {
     {
       onSuccess: () => {
         notification.success({ message: 'Update deal stage successfully' })
+
         client.invalidateQueries(['deal-stages'])
+        client.refetchQueries(['relation-data', 'dealstage'])
+
         handleClose()
       },
       onError: () => {
@@ -54,6 +57,7 @@ export const DealStageModal = ({ visible, handleClose }: Props) => {
       notification.error({ message: 'Deal stages must contain all categories' })
       return
     }
+
     mutateAsync(validatedData)
   }
 
