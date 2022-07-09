@@ -84,7 +84,11 @@ export class ModuleService implements OnApplicationBootstrap {
   }
 
   getManyModule() {
-    return this.moduleRepo.find()
+    return this.moduleRepo.find({
+      order: {
+        createdAt: 'ASC',
+      },
+    })
   }
 
   async createModule(dto: DTO.Module.CreateModule) {

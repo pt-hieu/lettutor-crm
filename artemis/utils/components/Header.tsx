@@ -45,6 +45,7 @@ export default function Header() {
   )
 
   useEffect(() => {
+    if (!modules) return
     refetch()
   }, [])
 
@@ -67,10 +68,12 @@ export default function Header() {
 
   const notiRef = useRef<EventSource>()
   useEffect(() => {
-    if (notiRef.current) {
-      notiRef.current.close()
+    if (!session?.accessToken) {
+      notiRef.current?.close()
+      return
     }
 
+    notiRef.current?.close()
     notiRef.current = new EventSource(
       API + `/notification?auth=${session?.accessToken}`,
     )
