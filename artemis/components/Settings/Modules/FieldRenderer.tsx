@@ -11,8 +11,7 @@ type Props = {
   module: Module | undefined
 } & Pick<ComponentProps<typeof Group>, 'onEditField' | 'onRemoveField'>
 
-const parseMeta = (meta: NonNullable<Module['meta']>, log?: boolean) =>
-  (log && console.log(meta, Date.now())) ||
+const parseMeta = (meta: NonNullable<Module['meta']>) =>
   meta?.reduce(
     (sum, curr) => ({
       ...sum,
@@ -32,12 +31,15 @@ export default function FieldRenderer({
   const tempGroups = useRef<string[]>([])
 
   useEffect(() => {
-    const newData = parseMeta(meta || [], true)
+    const newData = parseMeta(meta || [])
 
     tempGroups.current.forEach((groupName) => {
-      newData[groupName] = []
+      !newData[groupName] && (newData[groupName] = [])
+
+      tempGroups.current = tempGroups.current.filter(
+        (name) => name !== groupName,
+      )
     })
-    tempGroups.current = []
 
     setData(newData)
   }, [meta])
